@@ -10,7 +10,9 @@ Teraslice processors for working with data stored in files on disk.
 | fields | Array containing specific fields to include in the output | All fields | N |
 | delimiter | Character to use for separating fields in the output. | ',' | N |
 | file_per_slice | Determines if a new file is created for each slice | false | N |
-| include_header | Determines if the names of the fields are included as the first line of the output file | false | N |
+| include_header | Determines if the names of the fields are included as the first line of the output file | false | N |  
+| d2f | Determines if the records will go directly to a file, adding one record per line | N | false |
+| jsonIn | Specifies whether or not each input record is JSON and should be output as JSON for the `d2f` option | N | true |
 
 # Example Job  
 
