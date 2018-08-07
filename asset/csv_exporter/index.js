@@ -77,13 +77,11 @@ function newProcessor(context, opConfig) {
                 });
                 return outStr;
             }
-            return json2csv(slice, csvOptions);
+            return `${json2csv(slice, csvOptions)}\n`;
         }
 
         return getFilename(csvOptions)
-            .then((filename) => {
-                fs.appendFileAsync(filename, buildOutputString(data));
-            })
+            .then(filename => fs.appendFileAsync(filename, buildOutputString(data)))
             .catch((err) => {
                 throw new Error(err);
             });
