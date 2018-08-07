@@ -2,7 +2,6 @@
 
 const Promise = require('bluebird');
 const fs = require('fs');
-// const _ = require('lodash');
 const json2csv = require('json2csv').parse;
 
 Promise.promisifyAll(fs);
@@ -62,48 +61,32 @@ function newProcessor(context, opConfig) {
             });
     }
 
-    // const filename = getFilename(csvOptions);
-    // getFilename(csvOptions)
-    //     .then()
     return (data) => {
-        // If data should just be sent to a file instead of being parsed for a CSV output, this
-        // function will add records to a file, giving each record its own line
-        function writeDirect(filePath) {
-            return new Promise((resolve, reject) => {
+        // Converts the slice to a string, formatted based on the configuration options selected;
+        function buildOutputString(slice) {
+            if (opConfig.d2f) {
+                let outStr = '';
                 if (opConfig.jsonIn) {
-                    data.forEach((record) => {
-                        fs.appendFileAsync(filePath, `${JSON.Stringify(record)}\n`)
-                            .then(() => resolve())
-                            .catch(err => reject(err));
+                    slice.forEach((record) => {
+                        outStr = `${outStr}${JSON.stringify(record)}\n`;
                     });
+                    return outStr;
                 }
-                data.forEach((record) => {
-                    fs.appendFileAsync(filePath, `${record}\n`)
-                        .then(() => resolve())
-                        .catch(err => reject(err));
+                slice.forEach((record) => {
+                    outStr = `${outStr}${record}\n`;
                 });
-            });
+                return outStr;
+            }
+            return json2csv(slice, csvOptions);
         }
 
-        function writeCSV(filePath) {
-            return new Promise((resolve, reject) => {
-                const csvOutput = json2csv(data, csvOptions);
-                fs.appendFileAsync(filePath, `${csvOutput}\n`)
-                    .then(() => resolve())
-                    .catch(err => reject(err));
+        return getFilename(csvOptions)
+            .then((filename) => {
+                fs.appendFileAsync(filename, buildOutputString(data));
+            })
+            .catch((err) => {
+                throw new Error(err);
             });
-        }
-
-        return new Promise((resolve, reject) => {
-            getFilename(csvOptions)
-                .then((filename) => {
-                    if (opConfig.d2f) {
-                        return writeDirect(filename);
-                    }
-                    return writeCSV(filename);
-                })
-                .catch(err => reject(err));
-        });
     };
 }
 
