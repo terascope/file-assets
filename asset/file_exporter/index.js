@@ -21,9 +21,16 @@ function newProcessor(context, opConfig) {
     if (opConfig.fields.length !== 0) {
         csvOptions.fields = opConfig.fields;
     }
-    // Need logic to prevent this from getting set if this is not the first file
+
     csvOptions.header = opConfig.include_header;
-    csvOptions.delimiter = opConfig.delimiter;
+
+    // This if/else is sufficient for the delimiter since the only other delimiter that could be
+    // needed is a comma with csv
+    if (opConfig.format === 'tsv') {
+        csvOptions.delimiter = '\t';
+    } else {
+        csvOptions.delimiter = ',';
+    }
 
     // Determines the filname based on the settings
     function getFilename(options) {
@@ -64,20 +71,28 @@ function newProcessor(context, opConfig) {
     return (data) => {
         // Converts the slice to a string, formatted based on the configuration options selected;
         function buildOutputString(slice) {
-            if (opConfig.d2f) {
+            switch (opConfig.format) {
+            case 'csv':
+                return `${json2csv(slice, csvOptions)}\n`;
+            case 'tsv':
+                return `${json2csv(slice, csvOptions)}\n`;
+            case 'text': {
                 let outStr = '';
-                if (opConfig.jsonIn) {
-                    slice.forEach((record) => {
-                        outStr = `${outStr}${JSON.stringify(record)}\n`;
-                    });
-                    return outStr;
-                }
                 slice.forEach((record) => {
                     outStr = `${outStr}${record}\n`;
                 });
                 return outStr;
             }
-            return `${json2csv(slice, csvOptions)}\n`;
+            case 'json': {
+                let outStr = '';
+                slice.forEach((record) => {
+                    outStr = `${outStr}${JSON.stringify(record)}\n`;
+                });
+                return outStr;
+            }
+            default:
+                throw new Error('Unsupported output format!!');
+            }
         }
 
         return getFilename(csvOptions)
@@ -106,11 +121,6 @@ function schema() {
             default: [],
             format: Array
         },
-        delimiter: {
-            doc: 'Delimiter to use in the output file.',
-            default: ',',
-            format: String
-        },
         file_per_slice: {
             doc: 'Determines if a new file is created for each slice.',
             default: false,
@@ -122,15 +132,11 @@ function schema() {
             default: false,
             format: Boolean
         },
-        d2f: {
-            doc: 'Determines if the records will go directly to a file, adding one record per line.',
-            default: false,
-            format: Boolean
-        },
-        jsonIn: {
-            doc: 'Specifies whether or not each input record is JSON and should be output as JSON',
-            default: true,
-            format: Boolean
+        format: {
+            doc: 'Specifies the output format of the file. Supported formats are csv, tsv, json,'
+            + ' and text, where each line of the output file will be a separate record.',
+            default: 'json',
+            format: String
         }
     };
 }

@@ -2,7 +2,7 @@
 
 const harness = require('@terascope/teraslice-op-test-harness');
 const fs = require('fs');
-const processor = require('../asset/csv_exporter');
+const processor = require('../asset/file_exporter');
 
 
 const testHarness = harness(processor);
@@ -59,6 +59,7 @@ const caseMultiFileSpecifyFields = {
     _op: 'csv_exporter',
     path: './spec/test_output',
     file_prefix: 'test',
+    format: 'csv',
     fields: [
         'field3',
         'field1'
@@ -70,6 +71,7 @@ const caseMultiFileAllFields = {
     _op: 'csv_exporter',
     path: './spec/test_output',
     file_prefix: 'test',
+    format: 'csv',
     file_per_slice: true
 };
 
@@ -78,6 +80,7 @@ const caseMultiFileAllFieldsHeader = {
     path: './spec/test_output',
     file_prefix: 'test',
     file_per_slice: true,
+    format: 'csv',
     include_header: true
 };
 
@@ -85,6 +88,7 @@ const caseSingleFileSpecifyFields = {
     _op: 'csv_exporter',
     path: './spec/test_output',
     file_prefix: 'test',
+    format: 'csv',
     fields: [
         'field3',
         'field1'
@@ -94,6 +98,7 @@ const caseSingleFileSpecifyFields = {
 const caseSingleFileAllFields = {
     _op: 'csv_exporter',
     path: './spec/test_output',
+    format: 'csv',
     file_prefix: 'test'
 };
 
@@ -101,6 +106,7 @@ const caseSingleFileAllFieldsHeader = {
     _op: 'csv_exporter',
     path: './spec/test_output',
     file_prefix: 'test',
+    format: 'csv',
     include_header: true
 };
 
@@ -109,22 +115,21 @@ const caseCustomDelimiter = {
     _op: 'csv_exporter',
     path: './spec/test_output',
     file_prefix: 'test',
-    delimiter: '\t'
+    format: 'tsv'
 };
 
 const caseJSON2File = {
     _op: 'csv_exporter',
     path: './spec/test_output',
     file_prefix: 'test',
-    d2f: true
+    format: 'json'
 };
 
 const caseText2File = {
     _op: 'csv_exporter',
     path: './spec/test_output',
     file_prefix: 'test',
-    d2f: true,
-    jsonIn: false
+    format: 'text'
 };
 
 // const metricPayload = harness.run(data, opConfig);
@@ -135,7 +140,7 @@ describe('The file-assets csv_exporter processor', () => {
         expect(schema.path.default).toEqual(null);
         expect(schema.file_prefix.default).toEqual('export');
         expect(schema.fields.default).toEqual([]);
-        expect(schema.delimiter.default).toEqual(',');
+        expect(schema.format.default).toEqual('json');
         expect(schema.file_per_slice.default).toEqual(false);
         expect(schema.include_header.default).toEqual(false);
     });
