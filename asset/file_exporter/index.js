@@ -24,12 +24,11 @@ function newProcessor(context, opConfig) {
 
     csvOptions.header = opConfig.include_header;
 
-    // This if/else is sufficient for the delimiter since the only other delimiter that could be
-    // needed is a comma with csv
-    if (opConfig.format === 'tsv') {
+    // Assumes a custom delimiter will be used only if the `csv` output format is chosen
+    if (opConfig.format === 'csv') {
+        csvOptions.delimiter = opConfig.delimiter;
+    } else if (opConfig.format === 'tsv') {
         csvOptions.delimiter = '\t';
-    } else {
-        csvOptions.delimiter = ',';
     }
 
     // Determines the filname based on the settings
@@ -121,6 +120,11 @@ function schema() {
             default: [],
             format: Array
         },
+        delimiter: {
+            doc: 'Delimiter to use in the output file.',
+            default: ',',
+            format: String
+        },
         file_per_slice: {
             doc: 'Determines if a new file is created for each slice.',
             default: false,
@@ -136,7 +140,14 @@ function schema() {
             doc: 'Specifies the output format of the file. Supported formats are csv, tsv, json,'
             + ' and text, where each line of the output file will be a separate record.',
             default: 'json',
-            format: String
+            format: function check(val) {
+                const formats = ['json', 'text', 'csv', 'tsv'];
+                if (formats.indexOf(val) === -1) {
+                    throw new Error(
+                        `Format must be one of the following supported values: ${formats}`
+                    );
+                }
+            }
         }
     };
 }
