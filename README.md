@@ -11,8 +11,10 @@ Teraslice processors for working with data stored in files on disk.
 | delimiter | Character to use for separating fields in the output. | ',' | N |
 | file_per_slice | Determines if a new file is created for each slice | false | N |
 | include_header | Determines if the names of the fields are included as the first line of the output file | false | N |  
-| d2f | Determines if the records will go directly to a file, adding one record per line | N | false |
-| jsonIn | Specifies whether or not each input record is JSON and should be output as JSON for the `d2f` option | N | true |
+| format | Determines the format of the output file | N | json |
+
+- If a custom delimiter is needed (one other than a tab or comma), set the `delimiter` option to the
+  desired delimiter and set the `format` option to `csv`.
 
 # Example Job  
 
@@ -34,7 +36,7 @@ This test job will generate 5k records, and then put them into tab-delimited fil
       "_op": "csv_exporter",
       "path": "/app/data/testfiles",
       "file_prefix": "test",
-      "delimiter": "\t",
+      "format": "tsv",
       "file_per_slice": true,
       "include_header": true
     }
