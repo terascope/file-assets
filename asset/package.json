@@ -1,19 +1,21 @@
 {
   "name": "file-assets",
-  "version": "0.2.0",
-  "description": "A set of processors for exporting data to files",
-  "main": "index.js",
+  "version": "0.2.1",
+  "description": "A set of processors for working with files",
   "dependencies": {
+    "@terascope/chunked-file-reader": "^0.1.1",
+    "@terascope/job-components": "^0.3.1",
     "bluebird": "^3.5.1",
-    "json2csv": "^4.2.0"
+    "fs-extra": "^7.0.0",
+    "glob": "^7.1.3",
+    "json2csv": "^4.2.0",
+    "lodash": "^4.17.10",
+    "lz4": "^0.5.3"
   },
   "devDependencies": {},
-  "scripts": {
-    "lint": "eslint ."
-  },
   "repository": {
     "type": "git",
-    "url": "git@gl.terascope.io:zburnham/monitoring_pipeline.git"
+    "url": "git+https://github.com/terascope/file-assets.git"
   },
   "author": "zach",
   "license": "ISC"
