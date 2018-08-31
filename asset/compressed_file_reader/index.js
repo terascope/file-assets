@@ -7,7 +7,7 @@ const glob = require('glob');
 const _ = require('lodash');
 const chunkedReader = require('@terascope/chunked-file-reader');
 const { getOpConfig } = require('@terascope/job-components');
-const lz4 = require('lz4');
+const { spawn } = require('child_process');
 
 const parallelSlicers = false;
 
@@ -64,12 +64,31 @@ function newSlicer(context, job, retryData, logger) {
     }
 
     function decompress(src, dst) {
-        return new Promise((resolve) => {
-            // TODO: Assuming lz4 for now.
-            const input = fse.createReadStream(src);
-            const output = fse.createWriteStream(dst);
-            output.on('finish', () => resolve());
-            input.pipe(lz4.createDecoderStream()).pipe(output);
+        return new Promise((resolve, reject) => {
+            context.apis.assets.getPath('file-assets')
+                .then((dir) => {
+                    const proc = spawn(`${dir}/bin/decompress`, [src, dst], {});
+                    let stderr = '';
+                    proc.stderr.on('data', (data) => {
+                        stderr += data;
+                    });
+                    let stdout = '';
+                    proc.stdout.on('data', (data) => {
+                        stdout += data;
+                    });
+                    proc.on('close', (code) => {
+                        if (code > 0) {
+                            logger.error({ code, stdout, stderr, src, dst }, 'failed to decompress');
+                            reject(src);
+                        } else {
+                            resolve(dst);
+                        }
+                    });
+                })
+                .catch((err) => {
+                    logger.error(err, 'failed to get asset directory');
+                    reject(src);
+                });
         });
     }
 
@@ -103,20 +122,23 @@ function newSlicer(context, job, retryData, logger) {
         if (globErr) {
             logger.err(globErr, 'glob error');
         }
-        // Use concurrency=1 to avoid screwing up `slices`.
         // function sequence(tasks, fn) {
         //     return tasks.reduce((promise, task) => promise.then(() => fn(task)), Promise.resolve());
         // }
-        Promise.map(paths.filter(filedb.isNew), handleNewFile, { concurrency: 1 })
+        const isReady = src => (
+            fse.exists(`${src}.ready`)
+                .then(exists => exists && filedb.isNew(src))
+        );
+        // TODO: `slices` needs to be keyed by file so we can handleNewFile()
+        // concurrently (map() instead of each() below).
+        Promise.resolve(paths)
+            .filter(isReady)
+            .each(handleNewFile)
             .then((i) => {
                 logger.warn(i, 'TODO: GLOBBED');
                 globbed = true;
             });
     }
-
-    // setInterval(() => {
-    //     filedb.write();
-    // }, 100);
 
     const events = context.foundation.getEventEmitter();
 
@@ -143,9 +165,12 @@ function newSlicer(context, job, retryData, logger) {
                     const archive = archivePath(path.basename(request.src));
                     fse.rename(request.src, archive)
                         .then(() => {
-                            filedb.remove(request.src);
-                            filedb.write();
-                            logger.info(request, 'archived');
+                            fse.unlink(`${request.src}.ready`)
+                                .then(() => {
+                                    filedb.remove(request.src);
+                                    filedb.write();
+                                    logger.info(request, 'archived');
+                                });
                         });
                 });
         }
@@ -181,31 +206,32 @@ function newSlicer(context, job, retryData, logger) {
         });
     }
 
+    function nextSlice() {
+        const slice = slices.shift();
+        if (!slice && job.config.lifecycle === 'once') {
+            return null;
+        }
+        // When no slices, will be `undefined` (aka keep going).
+        return slice;
+    }
+
     return waitForFirstGlob()
-        .then(() =>
-            [() => {
-                // logger.warn({ globbed, num: slices.length }, 'TODO: SLICING');
-                const slice = slices.shift();
-                if (!slice && job.config.lifecycle === 'once') {
-                    return null;
-                }
-                // When no slices, will be `undefined` (aka keep going).
-                return slice;
-            }]
-        );
+        .then(() => [nextSlice])
+        .catch(logger.err);
 }
 
 function newReader(context, opConfig) {
-    const logger = context.apis.foundation.makeLogger({ module: 'compressed_file_reader' });
-
-    return function processSlice(slice) {
+    return function processSlice(slice, logger) {
         async function reader(offset, length) {
             const fd = await fse.open(slice.ready, 'r');
             try {
                 return fse.read(fd, Buffer.alloc(2 * opConfig.size), 0, length, offset)
-                    .then(results =>
-                        results.buffer.slice(0, results.bytesRead).toString()
-                    );
+                    .then(r =>
+                        r.buffer.slice(0, r.bytesRead).toString())
+                    .catch((err) => {
+                        fse.close(fd);
+                        throw err;
+                    });
             } finally {
                 fse.close(fd);
             }

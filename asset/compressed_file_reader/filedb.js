@@ -13,18 +13,10 @@ module.exports = (dbpath) => {
             });
         }
     });
-    // async function read() {
-    //     if (!await fse.exists(dbpath)) {
-    //         return {};
-    //     }
-    //     return fse.readJson(dbpath);
-    // }
-    // const state = read();
 
     function write() {
         if (dirty) {
             fse.writeJson(dbpath, state, { spaces: 2 }).then((results) => {
-                console.warn('FILEDB YEEE', results);
                 dirty = false;
             });
         }
@@ -66,7 +58,6 @@ module.exports = (dbpath) => {
     }
 
     return {
-        state,
         dbpath,
         add,
         remove,
