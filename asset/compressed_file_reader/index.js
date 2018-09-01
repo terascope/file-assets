@@ -14,14 +14,14 @@ function offsets(size, total, delimiter) {
     const delta = delimiter.length;
     const length = size + delta;
     const chunks = _.range(1, fullChunks).map(chunk => (
-        [(chunk * size) - delta, length]
+        { length, offset: (chunk * size) - delta }
     ));
     // First chunk doesn't need +/- delta.
-    chunks.unshift([0, size]);
+    chunks.unshift({ offset: 0, length: size });
     // When last chunk is not full chunk size.
     const lastChunk = total % size;
     if (lastChunk > 0) {
-        chunks.push([(fullChunks * size) - delta, lastChunk + delta]);
+        chunks.push({ offset: (fullChunks * size) - delta, length: lastChunk + delta });
     }
     return chunks;
 }
@@ -36,13 +36,13 @@ async function newSlicer(context, job, retryData, logger) {
     const filedb = require('./filedb')(opConfig.workDir, assetDir);
 
     async function sliceFile(src, ready) {
-        const total = await fse.stat(ready).size;
+        const stat = await fse.stat(ready);
+        const total = stat.size;
         // NOTE: Important to update `slices` syncronously so that the correct
         // `last` slice is marked.
-        offsets(opConfig.size, total, opConfig.delimiter)
-            .map(i => ({
-                total, ready, src, offset: i[0], length: i[1],
-            })).forEach(i => slices.push(i));
+        offsets(opConfig.size, total, opConfig.delimiter).forEach((offset) => {
+            slices.push({ total, ready, src, ...offset });
+        });
         // Mark the last slice so we know when to archive the file.
         slices[slices.length - 1].last = true;
         logger.info({ src, ready }, 'sliced');
