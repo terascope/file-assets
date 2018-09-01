@@ -2,147 +2,85 @@
 
 const Promise = require('bluebird');
 const fse = require('fs-extra');
-const path = require('path');
 const glob = require('glob');
 const _ = require('lodash');
 const chunkedReader = require('@terascope/chunked-file-reader');
 const { getOpConfig } = require('@terascope/job-components');
-const { spawn } = require('child_process');
 
-const parallelSlicers = false;
+// [offset, length][] of chunks `size` for a file `total`.
+function offsets(size, total, delimiter) {
+    // TODO: The chucked-file-reader repo a better home for this function?
+    const fullChunks = Math.floor(total / size);
+    const delta = delimiter.length;
+    const length = size + delta;
+    const chunks = _.range(1, fullChunks).map(chunk => (
+        [(chunk * size) - delta, length]
+    ));
+    // First chunk doesn't need +/- delta.
+    chunks.unshift([0, size]);
+    // When last chunk is not full chunk size.
+    const lastChunk = total % size;
+    if (lastChunk > 0) {
+        chunks.push([(fullChunks * size) - delta, lastChunk + delta]);
+    }
+    return chunks;
+}
 
-function newSlicer(context, job, retryData, logger) {
+async function newSlicer(context, job, retryData, logger) {
+    // Slicer queue.  Slices from multiple files can enqueue here but that's ok.
     const slices = [];
 
     const opConfig = getOpConfig(job.config, 'compressed_file_reader');
+    const assetDir = await context.apis.assets.getPath('file-assets');
 
-    const tmpPath = name => path.join(opConfig.workDir, 'tmp', name);
-    const readyPath = name => path.join(opConfig.workDir, 'ready', name);
-    const archivePath = name => path.join(opConfig.workDir, 'archive', name);
+    const filedb = require('./filedb')(opConfig.workDir, assetDir);
 
-    Promise.map([tmpPath(''), readyPath(''), archivePath('')], dir => fse.mkdirs(dir))
-        .catch(err => logger.error(err, 'failed to setup working dirs'));
-    // await fse.mkdirs(tmpPath(''));
-    // await fse.mkdirs(readyPath(''));
-    // await fse.mkdirs(archivePath(''));
-
-    // Use a file in workDir to store state.
-    const filedb = require('./filedb')(path.join(opConfig.workDir, 'compressed_file_reader.json'));
-
-    function sliceFile(src, ready) {
-        // Chunks should overlap by size of delimiter due to how chunked-file-reader works.
-        fse.stat(ready).then((stat) => {
-            const total = stat.size;
-            const numFullChunks = Math.floor(total / opConfig.size);
-            const delta = opConfig.delimiter.length;
-            const length = opConfig.size + delta;
-            // logger.warn({ ready, total, numFullChunks }, 'TODO: DOOD?');
-            _.range(1, numFullChunks).forEach((chunk) => {
-                slices.push({
-                    total,
-                    length,
-                    src,
-                    ready,
-                    offset: (chunk * opConfig.size) - delta,
-                });
-            });
-            // Handle first & last chunks specially.
-            slices.unshift({ total, src, ready, offset: 0, length: opConfig.size });
-            const lastChunkSize = total % opConfig.size;
-            if (lastChunkSize > 0) {
-                slices.push({
-                    total,
-                    src,
-                    ready,
-                    length: lastChunkSize + delta,
-                    offset: (numFullChunks * opConfig.size) - delta,
-                });
-            }
-            // Mark the last slice so we know when to archive the file.
-            slices[slices.length - 1].last = true;
-        });
-    }
-
-    function decompress(src, dst) {
-        return new Promise((resolve, reject) => {
-            context.apis.assets.getPath('file-assets')
-                .then((dir) => {
-                    const proc = spawn(`${dir}/bin/decompress`, [src, dst], {});
-                    let stderr = '';
-                    proc.stderr.on('data', (data) => {
-                        stderr += data;
-                    });
-                    let stdout = '';
-                    proc.stdout.on('data', (data) => {
-                        stdout += data;
-                    });
-                    proc.on('close', (code) => {
-                        if (code > 0) {
-                            logger.error({ code, stdout, stderr, src, dst }, 'failed to decompress');
-                            reject(src);
-                        } else {
-                            resolve(dst);
-                        }
-                    });
-                })
-                .catch((err) => {
-                    logger.error(err, 'failed to get asset directory');
-                    reject(src);
-                });
-        });
-    }
-
-    function handleNewFile(src) {
-        return new Promise((resolve) => {
-            const basename = path.basename(src);
-            const tmp = tmpPath(basename);
-            const ready = readyPath(basename);
-            filedb.add(src);
-            decompress(src, tmp)
-                .then(() => {
-                    filedb.decompressed(src);
-                    logger.info({ src, tmp }, 'decompressed');
-                })
-                .then(() => fse.rename(tmp, ready))
-                .then(() => {
-                    filedb.readied(src);
-                    logger.info({ tmp, ready }, 'readied');
-                    sliceFile(src, ready);
-                    resolve(ready);
-                })
-                .catch((err) => {
-                    // TODO: anything to clean up?
-                    logger.error(err, { src, tmp, ready }, 'failed to ready');
-                });
-        });
+    async function sliceFile(src, ready) {
+        const total = await fse.stat(ready).size;
+        // NOTE: Important to update `slices` syncronously so that the correct
+        // `last` slice is marked.
+        offsets(opConfig.size, total, opConfig.delimiter)
+            .map(i => ({
+                total, ready, src, offset: i[0], length: i[1],
+            })).forEach(i => slices.push(i));
+        // Mark the last slice so we know when to archive the file.
+        slices[slices.length - 1].last = true;
+        logger.info({ src, ready }, 'sliced');
     }
 
     let globbed = false;
-    function onUpstreamGlobbed(globErr, paths) {
-        if (globErr) {
-            logger.err(globErr, 'glob error');
+    function onUpstreamGlobbed(err, paths) {
+        if (err) {
+            logger.error(err, 'glob error');
         }
-        // function sequence(tasks, fn) {
-        //     return tasks.reduce((promise, task) => promise.then(() => fn(task)), Promise.resolve());
-        // }
-        const isReady = src => (
-            fse.exists(`${src}.ready`)
-                .then(exists => exists && filedb.isNew(src))
-        );
-        // TODO: `slices` needs to be keyed by file so we can handleNewFile()
-        // concurrently (map() instead of each() below).
+        // Decompress files concurrently but slice sequentially.
+        // TODO: We're still waiting for all to decompress before can begin slicing.
         Promise.resolve(paths)
-            .filter(isReady)
-            .each(handleNewFile)
-            .then((i) => {
-                logger.warn(i, 'TODO: GLOBBED');
+            .filter(src => fse.exists(`${src}.ready`))
+            .map(src => filedb.ready(src))
+            .each(i => sliceFile(i[0], i[1]))
+            .then(() => {
                 globbed = true;
-            });
+            })
+            .catch(e => logger.error(e));
+    }
+
+    // Watch upstream directory.
+    const globOpts = {
+        strict: true,
+        silent: false,
+        noglobstar: true,
+        realpath: true,
+    };
+    if (job.config.lifecycle === 'persistent') {
+        setInterval(() => glob(opConfig.glob, globOpts, onUpstreamGlobbed), 10 * 1000);
+    } else {
+        glob(opConfig.glob, globOpts, onUpstreamGlobbed);
     }
 
     const events = context.foundation.getEventEmitter();
 
-    events.on('slice:success', (slice) => {
+    async function onSlice(slice) {
         // slice: {
         //   slice: {
         //     "slice_id": "ffb513c3-5bff-4049-ba04-170735692dd2",
@@ -159,37 +97,18 @@ function newSlicer(context, job, retryData, logger) {
         //   }
         // }
         const { request } = slice.slice;
+        const { src } = request;
         if (request.last) {
-            fse.unlink(request.ready)
-                .then(() => {
-                    const archive = archivePath(path.basename(request.src));
-                    fse.rename(request.src, archive)
-                        .then(() => {
-                            fse.unlink(`${request.src}.ready`)
-                                .then(() => {
-                                    filedb.remove(request.src);
-                                    filedb.write();
-                                    logger.info(request, 'archived');
-                                });
-                        });
-                });
+            try {
+                await filedb.archive(src);
+                await fse.unlink(`${src}.ready`);
+                logger.info({ src }, 'archived');
+            } catch (err) {
+                logger.error({ src }, 'failed to archive');
+            }
         }
-    });
-
-    // TODO: filedb.write() on slicing complete event.
-
-    // Watch upstream directory.
-    const globOpts = {
-        strict: true,
-        silent: false,
-        noglobstar: true,
-        realpath: true,
-    };
-    if (job.config.lifecycle === 'persistent') {
-        setInterval(() => glob(opConfig.glob, globOpts, onUpstreamGlobbed), 10 * 1000);
-    } else {
-        glob(opConfig.glob, globOpts, onUpstreamGlobbed);
     }
+    events.on('slice:success', onSlice);
 
     // TODO: There's gotta be a more elegant way to accomplish this.
     // Returning `undefined` for lifecycle=once jobs treated as slicing complete.
@@ -215,6 +134,13 @@ function newSlicer(context, job, retryData, logger) {
         return slice;
     }
 
+    // TODO: test cases:
+    // - partially readied (eg decompress fails)
+    // - partially archived (eg rename fails)
+    // - readied but not sliced
+    // - one file fails in onUpstreamGlobbed
+    // - file not decompressed before next glob cycle
+
     return waitForFirstGlob()
         .then(() => [nextSlice])
         .catch(logger.err);
@@ -225,17 +151,14 @@ function newReader(context, opConfig) {
         async function reader(offset, length) {
             const fd = await fse.open(slice.ready, 'r');
             try {
-                return fse.read(fd, Buffer.alloc(2 * opConfig.size), 0, length, offset)
-                    .then(r =>
-                        r.buffer.slice(0, r.bytesRead).toString())
-                    .catch((err) => {
-                        fse.close(fd);
-                        throw err;
-                    });
+                const buf = Buffer.alloc(2 * opConfig.size);
+                const { bytesRead } = await fse.read(fd, buf, 0, length, offset);
+                return buf.slice(0, bytesRead).toString();
             } finally {
                 fse.close(fd);
             }
         }
+        // TODO: Patch chunkedReader to make `opConfig.format` optional
         return chunkedReader.getChunk(reader, slice, opConfig, logger);
     };
 }
@@ -275,5 +198,4 @@ module.exports = {
     newReader,
     newSlicer,
     schema,
-    parallelSlicers,
 };
