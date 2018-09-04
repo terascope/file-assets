@@ -35,7 +35,8 @@ async function newSlicer(context, job, retryData, logger) {
 
     const filedb = require('./filedb')(opConfig.workDir, assetDir);
 
-    async function sliceFile(src, ready) {
+    async function sliceFile(src) {
+        const ready = await filedb.ready(src);
         const stat = await fse.stat(ready);
         const total = stat.size;
         // NOTE: Important to update `slices` syncronously so that the correct
@@ -46,6 +47,7 @@ async function newSlicer(context, job, retryData, logger) {
         // Mark the last slice so we know when to archive the file.
         slices[slices.length - 1].last = true;
         logger.info({ src, ready }, 'sliced');
+        return ready;
     }
 
     let globbed = false;
@@ -53,13 +55,14 @@ async function newSlicer(context, job, retryData, logger) {
         if (err) {
             logger.error(err, 'glob error');
         }
-        // Decompress files concurrently but slice sequentially.
-        // TODO: We're still waiting for all to decompress before can begin slicing.
+        // TODO: Limit concurrency. Promise.map({concurrency}) may only take us so far.
         Promise.resolve(paths)
             .filter(src => fse.exists(`${src}.ready`))
-            .map(src => filedb.ready(src))
-            .each(i => sliceFile(i[0], i[1]))
-            .then(() => {
+            .map(src => sliceFile(src))
+            .then((i) => {
+                if (i.length) {
+                    logger.debug(i, 'globbed & sliced');
+                }
                 globbed = true;
             })
             .catch(e => logger.error(e));
@@ -100,9 +103,9 @@ async function newSlicer(context, job, retryData, logger) {
         const { src } = request;
         if (request.last) {
             try {
-                await filedb.archive(src);
+                const archive = await filedb.archive(src);
                 await fse.unlink(`${src}.ready`);
-                logger.info({ src }, 'archived');
+                logger.info({ src, archive }, 'archived');
             } catch (err) {
                 logger.error({ src }, 'failed to archive');
             }

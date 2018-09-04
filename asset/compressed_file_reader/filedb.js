@@ -35,21 +35,27 @@ module.exports = (workDir, assetDir) => {
     init();
 
     async function write() {
+        // Only write when dirty.  Mark as clean early to avoid concurrent writing.
         if (dirty) {
-            await fse.writeJson(dbPath, state, { spaces: 2 });
             dirty = false;
+            try {
+                await fse.writeJson(dbPath, state, { spaces: 2 });
+            } catch (err) {
+                dirty = true;
+                throw err;
+            }
         }
     }
-    // TODO: Not sure this is warranted, or there's probably a better way.
-    setInterval(write, 1000);
 
     async function archive(src) {
         const { name } = state[src];
-        await fse.rename(src, workPath('archive', name));
+        const archivePath = workPath('archive', name);
+        await fse.rename(src, archivePath);
         await fse.unlink(workPath('ready', name));
         delete state[src];
         dirty = true;
         await write();
+        return archivePath;
     }
 
     // Get uploaded file ready for slicing, returning [original src path, decompressed ready path]
@@ -79,7 +85,7 @@ module.exports = (workDir, assetDir) => {
             dirty = true;
         }
         write();
-        return [src, readyPath];
+        return readyPath;
     }
 
     // Decompress file in a sub-shell to keep event loop free. Exit code,
