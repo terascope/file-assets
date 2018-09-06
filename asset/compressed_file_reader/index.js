@@ -35,18 +35,21 @@ async function newSlicer(context, job, retryData, logger) {
 
     const filedb = require('./filedb')(opConfig.workDir, assetDir);
 
-    async function sliceFile(src) {
-        const ready = await filedb.ready(src);
+    async function sliceFile(src, ready) {
         const stat = await fse.stat(ready);
         const total = stat.size;
         // NOTE: Important to update `slices` syncronously so that the correct
         // `last` slice is marked.
         offsets(opConfig.size, total, opConfig.delimiter).forEach((offset) => {
-            slices.push({ total, ready, src, ...offset });
+            slices.push({
+                total,
+                ready,
+                src,
+                ...offset,
+            });
         });
         // Mark the last slice so we know when to archive the file.
         slices[slices.length - 1].last = true;
-        logger.info({ src, ready }, 'sliced');
         return ready;
     }
 
@@ -55,13 +58,19 @@ async function newSlicer(context, job, retryData, logger) {
         if (err) {
             logger.error(err, 'glob error');
         }
-        // TODO: Limit concurrency. Promise.map({concurrency}) may only take us so far.
+        // TODO: Limit concurrency. Promise.map({concurrency}) may only take us
+        // so far. Instead of Promise.map(), push to a waiting queue and then
+        // pop from that to a working queue of size opConfig.concurrency. Once a
+        // file gets sliced, then replace it in the working queue with one from
+        // working queue.
         Promise.resolve(paths)
             .filter(src => fse.exists(`${src}.ready`))
-            .map(src => sliceFile(src))
+            .map(async (src) => {
+                sliceFile(src, await filedb.ready(src));
+            })
             .then((i) => {
-                if (i.length) {
-                    logger.debug(i, 'globbed & sliced');
+                if (i) {
+                    logger.debug({ paths: i }, 'globbed & sliced');
                 }
                 globbed = true;
             })
@@ -113,8 +122,8 @@ async function newSlicer(context, job, retryData, logger) {
     }
     events.on('slice:success', onSlice);
 
-    // TODO: There's gotta be a more elegant way to accomplish this.
-    // Returning `undefined` for lifecycle=once jobs treated as slicing complete.
+    // Returning `undefined` for lifecycle=once jobs treated as slicing
+    // complete, so give globbing a chance.
     function waitForFirstGlob() {
         return new Promise((resolve) => {
             function wait() {
@@ -177,6 +186,11 @@ function schema() {
             doc: 'Base directory for temp space while processing files.',
             default: '/tmp/work',
             format: 'required_String',
+        },
+        concurrency: {
+            doc: 'TODO',
+            default: 5,
+            format: Number,
         },
         delimiter: {
             doc: 'Determines the delimiter used in the file being read. '

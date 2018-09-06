@@ -16,23 +16,19 @@ const STAGE = {
     archive: 'archive',
 };
 
-module.exports = (workDir, assetDir) => {
+module.exports = async (workDir, assetDir) => {
     let dirty = false;
     let state = {};
 
     const workPath = _.partial(path.join, workDir);
     const dbPath = workPath('compressed_file_reader.json');
 
-    async function init() {
-        // In an async function since `await` can't be at top level.
-        if (await fse.exists(dbPath)) {
-            state = await fse.readJson(dbPath);
-        }
-        await fse.mkdirs(workPath('decompress'));
-        await fse.mkdirs(workPath('ready'));
-        await fse.mkdirs(workPath('archive'));
+    if (await fse.exists(dbPath)) {
+        state = await fse.readJson(dbPath);
     }
-    init();
+    await fse.mkdirs(workPath('decompress'));
+    await fse.mkdirs(workPath('ready'));
+    await fse.mkdirs(workPath('archive'));
 
     async function write() {
         // Only write when dirty.  Mark as clean early to avoid concurrent writing.
@@ -81,7 +77,7 @@ module.exports = (workDir, assetDir) => {
         const readyPath = workPath('ready', data.name);
         if (data.stage === STAGE.decompress) {
             await fse.rename(decompressPath, readyPath);
-            data.stage = STAGE.readyPath;
+            data.stage = STAGE.ready;
             dirty = true;
         }
         write();
