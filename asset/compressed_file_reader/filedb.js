@@ -67,9 +67,14 @@ module.exports = async (workDir, assetDir) => {
         const data = state[src];
         const decompressPath = workPath('decompress', data.name);
         if (data.stage === STAGE.upload) {
-            const { code, stderr } = await decompress(src, decompressPath);
+            const { code, stderr, stdout } = await decompress(src, decompressPath);
             if (code > 0) {
-                throw new Error(`failed to decompress ${src}: ${stderr}`);
+                const err = new Error(`failed to decompress: ${src}`);
+                err.src = src;
+                err.code = code;
+                err.stderr = stderr;
+                err.stdout = stdout;
+                throw err;
             }
             data.stage = STAGE.decompress;
             dirty = true;
@@ -87,7 +92,7 @@ module.exports = async (workDir, assetDir) => {
     // Decompress file in a sub-shell to keep event loop free. Exit code,
     // stdout, & stderr return - error handling pushed to the caller.
     async function decompress(src, dst) {
-        const proc = spawn(`${assetDir}/bin/decompress`, [src, dst], {});
+        const proc = spawn(`${assetDir}/bin/decompress`, [src, dst], { env: _.pick(process.env, ['PATH', 'TEST_EXIT_CODE']) });
         let stderr = '';
         proc.stderr.on('data', (data) => {
             stderr += data;
