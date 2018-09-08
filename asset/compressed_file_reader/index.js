@@ -2,6 +2,7 @@
 
 const Promise = require('bluebird');
 const fse = require('fs-extra');
+const os = require('os');
 const glob = require('glob');
 const _ = require('lodash');
 const chunkedReader = require('@terascope/chunked-file-reader');
@@ -33,7 +34,7 @@ async function newSlicer(context, job, retryData, logger) {
     const opConfig = getOpConfig(job.config, 'compressed_file_reader');
     const assetDir = await context.apis.assets.getPath('file-assets');
 
-    const filedb = require('./filedb')(opConfig.workDir, assetDir);
+    const filedb = await require('./filedb')(opConfig.workDir, assetDir);
 
     async function sliceFile(src, ready) {
         const stat = await fse.stat(ready);
@@ -50,32 +51,54 @@ async function newSlicer(context, job, retryData, logger) {
         });
         // Mark the last slice so we know when to archive the file.
         slices[slices.length - 1].last = true;
+        _.pull(working, src);
         return ready;
     }
 
-    let globbed = false;
+    // Limit concurrency, but do so in a way that one large upload will not hold
+    // up the entire batch the way Promise.map({concurrency}) would. Push to a
+    // waiting queue and then pop from that to a working queue of size
+    // opConfig.concurrency. Once a file gets sliced, then replace it in the
+    // working queue with one from working queue.
+    const work = [];
+    const working = [];
+
+    // Track how long there has been work (ie globs matched) so we can know when
+    // to proceed for lifecycle=once jobs.
+    let tsSansWork = Date.now();
+    let tsLastWork;
+
+    function doWork() {
+        if (work.length === 0) {
+            if (tsLastWork) {
+                tsSansWork = tsLastWork;
+                tsLastWork = null;
+            }
+            return;
+        }
+        tsSansWork = null;
+        tsLastWork = Date.now();
+        _.range(opConfig.concurrency - working.length).forEach(async () => {
+            const src = work.shift();
+            if (src) {
+                working.push(src);
+                sliceFile(src, await filedb.ready(src));
+            }
+        });
+    }
+
     function onUpstreamGlobbed(err, paths) {
         if (err) {
             logger.error(err, 'glob error');
         }
-        // TODO: Limit concurrency. Promise.map({concurrency}) may only take us
-        // so far. Instead of Promise.map(), push to a waiting queue and then
-        // pop from that to a working queue of size opConfig.concurrency. Once a
-        // file gets sliced, then replace it in the working queue with one from
-        // working queue.
-        Promise.resolve(paths)
-            .filter(src => fse.exists(`${src}.ready`))
-            .map(async (src) => {
-                sliceFile(src, await filedb.ready(src));
-            })
-            .then((i) => {
-                if (i) {
-                    logger.debug({ paths: i }, 'globbed & sliced');
-                }
-                globbed = true;
-            })
-            .catch(e => logger.error(e));
+        paths.forEach(async (src) => {
+            if (await fse.exists(`${src}.ready`)) {
+                work.push(src);
+            }
+        });
     }
+
+    setInterval(doWork, 100);
 
     // Watch upstream directory.
     const globOpts = {
@@ -123,37 +146,37 @@ async function newSlicer(context, job, retryData, logger) {
     events.on('slice:success', onSlice);
 
     // Returning `undefined` for lifecycle=once jobs treated as slicing
-    // complete, so give globbing a chance.
-    function waitForFirstGlob() {
+    // complete, so give globbing a chance to complete.
+    function waitForGlobbingToSettle() {
         return new Promise((resolve) => {
+            if (job.config.lifecycle === 'persistent') {
+                resolve();
+            }
             function wait() {
-                if (globbed) {
+                if (tsSansWork && Date.now() - tsSansWork > 5000) {
                     resolve();
                 } else {
-                    setTimeout(wait, 100);
+                    logger.warn({ ms: Date.now() - tsSansWork, slices: slices.length }, 'waiting for settle');
+                    setTimeout(wait, 1000);
                 }
             }
-            setTimeout(wait, 100);
+            setTimeout(wait, 1000);
         });
     }
 
     function nextSlice() {
-        const slice = slices.shift();
-        if (!slice && job.config.lifecycle === 'once') {
-            return null;
-        }
-        // When no slices, will be `undefined` (aka keep going).
-        return slice;
+        return slices.shift();
+        // const slice = slices.shift();
+        // if (!slice && job.config.lifecycle === 'once') {
+        //     // TODO: This needed now that we're waiting for first glob?
+        //     return null;
+        // }
+        // // When no slices, will be `undefined` (aka keep going).
+        // return slice;
     }
 
-    // TODO: test cases:
-    // - partially readied (eg decompress fails)
-    // - partially archived (eg rename fails)
-    // - readied but not sliced
-    // - one file fails in onUpstreamGlobbed
-    // - file not decompressed before next glob cycle
-
-    return waitForFirstGlob()
+    return waitForGlobbingToSettle()
+        .then(() => [nextSlice])
         .then(() => [nextSlice])
         .catch(logger.err);
 }
@@ -188,8 +211,8 @@ function schema() {
             format: 'required_String',
         },
         concurrency: {
-            doc: 'TODO',
-            default: 5,
+            doc: 'Number of uploads to process concurrently.',
+            default: os.cpus().length,
             format: Number,
         },
         delimiter: {
