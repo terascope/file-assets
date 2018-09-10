@@ -1,11 +1,11 @@
 {
   "name": "file-assets",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A set of processors for exporting data to files",
   "main": "index.js",
   "dependencies": {
     "bluebird": "^3.5.1",
-    "json2csv": "^4.2.0"
+    "json2csv": "4.2.0"
   },
   "devDependencies": {},
   "scripts": {
