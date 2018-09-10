@@ -1,6 +1,6 @@
 {
   "name": "file-assets",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Teraslice processors for working with data stored in files on disk",
   "main": "index.js",
   "repository": "https://github.com/terascope/file-assets.git",
@@ -20,6 +20,7 @@
     "eslint-config-airbnb-base": "^13.0.0",
     "eslint-plugin-import": "^2.12.0",
     "json2csv": "4.2.0",
-    "lodash": "^4.17.10"
+    "lodash": "^4.17.10",
+    "nyc": "^13.0.1"
   }
 }
