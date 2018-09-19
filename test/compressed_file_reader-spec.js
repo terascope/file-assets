@@ -11,48 +11,39 @@ describe('The compressed_file_reader', () => {
         let uploadDir;
         let upload;
         let workDir;
-        let statePath;
         let decompress;
         let ready;
         let archive;
         let filedb;
-        it('should die with invalid saved state', async () => {
+        it('should be able to initialize', async () => {
             uploadDir = await fixtures.copyFixtureIntoTempDir(__dirname, 't1');
             upload = path.join(uploadDir, file);
             workDir = await fixtures.createTempDir();
-            statePath = path.join(workDir, 'compressed_file_reader.json');
             decompress = path.join(workDir, 'decompress', file);
-            ready = path.join(workDir, 'ready', file);
+            ready = path.join(workDir, 'slice', file);
             archive = path.join(workDir, 'archive', file);
-            await fse.writeFile(statePath, 'Hi, Mom!');
-            await expect(FileDB(workDir, path.resolve('asset'))).rejects.toThrow();
-        });
-        it('should be able to initialize with no saved statePath', async () => {
-            await fse.unlink(statePath);
             filedb = await FileDB(workDir, path.resolve('asset'));
         });
-        it('should decompress to a ready working dir', async () => {
-            expect(await filedb.ready(upload)).toEqual(ready);
+        it('waits for client to mark file as ready', async () => {
+            expect(filedb.numReady()).toEqual(0);
+            expect(await filedb.uploaded(upload)).toEqual(false);
+            expect(filedb.enqueue()).toEqual(null);
+            await fse.writeFile(`${upload}.ready`, 'Hi, Mom!');
+            expect(await filedb.uploaded(upload)).toEqual(true);
+            expect(filedb.numReady()).toEqual(1);
+            expect(filedb.enqueue()).toEqual(upload);
+        });
+        it('should decompress to a ready-for-slicing work dir', async () => {
+            expect(await filedb.decompress(upload)).toEqual(ready);
             expect(await fse.exists(decompress)).toBeFalse();
             expect(await fse.exists(ready)).toBeTrue();
             expect(await fse.exists(upload)).toBeTrue();
-        });
-        it('should write its state to disk', async () => {
-            const state = await fse.readJson(path.join(workDir, 'compressed_file_reader.json'));
-            expect(state[upload].src).toEqual(upload);
-            expect(state[upload].name).toEqual(file);
-            expect(state[upload].stage).toEqual('ready');
         });
         it('should be able to archive files', async () => {
             expect(await filedb.archive(upload)).toEqual(archive);
             expect(await fse.exists(ready)).toBeFalse();
             expect(await fse.exists(archive)).toBeTrue();
             expect(await fse.exists(upload)).toBeFalse();
-        });
-        it('should remove a file from its state once archived', async () => {
-            const state = await fse.readJson(path.join(workDir, 'compressed_file_reader.json'));
-            expect(state[upload]).toBeUndefined();
-            fixtures.cleanupTempDirs();
         });
     });
 
@@ -70,15 +61,18 @@ describe('The compressed_file_reader', () => {
             upload = path.join(uploadDir, file);
             workDir = await fixtures.createTempDir();
             decompress = path.join(workDir, 'decompress', file);
-            ready = path.join(workDir, 'ready', file);
+            ready = path.join(workDir, 'slice', file);
             archive = path.join(workDir, 'archive', file);
             filedb = await FileDB(workDir, path.resolve('asset'));
         });
         it('should fail to decompress', async () => {
+            await fse.writeFile(`${upload}.ready`, 'Hi, Mom!');
+            expect(await filedb.uploaded(upload)).toEqual(true);
+            expect(filedb.enqueue()).toEqual(upload);
             process.env.TEST_EXIT_CODE = 42;
             let code;
             try {
-                await filedb.ready(upload);
+                await filedb.decompress(upload);
             } catch (err) {
                 code = err.code;
             }
@@ -90,28 +84,20 @@ describe('The compressed_file_reader', () => {
         it('should recover automatically on next attempt', async () => {
             delete process.env.TEST_EXIT_CODE;
             filedb = await FileDB(workDir, path.resolve('asset'));
-            expect(await filedb.ready(upload)).toEqual(ready);
+            await fse.writeFile(`${upload}.ready`, 'Hi, Mom!');
+            expect(await filedb.uploaded(upload)).toEqual(true);
+            expect(filedb.enqueue()).toEqual(upload);
+            expect(await filedb.decompress(upload)).toEqual(ready);
             expect(await fse.exists(decompress)).toBeFalse();
             expect(await fse.exists(ready)).toBeTrue();
             expect(await fse.exists(upload)).toBeTrue();
         });
-        it('should write its state to disk', async () => {
-            const state = await fse.readJson(path.join(workDir, 'compressed_file_reader.json'));
-            expect(state[upload].src).toEqual(upload);
-            expect(state[upload].name).toEqual(file);
-            expect(state[upload].stage).toEqual('ready');
-        });
-        it('should be able to archive files', async () => {
-            expect(await filedb.archive(upload)).toEqual(archive);
-            expect(await fse.exists(ready)).toBeFalse();
-            expect(await fse.exists(archive)).toBeTrue();
-            expect(await fse.exists(upload)).toBeFalse();
-        });
-        it('should remove a file from its state once archived', async () => {
-            const state = await fse.readJson(path.join(workDir, 'compressed_file_reader.json'));
-            expect(state[upload]).toBeUndefined();
-            fixtures.cleanupTempDirs();
-        });
     });
-    // TODO: Fail to write state.
+
+    // TODO: filedb cases
+    // - partially archived (eg rename fails)
+    // TODO: slicer cases
+    // - readied but not sliced
+    // - one file fails in onUpstreamGlobbed
+    // - file not decompressed before next glob cycle
 });

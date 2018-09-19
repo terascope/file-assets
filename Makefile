@@ -34,9 +34,12 @@ grep: ## grep source
 	grep -Hrni$(TYPE) -- '$(NEEDLE)' asset
 
 
+asset.zip: LINUX=# build for linux target
 asset.zip: asset/* ## build asset bundle
 	if test -e asset.zip; then rm asset.zip; fi
-	zip -x **/.DS_Store -vr asset.zip asset > /dev/null
+	rsync -va --exclude node_modules asset/ build/
+	docker run --rm -e NODE_ENV=production -it -v $(PWD)/build/:/app/ -w /app node:8 yarn install --no-progress --pure-lockfile --link-duplicates
+	zip -x **/.DS_Store -vr asset.zip build > /dev/null
 
 asset.install: TERASLICE=localhost:5678# cluster to deploy to
 asset.install: asset.zip ## deploy asset bundle
@@ -49,7 +52,7 @@ asset.list: ## list deployed assets
 
 job.install: TERASLICE=localhost:5678# cluster to deploy to
 job.install: JOB=# job definition
-job.install: asset.zip ## deploy job
+job.install: ## deploy job
 	curl -sS -X POST $(TERASLICE)/jobs --data @$(JOB)
 
 job.list: TERASLICE=localhost:5678# cluster to query

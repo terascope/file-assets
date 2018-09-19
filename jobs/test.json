@@ -7,7 +7,7 @@
     "operations": [
         {
             "_op": "compressed_file_reader",
-            "size": 100000,
+            "size": 1000000,
             "glob": "/tmp/upload/*.json.lz4",
             "concurrency": 2,
             "delimiter": "\n",

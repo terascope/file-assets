@@ -5,46 +5,32 @@ const fse = require('fs-extra');
 const os = require('os');
 const glob = require('glob');
 const _ = require('lodash');
-const chunkedReader = require('@terascope/chunked-file-reader');
+const { getOffsets, getChunk } = require('@terascope/chunked-file-reader');
 const { getOpConfig } = require('@terascope/job-components');
-
-// [offset, length][] of chunks `size` for a file `total`.
-function offsets(size, total, delimiter) {
-    // TODO: The chucked-file-reader repo a better home for this function?
-    const fullChunks = Math.floor(total / size);
-    const delta = delimiter.length;
-    const length = size + delta;
-    const chunks = _.range(1, fullChunks).map(chunk => (
-        { length, offset: (chunk * size) - delta }
-    ));
-    // First chunk doesn't need +/- delta.
-    chunks.unshift({ offset: 0, length: size });
-    // When last chunk is not full chunk size.
-    const lastChunk = total % size;
-    if (lastChunk > 0) {
-        chunks.push({ offset: (fullChunks * size) - delta, length: lastChunk + delta });
-    }
-    return chunks;
-}
 
 async function newSlicer(context, job, retryData, logger) {
     // Slicer queue.  Slices from multiple files can enqueue here but that's ok.
     const slices = [];
+
+    // Limit concurrency, but do so in a way that one large upload will not hold
+    // up the entire batch the way Promise.map({concurrency}) would.
+    const working = [];
 
     const opConfig = getOpConfig(job.config, 'compressed_file_reader');
     const assetDir = await context.apis.assets.getPath('file-assets');
 
     const filedb = await require('./filedb')(opConfig.workDir, assetDir);
 
-    async function sliceFile(src, ready) {
-        const stat = await fse.stat(ready);
+    async function sliceFile(src, work) {
+        // TODO: stat.size, opConfig.{size,delimiter} make this dirty.
+        const stat = await fse.stat(work);
         const total = stat.size;
         // NOTE: Important to update `slices` syncronously so that the correct
         // `last` slice is marked.
-        offsets(opConfig.size, total, opConfig.delimiter).forEach((offset) => {
+        getOffsets(opConfig.size, total, opConfig.delimiter).forEach((offset) => {
             slices.push({
                 total,
-                ready,
+                work,
                 src,
                 ...offset,
             });
@@ -52,53 +38,46 @@ async function newSlicer(context, job, retryData, logger) {
         // Mark the last slice so we know when to archive the file.
         slices[slices.length - 1].last = true;
         _.pull(working, src);
-        return ready;
+        return work;
     }
 
-    // Limit concurrency, but do so in a way that one large upload will not hold
-    // up the entire batch the way Promise.map({concurrency}) would. Push to a
-    // waiting queue and then pop from that to a working queue of size
-    // opConfig.concurrency. Once a file gets sliced, then replace it in the
-    // working queue with one from working queue.
-    const work = [];
-    const working = [];
-
-    // Track how long there has been work (ie globs matched) so we can know when
-    // to proceed for lifecycle=once jobs.
-    let tsSansWork = Date.now();
-    let tsLastWork;
-
     function doWork() {
-        if (work.length === 0) {
-            if (tsLastWork) {
-                tsSansWork = tsLastWork;
-                tsLastWork = null;
-            }
+        if (filedb.numReady() === 0) {
             return;
         }
-        tsSansWork = null;
-        tsLastWork = Date.now();
         _.range(opConfig.concurrency - working.length).forEach(async () => {
-            const src = work.shift();
+            const src = filedb.enqueue();
             if (src) {
+                logger.info({ src }, 'decompressing', src);
+                // tsSansWork = null;
+                // tsLastWork = Date.now();
                 working.push(src);
-                sliceFile(src, await filedb.ready(src));
+                try {
+                    sliceFile(src, await filedb.decompress(src));
+                } catch (err) {
+                    // TODO: Retry with exponential backoff.
+                    // filedb.dequeue(src);
+                    _.pull(working, src);
+                    logger.error({ stderr: err.stderr }, err);
+                }
             }
         });
     }
 
     function onUpstreamGlobbed(err, paths) {
         if (err) {
+            // TODO: Can have false positive if file globbed same time it's being archived.
             logger.error(err, 'glob error');
+            return;
         }
         paths.forEach(async (src) => {
-            if (await fse.exists(`${src}.ready`)) {
-                work.push(src);
+            if (await filedb.uploaded(src)) {
+                logger.info({ src }, 'uploaded');
             }
         });
     }
 
-    setInterval(doWork, 100);
+    setInterval(doWork, 1000);
 
     // Watch upstream directory.
     const globOpts = {
@@ -107,11 +86,11 @@ async function newSlicer(context, job, retryData, logger) {
         noglobstar: true,
         realpath: true,
     };
+    const GLOB_RATE = 10 * 1000;
     if (job.config.lifecycle === 'persistent') {
-        setInterval(() => glob(opConfig.glob, globOpts, onUpstreamGlobbed), 10 * 1000);
-    } else {
-        glob(opConfig.glob, globOpts, onUpstreamGlobbed);
+        setInterval(() => glob(opConfig.glob, globOpts, onUpstreamGlobbed), GLOB_RATE);
     }
+    glob(opConfig.glob, globOpts, onUpstreamGlobbed);
 
     const events = context.foundation.getEventEmitter();
 
@@ -122,7 +101,7 @@ async function newSlicer(context, job, retryData, logger) {
         //     "request": {
         //       "total": 439597,
         //       "src": "/tmp/upload/t1.json.lz4",
-        //       "ready": "/tmp/work/ready/t1.json.lz4",
+        //       "work": "/tmp/work/slice/t1.json.lz4",
         //       "length": 39598,
         //       "offset": 399999
         //     },
@@ -136,7 +115,6 @@ async function newSlicer(context, job, retryData, logger) {
         if (request.last) {
             try {
                 const archive = await filedb.archive(src);
-                await fse.unlink(`${src}.ready`);
                 logger.info({ src, archive }, 'archived');
             } catch (err) {
                 logger.error({ src }, 'failed to archive');
@@ -147,44 +125,33 @@ async function newSlicer(context, job, retryData, logger) {
 
     // Returning `undefined` for lifecycle=once jobs treated as slicing
     // complete, so give globbing a chance to complete.
-    function waitForGlobbingToSettle() {
+    function waitForWorkToSettle() {
         return new Promise((resolve) => {
             if (job.config.lifecycle === 'persistent') {
                 resolve();
+                return;
             }
             function wait() {
-                if (tsSansWork && Date.now() - tsSansWork > 5000) {
-                    resolve();
-                } else {
-                    logger.warn({ ms: Date.now() - tsSansWork, slices: slices.length }, 'waiting for settle');
+                if (working.length) {
+                    logger.debug({ working: working.length }, 'waiting for work to settle');
                     setTimeout(wait, 1000);
+                } else {
+                    resolve();
                 }
             }
             setTimeout(wait, 1000);
         });
     }
 
-    function nextSlice() {
-        return slices.shift();
-        // const slice = slices.shift();
-        // if (!slice && job.config.lifecycle === 'once') {
-        //     // TODO: This needed now that we're waiting for first glob?
-        //     return null;
-        // }
-        // // When no slices, will be `undefined` (aka keep going).
-        // return slice;
-    }
-
-    return waitForGlobbingToSettle()
-        .then(() => [nextSlice])
-        .then(() => [nextSlice])
+    return waitForWorkToSettle()
+        .then(() => [() => slices.shift()])
         .catch(logger.err);
 }
 
 function newReader(context, opConfig) {
     return function processSlice(slice, logger) {
         async function reader(offset, length) {
-            const fd = await fse.open(slice.ready, 'r');
+            const fd = await fse.open(slice.work, 'r');
             try {
                 const buf = Buffer.alloc(2 * opConfig.size);
                 const { bytesRead } = await fse.read(fd, buf, 0, length, offset);
@@ -193,8 +160,7 @@ function newReader(context, opConfig) {
                 fse.close(fd);
             }
         }
-        // TODO: Patch chunkedReader to make `opConfig.format` optional
-        return chunkedReader.getChunk(reader, slice, opConfig, logger);
+        return getChunk(reader, slice, opConfig, logger);
     };
 }
 
@@ -222,9 +188,9 @@ function schema() {
             format: String,
         },
         format: {
-            doc: 'Format of the target file. Currently only supports "json"',
-            default: 'json',
-            format: ['json']
+            doc: 'How to parse: `json` is newline-delimited json, `pass` leaves parsing for downstream operations.',
+            default: 'pass',
+            format: ['pass', 'json']
         },
         size: {
             doc: 'Determines slice size in bytes',
