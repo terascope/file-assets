@@ -62,3 +62,7 @@ typings/
 
 # Editor files
 .tern-port
+
+# Build artifacts
+asset.zip
+build/

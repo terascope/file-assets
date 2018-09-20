@@ -37,8 +37,12 @@ grep: ## grep source
 asset.zip: LINUX=# build for linux target
 asset.zip: asset/* ## build asset bundle
 	if test -e asset.zip; then rm asset.zip; fi
-	rsync -va --exclude node_modules asset/ build/
-	docker run --rm -e NODE_ENV=production -it -v $(PWD)/build/:/app/ -w /app node:8 yarn install --no-progress --pure-lockfile --link-duplicates
+	rsync -av --exclude node_modules asset/ build/
+ifdef LINUX
+	docker run -it --rm -e NODE_ENV=production -v $(PWD)/build/:/build/ -w /build node:8 yarn install --no-progress --pure-lockfile --link-duplicates
+else
+	cd build && yarn install --no-progress --pure-lockfile --link-duplicates
+endif
 	zip -x **/.DS_Store -vr asset.zip build > /dev/null
 
 asset.install: TERASLICE=localhost:5678# cluster to deploy to
