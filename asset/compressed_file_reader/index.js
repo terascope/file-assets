@@ -22,7 +22,6 @@ async function newSlicer(context, job, retryData, logger) {
     const filedb = await require('./filedb')(opConfig.workDir, assetDir);
 
     async function sliceFile(src, work) {
-        // TODO: stat.size, opConfig.{size,delimiter} make this dirty.
         const stat = await fse.stat(work);
         const total = stat.size;
         // NOTE: Important to update `slices` syncronously so that the correct
@@ -48,15 +47,13 @@ async function newSlicer(context, job, retryData, logger) {
         _.range(opConfig.concurrency - working.length).forEach(async () => {
             const src = filedb.enqueue();
             if (src) {
-                logger.info({ src }, 'decompressing', src);
-                // tsSansWork = null;
-                // tsLastWork = Date.now();
+                logger.info({ src }, 'decompressing');
                 working.push(src);
                 try {
                     sliceFile(src, await filedb.decompress(src));
+                    logger.info({ src }, 'sliced & ready to read');
                 } catch (err) {
-                    // TODO: Retry with exponential backoff.
-                    // filedb.dequeue(src);
+                    // Not sure how to handle. Retry with exponential backoff before giving up?
                     _.pull(working, src);
                     logger.error({ stderr: err.stderr }, err);
                 }
@@ -66,7 +63,9 @@ async function newSlicer(context, job, retryData, logger) {
 
     function onUpstreamGlobbed(err, paths) {
         if (err) {
-            // TODO: Can have false positive if file globbed same time it's being archived.
+            // Can have false positive if file globbed same time it's being
+            // archived. Only saw when testing against small files. Let's wait
+            // to see how noisy before handling more quietly.
             logger.error(err, 'glob error');
             return;
         }
@@ -86,9 +85,8 @@ async function newSlicer(context, job, retryData, logger) {
         noglobstar: true,
         realpath: true,
     };
-    const GLOB_RATE = 10 * 1000;
     if (job.config.lifecycle === 'persistent') {
-        setInterval(() => glob(opConfig.glob, globOpts, onUpstreamGlobbed), GLOB_RATE);
+        setInterval(() => glob(opConfig.glob, globOpts, onUpstreamGlobbed), opConfig.globSeconds * 1000);
     }
     glob(opConfig.glob, globOpts, onUpstreamGlobbed);
 
@@ -170,6 +168,11 @@ function schema() {
             doc: 'Glob pattern to match files to process.',
             default: '/tmp/upload/*',
             format: 'required_String',
+        },
+        globSeconds: {
+            doc: 'Rate at which to check for new uploads.',
+            default: 10,
+            format: Number,
         },
         workDir: {
             doc: 'Base directory for temp space while processing files.',
