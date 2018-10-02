@@ -1,6 +1,6 @@
 {
   "name": "file-assets",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Teraslice processors for working with data stored in files on disk",
   "repository": "https://github.com/terascope/file-assets.git",
   "author": "Zach Burnham <zburnham@terascope.io>",
