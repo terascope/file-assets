@@ -59,3 +59,10 @@ typings/
 
 # next.js build output
 .next
+
+# Editor files
+.tern-port
+
+# Build artifacts
+asset.zip
+build/

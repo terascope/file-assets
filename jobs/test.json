@@ -1,0 +1,27 @@
+{
+    "name": "compress-test-1",
+    "lifecycle": "once",
+    "analytics": false,
+    "assets": ["file-assets"],
+    "workers": 1,
+    "operations": [
+        {
+            "_op": "compressed_file_reader",
+            "size": 1000000,
+            "glob": "/tmp/upload/*.json.lz4",
+            "concurrency": 2,
+            "delimiter": "\n",
+            "workDir": "/tmp/work"
+        },
+        {
+            "_op": "elasticsearch_index_selector",
+            "type": "event",
+            "index": "compress-test-1",
+            "id_field": "ip"
+        },
+        {
+            "_op": "elasticsearch_bulk",
+            "connection": "default"
+        }
+    ]
+}
