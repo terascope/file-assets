@@ -23,7 +23,7 @@ This test job will generate 5k records, and then put them into tab-delimited fil
 
 ```
 {
-  "name": "csv_exporter",
+  "name": "file_exporter",
   "lifecycle": "persistent",
   "workers": 1,
   "max_retries": 0,
@@ -33,7 +33,7 @@ This test job will generate 5k records, and then put them into tab-delimited fil
       "size": 5000
     },
     {
-      "_op": "csv_exporter",
+      "_op": "file_exporter",
       "path": "/app/data/testfiles",
       "file_prefix": "test",
       "format": "tsv",
