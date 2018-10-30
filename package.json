@@ -6,10 +6,12 @@
   "author": "Zach Burnham <zburnham@terascope.io>",
   "license": "MIT",
   "scripts": {
+    "build": "scripts/build.sh",
     "lint": "eslint asset/**/*.js",
     "lint:fix": "eslint --fix asset/**/*.js",
     "test": "jest",
-    "report-coverage": "codecov"
+    "report-coverage": "codecov",
+    "postinstall" : "yarn --cwd ./asset --prod --silent --no-progress"
   },
   "dependencies": {},
   "devDependencies": {
