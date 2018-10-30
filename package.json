@@ -11,7 +11,7 @@
     "lint:fix": "eslint --fix asset/**/*.js",
     "test": "jest",
     "report-coverage": "codecov",
-    "postinstall" : "cd asset && yarn --prod --silent --no-progress"
+    "postinstall" : "yarn --cwd ./asset --prod --silent --no-progress"
   },
   "dependencies": {},
   "devDependencies": {
