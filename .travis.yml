@@ -5,7 +5,7 @@ jobs:
   include:
     - script: yarn test
     - stage: GitHub Build Release
-      if: tag IS present AND branch = master AND type != pull_request
+      if: tag IS present
       script: yarn build
       deploy:
         provider: releases
