@@ -66,13 +66,14 @@ function schema() {
                 + 'of subdirectories and files, the slicer will crawl through the subdirectories to'
                 + ' slice all of the files.',
             default: '',
-            format: (val) => {
-                if (typeof val !== 'string') {
-                    throw new Error('path in file_reader must be a string!');
-                }
-
-                if (val.length === 0) {
-                    throw new Error('path in file_reader must specify a valid path!');
+            format: async (val) => {
+                try {
+                    const dirStats = await fse.readdir(val);
+                    if (dirStats.length === 0) {
+                        throw new Error('Must provide a non-empty directory!!');
+                    }
+                } catch (err) {
+                    throw new Error(`Path must be valid! Encountered the following error:\n${err}`);
                 }
             }
         },
