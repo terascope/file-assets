@@ -3,6 +3,7 @@
 // const FileDB = require('../asset/compressed_file_reader/filedb');
 const fixtures = require('jest-fixtures');
 const { debugLogger } = require('@terascope/utils');
+const { TestContext } = require('@terascope/job-components');
 const { newReader, newSlicer } = require('../asset/file_reader/index.js');
 
 const logger = debugLogger('file_reader-spec');
@@ -32,7 +33,7 @@ describe('The file_reader', () => {
         });
     });
     describe('slicer', () => {
-        it('properly slices a file', async () => {
+        it('properly slices a file', async (done) => {
             const slices = [];
             const testDataDir = await fixtures.copyFixtureIntoTempDir(__dirname, 'file_reader');
             const executionContext = {
@@ -49,14 +50,19 @@ describe('The file_reader', () => {
             };
             // Setup a slicer and extract all of the slices generated. If there are less than 46
             // slices, the slicer did not properly load the subdirectory
-            const slicer = await newSlicer(undefined, executionContext, undefined, logger);
-            for (let i = 0; i < 46; i += 1) {
-                slices.push(slicer[0]());
-            }
-            // Given the size of the two test files, the last slice for the first file should be #22
-            // and be shorter than 750 bytes
-            expect(slices[22].length).toEqual(321);
-            expect(slices[45].length).toEqual(321);
+            const context = new TestContext('file_reader');
+            const slicer = newSlicer(context, executionContext, undefined, logger);
+            // Delay a bit to let the slice load the dummy files
+            const sliceWatcher = setInterval(() => {
+                const currentSlice = slicer[0]();
+                if (currentSlice) slices.push(currentSlice);
+                if (currentSlice === null) {
+                    clearInterval(sliceWatcher);
+                    expect(slices[22].length).toEqual(321);
+                    expect(slices[45].length).toEqual(321);
+                    done();
+                }
+            }, 60);
         });
     });
 });

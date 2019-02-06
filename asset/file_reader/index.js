@@ -8,6 +8,19 @@ const { TSError } = require('@terascope/utils');
 const fse = require('fs-extra');
 
 function newSlicer(context, executionContext, retryData, logger) {
+    const opConfig = executionContext.config.operations[0];
+    const events = context.foundation.getEventEmitter();
+    checkProvidedPath(opConfig.path);
+    const queue = new Queue();
+
+    // Set up flags for slice generation/management
+    let isFinished = false;
+    let isShutdown = false;
+
+    events.on('worker:shutdown', () => {
+        isShutdown = true;
+    });
+
     function checkProvidedPath(filePath) {
         try {
             const dirStats = fse.lstatSync(filePath);
@@ -23,10 +36,6 @@ function newSlicer(context, executionContext, retryData, logger) {
         }
     }
 
-    const opConfig = executionContext.config.operations[0];
-    checkProvidedPath(opConfig.path);
-    const queue = new Queue();
-
     async function processFile(filePath) {
         const stat = await fse.stat(filePath);
         const total = stat.size;
@@ -34,6 +43,7 @@ function newSlicer(context, executionContext, retryData, logger) {
             offset.path = filePath;
             queue.enqueue(offset);
         });
+        return true;
     }
 
     async function getFilePaths(filePath) {
@@ -50,16 +60,46 @@ function newSlicer(context, executionContext, retryData, logger) {
             logger.error(`${file} is not a file or directory!!`);
             return true;
         })
-            .return([() => queue.dequeue()]);
+            // Catch the error and log it so the execution controller doesn't crash and burn if
+            // there is a bad file or directory
+            .catch((err) => {
+                const error = new TSError(err, {
+                    reason: 'Error while reading file or directory',
+                    context: {
+                        filePath
+                    }
+                });
+                logger.error(error);
+            });
     }
 
-    return getFilePaths(opConfig.path)
-        .catch((err) => {
-            const error = new TSError(err, {
-                reason: 'Error while reading slicing files'
-            });
-            return Promise.reject(error);
+    getFilePaths(opConfig.path)
+        .then(() => {
+            isFinished = true;
         });
+
+    return [() => {
+        // Grab a record if there is one ready in the queue
+        if (queue._size > 0) return queue.dequeue();
+
+        // Finish slicer if the queue is empty and it's done prepping slices
+        if (isFinished) return null;
+
+        // If the queue is empty, wait for a new slice or throw an error if the slicer shuts down
+        // early
+        return new Promise((resolve, reject) => {
+            const intervalId = setInterval(() => {
+                if (queue._size > 0) {
+                    clearInterval(intervalId);
+                    resolve(queue.dequeue());
+                }
+                if (isShutdown) {
+                    clearInterval(intervalId);
+                    reject(new TSError('Slicer not finished but told to shutdown'));
+                }
+            }, 50);
+        });
+    }];
 }
 
 

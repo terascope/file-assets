@@ -96,6 +96,16 @@
     lodash "^4.17.5"
     to-fast-properties "^2.0.0"
 
+"@terascope/job-components@^0.14.4":
+  version "0.14.4"
+  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.14.4.tgz#5750457f5bf10cdbbc586d66cc80ab9b540e1a27"
+  dependencies:
+    "@terascope/queue" "^1.1.6"
+    "@terascope/utils" "^0.3.0"
+    convict "^4.4.1"
+    datemath-parser "^1.0.6"
+    uuid "^3.3.2"
+
 "@terascope/job-components@^0.4.1":
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.4.1.tgz#2162539e451eb9b960fc223b4eaf1134b1d6e542"
@@ -112,6 +122,10 @@
     rimraf "^2.0.0"
     ts-node "^7.0.1"
     typescript "^3.0.1"
+
+"@terascope/queue@^1.1.6":
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/@terascope/queue/-/queue-1.1.6.tgz#763d035cf31d2e1fd819ae827274f50874016708"
 
 "@terascope/teraslice-op-test-harness@^1.1.1":
   version "1.1.1"
@@ -135,6 +149,15 @@
     debugnyan "^2.0.2"
     rimraf "^2.0.0"
     typescript "^3.0.1"
+
+"@terascope/utils@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.3.0.tgz#ec04d57fd8f127fc3de478a8ddacd591911bedf2"
+  dependencies:
+    debug "^4.1.1"
+    is-plain-object "^2.0.4"
+    kind-of "^6.0.2"
+    lodash.clonedeep "^4.5.0"
 
 "@terascope/utils@^0.4.0":
   version "0.4.0"
@@ -622,6 +645,10 @@ camelcase@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-4.1.0.tgz#d545635be1e33c542649c69173e5de6acfae34dd"
 
+camelcase@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-5.0.0.tgz#03295527d58bd3cd4aa75363f35b2e8d97be2f42"
+
 capture-exit@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/capture-exit/-/capture-exit-1.2.0.tgz#1c5fcc489fd0ab00d4f1ac7ae1072e3173fbab6f"
@@ -777,6 +804,17 @@ convict@^4.3.2:
     validator "10.4.0"
     yargs-parser "10.1.0"
 
+convict@^4.4.1:
+  version "4.4.1"
+  resolved "https://registry.yarnpkg.com/convict/-/convict-4.4.1.tgz#87f93c2a4f51bfc961e2873864442d0349a1b0d0"
+  dependencies:
+    depd "1.1.2"
+    json5 "1.0.1"
+    lodash.clonedeep "4.5.0"
+    moment "2.22.2"
+    validator "10.8.0"
+    yargs-parser "11.0.0"
+
 copy-descriptor@^0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/copy-descriptor/-/copy-descriptor-0.1.1.tgz#676f6eb3c39997c2ee1ac3a924fd6124748f578d"
@@ -862,7 +900,7 @@ debugnyan@^2.0.2:
     bunyan "^1.8.1"
     debug "^2.2.0"
 
-decamelize@^1.1.1:
+decamelize@^1.1.1, decamelize@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/decamelize/-/decamelize-1.2.0.tgz#f6534d15148269b20352e7bee26f501f9a191290"
 
@@ -3858,6 +3896,10 @@ validator@10.4.0:
   version "10.4.0"
   resolved "https://registry.yarnpkg.com/validator/-/validator-10.4.0.tgz#ee99a44afb3bb5ed350a159f056ca72a204cfc3c"
 
+validator@10.8.0:
+  version "10.8.0"
+  resolved "https://registry.yarnpkg.com/validator/-/validator-10.8.0.tgz#8acb15a5c39411cbc8ef2be0c98c2514da4410a7"
+
 verror@1.10.0:
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/verror/-/verror-1.10.0.tgz#3a105ca17053af55d6e270c1f8288682e18da400"
@@ -3991,6 +4033,13 @@ yargs-parser@10.1.0:
   resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-10.1.0.tgz#7202265b89f7e9e9f2e5765e0fe735a905edbaa8"
   dependencies:
     camelcase "^4.1.0"
+
+yargs-parser@11.0.0:
+  version "11.0.0"
+  resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-11.0.0.tgz#d9fd0f0cd551a2a2ef9bbf42606ffb6211634232"
+  dependencies:
+    camelcase "^5.0.0"
+    decamelize "^1.2.0"
 
 yargs-parser@^9.0.2:
   version "9.0.2"
