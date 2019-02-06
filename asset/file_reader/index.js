@@ -2,11 +2,29 @@
 
 const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
+const path = require('path');
 const { getChunk, getOffsets } = require('@terascope/chunked-file-reader');
+const { TSError } = require('@terascope/utils');
 const fse = require('fs-extra');
 
 function newSlicer(context, executionContext, retryData, logger) {
+    function checkProvidedPath(filePath) {
+        try {
+            const dirStats = fse.lstatSync(filePath);
+            if (dirStats.isSymbolicLink()) {
+                throw new Error('Directory for `file_reader` cannot be a symlink!');
+            }
+            const dirContents = fse.readdirSync(filePath);
+            if (dirContents.length === 0) {
+                throw new Error('Must provide a non-empty directory for `file_reader`!!');
+            }
+        } catch (err) {
+            throw new Error(`Path must be valid! Encountered the following error:\n${err}`);
+        }
+    }
+
     const opConfig = executionContext.config.operations[0];
+    checkProvidedPath(opConfig.path);
     const queue = new Queue();
 
     async function processFile(filePath) {
@@ -21,7 +39,7 @@ function newSlicer(context, executionContext, retryData, logger) {
     async function getFilePaths(filePath) {
         const dirContents = await fse.readdir(filePath);
         return Promise.map(dirContents, async (file) => {
-            const fullPath = `${filePath}/${file}`;
+            const fullPath = path.join(filePath, file);
             const stats = await fse.lstat(fullPath);
             if (stats.isFile()) {
                 return processFile(fullPath);
@@ -37,8 +55,10 @@ function newSlicer(context, executionContext, retryData, logger) {
 
     return getFilePaths(opConfig.path)
         .catch((err) => {
-            logger.error(err, 'Error while reading slicing files');
-            return Promise.reject(err);
+            const error = new TSError(err, {
+                reason: 'Error while reading slicing files'
+            });
+            return Promise.reject(error);
         });
 }
 
@@ -65,21 +85,8 @@ function schema() {
             doc: 'Directory that contains the files to process. If the directory consists of a mix '
                 + 'of subdirectories and files, the slicer will crawl through the subdirectories to'
                 + ' slice all of the files.',
-            default: '',
-            format: async (val) => {
-                try {
-                    const dirStats = await fse.lstat(val);
-                    if (dirStats.isSymbolicLink()) {
-                        throw new Error('Directory cannot be a symlink!');
-                    }
-                    const dirContents = await fse.readdir(val);
-                    if (dirContents.length === 0) {
-                        throw new Error('Must provide a non-empty directory!!');
-                    }
-                } catch (err) {
-                    throw new Error(`Path must be valid! Encountered the following error:\n${err}`);
-                }
-            }
+            default: '/tmp/upload',
+            format: 'required_String'
         },
         delimiter: {
             doc: 'Determines the delimiter used in the file being read. '

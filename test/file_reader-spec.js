@@ -2,11 +2,10 @@
 
 // const FileDB = require('../asset/compressed_file_reader/filedb');
 const fixtures = require('jest-fixtures');
+const { debugLogger } = require('@terascope/utils');
 const { newReader, newSlicer } = require('../asset/file_reader/index.js');
 
-const logger = {
-    error: msg => msg
-};
+const logger = debugLogger('file_reader-spec');
 
 describe('The file_reader', () => {
     describe('reader', () => {
