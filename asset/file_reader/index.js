@@ -68,8 +68,12 @@ function schema() {
             default: '',
             format: async (val) => {
                 try {
-                    const dirStats = await fse.readdir(val);
-                    if (dirStats.length === 0) {
+                    const dirStats = await fse.lstat(val);
+                    if (dirStats.isSymbolicLink()) {
+                        throw new Error('Directory cannot be a symlink!');
+                    }
+                    const dirContents = await fse.readdir(val);
+                    if (dirContents.length === 0) {
                         throw new Error('Must provide a non-empty directory!!');
                     }
                 } catch (err) {
