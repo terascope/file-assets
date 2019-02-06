@@ -22,7 +22,7 @@ function newSlicer(context, executionContext, retryData, logger) {
         const dirContents = await fse.readdir(filePath);
         return Promise.map(dirContents, async (file) => {
             const fullPath = `${filePath}/${file}`;
-            const stats = await fse.stat(fullPath);
+            const stats = await fse.lstat(fullPath);
             if (stats.isFile()) {
                 return processFile(fullPath);
             }
@@ -37,7 +37,7 @@ function newSlicer(context, executionContext, retryData, logger) {
 
     return getFilePaths(opConfig.path)
         .catch((err) => {
-            logger.error('Error while reading slicing files, error:', err);
+            logger.error(err, 'Error while reading slicing files');
             return Promise.reject(err);
         });
 }
