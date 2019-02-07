@@ -80,7 +80,7 @@ function newSlicer(context, executionContext, retryData, logger) {
 
     return [() => {
         // Grab a record if there is one ready in the queue
-        if (queue._size > 0) return queue.dequeue();
+        if (queue.size() > 0) return queue.dequeue();
 
         // Finish slicer if the queue is empty and it's done prepping slices
         if (isFinished) return null;
@@ -89,7 +89,7 @@ function newSlicer(context, executionContext, retryData, logger) {
         // early
         return new Promise((resolve, reject) => {
             const intervalId = setInterval(() => {
-                if (queue._size > 0) {
+                if (queue.size() > 0) {
                     clearInterval(intervalId);
                     resolve(queue.dequeue());
                 }
