@@ -2,10 +2,11 @@
 # yarn lockfile v1
 
 
-"@terascope/chunked-file-reader@^0.1.2":
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/@terascope/chunked-file-reader/-/chunked-file-reader-0.1.2.tgz#92860d75b117b9ffc1bb995ebaaa1450a44abb77"
+"@terascope/chunked-file-reader@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@terascope/chunked-file-reader/-/chunked-file-reader-1.0.0.tgz#9634b2aaf9b06c9d17284c2dd58a9a0fe09a2683"
   dependencies:
+    "@terascope/utils" "^0.4.0"
     bluebird "^3.5.1"
 
 "@terascope/job-components@^0.14.4":
