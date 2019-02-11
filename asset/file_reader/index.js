@@ -133,7 +133,7 @@ function schema() {
             doc: 'Determines the delimiter used in the file being read. '
                 + 'Currently only supports "\n"',
             default: '\n',
-            format: ['\n']
+            format: String
         },
         size: {
             doc: 'Determines slice size in bytes',
