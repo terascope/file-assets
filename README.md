@@ -13,6 +13,7 @@ Teraslice processors for working with data stored in files on disk.
 | include_header | Determines if the names of the fields are included as the first line of the output file | false | N |  
 | format | Determines the format of the output file | N | json |
 
+
 - If a custom delimiter is needed (one other than a tab or comma), set the `delimiter` option to the
   desired delimiter and set the `format` option to `csv`.
 
@@ -54,8 +55,9 @@ This test job will generate 5k records, and then put them into tab-delimited fil
 | ---- | ----------- | ------- | -------- |
 | path | Directory where data will be located. The contents of the directory must contain at least one file and can be a mix of files and subdirectories | | Y |
 | delimiter | Record delimiter used in the file. Currently only supports `\n` | `\n` | N |
-| size | Target slice size in bytes. The reader will adjust this a little bit to ensure there are no partial records at slice boundaries | 100000 | N |]
-| format | Determines the format of the output file. Currently only supports JSON | N | json |
+| size | Target slice size in bytes. The reader will adjust this a little bit to ensure there are no partial records at slice boundaries | 100000 | N |
+| format | Determines the format of the output file. Currently only supports `json` and `raw` | N | json |
+
 
 This processor is ONLY intended for `once` jobs at this time.
 

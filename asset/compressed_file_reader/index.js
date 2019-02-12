@@ -158,7 +158,8 @@ function newReader(context, opConfig) {
                 fse.close(fd);
             }
         }
-        return getChunk(reader, slice, opConfig, logger);
+        // Passing the slice in as the `metadata`. This will include the path, offset, and length
+        return getChunk(reader, slice, opConfig, logger, slice);
     };
 }
 
@@ -191,15 +192,15 @@ function schema() {
             format: String,
         },
         format: {
-            doc: 'How to parse: `json` is newline-delimited json, `pass` leaves parsing for downstream operations.',
-            default: 'pass',
-            format: ['pass', 'json']
+            doc: 'How to parse: `json` is newline-delimited json, `raw` leaves parsing for downstream operations.',
+            default: 'raw',
+            format: ['raw', 'json']
         },
         size: {
             doc: 'Determines slice size in bytes',
             default: 100000,
             format: Number,
-        },
+        }
     };
 }
 

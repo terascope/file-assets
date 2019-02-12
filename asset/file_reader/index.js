@@ -115,7 +115,8 @@ function newReader(context, opConfig) {
                 fse.close(fd);
             }
         }
-        return getChunk(reader, slice, opConfig, logger);
+        // Passing the slice in as the `metadata`. This will include the path, offset, and length
+        return getChunk(reader, slice, opConfig, logger, slice);
     };
 }
 
@@ -132,7 +133,7 @@ function schema() {
             doc: 'Determines the delimiter used in the file being read. '
                 + 'Currently only supports "\n"',
             default: '\n',
-            format: ['\n']
+            format: String
         },
         size: {
             doc: 'Determines slice size in bytes',
@@ -140,9 +141,9 @@ function schema() {
             format: Number
         },
         format: {
-            doc: 'Format of the target file. Currently only supports "json"',
+            doc: 'Format of the target file. Currently only supports "json" and "raw"',
             default: 'json',
-            format: ['json']
+            format: ['json', 'raw']
         }
     };
 }
