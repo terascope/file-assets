@@ -144,12 +144,6 @@ function schema() {
             doc: 'Format of the target file. Currently only supports "json" and "raw"',
             default: 'json',
             format: ['json', 'raw']
-        },
-        _dead_letter_action: {
-            doc: 'This action will specify what to do when failing to parse or transform a record. '
-                + 'The following builtin actions are supported, "throw", "log", or "none".',
-            default: 'none',
-            format: ['throw', 'log', 'none']
         }
     };
 }
