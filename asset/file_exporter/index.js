@@ -37,7 +37,7 @@ function newProcessor(context, opConfig) {
     }
 
     // Determines the filname based on the settings
-    function getFilename(options) {
+    function getFilename() {
         if (filePerSlice) {
             // Increment the file number tracker by one and use the previous number
             fileNum += 1;
@@ -46,9 +46,9 @@ function newProcessor(context, opConfig) {
         // Make sure header does not show up mid-file if the worker is writing all slices to a
         // single file
         if (!firstSlice) {
-            options.header = false;
-            firstSlice = false;
+            csvOptions.header = false;
         }
+        firstSlice = false;
         return filenameBase;
     }
 
@@ -78,8 +78,7 @@ function newProcessor(context, opConfig) {
                 throw new Error('Unsupported output format!!');
             }
         }
-
-        return fs.appendFileAsync(getFilename(csvOptions), buildOutputString(data))
+        return fs.appendFileAsync(getFilename(), buildOutputString(data))
             .catch((err) => {
                 throw new Error(err);
             });
