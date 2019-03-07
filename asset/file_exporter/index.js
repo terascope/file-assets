@@ -69,9 +69,15 @@ function newProcessor(context, opConfig) {
             }
             case 'json': {
                 let outStr = '';
-                slice.forEach((record) => {
-                    outStr = `${outStr}${JSON.stringify(record)}\n`;
-                });
+                if (opConfig.fields.length > 0) {
+                    slice.forEach((record) => {
+                        outStr = `${outStr}${JSON.stringify(record, opConfig.fields)}\n`;
+                    });
+                } else {
+                    slice.forEach((record) => {
+                        outStr = `${outStr}${JSON.stringify(record)}\n`;
+                    });
+                }
                 return outStr;
             }
             default:

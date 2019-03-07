@@ -56,7 +56,6 @@ const data2 = [
 ];
 
 const caseMultiFileSpecifyFields = {
-    _op: 'csv_exporter',
     path: './test/test_output',
     file_prefix: 'test',
     format: 'csv',
@@ -68,7 +67,6 @@ const caseMultiFileSpecifyFields = {
 };
 
 const caseMultiFileAllFields = {
-    _op: 'csv_exporter',
     path: './test/test_output',
     file_prefix: 'test',
     format: 'csv',
@@ -76,7 +74,6 @@ const caseMultiFileAllFields = {
 };
 
 const caseMultiFileAllFieldsHeader = {
-    _op: 'csv_exporter',
     path: './test/test_output',
     file_prefix: 'test',
     file_per_slice: true,
@@ -85,7 +82,6 @@ const caseMultiFileAllFieldsHeader = {
 };
 
 const caseSingleFileSpecifyFields = {
-    _op: 'csv_exporter',
     path: './test/test_output',
     file_prefix: 'test',
     format: 'csv',
@@ -96,14 +92,12 @@ const caseSingleFileSpecifyFields = {
 };
 
 const caseSingleFileAllFields = {
-    _op: 'csv_exporter',
     path: './test/test_output',
     format: 'csv',
     file_prefix: 'test'
 };
 
 const caseSingleFileAllFieldsHeader = {
-    _op: 'csv_exporter',
     path: './test/test_output',
     file_prefix: 'test',
     format: 'csv',
@@ -112,7 +106,6 @@ const caseSingleFileAllFieldsHeader = {
 
 // Testing a tab delimiter
 const caseTabDelimiter = {
-    _op: 'csv_exporter',
     path: './test/test_output',
     file_prefix: 'test',
     format: 'tsv'
@@ -120,7 +113,6 @@ const caseTabDelimiter = {
 
 // Testing a custom delimiter
 const caseCustomDelimiter = {
-    _op: 'csv_exporter',
     path: './test/test_output',
     file_prefix: 'test',
     delimiter: '^',
@@ -128,14 +120,22 @@ const caseCustomDelimiter = {
 };
 
 const caseJSON2File = {
-    _op: 'csv_exporter',
     path: './test/test_output',
     file_prefix: 'test',
     format: 'json'
 };
 
+const caseJSON2FileFields = {
+    path: './test/test_output',
+    file_prefix: 'test',
+    fields: [
+        'field3',
+        'field1'
+    ],
+    format: 'json'
+};
+
 const caseText2File = {
-    _op: 'csv_exporter',
     path: './test/test_output',
     file_prefix: 'test',
     format: 'text'
@@ -309,6 +309,21 @@ describe('The file-assets csv_exporter processor', () => {
                     '{"field1":42,"field3":"test data","field2":55}\n'
                     + '{"field1":43,"field3":"more test data","field2":56}\n'
                     + '{"field1":44,"field3":"even more test data","field2":57}\n'
+                );
+                cleanTestDir();
+                done();
+            });
+    });
+    it('filters and orders JSON fields', (done) => {
+        const opConfig = caseJSON2FileFields;
+        const slices = [data];
+        testHarness.runSlices(slices, opConfig)
+            .then(() => {
+                expect(fs.readdirSync('./test/test_output').length).toEqual(1);
+                expect(fs.readFileSync('./test/test_output/test_undefined', 'utf-8')).toEqual(
+                    '{"field3":"test data","field1":42}\n'
+                    + '{"field3":"more test data","field1":43}\n'
+                    + '{"field3":"even more test data","field1":44}\n'
                 );
                 cleanTestDir();
                 done();
