@@ -12,6 +12,11 @@ function newProcessor(context, opConfig) {
     const worker = context.sysconfig._nodeName;
     const filePrefix = opConfig.file_prefix;
     const filePerSlice = opConfig.file_per_slice;
+    const filenameBase = `${opConfig.path}/${filePrefix}_${worker}`;
+    let fileNum = 0;
+
+    // Used as a guard against dropping the header mid-file
+    let firstSlice = true;
 
     // Set the options for the parser
     const csvOptions = {};
@@ -33,38 +38,18 @@ function newProcessor(context, opConfig) {
 
     // Determines the filname based on the settings
     function getFilename(options) {
-        const filenameBase = `${filePrefix}_${worker}`;
-        // Get the files in the target directly and filter out the ones that contain the worker
-        // name
-        return fs.readdirAsync(opConfig.path)
-            .then((files) => {
-                const targetFiles = files.filter(file => file.indexOf(worker) > -1);
-
-                if (filePerSlice) {
-                    // In this case, the worker is writing to the first file
-                    if (targetFiles.length === 0) {
-                        return `${opConfig.path}/${filenameBase}.0`;
-                    }
-                    // Otherwise, the worker needs to figure out which file suffix is next
-                    let biggestNum = 0;
-                    targetFiles.forEach((file) => {
-                        const curNum = file.split('.').reverse()[0];
-                        if (curNum > biggestNum) {
-                            biggestNum = curNum;
-                        }
-                    });
-                    // Increment the file's number by one
-                    return `${opConfig.path}/${filenameBase}.${biggestNum * 1 + 1}`;
-                }
-                // Check if the file already exists to make sure the header won't show up mid-file
-                if (targetFiles.length > 0) {
-                    options.header = false;
-                }
-                return `${opConfig.path}/${filenameBase}`;
-            })
-            .catch((err) => {
-                throw new Error(err);
-            });
+        if (filePerSlice) {
+            // Increment the file number tracker by one and use the previous number
+            fileNum += 1;
+            return `${filenameBase}.${fileNum - 1}`;
+        }
+        // Make sure header does not show up mid-file if the worker is writing all slices to a
+        // single file
+        if (!firstSlice) {
+            options.header = false;
+            firstSlice = false;
+        }
+        return filenameBase;
     }
 
     return (data) => {
@@ -94,8 +79,7 @@ function newProcessor(context, opConfig) {
             }
         }
 
-        return getFilename(csvOptions)
-            .then(filename => fs.appendFileAsync(filename, buildOutputString(data)))
+        return fs.appendFileAsync(getFilename(csvOptions), buildOutputString(data))
             .catch((err) => {
                 throw new Error(err);
             });
