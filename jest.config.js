@@ -3,7 +3,9 @@
 module.exports = {
     verbose: true,
     testEnvironment: 'node',
-    setupTestFrameworkScriptFile: 'jest-extended',
+    setupFilesAfterEnv: [
+        'jest-extended'
+    ],
     collectCoverage: true,
     coverageReporters: ['json', 'lcov', 'text', 'html'],
     coverageDirectory: 'coverage',

@@ -66,3 +66,5 @@ typings/
 # Build artifacts
 asset.zip
 build/
+
+test/test_output
