@@ -9,12 +9,16 @@ branches:
   only:
   - master
   - /^v\d+\.\d+\.\d+/
-before_deploy: yarn build
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+  - yarn lint
+  - yarn global add teraslice-cli
+  - teraslice-cli assets build
 deploy:
   provider: releases
   api_key: $GITHUB_TOKEN
   file_glob: true
-  file: builds/*.zip
+  file: build/*.zip
   skip_cleanup: true
   on:
     tags: true
