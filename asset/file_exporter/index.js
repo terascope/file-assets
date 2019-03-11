@@ -59,8 +59,8 @@ function newProcessor(context, opConfig) {
         function buildOutputString(slice) {
             switch (opConfig.format) {
             case 'csv':
-                return `${json2csv(slice, csvOptions)}\n`;
             case 'tsv':
+                if (!slice || !slice.length) return '\n';
                 return `${json2csv(slice, csvOptions)}\n`;
             case 'text': {
                 let outStr = '';

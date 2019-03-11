@@ -1,27 +1,27 @@
 {
-  "name": "file-assets-bundle",
-  "version": "0.4.0",
-  "description": "Teraslice processors for working with data stored in files on disk",
-  "repository": "https://github.com/terascope/file-assets.git",
-  "author": "Terascope, LLC <info@terascope.io>",
-  "license": "MIT",
-  "scripts": {
-    "lint": "eslint asset/**/*.js test/**/*.js",
-    "lint:fix": "eslint --fix asset/**/*.js test/**/*.js",
-    "test": "jest",
-    "postinstall": "yarn --cwd ./asset --prod --no-progress"
-  },
-  "dependencies": {},
-  "devDependencies": {
-    "@terascope/job-components": "^0.15.0",
-    "@terascope/teraslice-op-test-harness": "^1.5.4",
-    "@terascope/utils": "^0.6.0",
-    "eslint": "^5.15.1",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.14.0",
-    "jest": "^24.3.1",
-    "jest-extended": "^0.8.1",
-    "jest-fixtures": "^0.6.0",
-    "json2csv": "4.2.0"
-  }
+    "name": "file-assets-bundle",
+    "version": "0.4.0",
+    "description": "Teraslice processors for working with data stored in files on disk",
+    "repository": "https://github.com/terascope/file-assets.git",
+    "author": "Terascope, LLC <info@terascope.io>",
+    "license": "MIT",
+    "scripts": {
+        "lint": "eslint asset/**/*.js test/**/*.js",
+        "lint:fix": "eslint --fix asset/**/*.js test/**/*.js",
+        "test": "jest",
+        "postinstall": "yarn --cwd ./asset --prod --no-progress"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "@terascope/job-components": "^0.15.0",
+        "@terascope/teraslice-op-test-harness": "^1.5.4",
+        "@terascope/utils": "^0.6.0",
+        "eslint": "^5.15.1",
+        "eslint-config-airbnb-base": "^13.1.0",
+        "eslint-plugin-import": "^2.14.0",
+        "jest": "^24.4.0",
+        "jest-extended": "^0.11.1",
+        "jest-fixtures": "^0.6.0",
+        "json2csv": "4.3.5"
+    }
 }

@@ -1,9 +1,9 @@
 'use strict';
 
-const FileDB = require('../asset/compressed_file_reader/filedb');
 const fixtures = require('jest-fixtures');
 const fse = require('fs-extra');
 const path = require('path');
+const FileDB = require('../asset/compressed_file_reader/filedb');
 
 describe('The compressed_file_reader', () => {
     describe('when single file uploaded', () => {
@@ -54,6 +54,7 @@ describe('The compressed_file_reader', () => {
         let workDir;
         let decompress;
         let ready;
+        // eslint-disable-next-line no-unused-vars
         let archive;
         let filedb;
         it('should be able to initialize', async () => {
@@ -74,7 +75,7 @@ describe('The compressed_file_reader', () => {
             try {
                 await filedb.decompress(upload);
             } catch (err) {
-                code = err.code;
+                ({ code } = err);
             }
             expect(code).toEqual(42);
             expect(await fse.exists(decompress)).toBeFalse();
