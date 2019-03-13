@@ -26,14 +26,23 @@ async function newSlicer(context, job, retryData, logger) {
         const total = stat.size;
         // NOTE: Important to update `slices` syncronously so that the correct
         // `last` slice is marked.
-        getOffsets(opConfig.size, total, opConfig.delimiter).forEach((offset) => {
-            slices.push({
-                total,
-                work,
-                src,
-                ...offset,
+        // Override file slicing to make sure JSON files are not split across slices
+        if (opConfig.format === 'json') {
+            const offset = {};
+            offset.path = work;
+            offset.offset = 0;
+            offset.length = total;
+            slices.push(offset);
+        } else {
+            getOffsets(opConfig.size, total, opConfig.line_delimiter).forEach((offset) => {
+                slices.push({
+                    total,
+                    work,
+                    src,
+                    ...offset,
+                });
             });
-        });
+        }
         // Mark the last slice so we know when to archive the file.
         slices[slices.length - 1].last = true;
         _.pull(working, src);
@@ -147,6 +156,10 @@ async function newSlicer(context, job, retryData, logger) {
 }
 
 function newReader(context, opConfig) {
+    // Coerce the field delimiter if the format is `tsv`
+    if (opConfig.format === 'tsv') {
+        opConfig.field_delimiter = '\t';
+    }
     return function processSlice(slice, logger) {
         async function reader(offset, length) {
             const fd = await fse.open(slice.work, 'r');
@@ -185,11 +198,25 @@ function schema() {
             default: os.cpus().length,
             format: Number,
         },
-        delimiter: {
-            doc: 'Determines the delimiter used in the file being read. '
-                + 'Currently only supports "\n"',
+        field_delimiter: {
+            doc: 'Delimiter character',
+            default: ',',
+            format: String
+        },
+        line_delimiter: {
+            doc: 'Determines the line delimiter used in the file being read.',
             default: '\n',
-            format: String,
+            format: String
+        },
+        fields: {
+            doc: 'CSV field headers used to create the json key, must be in same order as file',
+            default: [],
+            format: Array
+        },
+        remove_header: {
+            doc: 'Checks for the header row and removes it',
+            default: true,
+            format: 'Boolean'
         },
         format: {
             doc: 'How to parse: `json` is newline-delimited json, `raw` leaves parsing for downstream operations.',
