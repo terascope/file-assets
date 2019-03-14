@@ -193,7 +193,7 @@ describe('The file-assets file_exporter', () => {
     it('creates multiple csv files with specific fields', (done) => {
         const opConfig = caseMultiFileSpecifyFields;
         const slices = [data, data];
-        testHarness.runSlices(slices, opConfig)
+        return testHarness.runSlices(slices, opConfig)
             .then(() => {
                 // This should be equal to three since the test harnes shoves an empty slice through
                 expect(fs.readdirSync(getTestFilePath()).length).toEqual(3);
@@ -209,7 +209,8 @@ describe('The file-assets file_exporter', () => {
     it('creates multiple csv files with all fields', (done) => {
         const opConfig = caseMultiFileAllFields;
         const slices = [data, data];
-        testHarness.runSlices(slices, opConfig)
+
+        return testHarness.runSlices(slices, opConfig)
             .then(() => {
                 // This should be equal to three since the test harnes shoves an empty slice through
                 expect(fs.readdirSync(getTestFilePath()).length).toEqual(3);
@@ -225,7 +226,7 @@ describe('The file-assets file_exporter', () => {
     it('creates multiple csv files with all fields and headers', (done) => {
         const opConfig = caseMultiFileAllFieldsHeader;
         const slices = [data, data];
-        testHarness.runSlices(slices, opConfig)
+        return testHarness.runSlices(slices, opConfig)
             .then(() => {
                 // This should be equal to three since the test harnes shoves an empty slice through
                 expect(fs.readdirSync(getTestFilePath()).length).toEqual(3);
@@ -247,7 +248,7 @@ describe('The file-assets file_exporter', () => {
     it('creates a single csv file with custom fields', (done) => {
         const opConfig = caseSingleFileSpecifyFields;
         const slices = [data, data];
-        testHarness.runSlices(slices, opConfig)
+        return testHarness.runSlices(slices, opConfig)
             .then(() => {
                 expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
                 expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
@@ -264,7 +265,7 @@ describe('The file-assets file_exporter', () => {
     it('creates a single csv file with all fields', (done) => {
         const opConfig = caseSingleFileAllFields;
         const slices = [data, data];
-        testHarness.runSlices(slices, opConfig)
+        return testHarness.runSlices(slices, opConfig)
             .then(() => {
                 expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
                 expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
@@ -281,7 +282,7 @@ describe('The file-assets file_exporter', () => {
     it('creates a single csv file and adds a header properly', (done) => {
         const opConfig = caseSingleFileAllFieldsHeader;
         const slices = [data, data];
-        testHarness.runSlices(slices, opConfig)
+        return testHarness.runSlices(slices, opConfig)
             .then(() => {
                 expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
                 // The empty slice does leave an extra newline at the end of the file, but for some
@@ -301,7 +302,7 @@ describe('The file-assets file_exporter', () => {
     it('creates a single tsv file with a tab delimiter', (done) => {
         const opConfig = caseTabDelimiter;
         const slices = [data];
-        testHarness.runSlices(slices, opConfig)
+        return testHarness.runSlices(slices, opConfig)
             .then(() => {
                 expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
                 expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
@@ -315,7 +316,8 @@ describe('The file-assets file_exporter', () => {
     it('creates a single csv file with a custom field delimiter', (done) => {
         const opConfig = caseCustomDelimiter;
         const slices = [data];
-        testHarness.runSlices(slices, opConfig)
+
+        return testHarness.runSlices(slices, opConfig)
             .then(() => {
                 expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
                 expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
@@ -343,7 +345,7 @@ describe('The file-assets file_exporter', () => {
     it('creates a single file with line-delimite JSON records', (done) => {
         const opConfig = caseldJSON2File;
         const slices = [data];
-        testHarness.runSlices(slices, opConfig)
+        return testHarness.runSlices(slices, opConfig)
             .then(() => {
                 expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
                 expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
@@ -357,7 +359,7 @@ describe('The file-assets file_exporter', () => {
     it('filters and orders line-delimited JSON fields', (done) => {
         const opConfig = caseldJSON2FileFields;
         const slices = [data];
-        testHarness.runSlices(slices, opConfig)
+        return testHarness.runSlices(slices, opConfig)
             .then(() => {
                 expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
                 expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
@@ -386,7 +388,8 @@ describe('The file-assets file_exporter', () => {
     it('creates a single file with raw records on each line', (done) => {
         const opConfig = caseRaw2File;
         const slices = [data2];
-        testHarness.runSlices(slices, opConfig)
+
+        return testHarness.runSlices(slices, opConfig)
             .then(() => {
                 expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
                 expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(

@@ -5,3 +5,13 @@ This bundle includes the following processors:
 - [`file_exporter`](./docs/file_exporter.md)
 - [`file_reader`](./docs/file_reader.md)
 - `compressed_file_reader`
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+
+[MIT](./LICENSE) licensed.

@@ -73,7 +73,7 @@ function newProcessor(context, opConfig) {
             case 'raw': {
                 let outStr = '';
                 slice.forEach((record) => {
-                    outStr = `${outStr}${record.data}\n`;
+                    outStr = `${outStr}${record.data}${opConfig.line_delimiter}`;
                 });
                 return outStr;
             }
@@ -100,7 +100,7 @@ function newProcessor(context, opConfig) {
             }
             // Schema validation guards against this
             default:
-                throw new Error('Unsupported output format!!');
+                throw new Error(`Unsupported output format "${opConfig.format}"`);
             }
         }
         const fileName = getFilename();
