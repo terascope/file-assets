@@ -190,7 +190,7 @@ describe('The file-assets file_exporter', () => {
         expect(schema.file_per_slice.default).toEqual(false);
         expect(schema.include_header.default).toEqual(false);
     });
-    it('creates multiple csv files with specific fields', (done) => {
+    it('creates multiple csv files with specific fields', () => {
         const opConfig = caseMultiFileSpecifyFields;
         const slices = [data, data];
         return testHarness.runSlices(slices, opConfig)
@@ -203,10 +203,9 @@ describe('The file-assets file_exporter', () => {
                 expect(fs.readFileSync(getTestFilePath(`test_${nodeName}.1`), 'utf-8')).toEqual(
                     '"test data",42\n"more test data",43\n"even more test data",44\n'
                 );
-                done();
             });
     });
-    it('creates multiple csv files with all fields', (done) => {
+    it('creates multiple csv files with all fields', () => {
         const opConfig = caseMultiFileAllFields;
         const slices = [data, data];
 
@@ -220,10 +219,9 @@ describe('The file-assets file_exporter', () => {
                 expect(fs.readFileSync(getTestFilePath(`test_${nodeName}.1`), 'utf-8')).toEqual(
                     '42,"test data",55\n43,"more test data",56\n44,"even more test data",57\n'
                 );
-                done();
             });
     });
-    it('creates multiple csv files with all fields and headers', (done) => {
+    it('creates multiple csv files with all fields and headers', () => {
         const opConfig = caseMultiFileAllFieldsHeader;
         const slices = [data, data];
         return testHarness.runSlices(slices, opConfig)
@@ -242,10 +240,9 @@ describe('The file-assets file_exporter', () => {
                     + '43,"more test data",56\n'
                     + '44,"even more test data",57\n'
                 );
-                done();
             });
     });
-    it('creates a single csv file with custom fields', (done) => {
+    it('creates a single csv file with custom fields', () => {
         const opConfig = caseSingleFileSpecifyFields;
         const slices = [data, data];
         return testHarness.runSlices(slices, opConfig)
@@ -259,10 +256,9 @@ describe('The file-assets file_exporter', () => {
                     + '"more test data",43\n'
                     + '"even more test data",44\n\n'
                 );
-                done();
             });
     });
-    it('creates a single csv file with all fields', (done) => {
+    it('creates a single csv file with all fields', () => {
         const opConfig = caseSingleFileAllFields;
         const slices = [data, data];
         return testHarness.runSlices(slices, opConfig)
@@ -276,10 +272,9 @@ describe('The file-assets file_exporter', () => {
                     + '43,"more test data",56\n'
                     + '44,"even more test data",57\n\n'
                 );
-                done();
             });
     });
-    it('creates a single csv file and adds a header properly', (done) => {
+    it('creates a single csv file and adds a header properly', () => {
         const opConfig = caseSingleFileAllFieldsHeader;
         const slices = [data, data];
         return testHarness.runSlices(slices, opConfig)
@@ -296,10 +291,9 @@ describe('The file-assets file_exporter', () => {
                     + '43,"more test data",56\n'
                     + '44,"even more test data",57\n\n'
                 );
-                done();
             });
     });
-    it('creates a single tsv file with a tab delimiter', (done) => {
+    it('creates a single tsv file with a tab delimiter', () => {
         const opConfig = caseTabDelimiter;
         const slices = [data];
         return testHarness.runSlices(slices, opConfig)
@@ -310,10 +304,9 @@ describe('The file-assets file_exporter', () => {
                     + '43\t"more test data"\t56\n'
                     + '44\t"even more test data"\t57\n\n'
                 );
-                done();
             });
     });
-    it('creates a single csv file with a custom field delimiter', (done) => {
+    it('creates a single csv file with a custom field delimiter', () => {
         const opConfig = caseCustomDelimiter;
         const slices = [data];
 
@@ -325,13 +318,12 @@ describe('The file-assets file_exporter', () => {
                     + '43^"more test data"^56\n'
                     + '44^"even more test data"^57\n\n'
                 );
-                done();
             });
     });
-    it('creates a single csv file with a custom line delimiter', (done) => {
+    it('creates a single csv file with a custom line delimiter', () => {
         const opConfig = caseCustomLineDelimiter;
         const slices = [data];
-        testHarness.runSlices(slices, opConfig)
+        return testHarness.runSlices(slices, opConfig)
             .then(() => {
                 expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
                 expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
@@ -339,10 +331,9 @@ describe('The file-assets file_exporter', () => {
                     + '43,"more test data",56^'
                     + '44,"even more test data",57^^'
                 );
-                done();
             });
     });
-    it('creates a single file with line-delimite JSON records', (done) => {
+    it('creates a single file with line-delimite JSON records', () => {
         const opConfig = caseldJSON2File;
         const slices = [data];
         return testHarness.runSlices(slices, opConfig)
@@ -353,10 +344,9 @@ describe('The file-assets file_exporter', () => {
                     + '{"field1":43,"field3":"more test data","field2":56}\n'
                     + '{"field1":44,"field3":"even more test data","field2":57}\n'
                 );
-                done();
             });
     });
-    it('filters and orders line-delimited JSON fields', (done) => {
+    it('filters and orders line-delimited JSON fields', () => {
         const opConfig = caseldJSON2FileFields;
         const slices = [data];
         return testHarness.runSlices(slices, opConfig)
@@ -367,13 +357,12 @@ describe('The file-assets file_exporter', () => {
                     + '{"field3":"more test data","field1":43}\n'
                     + '{"field3":"even more test data","field1":44}\n'
                 );
-                done();
             });
     });
-    it('creates single files with a JSON record for `json` format', (done) => {
+    it('creates single files with a JSON record for `json` format', () => {
         const opConfig = caseJSON2File;
         const slices = [data3, data3];
-        testHarness.runSlices(slices, opConfig)
+        return testHarness.runSlices(slices, opConfig)
             .then(() => {
                 expect(fs.readdirSync(getTestFilePath()).length).toEqual(3);
                 expect(fs.readFileSync(getTestFilePath(`test_${nodeName}.0`), 'utf-8')).toEqual(
@@ -382,10 +371,9 @@ describe('The file-assets file_exporter', () => {
                 expect(fs.readFileSync(getTestFilePath(`test_${nodeName}.1`), 'utf-8')).toEqual(
                     '[{"field1":42,"field3":"test data","field2":55,"field4":88}]\n'
                 );
-                done();
             });
     });
-    it('creates a single file with raw records on each line', (done) => {
+    it('creates a single file with raw records on each line', () => {
         const opConfig = caseRaw2File;
         const slices = [data2];
 
@@ -397,7 +385,6 @@ describe('The file-assets file_exporter', () => {
                     + 'record2\n'
                     + 'record3\n'
                 );
-                done();
             });
     });
 });
