@@ -1,8 +1,10 @@
 'use strict';
 
 const Promise = require('bluebird');
+const path = require('path');
 const fs = require('fs');
 const json2csv = require('json2csv').parse;
+const { TSError } = require('@terascope/utils');
 
 Promise.promisifyAll(fs);
 
@@ -12,7 +14,7 @@ function newProcessor(context, opConfig) {
     const worker = context.sysconfig._nodeName;
     const filePrefix = opConfig.file_prefix;
     let filePerSlice = opConfig.file_per_slice;
-    const filenameBase = `${opConfig.path}/${filePrefix}${worker}`;
+    const filenameBase = path.join(opConfig.path, `${filePrefix}${worker}`);
     let fileNum = 0;
 
     // Used as a guard against dropping the header mid-file
@@ -64,8 +66,9 @@ function newProcessor(context, opConfig) {
         function buildOutputString(slice) {
             switch (opConfig.format) {
             case 'csv':
-                return `${json2csv(slice, csvOptions)}${opConfig.line_delimiter}`;
             case 'tsv':
+                // null or empty slices will manifest as blank lines in the output file
+                if (!slice || !slice.length) return opConfig.line_delimiter;
                 return `${json2csv(slice, csvOptions)}${opConfig.line_delimiter}`;
             case 'raw': {
                 let outStr = '';
@@ -100,10 +103,11 @@ function newProcessor(context, opConfig) {
                 throw new Error('Unsupported output format!!');
             }
         }
-        return fs.appendFileAsync(getFilename(), buildOutputString(data))
-            .catch((err) => {
-                throw new Error(err);
-            });
+        const fileName = getFilename();
+        return fs.appendFileAsync(fileName, buildOutputString(data))
+            .catch(err => Promise.reject(new TSError(err, {
+                reason: `Failure to append to file ${fileName}`
+            })));
     };
 }
 

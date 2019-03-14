@@ -35,12 +35,11 @@ async function newSlicer(context, job, retryData, logger) {
             slices.push(offset);
         } else {
             getOffsets(opConfig.size, total, opConfig.line_delimiter).forEach((offset) => {
-                slices.push({
+                slices.push(Object.assign({
                     total,
                     work,
                     src,
-                    ...offset,
-                });
+                }, offset));
             });
         }
         // Mark the last slice so we know when to archive the file.
@@ -95,7 +94,9 @@ async function newSlicer(context, job, retryData, logger) {
         realpath: true,
     };
     if (job.config.lifecycle === 'persistent') {
-        setInterval(() => glob(opConfig.glob, globOpts, onUpstreamGlobbed), opConfig.globSeconds * 1000);
+        setInterval(
+            () => glob(opConfig.glob, globOpts, onUpstreamGlobbed), opConfig.globSeconds * 1000
+        );
     }
     glob(opConfig.glob, globOpts, onUpstreamGlobbed);
 
