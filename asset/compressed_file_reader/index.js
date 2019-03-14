@@ -9,6 +9,10 @@ const { getOffsets, getChunk } = require('@terascope/chunked-file-reader');
 const { getOpConfig } = require('@terascope/job-components');
 
 async function newSlicer(context, job, retryData, logger) {
+    const intervals = [];
+    let shutdown = false;
+    const events = context.foundation.getEventEmitter();
+
     // Slicer queue.  Slices from multiple files can enqueue here but that's ok.
     const slices = [];
 
@@ -84,7 +88,19 @@ async function newSlicer(context, job, retryData, logger) {
         });
     }
 
-    setInterval(doWork, 1000);
+    intervals.push(setInterval(doWork, 1000));
+
+    function cleanup() {
+        shutdown = true;
+        intervals.forEach((id) => {
+            clearInterval(id);
+        });
+        intervals.length = 0;
+    }
+
+    events.once('worker:shutdown', () => {
+        cleanup();
+    });
 
     // Watch upstream directory.
     const globOpts = {
@@ -94,13 +110,11 @@ async function newSlicer(context, job, retryData, logger) {
         realpath: true,
     };
     if (job.config.lifecycle === 'persistent') {
-        setInterval(
-            () => glob(opConfig.glob, globOpts, onUpstreamGlobbed), opConfig.globSeconds * 1000
-        );
+        const ms = opConfig.globSeconds * 1000;
+        const id = setInterval(() => glob(opConfig.glob, globOpts, onUpstreamGlobbed), ms);
+        intervals.push(id);
     }
     glob(opConfig.glob, globOpts, onUpstreamGlobbed);
-
-    const events = context.foundation.getEventEmitter();
 
     async function onSlice(slice) {
         // slice: {
@@ -140,6 +154,11 @@ async function newSlicer(context, job, retryData, logger) {
                 return;
             }
             function wait() {
+                if (shutdown) {
+                    resolve();
+                    return;
+                }
+
                 if (working.length) {
                     logger.debug({ working: working.length }, 'waiting for work to settle');
                     setTimeout(wait, 1000);
@@ -153,7 +172,7 @@ async function newSlicer(context, job, retryData, logger) {
 
     return waitForWorkToSettle()
         .then(() => [() => slices.shift()])
-        .catch(logger.err);
+        .catch((err) => { logger.error(err); });
 }
 
 function newReader(context, opConfig) {
@@ -169,7 +188,7 @@ function newReader(context, opConfig) {
                 const { bytesRead } = await fse.read(fd, buf, 0, length, offset);
                 return buf.slice(0, bytesRead).toString();
             } finally {
-                fse.close(fd);
+                await fse.close(fd);
             }
         }
         // Passing the slice in as the `metadata`. This will include the path, offset, and length
