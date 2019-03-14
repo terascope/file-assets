@@ -83,7 +83,7 @@ Determines whether or not to keep column headers when they appear in a slice. If
 This test job will find and read the files in the `/app/data/testfiles`, and then put them into ES. In this example, the TS cluster could be a single-node cluster or a multi-node cluster where `/app/data` is directory shared between all the workers.
 
 The directory has this structure:  
-```
+```text
 /app/data/testfiles
 ├── test_data1_200k_records.txt
 ├── test_data2_200k_records.txt
