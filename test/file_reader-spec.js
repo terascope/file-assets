@@ -1,6 +1,5 @@
 'use strict';
 
-// const FileDB = require('../asset/compressed_file_reader/filedb');
 const fixtures = require('jest-fixtures');
 const path = require('path');
 const { debugLogger } = require('@terascope/utils');
@@ -33,7 +32,7 @@ describe('The file_reader', () => {
             // `context` is not needed, so it can just be left undefined
             const sliceProcessor = newReader(undefined, opConfig);
             const beginningSlice = {
-                path: `${testDataDir}/testData.txt`,
+                path: path.join(testDataDir, 'testData.txt'),
                 offset: 0,
                 length: 750,
                 total: 16820
@@ -53,7 +52,7 @@ describe('The file_reader', () => {
             // `context` is not needed, so it can just be left undefined
             const sliceProcessor = newReader(undefined, opConfig);
             const beginningSlice = {
-                path: `${testDataDir}/single.json`,
+                path: path.join(testDataDir, 'single.json'),
                 offset: 0,
                 length: 364,
                 total: 364
@@ -74,7 +73,7 @@ describe('The file_reader', () => {
             // `context` is not needed, so it can just be left undefined
             const sliceProcessor = newReader(undefined, opConfig);
             const beginningSlice = {
-                path: `${testDataDir}/array.json`,
+                path: path.join(testDataDir, 'array.json'),
                 offset: 0,
                 length: 1822,
                 total: 1822
@@ -98,7 +97,7 @@ describe('The file_reader', () => {
             // `context` is not needed, so it can just be left undefined
             const sliceProcessor = newReader(undefined, opConfig);
             const beginningSlice = {
-                path: `${testDataDir}/csv.txt`,
+                path: path.join(testDataDir, 'csv.txt'),
                 offset: 0,
                 length: 200,
                 total: 1000
@@ -128,7 +127,7 @@ describe('The file_reader', () => {
             // `context` is not needed, so it can just be left undefined
             const sliceProcessor = newReader(undefined, opConfig);
             const beginningSlice = {
-                path: `${testDataDir}/csv.txt`,
+                path: path.join(testDataDir, 'csv.txt'),
                 offset: 0,
                 length: 200,
                 total: 1000
@@ -156,7 +155,7 @@ describe('The file_reader', () => {
             // `context` is not needed, so it can just be left undefined
             const sliceProcessor = newReader(undefined, opConfig);
             const beginningSlice = {
-                path: `${testDataDir}/tsv.tsv`,
+                path: path.join(testDataDir, 'tsv.tsv'),
                 offset: 0,
                 length: 200,
                 total: 1000
@@ -181,7 +180,7 @@ describe('The file_reader', () => {
             // `context` is not needed, so it can just be left undefined
             const sliceProcessor = newReader(undefined, opConfig);
             const beginningSlice = {
-                path: `${testDataDir}/raw.txt`,
+                path: path.join(testDataDir, 'raw.txt'),
                 offset: 0,
                 length: 200,
                 total: 1000
