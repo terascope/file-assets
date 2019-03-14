@@ -92,7 +92,7 @@ The directory has this structure:
     └── test_data4_200k_records.txt
 ```
 
-```
+```json
 {
   "name": "file_reader",
   "lifecycle": "once",

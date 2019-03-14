@@ -78,7 +78,7 @@ Determines whether or not to include column headers for the fields in output fil
 
 `raw` output will generate files where each line is the value of the `data` attribute of a data entity in the slice. So, when using the `raw` format output, the records must be sent to the `file_exporter` in the form of:  
 
-```
+```json
 { data: 'some processed data string' }
 ```
 
@@ -86,7 +86,7 @@ Determines whether or not to include column headers for the fields in output fil
 
 This test job will generate 500k records and put them into tab-delimited files that include column headers in the worker's `/app/data/testfiles` directory. (Since the `elasticsearch_data_generator` breaks records into batches of 10k records, this will result in 50 `test_*` tsv files)
 
-```
+```json
 {
   "name": "file_exporter",
   "lifecycle": "once",
