@@ -39,10 +39,19 @@ function newSlicer(context, executionContext, retryData, logger) {
     async function processFile(filePath) {
         const stat = await fse.stat(filePath);
         const total = stat.size;
-        getOffsets(opConfig.size, total, opConfig.delimiter).forEach((offset) => {
+        // Override file slicing to make sure JSON files are not split across slices
+        if (opConfig.format === 'json') {
+            const offset = {};
             offset.path = filePath;
+            offset.offset = 0;
+            offset.length = total;
             queue.enqueue(offset);
-        });
+        } else {
+            getOffsets(opConfig.size, total, opConfig.line_delimiter).forEach((offset) => {
+                offset.path = filePath;
+                queue.enqueue(offset);
+            });
+        }
         return true;
     }
 
@@ -104,6 +113,10 @@ function newSlicer(context, executionContext, retryData, logger) {
 
 
 function newReader(context, opConfig) {
+    // Coerce the field delimiter if the format is `tsv`
+    if (opConfig.format === 'tsv') {
+        opConfig.field_delimiter = '\t';
+    }
     return function processSlice(slice, logger) {
         async function reader(offset, length) {
             const fd = await fse.open(slice.path, 'r');
@@ -126,24 +139,39 @@ function schema() {
             doc: 'Directory that contains the files to process. If the directory consists of a mix '
                 + 'of subdirectories and files, the slicer will crawl through the subdirectories to'
                 + ' slice all of the files.',
-            default: '/tmp/upload',
+            default: null,
             format: 'required_String'
-        },
-        delimiter: {
-            doc: 'Determines the delimiter used in the file being read. '
-                + 'Currently only supports "\n"',
-            default: '\n',
-            format: String
         },
         size: {
             doc: 'Determines slice size in bytes',
-            default: 100000,
+            default: 10000000,
             format: Number
         },
         format: {
-            doc: 'Format of the target file. Currently only supports "json" and "raw"',
-            default: 'json',
-            format: ['json', 'raw']
+            doc: 'Format of the target file. Currently supports "json", "ldjson", "raw", "tsv", and'
+                + ' "csv".',
+            default: 'ldjson',
+            format: ['json', 'ldjson', 'raw', 'tsv', 'csv']
+        },
+        field_delimiter: {
+            doc: 'Delimiter character',
+            default: ',',
+            format: String
+        },
+        line_delimiter: {
+            doc: 'Determines the line delimiter used in the file being read.',
+            default: '\n',
+            format: String
+        },
+        fields: {
+            doc: 'CSV field headers used to create the json key, must be in same order as file',
+            default: [],
+            format: Array
+        },
+        remove_header: {
+            doc: 'Checks for the header row and removes it',
+            default: true,
+            format: 'Boolean'
         }
     };
 }

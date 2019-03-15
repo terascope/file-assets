@@ -20,17 +20,6 @@ async function cleanTestDir() {
     await ensureDir(filepath);
 }
 
-// Not sure how to get context in with the teraslice-op-test-harness. Assumption is that the
-// worker's name comes from context.sysconfig._nodeName based on code from the HDFS file chunker
-
-// const context = {
-//     foundation: {
-//     },
-//     sysconfig: {
-//         _nodeName: 'ts-node-1'
-//     }
-// };
-
 function getTestFilePath(...parts) {
     return path.join(__dirname, 'test_output', ...parts);
 }
@@ -54,15 +43,26 @@ const data = [
 ];
 
 const data2 = [
-    'record1',
-    'record2',
-    'record3'
+    { data: 'record1' },
+    { data: 'record2' },
+    { data: 'record3' }
+];
+
+const data3 = [
+    {
+        field1: 42,
+        field3: 'test data',
+        field2: 55,
+        field4: 88
+    }
 ];
 
 const caseMultiFileSpecifyFields = {
     path: getTestFilePath(),
-    file_prefix: 'test',
+    file_prefix: 'test_',
     format: 'csv',
+    line_delimiter: '\n',
+    field_delimiter: ',',
     fields: [
         'field3',
         'field1'
@@ -72,14 +72,18 @@ const caseMultiFileSpecifyFields = {
 
 const caseMultiFileAllFields = {
     path: getTestFilePath(),
-    file_prefix: 'test',
+    file_prefix: 'test_',
+    line_delimiter: '\n',
+    field_delimiter: ',',
     format: 'csv',
     file_per_slice: true
 };
 
 const caseMultiFileAllFieldsHeader = {
     path: getTestFilePath(),
-    file_prefix: 'test',
+    file_prefix: 'test_',
+    line_delimiter: '\n',
+    field_delimiter: ',',
     file_per_slice: true,
     format: 'csv',
     include_header: true
@@ -87,7 +91,9 @@ const caseMultiFileAllFieldsHeader = {
 
 const caseSingleFileSpecifyFields = {
     path: getTestFilePath(),
-    file_prefix: 'test',
+    file_prefix: 'test_',
+    line_delimiter: '\n',
+    field_delimiter: ',',
     format: 'csv',
     fields: [
         'field3',
@@ -98,12 +104,16 @@ const caseSingleFileSpecifyFields = {
 const caseSingleFileAllFields = {
     path: getTestFilePath(),
     format: 'csv',
-    file_prefix: 'test'
+    line_delimiter: '\n',
+    field_delimiter: ',',
+    file_prefix: 'test_'
 };
 
 const caseSingleFileAllFieldsHeader = {
     path: getTestFilePath(),
-    file_prefix: 'test',
+    file_prefix: 'test_',
+    line_delimiter: '\n',
+    field_delimiter: ',',
     format: 'csv',
     include_header: true
 };
@@ -111,59 +121,76 @@ const caseSingleFileAllFieldsHeader = {
 // Testing a tab delimiter
 const caseTabDelimiter = {
     path: getTestFilePath(),
-    file_prefix: 'test',
+    file_prefix: 'test_',
     format: 'tsv'
 };
 
 // Testing a custom delimiter
 const caseCustomDelimiter = {
     path: getTestFilePath(),
-    file_prefix: 'test',
-    delimiter: '^',
+    file_prefix: 'test_',
+    line_delimiter: '\n',
+    field_delimiter: '^',
     format: 'csv'
 };
 
-const caseJSON2File = {
+const caseCustomLineDelimiter = {
     path: getTestFilePath(),
-    file_prefix: 'test',
-    format: 'json'
+    file_prefix: 'test_',
+    field_delimiter: ',',
+    line_delimiter: '^',
+    format: 'csv'
 };
 
-const caseJSON2FileFields = {
+const caseldJSON2File = {
     path: getTestFilePath(),
-    file_prefix: 'test',
+    file_prefix: 'test_',
+    line_delimiter: '\n',
+    format: 'ldjson'
+};
+
+const caseldJSON2FileFields = {
+    path: getTestFilePath(),
+    file_prefix: 'test_',
+    line_delimiter: '\n',
     fields: [
         'field3',
         'field1'
     ],
+    format: 'ldjson'
+};
+
+const caseJSON2File = {
+    path: getTestFilePath(),
+    file_prefix: 'test_',
+    line_delimiter: '\n',
     format: 'json'
 };
 
-const caseText2File = {
+const caseRaw2File = {
     path: getTestFilePath(),
-    file_prefix: 'test',
-    format: 'text'
+    file_prefix: 'test_',
+    line_delimiter: '\n',
+    format: 'raw'
 };
 
 const nodeName = testHarness.context.sysconfig._nodeName;
 
-// const metricPayload = harness.run(data, opConfig);
-
-describe('The file-assets csv_exporter processor', () => {
+describe('The file-assets file_exporter', () => {
     beforeEach(() => cleanTestDir());
 
     it('provides a config schema for use with convict', () => {
         const schema = processor.schema();
         expect(schema.path.default).toEqual(null);
-        expect(schema.file_prefix.default).toEqual('export');
+        expect(schema.file_prefix.default).toEqual('export_');
         expect(schema.fields.default).toEqual([]);
-        expect(schema.delimiter.default).toEqual(',');
-        expect(schema.format.default).toEqual('json');
+        expect(schema.field_delimiter.default).toEqual(',');
+        expect(schema.line_delimiter.default).toEqual('\n');
+        expect(schema.format.default).toEqual('ldjson');
         expect(schema.file_per_slice.default).toEqual(false);
         expect(schema.include_header.default).toEqual(false);
     });
-
-    it('creates multiple files with specific fields', () => {
+    it('creates multiple csv files with specific fields', () => {
         const opConfig = caseMultiFileSpecifyFields;
         const slices = [data, data];
         return testHarness.runSlices(slices, opConfig)
@@ -178,8 +205,7 @@ describe('The file-assets csv_exporter processor', () => {
                 );
             });
     });
-
-    it('creates multiple files with all fields', () => {
+    it('creates multiple csv files with all fields', () => {
         const opConfig = caseMultiFileAllFields;
         const slices = [data, data];
 
@@ -195,7 +221,7 @@ describe('The file-assets csv_exporter processor', () => {
                 );
             });
     });
-    it('creates multiple files with all fields and headers', () => {
+    it('creates multiple csv files with all fields and headers', () => {
         const opConfig = caseMultiFileAllFieldsHeader;
         const slices = [data, data];
         return testHarness.runSlices(slices, opConfig)
@@ -216,8 +242,7 @@ describe('The file-assets csv_exporter processor', () => {
                 );
             });
     });
-
-    it('creates a single file with custom fields', () => {
+    it('creates a single csv file with custom fields', () => {
         const opConfig = caseSingleFileSpecifyFields;
         const slices = [data, data];
         return testHarness.runSlices(slices, opConfig)
@@ -233,8 +258,7 @@ describe('The file-assets csv_exporter processor', () => {
                 );
             });
     });
-
-    it('creates a single file with all fields', () => {
+    it('creates a single csv file with all fields', () => {
         const opConfig = caseSingleFileAllFields;
         const slices = [data, data];
         return testHarness.runSlices(slices, opConfig)
@@ -250,8 +274,7 @@ describe('The file-assets csv_exporter processor', () => {
                 );
             });
     });
-
-    it('creates a single file and adds a header properly', () => {
+    it('creates a single csv file and adds a header properly', () => {
         const opConfig = caseSingleFileAllFieldsHeader;
         const slices = [data, data];
         return testHarness.runSlices(slices, opConfig)
@@ -270,8 +293,7 @@ describe('The file-assets csv_exporter processor', () => {
                 );
             });
     });
-
-    it('creates a single file with a tab delimiter', () => {
+    it('creates a single tsv file with a tab delimiter', () => {
         const opConfig = caseTabDelimiter;
         const slices = [data];
         return testHarness.runSlices(slices, opConfig)
@@ -284,8 +306,7 @@ describe('The file-assets csv_exporter processor', () => {
                 );
             });
     });
-
-    it('creates a single file with a Custom delimiter', () => {
+    it('creates a single csv file with a custom field delimiter', () => {
         const opConfig = caseCustomDelimiter;
         const slices = [data];
 
@@ -299,9 +320,21 @@ describe('The file-assets csv_exporter processor', () => {
                 );
             });
     });
-
-    it('creates a single file with JSON records on each line', () => {
-        const opConfig = caseJSON2File;
+    it('creates a single csv file with a custom line delimiter', () => {
+        const opConfig = caseCustomLineDelimiter;
+        const slices = [data];
+        return testHarness.runSlices(slices, opConfig)
+            .then(() => {
+                expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
+                expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
+                    '42,"test data",55^'
+                    + '43,"more test data",56^'
+                    + '44,"even more test data",57^^'
+                );
+            });
+    });
+    it('creates a single file with line-delimite JSON records', () => {
+        const opConfig = caseldJSON2File;
         const slices = [data];
         return testHarness.runSlices(slices, opConfig)
             .then(() => {
@@ -313,9 +346,8 @@ describe('The file-assets csv_exporter processor', () => {
                 );
             });
     });
-
-    it('filters and orders JSON fields', () => {
-        const opConfig = caseJSON2FileFields;
+    it('filters and orders line-delimited JSON fields', () => {
+        const opConfig = caseldJSON2FileFields;
         const slices = [data];
         return testHarness.runSlices(slices, opConfig)
             .then(() => {
@@ -327,9 +359,22 @@ describe('The file-assets csv_exporter processor', () => {
                 );
             });
     });
-
-    it('creates a single file with text records on each line', () => {
-        const opConfig = caseText2File;
+    it('creates single files with a JSON record for `json` format', () => {
+        const opConfig = caseJSON2File;
+        const slices = [data3, data3];
+        return testHarness.runSlices(slices, opConfig)
+            .then(() => {
+                expect(fs.readdirSync(getTestFilePath()).length).toEqual(3);
+                expect(fs.readFileSync(getTestFilePath(`test_${nodeName}.0`), 'utf-8')).toEqual(
+                    '[{"field1":42,"field3":"test data","field2":55,"field4":88}]\n'
+                );
+                expect(fs.readFileSync(getTestFilePath(`test_${nodeName}.1`), 'utf-8')).toEqual(
+                    '[{"field1":42,"field3":"test data","field2":55,"field4":88}]\n'
+                );
+            });
+    });
+    it('creates a single file with raw records on each line', () => {
+        const opConfig = caseRaw2File;
         const slices = [data2];
 
         return testHarness.runSlices(slices, opConfig)

@@ -2,17 +2,18 @@
 # yarn lockfile v1
 
 
-"@terascope/chunked-file-reader@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@terascope/chunked-file-reader/-/chunked-file-reader-1.0.0.tgz#9634b2aaf9b06c9d17284c2dd58a9a0fe09a2683"
+"@terascope/chunked-file-reader@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@terascope/chunked-file-reader/-/chunked-file-reader-2.0.0.tgz#9a313716b258999ed9650cda1618a3d3ed86d108"
   dependencies:
     "@terascope/utils" "^0.4.0"
     bluebird "^3.5.1"
+    csvtojson "^2.0.8"
+    lodash "^4.17.11"
 
 "@terascope/job-components@^0.15.0":
   version "0.15.0"
   resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.15.0.tgz#9174470a13b65cb4be0afcb91bda346e717466ac"
-  integrity sha512-F9JJS781fsJoZWfGmuMDs9b8E04k4XZRSjqTnYsRIebc18w90Z8vV/++hALTpd/rusAYD32OMgSpe44ZTBQCVw==
   dependencies:
     "@terascope/queue" "^1.1.6"
     "@terascope/utils" "^0.6.0"
@@ -25,8 +26,8 @@
   resolved "https://registry.yarnpkg.com/@terascope/queue/-/queue-1.1.6.tgz#763d035cf31d2e1fd819ae827274f50874016708"
 
 "@terascope/utils@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.4.0.tgz#b66fac19ec725fa9e916626620cde78bb22333f8"
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.4.1.tgz#7d470c6ac6f74a1998e52ac2a4b9e555803832f3"
   dependencies:
     debug "^4.1.1"
     is-plain-object "^2.0.4"
@@ -36,7 +37,6 @@
 "@terascope/utils@^0.6.0":
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.6.0.tgz#72a226ef3f675b3b5b561b4a2d5491af6991af99"
-  integrity sha512-Aeztbtd6Rn6dQ6pfCfIFSAXRiO5N0lFmNvu6cTPyxsqtjyPMe8jv5Jgtz3Guh+PX6trktvMVNzQNhsTel9Nc4A==
   dependencies:
     debug "^4.1.1"
     is-plain-object "^2.0.4"
@@ -47,9 +47,9 @@ balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
 
-bluebird@^3.5.1:
-  version "3.5.1"
-  resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.1.tgz#d9551f9de98f1fcda1e683d17ee91a0602ee2eb9"
+bluebird@^3.5.1, bluebird@^3.5.3:
+  version "3.5.3"
+  resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.3.tgz#7d01c6f9616c9a51ab0f8c549a79dfe6ec33efa7"
 
 bluebird@^3.5.3:
   version "3.5.3"
@@ -64,12 +64,12 @@ brace-expansion@^1.1.7:
     concat-map "0.0.1"
 
 camelcase@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-5.0.0.tgz#03295527d58bd3cd4aa75363f35b2e8d97be2f42"
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-5.2.0.tgz#e7522abda5ed94cc0489e1b8466610e88404cf45"
 
 commander@^2.15.1:
-  version "2.17.1"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-2.17.1.tgz#bd77ab7de6de94205ceacc72f1716d29f20a77bf"
+  version "2.19.0"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-2.19.0.tgz#f6198aa84e5b83c46054b94ddedbfed5ee9ff12a"
 
 concat-map@0.0.1:
   version "0.0.1"
@@ -85,6 +85,14 @@ convict@^4.4.1:
     moment "2.22.2"
     validator "10.8.0"
     yargs-parser "11.0.0"
+
+csvtojson@^2.0.8:
+  version "2.0.8"
+  resolved "https://registry.yarnpkg.com/csvtojson/-/csvtojson-2.0.8.tgz#d889f19576b2b33ead235490d2e5c9791481e8d3"
+  dependencies:
+    bluebird "^3.5.1"
+    lodash "^4.17.3"
+    strip-bom "^2.0.0"
 
 cuint@^0.2.0, cuint@latest:
   version "0.2.2"
@@ -113,7 +121,6 @@ depd@1.1.2:
 fs-extra@^7.0.1:
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-7.0.1.tgz#4f189c44aa123b895f722804f55ea23eadc348e9"
-  integrity sha512-YJDaCJZEnBmcbw13fvdAM9AwNOJwOzrE4pqMqBq5nFiEqXUqHwlK4B+3pUw6JNvfSPtX05xFHtYy/1ni01eGCw==
   dependencies:
     graceful-fs "^4.1.2"
     jsonfile "^4.0.0"
@@ -135,8 +142,8 @@ glob@^7.1.3:
     path-is-absolute "^1.0.0"
 
 graceful-fs@^4.1.2, graceful-fs@^4.1.6:
-  version "4.1.11"
-  resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.1.11.tgz#0e8bdfe4d1ddb8854d64e04ea7c00e2a026e5658"
+  version "4.1.15"
+  resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.1.15.tgz#ffb703e1066e8a0eeaa4c8b80ba9253eeefbfb00"
 
 inflight@^1.0.4:
   version "1.0.6"
@@ -155,6 +162,10 @@ is-plain-object@^2.0.4:
   dependencies:
     isobject "^3.0.1"
 
+is-utf8@^0.2.0:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/is-utf8/-/is-utf8-0.2.1.tgz#4b0da1442104d1b336340e80797e865cf39f7d72"
+
 isobject@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
@@ -162,7 +173,6 @@ isobject@^3.0.1:
 json2csv@4.3.5:
   version "4.3.5"
   resolved "https://registry.yarnpkg.com/json2csv/-/json2csv-4.3.5.tgz#859c82c361cb12cca64fc012be96bd2c33d4860e"
-  integrity sha512-p7h3IFPDIWzXEGnBFa7ksXtDaT5wGC0vZOh0CGgmNkQxOtI4O9AZOQ/XfV9JiWERbh5jubqc3nzXziZ4S763jw==
   dependencies:
     commander "^2.15.1"
     jsonparse "^1.3.1"
@@ -196,15 +206,13 @@ lodash.get@^4.4.2:
   version "4.4.2"
   resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
 
-lodash@^4.17.11:
+lodash@^4.17.11, lodash@^4.17.3:
   version "4.17.11"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
-  integrity sha512-cQKh8igo5QUhZ7lg38DYWAxMvjSAKG0A8wGSVimP07SIUEK2UO+arSRKbRZWtelMtN5V0Hkwh5ryOto/SshYIg==
 
 lz4@^0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/lz4/-/lz4-0.6.0.tgz#1981bb7cd351cd4771395b2a2d9c8d32293567dc"
-  integrity sha512-J2ZqNFyNfW7f0kPRRmuXmn3toy0ZLmLJFxVyVDUGaNNvUqI3J+eiAVRmN4tAX/xUASFg3voCPNCCVK27HxtEkw==
   dependencies:
     cuint "^0.2.0"
     nan "^2.0.9"
@@ -233,8 +241,8 @@ ms@^2.1.1:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.1.tgz#30a5864eb3ebb0a66f2ebe6d727af06a09d86e0a"
 
 nan@^2.0.9:
-  version "2.11.0"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.11.0.tgz#574e360e4d954ab16966ec102c0c049fd961a099"
+  version "2.13.0"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.13.0.tgz#7bdfc27dd3c060c46e60b62c72b74012d1a4cd68"
 
 once@^1.3.0:
   version "1.4.0"
@@ -245,6 +253,12 @@ once@^1.3.0:
 path-is-absolute@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/path-is-absolute/-/path-is-absolute-1.0.1.tgz#174b9268735534ffbc7ace6bf53a5a9e1b5c5f5f"
+
+strip-bom@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/strip-bom/-/strip-bom-2.0.0.tgz#6219a85616520491f35788bdbf1447a99c7e6b0e"
+  dependencies:
+    is-utf8 "^0.2.0"
 
 universalify@^0.1.0:
   version "0.1.2"

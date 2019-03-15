@@ -13,12 +13,18 @@ function newProcessor(context, opConfig) {
     // in write conflicts between workers
     const worker = context.sysconfig._nodeName;
     const filePrefix = opConfig.file_prefix;
-    const filePerSlice = opConfig.file_per_slice;
-    const filenameBase = path.join(opConfig.path, `${filePrefix}_${worker}`);
+    let filePerSlice = opConfig.file_per_slice;
+    const filenameBase = path.join(opConfig.path, `${filePrefix}${worker}`);
     let fileNum = 0;
 
     // Used as a guard against dropping the header mid-file
     let firstSlice = true;
+
+    // `file_per_slice` needs to be forced to `true` if the format is JSON to provide a sensible
+    // output
+    if (opConfig.format === 'json') {
+        filePerSlice = true;
+    }
 
     // Set the options for the parser
     const csvOptions = {};
@@ -30,10 +36,11 @@ function newProcessor(context, opConfig) {
     }
 
     csvOptions.header = opConfig.include_header;
+    csvOptions.eol = opConfig.line_delimiter;
 
     // Assumes a custom delimiter will be used only if the `csv` output format is chosen
     if (opConfig.format === 'csv') {
-        csvOptions.delimiter = opConfig.delimiter;
+        csvOptions.delimiter = opConfig.field_delimiter;
     } else if (opConfig.format === 'tsv') {
         csvOptions.delimiter = '\t';
     }
@@ -60,28 +67,38 @@ function newProcessor(context, opConfig) {
             switch (opConfig.format) {
             case 'csv':
             case 'tsv':
-                if (!slice || !slice.length) return '\n';
-                return `${json2csv(slice, csvOptions)}\n`;
-            case 'text': {
+                // null or empty slices will manifest as blank lines in the output file
+                if (!slice || !slice.length) return opConfig.line_delimiter;
+                return `${json2csv(slice, csvOptions)}${opConfig.line_delimiter}`;
+            case 'raw': {
                 let outStr = '';
                 slice.forEach((record) => {
-                    outStr = `${outStr}${record}\n`;
+                    outStr = `${outStr}${record.data}${opConfig.line_delimiter}`;
                 });
                 return outStr;
             }
-            case 'json': {
+            case 'ldjson': {
                 let outStr = '';
                 if (opConfig.fields.length > 0) {
                     slice.forEach((record) => {
-                        outStr = `${outStr}${JSON.stringify(record, opConfig.fields)}\n`;
+                        outStr = `${outStr}${JSON.stringify(record, opConfig.fields)}${opConfig.line_delimiter}`;
                     });
                 } else {
                     slice.forEach((record) => {
-                        outStr = `${outStr}${JSON.stringify(record)}\n`;
+                        outStr = `${outStr}${JSON.stringify(record)}${opConfig.line_delimiter}`;
                     });
                 }
                 return outStr;
             }
+            case 'json': {
+                // This case assumes the data is just a single record in the slice's data array. We
+                // could just strigify the slice as-is, but feeding the output back into the reader
+                // would just nest that array into a record in that slice's array, which probably
+                // isn't the desired effect.
+                const outStr = `${JSON.stringify(slice)}${opConfig.line_delimiter}`;
+                return outStr;
+            }
+            // Schema validation guards against this
             default:
                 throw new Error(`Unsupported output format "${opConfig.format}"`);
             }
@@ -103,7 +120,7 @@ function schema() {
         },
         file_prefix: {
             doc: 'Optional prefix to prepend to the file name.',
-            default: 'export',
+            default: 'export_',
             format: String
         },
         fields: {
@@ -112,9 +129,14 @@ function schema() {
             default: [],
             format: Array
         },
-        delimiter: {
-            doc: 'Delimiter to use in the output file.',
+        field_delimiter: {
+            doc: 'Delimiter to use for separating fields in the output file.',
             default: ',',
+            format: String
+        },
+        line_delimiter: {
+            doc: 'Delimiter to use for records in the output file.',
+            default: '\n',
             format: String
         },
         file_per_slice: {
@@ -131,15 +153,8 @@ function schema() {
         format: {
             doc: 'Specifies the output format of the file. Supported formats are csv, tsv, json,'
             + ' and text, where each line of the output file will be a separate record.',
-            default: 'json',
-            format: function check(val) {
-                const formats = ['json', 'text', 'csv', 'tsv'];
-                if (formats.indexOf(val) === -1) {
-                    throw new Error(
-                        `Format must be one of the following supported values: ${formats}`
-                    );
-                }
-            }
+            default: 'ldjson',
+            format: ['json', 'ldjson', 'raw', 'csv', 'tsv']
         }
     };
 }
