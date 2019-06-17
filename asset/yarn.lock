@@ -2,12 +2,13 @@
 # yarn lockfile v1
 
 
-"@terascope/chunked-file-reader@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@terascope/chunked-file-reader/-/chunked-file-reader-2.0.0.tgz#9a313716b258999ed9650cda1618a3d3ed86d108"
+"@terascope/chunked-file-reader@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@terascope/chunked-file-reader/-/chunked-file-reader-2.1.0.tgz#caa4484be4c58720faed2106ff19694eb4c538eb"
+  integrity sha512-viFpL2C9cwG+90QZLyGku/I+aP9fZAm25E+CWhX8yKiGQ6hmM2OCXIHT3vYFJVhix8SmmfRCFpSlhFHqhVPiVw==
   dependencies:
-    "@terascope/utils" "^0.4.0"
-    bluebird "^3.5.1"
+    "@terascope/utils" "^0.9.0"
+    bluebird "^3.5.4"
     csvtojson "^2.0.8"
     lodash "^4.17.11"
 
@@ -37,18 +38,19 @@
     lodash.get "^4.4.2"
     lodash.set "^4.3.2"
 
-"@terascope/utils@^0.4.0":
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.4.1.tgz#7d470c6ac6f74a1998e52ac2a4b9e555803832f3"
+"@terascope/utils@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.6.0.tgz#72a226ef3f675b3b5b561b4a2d5491af6991af99"
   dependencies:
     debug "^4.1.1"
     is-plain-object "^2.0.4"
     kind-of "^6.0.2"
     lodash.clonedeep "^4.5.0"
 
-"@terascope/utils@^0.6.0":
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.6.0.tgz#72a226ef3f675b3b5b561b4a2d5491af6991af99"
+"@terascope/utils@^0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.9.0.tgz#5f49e4f6d118c6756390986b439af8312b31396c"
+  integrity sha512-x6IxtGLVYeyjdAQq047g2wDB8iDhwLKLfKPqcGyGKRLlfwmtzg1XH7jGN1wTGawKkDmegAssOzSFVXQvzccTPQ==
   dependencies:
     debug "^4.1.1"
     is-plain-object "^2.0.4"
@@ -59,9 +61,10 @@ balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
 
-bluebird@^3.5.1, bluebird@^3.5.3:
-  version "3.5.3"
-  resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.3.tgz#7d01c6f9616c9a51ab0f8c549a79dfe6ec33efa7"
+bluebird@^3.5.1, bluebird@^3.5.3, bluebird@^3.5.4:
+  version "3.5.5"
+  resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.5.tgz#a8d0afd73251effbbd5fe384a77d73003c17a71f"
+  integrity sha512-5am6HnnfN+urzt4yfg7IgTbotDjIT/u8AJpEt0sIU9FtXfVeezXAPKswrG+xKUCOYAINpSdgZVDU6QFh+cuH3w==
 
 brace-expansion@^1.1.7:
   version "1.1.11"
