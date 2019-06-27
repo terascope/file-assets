@@ -283,17 +283,6 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^12.0.9"
 
-"@terascope/job-components@^0.17.0":
-  version "0.17.0"
-  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.17.0.tgz#74caf9ca964ead4eb6b4eddfb10b51c6e48dc332"
-  integrity sha512-Q8/jGJ1uPK5e0MvyEURRZnGH/iyX7J4d9vX7y27Y7B10w8BDijAYnZJZaW8jy9XbZJnhKWywRfHkfVJ0bmJZpA==
-  dependencies:
-    "@terascope/queue" "^1.1.6"
-    "@terascope/utils" "^0.10.2"
-    convict "^4.4.1"
-    datemath-parser "^1.0.6"
-    uuid "^3.3.2"
-
 "@terascope/job-components@^0.20.0":
   version "0.20.0"
   resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.20.0.tgz#52a0233cfdc45c4f3c3486073f846b08b00e997b"
@@ -309,26 +298,14 @@
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/@terascope/queue/-/queue-1.1.6.tgz#763d035cf31d2e1fd819ae827274f50874016708"
 
-"@terascope/teraslice-op-test-harness@^1.6.0":
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/@terascope/teraslice-op-test-harness/-/teraslice-op-test-harness-1.6.0.tgz#c92b3d6f895c7bcc0f7685d6b1c2754bac5f20be"
-  integrity sha512-GSW3gzW1uBVzkYgcotljyqCJVapPu+uzJ7cq/e8pNWYkoGf9xWq8762pzMYeIx6KeBkFlb6v5Aufh7M6bamSgQ==
+"@terascope/teraslice-op-test-harness@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@terascope/teraslice-op-test-harness/-/teraslice-op-test-harness-1.7.0.tgz#edeceff4983a448767dc5d576b2db490f1c181af"
+  integrity sha512-l+lH9EnNlYOJN3kS2NVpdCChatsJR5OiJnDlW8BXIW/8u79MAFY8KVt/kUAXNHjk9QKJYa8n4YDxfWF8w6kKkw==
   dependencies:
-    "@terascope/job-components" "^0.17.0"
-    bluebird "^3.5.4"
+    "@terascope/job-components" "^0.20.0"
+    bluebird "^3.5.5"
     lodash "^4.17.11"
-
-"@terascope/utils@^0.10.2":
-  version "0.10.2"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.10.2.tgz#fcaba3ade6c5546f3fa2f755dec7969095b826d3"
-  integrity sha512-HQ9ML+Q3w3PSMS9O3Or82QDGYjkyRRTFRO/vfWdlGCI/xK/b2nEX9eVnuhKvHSY7OOJiTHjS+o/epIuP1pj6og==
-  dependencies:
-    debug "^4.1.1"
-    is-plain-object "^3.0.0"
-    kind-of "^6.0.2"
-    lodash.clonedeep "^4.5.0"
-    lodash.get "^4.4.2"
-    lodash.set "^4.3.2"
 
 "@terascope/utils@^0.11.0":
   version "0.11.0"
@@ -654,7 +631,7 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
-bluebird@^3.5.4:
+bluebird@^3.5.5:
   version "3.5.5"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.5.tgz#a8d0afd73251effbbd5fe384a77d73003c17a71f"
   integrity sha512-5am6HnnfN+urzt4yfg7IgTbotDjIT/u8AJpEt0sIU9FtXfVeezXAPKswrG+xKUCOYAINpSdgZVDU6QFh+cuH3w==
