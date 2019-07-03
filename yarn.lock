@@ -310,18 +310,6 @@
     bluebird "^3.5.5"
     lodash "^4.17.11"
 
-"@terascope/utils@^0.11.1":
-  version "0.11.1"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.11.1.tgz#229a432cf74947982cb80ea1200ef55a400a0bba"
-  integrity sha512-ba0N00o2SuTNpJjvJoJeWB+ltSHmwobJZPwMiGtwbqrDGPlRLF+wPw0JCHrCabmHxpgWGD4se2FhPxFnzvk6PQ==
-  dependencies:
-    debug "^4.1.1"
-    is-plain-object "^3.0.0"
-    kind-of "^6.0.2"
-    lodash.clonedeep "^4.5.0"
-    lodash.get "^4.4.2"
-    lodash.set "^4.3.2"
-
 "@terascope/utils@^0.12.0":
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.12.0.tgz#5602bdc60aa26a0daf11068a0918c010fbe1b80b"
