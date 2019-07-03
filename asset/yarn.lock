@@ -27,10 +27,22 @@
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/@terascope/queue/-/queue-1.1.6.tgz#763d035cf31d2e1fd819ae827274f50874016708"
 
-"@terascope/utils@^0.11.0", "@terascope/utils@^0.11.1":
+"@terascope/utils@^0.11.0":
   version "0.11.1"
   resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.11.1.tgz#229a432cf74947982cb80ea1200ef55a400a0bba"
   integrity sha512-ba0N00o2SuTNpJjvJoJeWB+ltSHmwobJZPwMiGtwbqrDGPlRLF+wPw0JCHrCabmHxpgWGD4se2FhPxFnzvk6PQ==
+  dependencies:
+    debug "^4.1.1"
+    is-plain-object "^3.0.0"
+    kind-of "^6.0.2"
+    lodash.clonedeep "^4.5.0"
+    lodash.get "^4.4.2"
+    lodash.set "^4.3.2"
+
+"@terascope/utils@^0.12.0":
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.12.0.tgz#5602bdc60aa26a0daf11068a0918c010fbe1b80b"
+  integrity sha512-tmSpoKYLhoGNNy697kvpYresMgi2Ds7m5PP+GhNIYohyCxw2NCT5MHoiX3ATszOoIASDgjqfMNZ1yx5Tiq0cYg==
   dependencies:
     debug "^4.1.1"
     is-plain-object "^3.0.0"
