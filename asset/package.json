@@ -11,7 +11,7 @@
         "fs-extra": "^8.1.0",
         "glob": "^7.1.4",
         "json2csv": "4.5.2",
-        "lodash": "^4.17.13",
+        "lodash": "^4.17.14",
         "lz4": "^0.6.3"
     },
     "devDependencies": {},
