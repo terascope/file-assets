@@ -13,7 +13,7 @@
     },
     "dependencies": {},
     "devDependencies": {
-        "@terascope/job-components": "^0.20.1",
+        "@terascope/job-components": "^0.20.4",
         "@terascope/teraslice-op-test-harness": "^1.7.0",
         "@terascope/utils": "^0.12.0",
         "eslint": "^5.16.0",
