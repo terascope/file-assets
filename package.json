@@ -1,6 +1,6 @@
 {
     "name": "file-assets-bundle",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "description": "Teraslice processors for working with data stored in files on disk",
     "repository": "https://github.com/terascope/file-assets.git",
     "author": "Terascope, LLC <info@terascope.io>",
