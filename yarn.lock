@@ -310,10 +310,10 @@
     bluebird "^3.5.5"
     lodash "^4.17.11"
 
-"@terascope/utils@^0.12.2", "@terascope/utils@^0.12.3":
-  version "0.12.3"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.12.3.tgz#876f1b012b3ddb16794dc85a7ce398ebac9ca42c"
-  integrity sha512-0163iUD63NcesMvB4+drzyndoRTNWthAIC34ohz5usRWJ+3KbpfpJMx4l8rSIPziJfiNtaWnyds6znqVC2qQYw==
+"@terascope/utils@^0.12.2", "@terascope/utils@^0.12.4":
+  version "0.12.4"
+  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.12.4.tgz#bc849b574c0f7cf9a4163db241dc8b2db92546ac"
+  integrity sha512-iA2/7cGTqkiOP/wyS46iFjTYVbIHpNmJ2hlAfTbUxPQvnU6rP1H2zi5ZK1NRfKBrrp0JvcqxgBQVWReIbt27QA==
   dependencies:
     debug "^4.1.1"
     is-plain-object "^3.0.0"
