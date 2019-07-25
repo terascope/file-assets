@@ -28,7 +28,7 @@ class S3Fetcher extends Fetcher {
         if (this.opConfig.format === 'tsv') {
             this.opConfig.field_delimiter = '\t';
         }
-        this.reader = (offset, length) => {
+        const reader = (offset, length) => {
             const opts = {
                 Bucket: this.opConfig.bucket,
                 Key: slice.path,
@@ -55,7 +55,7 @@ class S3Fetcher extends Fetcher {
                 .then(object => object.Body.toString());
         };
         // Passing the slice in as the `metadata`. This will include the path, offset, and length
-        return getChunk(this.reader, slice, this.opConfig, this.logger, slice);
+        return getChunk(reader, slice, this.opConfig, this.logger, slice);
     }
 }
 

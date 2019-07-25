@@ -4,6 +4,7 @@ const {
     BatchProcessor, getClient
 } = require('@terascope/job-components');
 const json2csv = require('json2csv').parse;
+const { DataEntity } = require('@terascope/utils');
 
 class S3Batcher extends BatchProcessor {
     constructor(context, opConfig, executionConfig) {
@@ -91,7 +92,8 @@ class S3Batcher extends BatchProcessor {
             Body: outStr
         };
 
-        return this.client.putObject_Async(params);
+        return this.client.putObject_Async(params)
+            .then(results => DataEntity.fromBuffer(JSON.stringify(results)));
     }
 }
 
