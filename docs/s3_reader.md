@@ -34,7 +34,7 @@ $ s3cmd ls s3://test
 
 specifying `another` as the `object_prefix` will find all objects in both directories, whereas specifying `another/` as the prefix will only find objects in the `another/` subdirectory.
 
-## `connector`
+## `connection`
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |

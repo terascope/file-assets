@@ -18,8 +18,6 @@ class S3Slicer extends Slicer {
     }
 
     async slice() {
-        // this.getObjects();
-        // return [() => {
         // Grab a record if there is one ready in the queue
         if (this._queue.size() > 0) return this._queue.dequeue();
 
@@ -35,7 +33,6 @@ class S3Slicer extends Slicer {
                 }
             }, 50);
         });
-        // }];
     }
 
     async getObjects() {
@@ -44,12 +41,6 @@ class S3Slicer extends Slicer {
             Prefix: this.opConfig.prefix,
             Marker: this._lastKey,
         });
-
-        // console.log('heyo lmao');
-        // console.log(data)
-        // console.log(data.Contents)
-        // console.log(data.Contents.length)
-        // console.log(data.Contents[data.Contents.length - 1])
 
         this._lastKey = data.Contents[data.Contents.length - 1].Key;
 

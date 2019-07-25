@@ -45,13 +45,14 @@ class S3Batcher extends BatchProcessor {
         }
 
         // Build the output string to dump to the object
+        // TODO externalize this into a ./lib/ for use with the `file_exporter`
         let outStr = '';
         switch (this.opConfig.format) {
         case 'csv':
         case 'tsv':
             // null or empty slices will manifest as blank lines in the output file
-            if (!slice || !slice.length) return this.opConfig.line_delimiter;
-            outStr = `${json2csv(slice, csvOptions)}${this.opConfig.line_delimiter}`;
+            if (!slice || !slice.length) outStr = this.opConfig.line_delimiter;
+            else outStr = `${json2csv(slice, csvOptions)}${this.opConfig.line_delimiter}`;
             break;
         case 'raw': {
             slice.forEach((record) => {

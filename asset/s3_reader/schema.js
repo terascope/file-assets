@@ -10,6 +10,11 @@ class Schema extends ConvictSchema {
                 default: null,
                 format: 'required_String'
             },
+            connection: {
+                doc: 'The S3 connection from Terafoundation to use',
+                default: null,
+                format: 'required_String'
+            },
             object_prefix: {
                 doc: 'The object prefix. Will target a specific directory if a trailing `/` is provided'
                     + ' or objects and directories starting with the `object_prefix` if there is no tra'

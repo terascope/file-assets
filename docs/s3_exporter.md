@@ -24,6 +24,14 @@ i.e. For adding data to `s3://my-bucket/some/test/directory/`, the following mus
 - `bucket`: "my-bucket"
 - `object_prefix`: "some/test/directory/"
 
+## `connection`
+
+| Valid Options | Default | Required |
+| ----------- | ------- | -------- |
+| Any valid S3 connector | `null` | Y |  
+
+This is the name of the S3 connector defined in Terafoundation.
+
 ## `fields`
 
 | Valid Options | Default | Required |
