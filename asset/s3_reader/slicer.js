@@ -38,7 +38,7 @@ class S3Slicer extends Slicer {
     async getObjects() {
         const data = await this.client.listObjects_Async({
             Bucket: this.opConfig.bucket,
-            Prefix: this.opConfig.prefix,
+            Prefix: this.opConfig.object_prefix,
             Marker: this._lastKey,
         });
 

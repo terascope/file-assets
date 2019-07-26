@@ -1,6 +1,7 @@
 'use strict';
 
 const { TestContext } = require('@terascope/job-components');
+const Promise = require('bluebird');
 const Processor = require('../../asset/s3_exporter/processor');
 
 describe('S3 exporter processor', () => {
@@ -33,7 +34,7 @@ describe('S3 exporter processor', () => {
 
     // Fake the client for testing
     processor.client = {
-        putObject_Async: putParams => putParams
+        putObject_Async: putParams => Promise.resolve(putParams)
     };
 
     const slice = [{
