@@ -14,6 +14,7 @@
 "@terascope/job-components@^0.20.5":
   version "0.20.5"
   resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.20.5.tgz#c0f911d03a36fa60b8c15073e2aba1684dc42049"
+  integrity sha512-8ixwyt6JrsL4ca3dDYYk/fJXexM8wFOF4LWXq7oIK/MmJENf4EKppySLtzhtxXAtjJmg4MlkO62InxN060u4VA==
   dependencies:
     "@terascope/queue" "^1.1.6"
     "@terascope/utils" "^0.12.4"
@@ -28,6 +29,7 @@
 "@terascope/utils@^0.12.2", "@terascope/utils@^0.12.3", "@terascope/utils@^0.12.4":
   version "0.12.4"
   resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.12.4.tgz#bc849b574c0f7cf9a4163db241dc8b2db92546ac"
+  integrity sha512-iA2/7cGTqkiOP/wyS46iFjTYVbIHpNmJ2hlAfTbUxPQvnU6rP1H2zi5ZK1NRfKBrrp0JvcqxgBQVWReIbt27QA==
   dependencies:
     debug "^4.1.1"
     is-plain-object "^3.0.0"
@@ -254,6 +256,7 @@ lodash.set@^4.3.2:
 lodash@^4.17.11, lodash@^4.17.15, lodash@^4.17.3:
   version "4.17.15"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
+  integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
 
 lz4@^0.6.3:
   version "0.6.3"
