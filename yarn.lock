@@ -282,9 +282,20 @@
     bluebird "^3.5.5"
     lodash "^4.17.11"
 
-"@terascope/utils@^0.12.3", "@terascope/utils@^0.12.4":
+"@terascope/utils@^0.12.4":
   version "0.12.4"
   resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.12.4.tgz#bc849b574c0f7cf9a4163db241dc8b2db92546ac"
+  dependencies:
+    debug "^4.1.1"
+    is-plain-object "^3.0.0"
+    kind-of "^6.0.2"
+    lodash.clonedeep "^4.5.0"
+    lodash.get "^4.4.2"
+    lodash.set "^4.3.2"
+
+"@terascope/utils@^0.13.0":
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.13.0.tgz#691ab44a0443e870029b33b01cb180f84065ba47"
   dependencies:
     debug "^4.1.1"
     is-plain-object "^3.0.0"
