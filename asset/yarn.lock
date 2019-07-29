@@ -50,9 +50,10 @@
     lodash.get "^4.4.2"
     lodash.set "^4.3.2"
 
-aws-sdk@^2.498.0:
-  version "2.498.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.498.0.tgz#42e05965166a01b45e026e4922926df4cd160fc5"
+aws-sdk@^2.502.0:
+  version "2.502.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.502.0.tgz#b3192f82389db982605462c8394cc3fa8c475b3e"
+  integrity sha512-VHFdbnJLuzON/35qE4x33PwzWFxAR/0A1wCIvc3sfOVisiGFuvBhQKC24uBlvFMrdPDnrL+8wKCHwfICgCqZtw==
   dependencies:
     buffer "4.9.1"
     events "1.1.1"
