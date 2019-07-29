@@ -6,7 +6,7 @@
         "@terascope/chunked-file-reader": "^2.1.1",
         "@terascope/job-components": "^0.20.5",
         "@terascope/queue": "^1.1.6",
-        "@terascope/utils": "^0.12.3",
+        "@terascope/utils": "^0.13.0",
         "aws-sdk": "^2.498.0",
         "bluebird": "^3.5.3",
         "fs-extra": "^8.1.0",
