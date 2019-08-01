@@ -81,7 +81,7 @@ describe('S3 slicer when slicing JSON objects', () => {
         await harness.shutdown();
     });
 
-    it('should generate whole-bject slices.', async () => {
+    it('should generate whole-object slices.', async () => {
         const slices = [];
         async function getSlices() {
             const results = await harness.createSlices();
@@ -173,7 +173,7 @@ describe('S3 slicer when slicing other objects', () => {
         await harness.shutdown();
     });
 
-    it('should rgenerate whole-bject slices.', async () => {
+    it('should generate regular slices.', async () => {
         const slices = [];
         async function getSlices() {
             const results = await harness.createSlices();

@@ -9,7 +9,7 @@ const Fetcher = require('../../asset/s3_reader/fetcher');
 // offset: 0
 // length: 27
 const response = {
-    Body: 'this,is,some,csv,test,data\n'
+    Body: 'this\tis\tsome\tcsv\ttest\tdata\n'
 };
 
 let s3Params = {};
@@ -39,7 +39,7 @@ describe('S3 reader\'s slicer', () => {
             connection: 'my-s3-connector',
             object_prefix: 'my/test/',
             size: 27,
-            format: 'csv',
+            format: 'tsv',
             field_delimiter: ',',
             line_delimiter: '\n'
         },
