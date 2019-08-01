@@ -1,4 +1,4 @@
-# file_exporter
+# file_reader
 
 The `file_reader` will slice up and read files local to the Teraslice workers. It is currently only for use with `once` jobs.
 
