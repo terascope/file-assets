@@ -293,9 +293,9 @@
     lodash.get "^4.4.2"
     lodash.set "^4.3.2"
 
-"@terascope/utils@^0.13.0":
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.13.0.tgz#691ab44a0443e870029b33b01cb180f84065ba47"
+"@terascope/utils@^0.14.0":
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.14.0.tgz#fbdfb04bd52efed1ad8b08871af9797dde324765"
   dependencies:
     debug "^4.1.1"
     is-plain-object "^3.0.0"
