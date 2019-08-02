@@ -40,18 +40,15 @@ class FileSlicer extends Slicer {
             const dirStats = fse.lstatSync(this.opConfig.path);
             if (dirStats.isSymbolicLink()) {
                 const error = new TSError({ reason: `Directory '${this.opConfig.path}' cannot be a symlink!` });
-                this.logger.fatal(error);
                 throw error;
             }
             const dirContents = fse.readdirSync(this.opConfig.path);
             if (dirContents.length === 0) {
                 const error = new TSError({ reason: `Directory '${this.opConfig.path}' must not be empty!` });
-                this.logger.fatal(error);
                 throw error;
             }
         } catch (err) {
             const error = new TSError(err, { reason: 'Path must be valid!' });
-            this.logger.fatal(error);
             throw error;
         }
     }
@@ -64,11 +61,11 @@ class FileSlicer extends Slicer {
         if (this._doneSlicing) return null;
 
         // If the queue is empty and there are still slices, wait for a new slice
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const intervalId = setInterval(() => {
-                if (this._shutdown) {
+                if (this._doneSlicing || this._shutdown) {
                     clearInterval(intervalId);
-                    reject(new TSError('Slicer not finished but told to shutdown!'));
+                    resolve(null);
                 }
                 if (this._queue.size() > 0) {
                     clearInterval(intervalId);
