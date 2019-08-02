@@ -24,24 +24,35 @@ class FileSlicer extends Slicer {
             .catch((err) => {
                 // This will catch an error if there is  a problem getting the initial directory
                 // contents
-                throw new Error(
-                    `There was a problem slicing files from ${this.opConfig.path}: ${err}`
-                );
+                const error = new TSError(err, { reason: `There was a problem slicing files from ${this.opConfig.path}: ${err}` });
+                this.logger.fatal(error);
+                throw error;
             });
+    }
+
+    async shutdown() {
+        this._shutdown = true;
+        return super.shutdown();
     }
 
     checkProvidedPath() {
         try {
             const dirStats = fse.lstatSync(this.opConfig.path);
             if (dirStats.isSymbolicLink()) {
-                throw new Error('Directory for `file_reader` cannot be a symlink!');
+                const error = new TSError({ reason: `Directory '${this.opConfig.path}' cannot be a symlink!` });
+                this.logger.fatal(error);
+                throw error;
             }
             const dirContents = fse.readdirSync(this.opConfig.path);
             if (dirContents.length === 0) {
-                throw new Error('Must provide a non-empty directory for `file_reader`!!');
+                const error = new TSError({ reason: `Directory '${this.opConfig.path}' must not be empty!` });
+                this.logger.fatal(error);
+                throw error;
             }
         } catch (err) {
-            throw new Error(`Path must be valid! Encountered the following error:\n${err}`);
+            const error = new TSError(err, { reason: `Path must be valid! Encountered the following error:\n${err}` });
+            this.logger.fatal(error);
+            throw error;
         }
     }
 
@@ -65,29 +76,33 @@ class FileSlicer extends Slicer {
 
     async getFilePaths(filePath) {
         const dirContents = await fse.readdir(filePath);
-        return Promise.map(dirContents, async (file) => {
-            const fullPath = path.join(filePath, file);
-            const stats = await fse.lstat(fullPath);
-            if (stats.isFile()) {
-                return this.processFile(fullPath);
-            }
-            if (stats.isDirectory()) {
-                return this.getFilePaths(fullPath);
-            }
-            this.logger.error(`${file} is not a file or directory!!`);
-            return true;
-        })
-            // Catch the error and log it so the execution controller doesn't crash and burn if
-            // there is a bad file or directory
-            .catch((err) => {
-                const error = new TSError(err, {
-                    reason: 'Error while reading file or directory',
-                    context: {
-                        filePath
-                    }
-                });
+        if (!this._shutdown) {
+            return Promise.map(dirContents, async (file) => {
+                const fullPath = path.join(filePath, file);
+                const stats = await fse.lstat(fullPath);
+                if (stats.isFile()) {
+                    return this.processFile(fullPath);
+                }
+                if (stats.isDirectory()) {
+                    return this.getFilePaths(fullPath);
+                }
+                const error = new TSError({ reason: `${file} is not a file or directory!!` });
                 this.logger.error(error);
-            });
+                return true;
+            })
+                // Catch the error and log it so the execution controller doesn't crash and burn if
+                // there is a bad file or directory
+                .catch((err) => {
+                    const error = new TSError(err, {
+                        reason: 'Error while reading file or directory',
+                        context: {
+                            filePath
+                        }
+                    });
+                    this.logger.error(error);
+                });
+        }
+        return true;
     }
 
     async processFile(filePath) {
