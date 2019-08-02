@@ -24,7 +24,7 @@ class FileSlicer extends Slicer {
             .catch((err) => {
                 // This will catch an error if there is  a problem getting the initial directory
                 // contents
-                const error = new TSError(err, { reason: `There was a problem slicing files from ${this.opConfig.path}: ${err}` });
+                const error = new TSError(err, { reason: `There was a problem slicing files from ${this.opConfig.path}` });
                 this.logger.fatal(error);
                 throw error;
             });
@@ -50,7 +50,7 @@ class FileSlicer extends Slicer {
                 throw error;
             }
         } catch (err) {
-            const error = new TSError(err, { reason: `Path must be valid! Encountered the following error:\n${err}` });
+            const error = new TSError(err, { reason: 'Path must be valid!' });
             this.logger.fatal(error);
             throw error;
         }
