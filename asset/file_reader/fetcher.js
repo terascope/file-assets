@@ -7,7 +7,6 @@ const fse = require('fs-extra');
 class FileFetcher extends Fetcher {
     constructor(context, opConfig, executionConfig) {
         super(context, opConfig, executionConfig);
-        this.client = fse;
         this._initialized = false;
         this._shutdown = false;
     }
@@ -28,13 +27,13 @@ class FileFetcher extends Fetcher {
             this.opConfig.field_delimiter = '\t';
         }
         const reader = async (offset, length) => {
-            const fd = await this.client.open(slice.path, 'r');
+            const fd = await fse.open(slice.path, 'r');
             try {
                 const buf = Buffer.alloc(2 * this.opConfig.size);
-                const { bytesRead } = await this.client.read(fd, buf, 0, length, offset);
+                const { bytesRead } = await fse.read(fd, buf, 0, length, offset);
                 return buf.slice(0, bytesRead).toString();
             } finally {
-                this.client.close(fd);
+                fse.close(fd);
             }
         };
         // Passing the slice in as the `metadata`. This will include the path, offset, and length

@@ -6,13 +6,12 @@ const {
 const json2csv = require('json2csv').parse;
 const Promise = require('bluebird');
 const path = require('path');
-const fs = require('fs');
+const fse = require('fs-extra');
 const { TSError } = require('@terascope/utils');
 
 class FileBatcher extends BatchProcessor {
     constructor(context, opConfig, executionConfig) {
         super(context, opConfig, executionConfig);
-        this.client = Promise.promisifyAll(fs);
         this.worker = context.cluster.worker.id;
         this.filePrefix = opConfig.file_prefix;
         if (opConfig.file_per_slice || (this.opConfig.format === 'json')) {
@@ -103,7 +102,7 @@ class FileBatcher extends BatchProcessor {
         // console.log(outStr)
 
         // Doesn't return a DataEntity or anything else if siccessful
-        return this.client.appendFileAsync(fileName, outStr)
+        return fse.appendFile(fileName, outStr)
             .catch(err => Promise.reject(new TSError(err, {
                 reason: `Failure to append to file ${fileName}`
             })));

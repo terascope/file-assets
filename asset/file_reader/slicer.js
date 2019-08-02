@@ -11,26 +11,32 @@ const fse = require('fs-extra');
 class FileSlicer extends Slicer {
     constructor(context, opConfig, executionConfig) {
         super(context, opConfig, executionConfig);
-        this.client = fse;
         this._queue = new Queue();
         this._doneSlicing = false;
     }
 
     async initialize() {
-        this.checkProvidedPath(this.opConfig.path);
+        this.checkProvidedPath();
         this.getFilePaths(this.opConfig.path)
             .then(() => {
                 this._doneSlicing = true;
+            })
+            .catch((err) => {
+                // This will catch an error if there is  a problem getting the initial directory
+                // contents
+                throw new Error(
+                    `There was a problem slicing files from ${this.opConfig.path}: ${err}`
+                );
             });
     }
 
-    checkProvidedPath(filePath) {
+    checkProvidedPath() {
         try {
-            const dirStats = this.client.lstatSync(filePath);
+            const dirStats = fse.lstatSync(this.opConfig.path);
             if (dirStats.isSymbolicLink()) {
                 throw new Error('Directory for `file_reader` cannot be a symlink!');
             }
-            const dirContents = this.client.readdirSync(filePath);
+            const dirContents = fse.readdirSync(this.opConfig.path);
             if (dirContents.length === 0) {
                 throw new Error('Must provide a non-empty directory for `file_reader`!!');
             }
@@ -58,10 +64,10 @@ class FileSlicer extends Slicer {
     }
 
     async getFilePaths(filePath) {
-        const dirContents = await this.client.readdir(filePath);
+        const dirContents = await fse.readdir(filePath);
         return Promise.map(dirContents, async (file) => {
             const fullPath = path.join(filePath, file);
-            const stats = await this.client.lstat(fullPath);
+            const stats = await fse.lstat(fullPath);
             if (stats.isFile()) {
                 return this.processFile(fullPath);
             }
@@ -85,7 +91,7 @@ class FileSlicer extends Slicer {
     }
 
     async processFile(filePath) {
-        const stat = await this.client.stat(filePath);
+        const stat = await fse.stat(filePath);
         const total = stat.size;
         // Override file slicing to make sure JSON files are not split across slices
         if (this.opConfig.format === 'json') {
