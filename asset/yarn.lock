@@ -38,6 +38,18 @@
     lodash.get "^4.4.2"
     lodash.set "^4.3.2"
 
+"@terascope/utils@^0.14.0":
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.14.0.tgz#fbdfb04bd52efed1ad8b08871af9797dde324765"
+  integrity sha512-9g/Q/PpgP7ytw7WZsNWXvcLgdNVDGQYBg1BeX1X9KETt5+xXpfunQJM2dm9OWUV2GpaZ9/lRonknUpMW65MZzQ==
+  dependencies:
+    debug "^4.1.1"
+    is-plain-object "^3.0.0"
+    kind-of "^6.0.2"
+    lodash.clonedeep "^4.5.0"
+    lodash.get "^4.4.2"
+    lodash.set "^4.3.2"
+
 balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
