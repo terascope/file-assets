@@ -144,7 +144,6 @@ describe('File reader\'s fetcher', () => {
         };
         const data = await fetcher.fetch(beginningSlice);
         expect(data.length).toEqual(4);
-        console.log(data);
         expect(data[0]).toEqual(null);
         expect(data[1]).toEqual({
             data1: '1', data2: '2', data3: '3', data4: '4', data5: '5', data6: '6'

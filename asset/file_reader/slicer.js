@@ -63,13 +63,13 @@ class FileSlicer extends Slicer {
         // If the queue is empty and there are still slices, wait for a new slice
         return new Promise((resolve) => {
             const intervalId = setInterval(() => {
-                if (this._doneSlicing || this._shutdown) {
-                    clearInterval(intervalId);
-                    resolve(null);
-                }
                 if (this._queue.size() > 0) {
                     clearInterval(intervalId);
                     resolve(this._queue.dequeue());
+                }
+                if (this._doneSlicing || this._shutdown) {
+                    clearInterval(intervalId);
+                    resolve(null);
                 }
             }, 50);
         });
