@@ -260,7 +260,7 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^12.0.9"
 
-"@terascope/job-components@^0.20.0", "@terascope/job-components@^0.20.1", "@terascope/job-components@^0.20.7":
+"@terascope/job-components@^0.20.1", "@terascope/job-components@^0.20.7":
   version "0.20.7"
   resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.20.7.tgz#d40547207da99d6295b1c8521f2e9be287093420"
   dependencies:
@@ -274,11 +274,11 @@
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/@terascope/queue/-/queue-1.1.6.tgz#763d035cf31d2e1fd819ae827274f50874016708"
 
-"@terascope/teraslice-op-test-harness@^1.6.0", "@terascope/teraslice-op-test-harness@^1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@terascope/teraslice-op-test-harness/-/teraslice-op-test-harness-1.7.0.tgz#edeceff4983a448767dc5d576b2db490f1c181af"
+"@terascope/teraslice-op-test-harness@^1.6.0", "@terascope/teraslice-op-test-harness@^1.7.1":
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/@terascope/teraslice-op-test-harness/-/teraslice-op-test-harness-1.7.1.tgz#4c216dc6a38dbf61bcb504d7c1300e615ec51421"
   dependencies:
-    "@terascope/job-components" "^0.20.0"
+    "@terascope/job-components" "^0.20.7"
     bluebird "^3.5.5"
     lodash "^4.17.11"
 
