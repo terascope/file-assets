@@ -53,6 +53,21 @@ class Schema extends ConvictSchema {
                     + 'capability will be included in a future improvement',
                 default: 'false',
                 format: [false]
+            },
+            ignore_empty: {
+                doc: 'Only used with CSV parsing. Ignores any columns not specified in field list. '
+                    + 'Since the field list is applied to columns sequentially, this will ignore '
+                    + 'any additional columns past the number specified.\n'
+                    + 'i.e. If 5 fields are specified, but there are 7 columns in the file, columns'
+                    + ' 6 and 7 will be dropped if this is true. Otherwise, the parser will give '
+                    + 'the fields generic names.',
+                default: true,
+                format: Boolean
+            },
+            extra_args: {
+                doc: 'An object used to pass in any extra csv parsing arguments',
+                default: {},
+                format: Object
             }
         };
     }
