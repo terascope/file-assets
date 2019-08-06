@@ -249,12 +249,9 @@ function schema() {
             format: Number,
         },
         ignore_empty: {
-            doc: 'Only used with CSV parsing. Ignores any columns not specified in field list. '
-                + 'Since the field list is applied to columns sequentially, this will ignore '
-                + 'any additional columns past the number specified.\n'
-                + 'i.e. If 5 fields are specified, but there are 7 columns in the file, columns'
-                + ' 6 and 7 will be dropped if this is true. Otherwise, the parser will give '
-                + 'the fields generic names.',
+            doc: 'Ignores fields without values when parsing CSV.\ni.e. the row "val1,,val3" '
+                + 'will generate the record \'{"field1":"val1","field3":"val3"}\' if set to '
+                + 'true',
             default: true,
             format: Boolean
         },

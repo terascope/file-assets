@@ -52,6 +52,18 @@ class Schema extends ConvictSchema {
                 doc: 'Checks for the header row and removes it',
                 default: true,
                 format: 'Boolean'
+            },
+            ignore_empty: {
+                doc: 'Ignores fields without values when parsing CSV.\ni.e. the row "val1,,val3" '
+                    + 'will generate the record \'{"field1":"val1","field3":"val3"}\' if set to '
+                    + 'true',
+                default: true,
+                format: Boolean
+            },
+            extra_args: {
+                doc: 'An object used to pass in any extra csv parsing arguments',
+                default: {},
+                format: Object
             }
         };
     }
