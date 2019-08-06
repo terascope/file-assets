@@ -4,7 +4,7 @@
     "description": "A set of processors for working with files",
     "dependencies": {
         "@terascope/chunked-file-reader": "^2.1.2",
-        "@terascope/job-components": "^0.20.7",
+        "@terascope/job-components": "^0.20.8",
         "@terascope/queue": "^1.1.6",
         "@terascope/utils": "^0.14.1",
         "bluebird": "^3.5.3",
