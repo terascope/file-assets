@@ -93,7 +93,7 @@ class S3Batcher extends BatchProcessor {
         };
 
         return this.client.putObject_Async(params)
-            .then(results => DataEntity.fromBuffer(JSON.stringify(results)));
+            .then((results) => DataEntity.fromBuffer(JSON.stringify(results)));
     }
 }
 
