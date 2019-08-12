@@ -103,7 +103,7 @@ class FileBatcher extends BatchProcessor {
 
         // Doesn't return a DataEntity or anything else if siccessful
         return fse.appendFile(fileName, outStr)
-            .catch(err => Promise.reject(new TSError(err, {
+            .catch((err) => Promise.reject(new TSError(err, {
                 reason: `Failure to append to file ${fileName}`
             })));
     }
