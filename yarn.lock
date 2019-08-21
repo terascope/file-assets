@@ -314,7 +314,7 @@
     datemath-parser "^1.0.6"
     uuid "^3.3.2"
 
-"@terascope/job-components@^0.21.1":
+"@terascope/job-components@^0.21.0", "@terascope/job-components@^0.21.1":
   version "0.21.1"
   resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.21.1.tgz#f3cb3d6d795650835bf7c7519a01a984797b2237"
   integrity sha512-HCmUvidUUfhCf1SJEFpWrg59EMbCvK2riVA8v/q/ha2eJEJK/9OHwygUPJVSVINS6qGKdFXTQMBaELOEff+Igw==
@@ -329,11 +329,12 @@
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/@terascope/queue/-/queue-1.1.6.tgz#763d035cf31d2e1fd819ae827274f50874016708"
 
-"@terascope/teraslice-op-test-harness@^1.7.0", "@terascope/teraslice-op-test-harness@^1.7.1":
-  version "1.7.1"
-  resolved "https://registry.yarnpkg.com/@terascope/teraslice-op-test-harness/-/teraslice-op-test-harness-1.7.1.tgz#4c216dc6a38dbf61bcb504d7c1300e615ec51421"
+"@terascope/teraslice-op-test-harness@^1.7.1", "@terascope/teraslice-op-test-harness@^1.7.2":
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/@terascope/teraslice-op-test-harness/-/teraslice-op-test-harness-1.7.2.tgz#35f534d8c981b3409a6d2cba9cc31b801e47dd59"
+  integrity sha512-XKTT4gooTZYggpsz1yp0o6ELWvTtmJXHRzM8KBoq95nCXscJs7Jupyg2nTpeEetC3EnebWvS4az4CJk+IibYgw==
   dependencies:
-    "@terascope/job-components" "^0.20.7"
+    "@terascope/job-components" "^0.21.0"
     bluebird "^3.5.5"
     lodash "^4.17.11"
 
