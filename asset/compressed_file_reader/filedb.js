@@ -105,7 +105,7 @@ module.exports = async (workDir, assetDir) => {
 
     // Inform clients how many files are ready to be enqueued for work.
     function numReady() {
-        return _.sum(_.map(state, (props) => (props.stage === STAGE.ready ? 1 : 0)));
+        return _.sum(_.map(state, props => (props.stage === STAGE.ready ? 1 : 0)));
     }
 
     // Return decompressed path ready for slicing.
