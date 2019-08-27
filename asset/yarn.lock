@@ -69,11 +69,6 @@ camelcase@^5.0.0:
   version "5.3.1"
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-5.3.1.tgz#e3c9b31569e106811df242f715725a1f4c494320"
 
-chunked-file-reader@^0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/chunked-file-reader/-/chunked-file-reader-0.0.3.tgz#54183f6af467336762dca4203005435357cc34eb"
-  integrity sha1-VBg/avRnM2di3KQgMAVDU1fMNOs=
-
 commander@^2.15.1:
   version "2.20.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.0.tgz#d58bb2b5c1ee8f87b0d340027e9e94e222c5a422"

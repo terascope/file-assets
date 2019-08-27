@@ -8,7 +8,6 @@
         "@terascope/queue": "^1.1.6",
         "@terascope/utils": "^0.16.1",
         "bluebird": "^3.5.3",
-        "chunked-file-reader": "^0.0.3",
         "fs-extra": "^8.1.0",
         "glob": "^7.1.4",
         "json2csv": "4.5.2",
