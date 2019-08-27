@@ -34,7 +34,7 @@ describe('S3 exporter processor', () => {
 
     // Fake the client for testing
     processor.client = {
-        putObject_Async: (putParams) => Promise.resolve(putParams)
+        putObject_Async: putParams => Promise.resolve(putParams)
     };
 
     const slice = [{
