@@ -25,6 +25,6 @@
         "jest-fixtures": "^0.6.0",
         "json2csv": "4.5.2",
         "teraslice-test-harness": "^0.8.4",
-        "typescript": "^3.6.2"
+        "typescript": "^3.5.3"
     }
 }
