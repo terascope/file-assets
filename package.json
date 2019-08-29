@@ -16,7 +16,7 @@
     "dependencies": {},
     "devDependencies": {
         "@terascope/job-components": "^0.21.1",
-        "@terascope/teraslice-op-test-harness": "^1.7.0",
+        "@terascope/teraslice-op-test-harness": "^1.7.4",
         "@terascope/utils": "^0.16.1",
         "eslint": "^6.2.1",
         "eslint-config-airbnb-base": "^14.0.0",
