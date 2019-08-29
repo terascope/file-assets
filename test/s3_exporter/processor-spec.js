@@ -5,7 +5,20 @@ const Promise = require('bluebird');
 const Processor = require('../../asset/s3_exporter/processor');
 
 describe('S3 exporter processor', () => {
-    const context = new TestContext('s3-exporter');
+    const context = new TestContext('s3-exporter', {
+        clients: [
+            {
+                type: 's3',
+                endpoint: 'my-s3-connector',
+                create: () => ({
+                    client: {
+                        putObject_Async: (putParams) => Promise.resolve(putParams)
+                    }
+                })
+            }
+        ]
+    });
+
     const processor = new Processor(context,
         // Set up with opConfig for first test
         {
@@ -32,11 +45,6 @@ describe('S3 exporter processor', () => {
 
     const { workerId } = processor;
 
-    // Fake the client for testing
-    processor.client = {
-        putObject_Async: (putParams) => Promise.resolve(putParams)
-    };
-
     const slice = [{
         field0: 0,
         field1: 1,
@@ -52,7 +60,12 @@ describe('S3 exporter processor', () => {
         data: 'This is a sentence.'
     }];
 
-    afterAll(() => {
+    beforeAll(async () => {
+        await processor.initialize();
+    });
+
+    afterAll(async () => {
+        await processor.shutdown();
         context.apis.foundation.getSystemEvents().removeAllListeners();
     });
 
