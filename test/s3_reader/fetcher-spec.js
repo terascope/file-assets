@@ -29,7 +29,18 @@ const slice = {
 };
 
 describe('S3 reader\'s slicer', () => {
-    const context = new TestContext('s3-reader');
+    const context = new TestContext('s3-reader', {
+        clients: [
+            {
+                type: 's3',
+                endpoint: 'my-s3-connector',
+                create: () => ({
+                    client: mockClient
+                })
+            }
+        ]
+    });
+
     // Make sure the JSON slices will be the whole files
     const fetcher = new Fetcher(context,
         // Set up with opConfig for first test
@@ -47,12 +58,18 @@ describe('S3 reader\'s slicer', () => {
             name: 's3_exporter'
         });
 
-    // Set the clients to our test client
-    fetcher.client = mockClient;
+    beforeAll(async () => {
+        await fetcher.initialize();
+    });
+
+    afterAll(async () => {
+        await fetcher.shutdown();
+        context.apis.foundation.getSystemEvents().removeAllListeners();
+    });
 
     it('generated the proper S3 getObject settings', async () => {
         const data = await fetcher.fetch(slice);
         expect(s3Params.Range).toEqual('bytes=0-26');
-        expect(Object.keys(data[0]).length).toEqual(6);
+        expect(Object.keys(data[0])).toBeArrayOfSize(6);
     });
 });

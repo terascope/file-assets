@@ -1,5 +1,5 @@
 {
     "name": "file-assets",
-    "version": "0.7.5",
+    "version": "0.8.0",
     "description": "A set of processors for exporting data to files"
 }

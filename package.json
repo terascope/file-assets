@@ -1,30 +1,28 @@
 {
     "name": "file-assets-bundle",
-    "version": "0.7.5",
+    "version": "0.8.0",
     "description": "Teraslice processors for working with data stored in files on disk",
     "repository": "https://github.com/terascope/file-assets.git",
     "author": "Terascope, LLC <info@terascope.io>",
     "license": "MIT",
     "scripts": {
-        "lint": "eslint --ignore-path .gitignore --ext .js .",
+        "lint": "eslint --ignore-path .gitignore --ext .js,.ts .",
         "lint:fix": "yarn lint --fix",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand",
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
         "postinstall": "yarn --cwd ./asset --prod --no-progress"
     },
     "dependencies": {},
     "devDependencies": {
-        "@terascope/job-components": "^0.21.1",
-        "@terascope/teraslice-op-test-harness": "^1.7.0",
-        "@terascope/utils": "^0.16.1",
-        "eslint": "^6.2.1",
-        "eslint-config-airbnb-base": "^14.0.0",
-        "eslint-plugin-import": "^2.18.2",
+        "@terascope/eslint-config": "^0.1.1",
+        "@terascope/job-components": "^0.23.2",
+        "@terascope/teraslice-op-test-harness": "^1.7.5",
+        "eslint": "^6.2.2",
         "jest": "^24.9.0",
         "jest-extended": "^0.11.2",
         "jest-fixtures": "^0.6.0",
-        "json2csv": "4.5.2",
-        "teraslice-test-harness": "^0.8.3"
+        "teraslice-test-harness": "^0.8.6",
+        "typescript": "^3.5.3"
     }
 }
