@@ -52,6 +52,19 @@
     lodash.get "^4.4.2"
     lodash.set "^4.3.2"
 
+"@terascope/utils@^0.19.0":
+  version "0.19.0"
+  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.19.0.tgz#8ee863b7689f5fc2e5fc819e5457a53bca7c0835"
+  integrity sha512-ITVr9zMfNAjWWGfL1V37e/PIUBCGMoClmg70fE86LVBOVYbu8lriKYw6Xu86y/ZgsysJh12rRWrapDHeHKLvtg==
+  dependencies:
+    debug "^4.1.1"
+    is-plain-object "^3.0.0"
+    kind-of "^6.0.2"
+    lodash.clonedeep "^4.5.0"
+    lodash.get "^4.4.2"
+    lodash.set "^4.3.2"
+    lodash.unset "^4.5.2"
+
 balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
@@ -236,6 +249,11 @@ lodash.set@^4.3.2:
   version "4.3.2"
   resolved "https://registry.yarnpkg.com/lodash.set/-/lodash.set-4.3.2.tgz#d8757b1da807dde24816b0d6a84bea1a76230b23"
   integrity sha1-2HV7HagH3eJIFrDWqEvqGnYjCyM=
+
+lodash.unset@^4.5.2:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/lodash.unset/-/lodash.unset-4.5.2.tgz#370d1d3e85b72a7e1b0cdf2d272121306f23e4ed"
+  integrity sha1-Nw0dPoW3Kn4bDN8tJyEhMG8j5O0=
 
 lodash@^4.17.11, lodash@^4.17.15, lodash@^4.17.3:
   version "4.17.15"
