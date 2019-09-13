@@ -40,10 +40,10 @@
     lodash.get "^4.4.2"
     lodash.set "^4.3.2"
 
-"@terascope/utils@^0.19.0":
-  version "0.19.0"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.19.0.tgz#8ee863b7689f5fc2e5fc819e5457a53bca7c0835"
-  integrity sha512-ITVr9zMfNAjWWGfL1V37e/PIUBCGMoClmg70fE86LVBOVYbu8lriKYw6Xu86y/ZgsysJh12rRWrapDHeHKLvtg==
+"@terascope/utils@^0.20.0":
+  version "0.20.0"
+  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.20.0.tgz#a2b8ce70ef8d0c34ecfb9b61e5791298879dc9e5"
+  integrity sha512-IvN2gn4RS74ZUo+Nd6GpBQqlF404VaqBoHPE7aZBOOT6UqJgEFq4FYQrEtVs+2EfreycPPUU9otQuuX2ETU3Ag==
   dependencies:
     debug "^4.1.1"
     is-plain-object "^3.0.0"
