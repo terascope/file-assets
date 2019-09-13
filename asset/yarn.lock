@@ -28,19 +28,6 @@
   resolved "https://registry.yarnpkg.com/@terascope/queue/-/queue-1.1.7.tgz#26cd3a42747ec802744f9b86c08034b0bbe07091"
   integrity sha512-foPas4K4rShs0RxtLNauC9ssXbzWvf5YzCa+6tJ9BAEk+PfjHJhi9bPDL6stXfcHroKtbet49dPwFbFIJJAOHw==
 
-"@terascope/utils@^0.19.0":
-  version "0.19.0"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.19.0.tgz#8ee863b7689f5fc2e5fc819e5457a53bca7c0835"
-  integrity sha512-ITVr9zMfNAjWWGfL1V37e/PIUBCGMoClmg70fE86LVBOVYbu8lriKYw6Xu86y/ZgsysJh12rRWrapDHeHKLvtg==
-  dependencies:
-    debug "^4.1.1"
-    is-plain-object "^3.0.0"
-    kind-of "^6.0.2"
-    lodash.clonedeep "^4.5.0"
-    lodash.get "^4.4.2"
-    lodash.set "^4.3.2"
-    lodash.unset "^4.5.2"
-
 "@terascope/utils@^0.20.1":
   version "0.20.1"
   resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.20.1.tgz#a8b14b85e34bb5f66c8ac44fe55f98f7b97a24a6"
