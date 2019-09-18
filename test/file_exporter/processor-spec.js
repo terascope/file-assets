@@ -76,6 +76,25 @@ describe('File exporter processor', () => {
         }
     ];
 
+    const complexData = [
+        {
+            field1: {
+                subfield1: 22,
+                subfield2: 44
+            },
+            field2: 66
+        },
+        {
+            field1: [
+                {
+                    subfield1: 22,
+                    subfield2: 44
+                }
+            ],
+            field2: 66
+        }
+    ];
+
     afterAll(() => {
         context.apis.foundation.getSystemEvents().removeAllListeners();
     });
@@ -148,6 +167,22 @@ describe('File exporter processor', () => {
             + '"test data",42\n'
             + '"more test data",43\n'
             + '"even more test data",44\n'
+        );
+    });
+    it('creates a single csv file with custom complex fields', async () => {
+        const nodeName = processor.worker;
+        processor.sliceCount = 0;
+        processor.csvOptions.fields = [
+            'field2',
+            'field1'
+        ];
+        processor.csvOptions.header = false;
+        processor.filePerSlice = false;
+        await processor.onBatch(complexData);
+        expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
+        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
+            '66,"{""subfield1"":22,""subfield2"":44}"\n'
+            + '66,"[{""subfield1"":22,""subfield2"":44}]"\n'
         );
     });
     it('creates a single csv file with all fields', async () => {
@@ -256,6 +291,20 @@ describe('File exporter processor', () => {
             '{"field3":"test data","field1":42}\n'
             + '{"field3":"more test data","field1":43}\n'
             + '{"field3":"even more test data","field1":44}\n'
+        );
+    });
+    it('filters and line-delimited JSON fields with nested objects', async () => {
+        const nodeName = processor.worker;
+        processor.sliceCount = 0;
+        processor.opConfig.fields = [
+            'field2',
+            'field1'
+        ];
+        await processor.onBatch(complexData);
+        expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
+        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
+            '{"field2":66,"field1":{"subfield1":22,"subfield2":44}}\n'
+            + '{"field2":66,"field1":[{"subfield1":22,"subfield2":44}]}\n'
         );
     });
     it('creates a single file with a JSON record for `json` format', async () => {
