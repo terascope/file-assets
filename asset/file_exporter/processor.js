@@ -41,6 +41,19 @@ class FileBatcher extends BatchProcessor {
         }
     }
 
+    // Implementing a custom stringify to pass nested objects through when fields are specified
+    _stringify(record) {
+        let serializedRecord = '{';
+        this.opConfig.fields.forEach((field) => {
+            // Can't just check for `record[field]` since `null`, `undefined`, and `0` will drop
+            // fields
+            if (Object.keys(record).includes(field)) {
+                serializedRecord = `${serializedRecord}"${field}":${JSON.stringify(record[field])},`;
+            }
+        });
+        return `${serializedRecord.slice(0, -1)}}`;
+    }
+
     getName() {
         const fileName = path.join(this.opConfig.path, `${this.filePrefix}${this.worker}`);
         if (this.filePerSlice) {
@@ -77,7 +90,7 @@ class FileBatcher extends BatchProcessor {
         case 'ldjson': {
             if (this.opConfig.fields.length > 0) {
                 slice.forEach((record) => {
-                    outStr = `${outStr}${JSON.stringify(record, this.opConfig.fields)}${this.opConfig.line_delimiter}`;
+                    outStr = `${outStr}${this._stringify(record)}${this.opConfig.line_delimiter}`;
                 });
             } else {
                 slice.forEach((record) => {
