@@ -1,7 +1,6 @@
 'use strict';
 
 const { Slicer, getClient } = require('@terascope/job-components');
-const Queue = require('@terascope/queue');
 const { getOffsets } = require('@terascope/chunked-file-reader');
 
 class S3Slicer extends Slicer {
@@ -9,30 +8,23 @@ class S3Slicer extends Slicer {
         super(context, opConfig, executionConfig);
         this.client = getClient(context, opConfig, 's3');
         this._lastKey = undefined;
-        this._queue = new Queue();
         this._doneSlicing = false;
     }
 
     async initialize() {
-        this.getObjects();
     }
 
     async slice() {
-        // Grab a record if there is one ready in the queue
-        if (this._queue.size() > 0) return this._queue.dequeue();
-
-        // Finish slicer if the queue is empty and it's done prepping slices
+        // First check to see if there are more objects in S3
         if (this._doneSlicing) return null;
 
-        // If the queue is empty and there are still slices, wait for a new slice
-        return new Promise((resolve) => {
-            const intervalId = setInterval(() => {
-                if (this._queue.size() > 0) {
-                    clearInterval(intervalId);
-                    resolve(this._queue.dequeue());
-                }
-            }, 50);
-        });
+        // Get an array of slices
+        const slices = await this.getObjects();
+
+        // Finish slicer if there are no slices.
+        if (slices.length === 0) return null;
+
+        return slices;
     }
 
     async getObjects() {
@@ -42,20 +34,27 @@ class S3Slicer extends Slicer {
             Marker: this._lastKey,
         });
 
+        if (data.Contents.length === 0) {
+            // Returning an empty array will signal to the slicer that it is done
+            // TODO: log a message to let the user know there weren't any slices
+            return [];
+        }
+
         this._lastKey = data.Contents[data.Contents.length - 1].Key;
 
-        // Always slice whatever objects are returned from the query
-        this.sliceObjects(data.Contents);
+        // Let slicer know whether or not there are more objects to process
         if (data.IsTruncated) {
-            // Continue slicing objects if there are more to slice
             this._doneSlicing = false;
-            this.getObjects();
         } else {
             this._doneSlicing = true;
         }
+
+        // Slice whatever objects are returned from the query
+        return this.sliceObjects(data.Contents);
     }
 
-    async sliceObjects(objList) {
+    sliceObjects(objList) {
+        const slices = [];
         objList.forEach((obj) => {
             if (this.opConfig.format === 'json') {
                 const offset = {
@@ -63,7 +62,7 @@ class S3Slicer extends Slicer {
                     offset: 0,
                     length: obj.Size,
                 };
-                this._queue.enqueue(offset);
+                slices.push(offset);
             } else {
                 getOffsets(
                     this.opConfig.size,
@@ -72,10 +71,11 @@ class S3Slicer extends Slicer {
                 ).forEach((offset) => {
                     offset.path = obj.Key;
                     offset.total = obj.Size;
-                    this._queue.enqueue(offset);
+                    slices.push(offset);
                 });
             }
         });
+        return slices;
     }
 }
 

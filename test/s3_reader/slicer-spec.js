@@ -82,15 +82,11 @@ describe('S3 slicer when slicing JSON objects', () => {
     });
 
     it('should generate whole-object slices.', async () => {
-        const slices = [];
-        async function getSlices() {
-            const results = await harness.createSlices();
-            if (results[0]) {
-                slices.push(results[0]);
-                await getSlices();
-            }
-        }
-        await getSlices();
+        // Expecting a truncated response, so we need to call slice() twice
+        const firstBatch = await harness.createSlices();
+        const secondBatch = await harness.createSlices();
+        const slices = firstBatch.concat(secondBatch);
+
         expect(slices.length).toBe(6);
 
         // Verify the S3 request parameters are accurate
@@ -174,15 +170,7 @@ describe('S3 slicer when slicing other objects', () => {
     });
 
     it('should generate regular slices.', async () => {
-        const slices = [];
-        async function getSlices() {
-            const results = await harness.createSlices();
-            if (results[0]) {
-                slices.push(results[0]);
-                await getSlices();
-            }
-        }
-        await getSlices();
+        const slices = await harness.createSlices();
         expect(slices.length).toBe(4);
 
         let currentRecord = slices.pop();
