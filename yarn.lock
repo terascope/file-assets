@@ -341,12 +341,12 @@
   resolved "https://registry.yarnpkg.com/@terascope/queue/-/queue-1.1.7.tgz#26cd3a42747ec802744f9b86c08034b0bbe07091"
   integrity sha512-foPas4K4rShs0RxtLNauC9ssXbzWvf5YzCa+6tJ9BAEk+PfjHJhi9bPDL6stXfcHroKtbet49dPwFbFIJJAOHw==
 
-"@terascope/teraslice-op-test-harness@^1.7.9":
-  version "1.7.9"
-  resolved "https://registry.yarnpkg.com/@terascope/teraslice-op-test-harness/-/teraslice-op-test-harness-1.7.9.tgz#e5b6c725933ae215a4ea11e6893931ff3756c0a7"
-  integrity sha512-++FOZ5X+muu72nwF36JQoZpfKuVc4Kokc56XWhvdylvFyBtZ00wGiFaGuYYHK3qvMxqUDNq4Y4SYn0WlIN4Nrw==
+"@terascope/teraslice-op-test-harness@^1.7.11", "@terascope/teraslice-op-test-harness@^1.7.9":
+  version "1.7.11"
+  resolved "https://registry.yarnpkg.com/@terascope/teraslice-op-test-harness/-/teraslice-op-test-harness-1.7.11.tgz#dea55746c67a5f9f84660ec5ba34ba947bef8284"
+  integrity sha512-UL4dPLXJiA+6tFAUyUPpQrgPyR1eReEt8rbS6wGJ40RJNoiOYgZnmsLP/StW2hTJh8wT4a05wYv6xXB0/2RErA==
   dependencies:
-    "@terascope/job-components" "^0.23.7"
+    "@terascope/job-components" "^0.23.9"
     bluebird "^3.5.5"
     lodash "^4.17.11"
 
