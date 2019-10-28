@@ -2,12 +2,12 @@
 # yarn lockfile v1
 
 
-"@terascope/chunked-file-reader@^2.1.8":
-  version "2.1.8"
-  resolved "https://registry.yarnpkg.com/@terascope/chunked-file-reader/-/chunked-file-reader-2.1.8.tgz#52d5b107acb30ff79530dc5e9db61ca85bf59cfc"
-  integrity sha512-coUHcuAik76faWq2Xg7Bow3obds0ck+xiwjWIJsYLvLLJjDmIKR8R0uvnCGBk+fn6pRfXdkoZ8/76UMmvQph5g==
+"@terascope/chunked-file-reader@^2.1.10":
+  version "2.1.10"
+  resolved "https://registry.yarnpkg.com/@terascope/chunked-file-reader/-/chunked-file-reader-2.1.10.tgz#897be17c1e55c92da0c9ad0d0285b1bdc20d1e4f"
+  integrity sha512-s8miA5siolD4H0n0bAyMkHRwF+ZUmpACh9aVq6DVDo4WEBxftZSsY8BWfG+nKnsOojD7hLHAAiZEbmBy9d31dA==
   dependencies:
-    "@terascope/utils" "^0.20.3"
+    "@terascope/utils" "^0.20.5"
     bluebird "^3.5.5"
     csvtojson "^2.0.8"
     lodash "^4.17.11"
