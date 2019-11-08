@@ -3,6 +3,7 @@ dist: bionic
 language: node_js
 node_js:
   - '10.16'
+  - '12.13'
 os:
   - linux
   - osx
@@ -10,6 +11,9 @@ branches:
   only:
   - master
   - /^v\d+\.\d+\.\d+/
+cache:
+  npm: false
+  yarn: false
 after_success:
   - bash <(curl -s https://codecov.io/bash)
   - yarn lint
