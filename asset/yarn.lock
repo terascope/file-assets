@@ -28,10 +28,10 @@
   resolved "https://registry.yarnpkg.com/@terascope/queue/-/queue-1.1.7.tgz#26cd3a42747ec802744f9b86c08034b0bbe07091"
   integrity sha512-foPas4K4rShs0RxtLNauC9ssXbzWvf5YzCa+6tJ9BAEk+PfjHJhi9bPDL6stXfcHroKtbet49dPwFbFIJJAOHw==
 
-"@terascope/utils@^0.20.5":
-  version "0.20.5"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.20.5.tgz#2e1af9de327f566eddf6f6e458dbba925efd7bea"
-  integrity sha512-vyEqOq+OZE4c7RVmyy1/BZU0x4W1eYTc8DE9H4Aqa1jyNWAm5ssFtIrsPjQR6R38kPNRO2tkT5xbnIyA+G/DuA==
+"@terascope/utils@^0.20.5", "@terascope/utils@^0.20.6":
+  version "0.20.6"
+  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.20.6.tgz#0b751bcaa88063930069ed856c73e7a8a04d9759"
+  integrity sha512-HdDkVPRNVLs9n6xpVXiGjpQuASfvHI5lDsHAe6WUiCc+pM3naDTNK23xe/DlGwaA+KL2kVs4ESeYXcofSMOnTA==
   dependencies:
     debug "^4.1.1"
     is-plain-object "^3.0.0"
