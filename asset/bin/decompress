@@ -1,5 +1,7 @@
 #! /usr/bin/env node
 
+'use strict';
+
 if (process.env.TEST_EXIT_CODE) {
     process.stderr.write('test failure');
     process.exit(process.env.TEST_EXIT_CODE);
