@@ -3,7 +3,7 @@
     "version": "0.8.3",
     "description": "A set of processors for working with files",
     "dependencies": {
-        "@terascope/chunked-file-reader": "^2.1.11",
+        "@terascope/chunked-file-reader": "^2.1.12",
         "@terascope/job-components": "^0.24.0",
         "@terascope/queue": "^1.1.7",
         "@terascope/utils": "^0.20.7",
