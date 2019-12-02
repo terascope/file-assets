@@ -12,13 +12,13 @@
     csvtojson "^2.0.8"
     lodash "^4.17.11"
 
-"@terascope/job-components@^0.23.10":
-  version "0.23.10"
-  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.23.10.tgz#5fed72df0cf9a9c88c2a63a6dfa88cec85f82749"
-  integrity sha512-M0hhyyPZOUtfco7Vl47VfjNR0kpwH8fFQDCX1KvvhBWgnnvcM2AZ2j2hWq+qH6AmAgIXrCFkv/vIP6hFoOH58g==
+"@terascope/job-components@^0.24.0":
+  version "0.24.0"
+  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.24.0.tgz#9e7a5725ad861f2da0cc6432a4c10a30745e89dd"
+  integrity sha512-DzTSBvMY+zpNVw+iA0VcrKFDc52P5VkLDUY1Wz+ZJmVVRJzL5cwxTH9ZhiI2rieEjWY60XqpW3nuk9W+AOzBQA==
   dependencies:
     "@terascope/queue" "^1.1.7"
-    "@terascope/utils" "^0.20.6"
+    "@terascope/utils" "^0.20.7"
     convict "^4.4.1"
     datemath-parser "^1.0.6"
     uuid "^3.3.3"
