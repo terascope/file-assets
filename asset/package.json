@@ -7,7 +7,7 @@
         "@terascope/job-components": "^0.23.10",
         "@terascope/queue": "^1.1.7",
         "@terascope/utils": "^0.20.7",
-        "bluebird": "^3.7.1",
+        "bluebird": "^3.7.2",
         "fs-extra": "^8.1.0",
         "glob": "^7.1.6",
         "json2csv": "4.5.4",
