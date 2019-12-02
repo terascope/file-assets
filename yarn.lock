@@ -361,21 +361,7 @@
     bluebird "^3.5.5"
     lodash "^4.17.11"
 
-"@terascope/utils@^0.20.6":
-  version "0.20.6"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.20.6.tgz#0b751bcaa88063930069ed856c73e7a8a04d9759"
-  integrity sha512-HdDkVPRNVLs9n6xpVXiGjpQuASfvHI5lDsHAe6WUiCc+pM3naDTNK23xe/DlGwaA+KL2kVs4ESeYXcofSMOnTA==
-  dependencies:
-    debug "^4.1.1"
-    is-plain-object "^3.0.0"
-    js-string-escape "^1.0.1"
-    kind-of "^6.0.2"
-    lodash.clonedeep "^4.5.0"
-    lodash.get "^4.4.2"
-    lodash.set "^4.3.2"
-    lodash.unset "^4.5.2"
-
-"@terascope/utils@^0.20.7":
+"@terascope/utils@^0.20.6", "@terascope/utils@^0.20.7":
   version "0.20.7"
   resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.20.7.tgz#ce60891c9cb1e25114ade674c9efb48d871a6d49"
   integrity sha512-wYgHicp56E52PbTkbLfeHsMvwdQwGvEW+CsbEYALYqGtqaPVY3QTN2a6Gj+rQZreUJWJZN3Ze9q0q4J4Yf756A==
