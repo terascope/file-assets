@@ -4,6 +4,8 @@ const {
     Fetcher, getClient
 } = require('@terascope/job-components');
 const { getChunk } = require('@terascope/chunked-file-reader');
+const lz4 = require('lz4');
+const { ungzip } = require('node-gzip');
 
 class S3Fetcher extends Fetcher {
     constructor(context, opConfig, executionConfig) {
@@ -52,7 +54,15 @@ class S3Fetcher extends Fetcher {
              * }
              */
             return this.client.getObject_Async(opts)
-                .then((object) => object.Body.toString());
+                .then((object) => {
+                    if (this.opConfig.compression === 'lz4') {
+                        return lz4.decode(object.Body).toString();
+                    }
+                    if (this.opConfig.compression === 'gzip') {
+                        return ungzip(object.Body).then((uncompressed) => uncompressed.toString());
+                    }
+                    return object.Body.toString();
+                });
         };
         // Passing the slice in as the `metadata`. This will include the path, offset, and length
         return getChunk(reader, slice, this.opConfig, this.logger, slice);

@@ -2,6 +2,8 @@
 
 const { TestContext } = require('@terascope/job-components');
 const Promise = require('bluebird');
+const lz4 = require('lz4');
+const { ungzip } = require('node-gzip');
 const Processor = require('../../asset/s3_exporter/processor');
 
 describe('S3 exporter processor', () => {
@@ -124,5 +126,23 @@ describe('S3 exporter processor', () => {
         const objParams = await processor.onBatch(slice);
         expect(objParams.Body).toEqual('[{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4,"field5":5}]\n');
         expect(objParams.Key).toEqual(`testing/${workerId}.6`);
+    });
+
+    it('generates lz4 compressed object', async () => {
+        processor.opConfig.format = 'json';
+        processor.opConfig.compression = 'lz4';
+        const objParams = await processor.onBatch(slice);
+        expect(lz4.decode(Buffer.from(objParams.Body.data)).toString()).toEqual('[{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4,"field5":5}]\n');
+        expect(objParams.Key).toEqual(`testing/${workerId}.7.lz4`);
+    });
+
+    it('generates gzip compressed object', async () => {
+        processor.opConfig.format = 'json';
+        processor.opConfig.compression = 'gzip';
+        const objParams = await processor.onBatch(slice);
+        const decompressedObj = await ungzip(Buffer.from(objParams.Body.data))
+            .then((uncompressed) => uncompressed.toString());
+        expect(decompressedObj).toEqual('[{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4,"field5":5}]\n');
+        expect(objParams.Key).toEqual(`testing/${workerId}.8.gz`);
     });
 });

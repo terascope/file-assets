@@ -5,6 +5,8 @@ const {
 } = require('@terascope/job-components');
 const json2csv = require('json2csv').parse;
 const { DataEntity } = require('@terascope/utils');
+const lz4 = require('lz4');
+const { gzip } = require('node-gzip');
 
 class S3Batcher extends BatchProcessor {
     constructor(context, opConfig, executionConfig) {
@@ -31,7 +33,14 @@ class S3Batcher extends BatchProcessor {
     }
 
     getName() {
-        const objName = `${this.objPrefix}${this.workerId}.${this.sliceCount}`;
+        let objName;
+        if (this.opConfig.compression === 'lz4') {
+            objName = `${this.objPrefix}${this.workerId}.${this.sliceCount}.lz4`;
+        } else if (this.opConfig.compression === 'gzip') {
+            objName = `${this.objPrefix}${this.workerId}.${this.sliceCount}.gz`;
+        } else {
+            objName = `${this.objPrefix}${this.workerId}.${this.sliceCount}`;
+        }
         this.sliceCount += 1;
         return objName;
     }
@@ -99,11 +108,24 @@ class S3Batcher extends BatchProcessor {
             throw new Error(`Unsupported output format "${this.opConfig.format}"`);
         }
 
+        // This will prevent empty objects from being added to the S3 store, which can cause
+        // problems with the S3 reader
+        if (outStr.length === 0) {
+            return Promise.resolve();
+        }
+
         const params = {
             Bucket: this.opConfig.bucket,
-            Key: objName,
-            Body: outStr
+            Key: objName
         };
+
+        if (this.opConfig.compression === 'lz4') {
+            params.Body = lz4.encode(outStr);
+        } else if (this.opConfig.compression === 'gzip') {
+            params.Body = await gzip(outStr);
+        } else {
+            params.Body = outStr;
+        }
 
         return this.client.putObject_Async(params)
             .then((results) => DataEntity.fromBuffer(JSON.stringify(results)));

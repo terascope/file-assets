@@ -1,6 +1,6 @@
 # s3_exporter
 
-The `s3_exporter` will export slices to objects in S3.
+The `s3_exporter` will export slices to objects in S3. This exporter will ignore empty slices to prevent feeding empty objects into the S3 store.
 
 # Options
 
@@ -8,7 +8,7 @@ The `s3_exporter` will export slices to objects in S3.
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any valid S3 bucket | `null` | Y |  
+| Any valid S3 bucket | `null` | Y |
 
 The bucket where the processed data will live.
 
@@ -16,11 +16,11 @@ The bucket where the processed data will live.
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any valid S3 object prefix | `export_` | N |  
+| Any valid S3 object prefix | `export_` | N |
 
 This will add an optional prefix to the **WHOLE OBJECT NAME**. If objects should go directly into the bucket without any name change, set this option to `''`. If objects should be placed in a bucket's subdirectory, set this option to the whole object prefix **INCLUDING THE TRAILING `/`**.
 
-i.e. For adding data to `s3://my-bucket/some/test/directory/`, the following must be set in the opConfig:  
+i.e. For adding data to `s3://my-bucket/some/test/directory/`, the following must be set in the opConfig:
 - `bucket`: "my-bucket"
 - `object_prefix`: "some/test/directory/"
 
@@ -28,15 +28,23 @@ i.e. For adding data to `s3://my-bucket/some/test/directory/`, the following mus
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any valid S3 connector | `null` | Y |  
+| Any valid S3 connector | `null` | Y |
 
 This is the name of the S3 connector defined in Terafoundation.
+
+## `compression`
+
+| Valid Options | Default | Required |
+| ----------- | ------- | -------- |
+| none, lz4, gzip | `none` | N |
+
+Compression type to use with objects.
 
 ## `fields`
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Array containing record fields | `[]` | N |  
+| Array containing record fields | `[]` | N |
 
 This is an optional setting that will filter and order the fields in the output. It will work with `csv`, `tsv`, and `ldjson` output formats, and if not specified, all fields will be included in the output.
 
@@ -44,7 +52,7 @@ This is an optional setting that will filter and order the fields in the output.
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any string | `,` | N |  
+| Any string | `,` | N |
 
 Any string can be used as a delimiter for the exporter. This allows for multi-character or custom delimiters. **This option is only used with the `csv` output.** See the notes on the `format` option for more information.
 
@@ -52,7 +60,7 @@ Any string can be used as a delimiter for the exporter. This allows for multi-ch
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any string | `,` | N |  
+| Any string | `,` | N |
 
 Any string can be used as a delimiter for the exporter. This allows for multi-character or custom delimiters. **This option is only used with the `csv` output.** See the notes on the `format` option for more information.
 
@@ -60,7 +68,7 @@ Any string can be used as a delimiter for the exporter. This allows for multi-ch
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| 'true' | `true` | N |  
+| 'true' | `true` | N |
 
 This processor currently only supports creating a single object for each slice. A future improvement will be to utilize multi-part uploads to allow workers to write larger batches of data to objects.
 
@@ -68,7 +76,7 @@ This processor currently only supports creating a single object for each slice. 
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| 'true', 'false' | `false` | N |  
+| 'true', 'false' | `false` | N |
 
 Determines whether or not to include column headers for the fields in output files. If set to `true`, a header will be added as the first entry to every file created. This option is only used for `tsv` and `csv` formats.
 
@@ -76,7 +84,7 @@ Determines whether or not to include column headers for the fields in output fil
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| 'json', 'ldjson', 'raw', 'csv', 'tsv' | `ldjson` | N |  
+| 'json', 'ldjson', 'raw', 'csv', 'tsv' | `ldjson` | N |
 
 ### json
 
@@ -96,13 +104,13 @@ Determines whether or not to include column headers for the fields in output fil
 
 ### raw
 
-`raw` output will generate objects where each line is the value of the `data` attribute of a data entity in the slice. So, when using the `raw` format output, the records must be sent to the `s3_exporter` in the form of:  
+`raw` output will generate objects where each line is the value of the `data` attribute of a data entity in the slice. So, when using the `raw` format output, the records must be sent to the `s3_exporter` in the form of:
 
 ```json
 { "data": "some processed data string" }
 ```
 
-# Example Job  
+# Example Job
 
 This test job will generate 500k records and put them into tab-delimited files that include column headers in the worker's `/app/data/testfiles` directory. (Since the `elasticsearch_data_generator` breaks records into batches of 10k records, this will result in 50 `test_*` tsv files)
 
