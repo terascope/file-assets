@@ -33,13 +33,11 @@ class S3Batcher extends BatchProcessor {
     }
 
     getName() {
-        let objName;
+        let objName = `${this.objPrefix}${this.workerId}.${this.sliceCount}`;
         if (this.opConfig.compression === 'lz4') {
             objName = `${this.objPrefix}${this.workerId}.${this.sliceCount}.lz4`;
         } else if (this.opConfig.compression === 'gzip') {
             objName = `${this.objPrefix}${this.workerId}.${this.sliceCount}.gz`;
-        } else {
-            objName = `${this.objPrefix}${this.workerId}.${this.sliceCount}`;
         }
         this.sliceCount += 1;
         return objName;
