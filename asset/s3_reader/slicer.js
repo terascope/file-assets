@@ -9,6 +9,7 @@ class S3Slicer extends Slicer {
         this.client = getClient(context, opConfig, 's3');
         this._lastKey = undefined;
         this._doneSlicing = false;
+        if (this.opConfig.compression !== 'none') this.opConfig.file_per_slice = true;
     }
 
     async initialize() {
@@ -56,7 +57,8 @@ class S3Slicer extends Slicer {
     sliceObjects(objList) {
         const slices = [];
         objList.forEach((obj) => {
-            if (this.opConfig.format === 'json') {
+            // If compression is used on the objects, `file_per_slice` will be coerced to true
+            if (this.opConfig.format === 'json' || this.opConfig.file_per_slice) {
                 const offset = {
                     path: obj.Key,
                     offset: 0,

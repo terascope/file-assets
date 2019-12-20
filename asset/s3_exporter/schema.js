@@ -15,6 +15,11 @@ class Schema extends ConvictSchema {
                 default: null,
                 format: 'required_String'
             },
+            compression: {
+                doc: 'Compression to use on the object. Supports lz4 and gzip.',
+                default: 'none',
+                format: ['none', 'lz4', 'gzip']
+            },
             object_prefix: {
                 doc: 'The object prefix. Will target a specific directory if a trailing `/` is provided'
                     + '. See docs for more info',

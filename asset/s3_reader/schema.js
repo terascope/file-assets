@@ -15,6 +15,11 @@ class Schema extends ConvictSchema {
                 default: null,
                 format: 'required_String'
             },
+            compression: {
+                doc: 'Compression used on the object. Supports lz4 and gzip.',
+                default: 'none',
+                format: ['none', 'lz4', 'gzip']
+            },
             object_prefix: {
                 doc: 'The object prefix. Will target a specific directory if a trailing `/` is provided'
                     + ' or objects and directories starting with the `object_prefix` if there is no tra'
@@ -64,6 +69,12 @@ class Schema extends ConvictSchema {
                 doc: 'An object used to pass in any extra csv parsing arguments',
                 default: {},
                 format: Object
+            },
+            object_per_slice: {
+                doc: 'Determines if each object should be treated as a single slice. If set, `size`'
+                    + ' will be ignored.',
+                default: false,
+                format: Boolean
             }
         };
     }
