@@ -109,7 +109,7 @@ class S3Batcher extends BatchProcessor {
         // This will prevent empty objects from being added to the S3 store, which can cause
         // problems with the S3 reader
         if (outStr.length === 0) {
-            return Promise.resolve();
+            return [];
         }
 
         const params = {
@@ -126,7 +126,7 @@ class S3Batcher extends BatchProcessor {
         }
 
         return this.client.putObject_Async(params)
-            .then((results) => DataEntity.fromBuffer(JSON.stringify(results)));
+            .then(() => slice);
     }
 }
 
