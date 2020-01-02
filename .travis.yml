@@ -14,9 +14,11 @@ branches:
 cache:
   npm: false
   yarn: false
+script:
+  - yarn test
+  - yarn lint
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-  - yarn lint
   - yarn global add teraslice-cli
   - teraslice-cli assets build
 deploy:
