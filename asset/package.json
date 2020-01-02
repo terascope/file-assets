@@ -1,6 +1,6 @@
 {
     "name": "file-assets",
-    "version": "0.9.0",
+    "version": "0.10.0",
     "description": "A set of processors for working with files",
     "dependencies": {
         "@terascope/chunked-file-reader": "^2.2.0",
