@@ -6,7 +6,6 @@ const {
     SlicerTestHarness,
 } = require('teraslice-test-harness');
 
-
 describe('S3 slicer when slicing JSON objects', () => {
     let s3ParamsFirstRequest;
     let s3ParamsSecondRequest;

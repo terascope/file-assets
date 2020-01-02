@@ -4,7 +4,6 @@ const { TestContext } = require('@terascope/job-components');
 const Promise = require('bluebird');
 const Fetcher = require('../../asset/s3_reader/fetcher');
 
-
 // Set up a test response to feed the slicer.
 // offset: 0
 // length: 27

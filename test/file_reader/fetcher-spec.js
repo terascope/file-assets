@@ -5,7 +5,6 @@ const fixtures = require('jest-fixtures');
 const path = require('path');
 const Fetcher = require('../../asset/file_reader/fetcher');
 
-
 describe('File reader\'s fetcher', () => {
     it('properly reads an ldjson slice', async () => {
         const testDataDir = await fixtures.copyFixtureIntoTempDir(__dirname, 'file_reader/ldjson/subdir');

@@ -6,7 +6,6 @@ const fs = require('fs');
 const { remove, ensureDir } = require('fs-extra');
 const Processor = require('../../asset/file_exporter/processor');
 
-
 function getTestFilePath(...parts) {
     return path.join(__dirname, 'test_output', ...parts);
 }

@@ -7,7 +7,6 @@ const {
     SlicerTestHarness,
 } = require('teraslice-test-harness');
 
-
 describe('File slicer', () => {
     const slices = [];
 

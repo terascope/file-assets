@@ -4,7 +4,6 @@ const {
     BatchProcessor, getClient
 } = require('@terascope/job-components');
 const json2csv = require('json2csv').parse;
-const { DataEntity } = require('@terascope/utils');
 const lz4 = require('lz4');
 const { gzip } = require('node-gzip');
 
