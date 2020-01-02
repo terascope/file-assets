@@ -33,7 +33,6 @@ module.exports = async (workDir, assetDir) => {
     await fse.mkdirs(workPath('slice'));
     await fse.mkdirs(workPath('archive'));
 
-
     // The original idea of this state file was to progress a file from its last
     // successful stage. That was making the crash-proof story too complicated
     // and all it would really save us is extra decompression. Instead, if a
