@@ -12,7 +12,13 @@ class S3Slicer extends Slicer {
         if (this.opConfig.compression !== 'none') this.opConfig.file_per_slice = true;
     }
 
-    async initialize() {
+    /**
+     * Currently only enable autorecover jobs
+     *
+     * @todo we should probably support full recovery
+    */
+    isRecoverable() {
+        return Boolean(this.executionConfig.autorecover);
     }
 
     async slice() {

@@ -15,6 +15,15 @@ class FileSlicer extends Slicer {
         this._doneSlicing = false;
     }
 
+    /**
+     * Currently only enable autorecover jobs
+     *
+     * @todo we should probably support full recovery
+    */
+    isRecoverable() {
+        return Boolean(this.executionConfig.autorecover);
+    }
+
     async initialize() {
         this.checkProvidedPath();
         this.getFilePaths(this.opConfig.path)
