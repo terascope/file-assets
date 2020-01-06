@@ -6,14 +6,22 @@ class Schema extends ConvictSchema {
     build() {
         return {
             path: {
-                doc: 'Path to the file where the data will be saved to, directory must pre-exist.',
+                doc: 'Path to the file where the data will be saved to. The filename will be '
+                    + 'appended to this, so if no trailing "/" is provided, the final part will '
+                    + 'be treated as a file prefix.\ni.e. "/data/export_" will result in files like'
+                    + ' "/data/export_X7eLvcvd.1079.gz"',
                 default: null,
                 format: 'required_String'
             },
-            file_prefix: {
-                doc: 'Optional prefix to prepend to the file name.',
-                default: 'export_',
+            extension: {
+                doc: 'A file extension to add to the object name.',
+                default: '',
                 format: String
+            },
+            compression: {
+                doc: 'Compression to use on the object. Supports lz4 and gzip.',
+                default: 'none',
+                format: ['none', 'lz4', 'gzip']
             },
             field_delimiter: {
                 doc: 'Delimiter character between record fields. Only used with `csv` format',
@@ -26,7 +34,7 @@ class Schema extends ConvictSchema {
                 format: String
             },
             fields: {
-                doc: 'CSV field headers used to create the json key, must be in same order as the',
+                doc: 'CSV field headers used to create the json key',
                 default: [],
                 format: Array
             },
@@ -36,8 +44,7 @@ class Schema extends ConvictSchema {
                 format: Boolean
             },
             include_header: {
-                doc: 'Determines whether or not to include a header at the top of the file. '
-                + 'The header will consist of the field names.',
+                doc: 'Determines whether or not to include column headers for the fields.',
                 default: false,
                 format: 'Boolean'
             },

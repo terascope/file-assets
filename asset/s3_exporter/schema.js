@@ -5,10 +5,21 @@ const { ConvictSchema } = require('@terascope/job-components');
 class Schema extends ConvictSchema {
     build() {
         return {
-            bucket: {
-                doc: 'The bucket where the processed data will live',
+            path: {
+                doc: 'The bucket and prefix where objects should be placed. The object names will '
+                    + 'be appended to this, so if no trailing "/" is provided, the final part will '
+                    + 'be treated as a file prefix.\ni.e. "/data/export_" will result in files like'
+                    + ' "/data/export_X7eLvcvd.1079.gz"',
                 default: null,
-                format: 'required_String'
+                format: (objPath) => {
+                    // Only throw an error if nothing is provided.
+                    if (!objPath) throw new Error('Must include a bucket!');
+                }
+            },
+            extension: {
+                doc: 'A file extension to add to the object name.',
+                default: '',
+                format: String
             },
             connection: {
                 doc: 'The S3 connection from Terafoundation to use',
@@ -19,12 +30,6 @@ class Schema extends ConvictSchema {
                 doc: 'Compression to use on the object. Supports lz4 and gzip.',
                 default: 'none',
                 format: ['none', 'lz4', 'gzip']
-            },
-            object_prefix: {
-                doc: 'The object prefix. Will target a specific directory if a trailing `/` is provided'
-                    + '. See docs for more info',
-                default: '',
-                format: String
             },
             format: {
                 doc: 'Format of the target object. Currently supports "json", "ldjson", "raw", "tsv", and'
@@ -43,17 +48,17 @@ class Schema extends ConvictSchema {
                 format: String
             },
             fields: {
-                doc: 'CSV field headers used to create the json key, must be in same order as the',
+                doc: 'CSV field headers used to create the json key',
                 default: [],
                 format: Array
             },
             include_header: {
-                doc: 'Determines whether or not to include column headers for the fields in the obj'
+                doc: 'Determines whether or not to include column headers for the fields.'
                     + 'ects',
                 default: false,
                 format: 'Boolean'
             },
-            object_per_slice: {
+            file_per_slice: {
                 doc: 'Determines whether to batch slices in a multi-part upload or not. This '
                     + 'capability will be included in a future improvement',
                 default: 'false',
