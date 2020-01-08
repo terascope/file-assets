@@ -1,7 +1,7 @@
 'use strict';
 
-const { getName, parsePath } = require('../../asset/lib/fileName');
-const { parseForFile } = require('../../asset/lib/parser');
+const { getName, parsePath } = require('../../asset/_lib/fileName');
+const { parseForFile } = require('../../asset/_lib/parser');
 
 describe('File asset supporting library', () => {
     describe('parser module', () => {

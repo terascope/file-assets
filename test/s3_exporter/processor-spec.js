@@ -1,6 +1,7 @@
 'use strict';
 
 const { TestContext } = require('@terascope/job-components');
+const { DataEntity } = require('@terascope/utils');
 const Promise = require('bluebird');
 const lz4 = require('lz4');
 const { ungzip } = require('node-gzip');
@@ -29,9 +30,10 @@ describe('S3 exporter processor', () => {
         // Set up with opConfig for first test
         {
             _op: 's3_exporter',
-            bucket: 'data-store',
+            path: '/data-store/testing/',
             connection: 'my-s3-connector',
-            object_prefix: 'testing/',
+            file_per_slice: true,
+            compression: 'none',
             format: 'csv',
             field_delimiter: ',',
             line_delimiter: '\n',
@@ -49,22 +51,20 @@ describe('S3 exporter processor', () => {
             name: 's3_exporter'
         });
 
-    const { workerId } = processor;
+    const { worker } = processor;
 
-    const slice = [{
+    const slice = [DataEntity.make({
         field0: 0,
         field1: 1,
         field2: 2,
         field3: 3,
         field4: 4,
         field5: 5
-    }];
+    })];
 
-    const emptySlice = [null];
+    const emptySlice = [DataEntity.make(null)];
 
-    const rawSlice = [{
-        data: 'This is a sentence.'
-    }];
+    const rawSlice = [DataEntity.make({ data: 'This is a sentence.' })];
 
     beforeAll(async () => {
         await processor.initialize();
@@ -76,14 +76,15 @@ describe('S3 exporter processor', () => {
     });
 
     it('initializes a slice counter.', () => {
-        expect(processor.sliceCount).toEqual(0);
+        // Initialized to -1 so this can be incremented before slice processing
+        expect(processor.sliceCount).toEqual(-1);
     });
 
     it('generates a csv object', async () => {
         await processor.onBatch(slice);
 
         expect(s3PutParams.Body).toEqual('0,1,2,3,4\n');
-        expect(s3PutParams.Key).toEqual(`testing/${workerId}.0`);
+        expect(s3PutParams.Key).toEqual(`testing/${worker}.0`);
         expect(s3PutParams.Bucket).toEqual('data-store');
     });
 
@@ -93,7 +94,7 @@ describe('S3 exporter processor', () => {
         await processor.onBatch(slice);
 
         expect(s3PutParams.Body).toEqual('0\t1\t2\t3\t4\n');
-        expect(s3PutParams.Key).toEqual(`testing/${workerId}.1`);
+        expect(s3PutParams.Key).toEqual(`testing/${worker}.1`);
         expect(s3PutParams.Bucket).toEqual('data-store');
     });
 
@@ -101,35 +102,35 @@ describe('S3 exporter processor', () => {
         await processor.onBatch(emptySlice);
 
         expect(s3PutParams.Body).toEqual('\n');
-        expect(s3PutParams.Key).toEqual(`testing/${workerId}.2`);
+        expect(s3PutParams.Key).toEqual(`testing/${worker}.2`);
     });
 
     it('generates a raw object', async () => {
         processor.opConfig.format = 'raw';
         await processor.onBatch(rawSlice);
         expect(s3PutParams.Body).toEqual('This is a sentence.\n');
-        expect(s3PutParams.Key).toEqual(`testing/${workerId}.3`);
+        expect(s3PutParams.Key).toEqual(`testing/${worker}.3`);
     });
 
     it('generates an ldjson object and exludes a field', async () => {
         processor.opConfig.format = 'ldjson';
         await processor.onBatch(slice);
         expect(s3PutParams.Body).toEqual('{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4}\n');
-        expect(s3PutParams.Key).toEqual(`testing/${workerId}.4`);
+        expect(s3PutParams.Key).toEqual(`testing/${worker}.4`);
     });
 
     it('generates an ldjson object', async () => {
         processor.opConfig.fields = [];
         await processor.onBatch(slice);
         expect(s3PutParams.Body).toEqual('{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4,"field5":5}\n');
-        expect(s3PutParams.Key).toEqual(`testing/${workerId}.5`);
+        expect(s3PutParams.Key).toEqual(`testing/${worker}.5`);
     });
 
     it('generates a json object', async () => {
         processor.opConfig.format = 'json';
         await processor.onBatch(slice);
         expect(s3PutParams.Body).toEqual('[{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4,"field5":5}]\n');
-        expect(s3PutParams.Key).toEqual(`testing/${workerId}.6`);
+        expect(s3PutParams.Key).toEqual(`testing/${worker}.6`);
     });
 
     it('generates lz4 compressed object', async () => {
@@ -137,7 +138,8 @@ describe('S3 exporter processor', () => {
         processor.opConfig.compression = 'lz4';
         await processor.onBatch(slice);
         expect(lz4.decode(Buffer.from(s3PutParams.Body)).toString()).toEqual('[{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4,"field5":5}]\n');
-        expect(s3PutParams.Key).toEqual(`testing/${workerId}.7.lz4`);
+        // No file extensions since not configures in opConfig
+        expect(s3PutParams.Key).toEqual(`testing/${worker}.7`);
     });
 
     it('generates gzip compressed object', async () => {
@@ -147,6 +149,7 @@ describe('S3 exporter processor', () => {
         const decompressedObj = await ungzip(Buffer.from(s3PutParams.Body))
             .then((uncompressed) => uncompressed.toString());
         expect(decompressedObj).toEqual('[{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4,"field5":5}]\n');
-        expect(s3PutParams.Key).toEqual(`testing/${workerId}.8.gz`);
+        // No file extensions since not configures in opConfig
+        expect(s3PutParams.Key).toEqual(`testing/${worker}.8`);
     });
 });

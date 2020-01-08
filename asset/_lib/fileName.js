@@ -1,8 +1,13 @@
 'use strict';
 
-function getName(id, count, opConfig) {
+function getName(id, count, opConfig, pathOverride) {
     // Can't use path.join() here since the path might include a filename prefix
-    let fileName = `${opConfig.path}${id}`;
+    let fileName;
+    if (pathOverride) {
+        fileName = `${pathOverride}${id}`;
+    } else {
+        fileName = `${opConfig.path}${id}`;
+    }
     // The slice count is only added for `file_per_slice`
     if (opConfig.file_per_slice) {
         fileName += `.${count}`;

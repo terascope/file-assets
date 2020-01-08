@@ -6,8 +6,8 @@ const {
 const Promise = require('bluebird');
 const fse = require('fs-extra');
 const { TSError } = require('@terascope/utils');
-const { getName } = require('../lib/fileName');
-const { parseForFile } = require('../lib/parser');
+const { getName } = require('../_lib/fileName');
+const { parseForFile } = require('../_lib/parser');
 
 class FileBatcher extends BatchProcessor {
     constructor(context, opConfig, executionConfig) {
