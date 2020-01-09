@@ -93,7 +93,7 @@ Determines whether or not to include column headers for the fields in output fil
 `raw` output will generate files where each line is the value of the `data` attribute of a data entity in the slice. So, when using the `raw` format output, the records must be sent to the `file_exporter` in the form of:
 
 ```json
-{ data: 'some processed data string' }
+{ "data": "some processed data string" }
 ```
 
 # Example Job
