@@ -1,12 +1,18 @@
 'use strict';
 
 const { Slicer, getClient } = require('@terascope/job-components');
-const { getOffsets } = require('@terascope/chunked-file-reader');
+// const { getOffsets } = require('@terascope/chunked-file-reader');
+const Promise = require('bluebird');
+const { sliceFile } = require('../_lib/slice');
+const { parsePath } = require('../_lib/fileName');
 
 class S3Slicer extends Slicer {
     constructor(context, opConfig, executionConfig) {
         super(context, opConfig, executionConfig);
         this.client = getClient(context, opConfig, 's3');
+        const objPath = parsePath(opConfig.path);
+        this.bucket = objPath.bucket;
+        this.prefix = objPath.prefix;
         this._lastKey = undefined;
         this._doneSlicing = false;
         if (this.opConfig.compression !== 'none') this.opConfig.file_per_slice = true;
@@ -36,8 +42,8 @@ class S3Slicer extends Slicer {
 
     async getObjects() {
         const data = await this.client.listObjects_Async({
-            Bucket: this.opConfig.bucket,
-            Prefix: this.opConfig.object_prefix,
+            Bucket: this.bucket,
+            Prefix: this.prefix,
             Marker: this._lastKey,
         });
 
@@ -57,33 +63,15 @@ class S3Slicer extends Slicer {
         }
 
         // Slice whatever objects are returned from the query
-        return this.sliceObjects(data.Contents);
-    }
-
-    sliceObjects(objList) {
-        const slices = [];
-        objList.forEach((obj) => {
-            // If compression is used on the objects, `file_per_slice` will be coerced to true
-            if (this.opConfig.format === 'json' || this.opConfig.file_per_slice) {
-                const offset = {
-                    path: obj.Key,
-                    offset: 0,
-                    length: obj.Size,
-                };
-                slices.push(offset);
-            } else {
-                getOffsets(
-                    this.opConfig.size,
-                    obj.Size,
-                    this.opConfig.line_delimiter
-                ).forEach((offset) => {
-                    offset.path = obj.Key;
-                    offset.total = obj.Size;
-                    slices.push(offset);
-                });
-            }
-        });
-        return slices;
+        // return this.sliceObjects(data.Contents);
+        return Promise.map(data.Contents, (obj) => {
+            const file = {
+                path: obj.Key,
+                size: obj.Size
+            };
+            return sliceFile(file, this.opConfig);
+        })
+            .then((slices) => [].concat(...slices));
     }
 }
 

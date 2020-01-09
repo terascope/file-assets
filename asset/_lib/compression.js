@@ -1,8 +1,7 @@
 'use strict';
 
 const lz4 = require('lz4');
-const { gzip } = require('node-gzip');
-
+const { gzip, ungzip } = require('node-gzip');
 
 async function compress(compression, data) {
     switch (compression) {
@@ -18,6 +17,21 @@ async function compress(compression, data) {
     }
 }
 
+async function decompress(data, compression) {
+    switch (compression) {
+    case 'lz4':
+        return lz4.decode(data).toString();
+    case 'gzip':
+        return ungzip(data).then((uncompressed) => uncompressed.toString());
+    case 'none':
+        return data;
+    default:
+        // This shouldn't happen since the config schemas will protect against it
+        throw new Error('Unsupported compression:', compression);
+    }
+}
+
 module.exports = {
-    compress
+    compress,
+    decompress
 };

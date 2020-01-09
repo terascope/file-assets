@@ -12,6 +12,11 @@ class Schema extends ConvictSchema {
                 default: null,
                 format: 'required_String'
             },
+            compression: {
+                doc: 'Compression used on the files. Supports lz4 and gzip.',
+                default: 'none',
+                format: ['none', 'lz4', 'gzip']
+            },
             size: {
                 doc: 'Determines slice size in bytes',
                 default: 10000000,
@@ -54,6 +59,12 @@ class Schema extends ConvictSchema {
                 doc: 'An object used to pass in any extra csv parsing arguments',
                 default: {},
                 format: Object
+            },
+            file_per_slice: {
+                doc: 'Determines if each file should be treated as a single slice. If set, `size`'
+                    + ' will be ignored.',
+                default: false,
+                format: Boolean
             }
         };
     }

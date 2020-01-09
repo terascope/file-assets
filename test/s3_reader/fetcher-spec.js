@@ -27,7 +27,7 @@ const slice = {
     length: 27
 };
 
-describe('S3 reader\'s slicer', () => {
+describe('S3 reader\'s fetcher', () => {
     const context = new TestContext('s3-reader', {
         clients: [
             {
@@ -45,13 +45,13 @@ describe('S3 reader\'s slicer', () => {
         // Set up with opConfig for first test
         {
             _op: 's3_reader',
-            bucket: 'data-store',
+            path: 'data-store/my/test/',
             connection: 'my-s3-connector',
-            object_prefix: 'my/test/',
             size: 27,
             format: 'tsv',
             field_delimiter: ',',
-            line_delimiter: '\n'
+            line_delimiter: '\n',
+            compression: 'none'
         },
         {
             name: 's3_exporter'

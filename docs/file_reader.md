@@ -8,15 +8,23 @@ The `file_reader` will slice up and read files local to the Teraslice workers. I
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any valid path | `null` | Y |  
+| Any valid path | `null` | Y |
 
 This is the directory where data should be staged for processing. The directory must be accessible by the TS workers, and all files must be present at the time the job is started. Files added after the job is started will not be read.
+
+## `compression`
+
+| Valid Options | Default | Required |
+| ----------- | ------- | -------- |
+| none, lz4, gzip | `none` | N |
+
+Compression type to use with files.
 
 ## `line_delimiter`
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Line-delimiting string | `\n` | N |  
+| Line-delimiting string | `\n` | N |
 
 If a line delimiter other than `\n` is used in the files, this option will tell the reader how to read records in the file. This option is ignored for `json` format. See `json` format option below for more info.
 
@@ -24,7 +32,7 @@ If a line delimiter other than `\n` is used in the files, this option will tell 
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Non-zero positive integer | `10000000` | N |  
+| Non-zero positive integer | `10000000` | N |
 
 Determines the target slice size in bytes. The actual slice size will vary slightly since the reader will read additional bytes from the file in order to complete a record if the read ends with a partial record. This option is ignored for `json` format. See `json` format option below for more info.
 
@@ -32,7 +40,7 @@ Determines the target slice size in bytes. The actual slice size will vary sligh
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any string | `,` | N |  
+| Any string | `,` | N |
 
 Any string can be used as a delimiter for the reader. This allows for multi-character or custom delimiters. **This option is only used with the `csv` format.** See the notes on the `format` option for more information.
 
@@ -40,15 +48,23 @@ Any string can be used as a delimiter for the reader. This allows for multi-char
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Array of field | [] | N |  
+| Array of field | [] | N |
 
 Fields present in the files. This option is only used for `tsv` and `csv` formats, and it **MUST INCLUDE ALL FIELDS IN THE ORDER THEY APPEAR**.
+
+## `file_per_slice`
+
+| Valid Options | Default | Required |
+| ----------- | ------- | -------- |
+| 'true', 'false' | `false` | N |
+
+This setting determines if files will be split into multiple slices (`false`), each file will be contained in a single slice (`true`).  **If using `json` format, this option will be overridden to `true`.** See format notes below for more information.
 
 ## `remove_header`
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| 'true', 'false' | `false` | N |  
+| 'true', 'false' | `false` | N |
 
 Determines whether or not to keep column headers when they appear in a slice. If set to `true`, the record will be set to `null` every time a header is encountered. This option is only used for `tsv` and `csv` formats.
 
@@ -56,7 +72,7 @@ Determines whether or not to keep column headers when they appear in a slice. If
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| 'json', 'ldjson', 'raw', 'csv', 'tsv' | `ldjson` | N |  
+| 'json', 'ldjson', 'raw', 'csv', 'tsv' | `ldjson` | N |
 
 ### json
 
@@ -78,11 +94,11 @@ Determines whether or not to keep column headers when they appear in a slice. If
 
 `raw` format will treat files as a set of raw string separated by the `line_delimiter`, and each string will be stored in the `data` attribute of a data entity. The reader will make sure slices split on the `line_delimiter` so partial lines do not show up in records.
 
-# Example Job  
+# Example Job
 
 This test job will find and read the files in the `/app/data/testfiles`, and then put them into ES. In this example, the TS cluster could be a single-node cluster or a multi-node cluster where `/app/data` is directory shared between all the workers.
 
-The directory has this structure:  
+The directory has this structure:
 ```text
 /app/data/testfiles
 ├── test_data1_200k_records.txt

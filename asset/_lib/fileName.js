@@ -13,7 +13,7 @@ function getName(id, count, opConfig, pathOverride) {
         fileName += `.${count}`;
     }
     if (opConfig.extension) {
-        fileName += `.${opConfig.extension}`;
+        fileName += `${opConfig.extension}`;
     }
     return fileName;
 }

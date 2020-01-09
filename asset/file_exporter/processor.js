@@ -53,7 +53,6 @@ class FileBatcher extends BatchProcessor {
         return Promise.map(Object.keys(batches), async (path) => {
             const fileName = getName(this.worker, this.sliceCount, this.opConfig, path);
 
-
             const outStr = await parseForFile(batches[path], this.opConfig, this.csvOptions);
 
             // Prevents empty slices from resulting in empty files

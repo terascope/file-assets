@@ -4,35 +4,13 @@ The `s3_reader` will slice up and read files in an S3 bucket. It is currently on
 
 # Options
 
-## `bucket`
+## `path`
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any valid bucket name | `null` | Y |
+| Any valid S3 bucket/prefix name | `null` | Y |
 
-This is bucket containing objects to be processed.
-
-## `object_prefix`
-
-| Valid Options | Default | Required |
-| ----------- | ------- | -------- |
-| Any valid object prefix | `''` | N |
-
-This specifies a folder in the bucket where records are staged for processing. The slicer will find and objects under that prefix, and all objects must be present when the job is started. If objects are added after the job begins, they will not be processed. This is an optional setting and defaults to an empty string.
-
-Also, if specifying a subdirectory, you **MUST** include the trailing `/`, otherwise, it will match any subdirectories starting with the prefix.
-
-i.e.
-
-For the following directories in a bucket:
-```
-$ s3cmd ls s3://test
-                       DIR   s3://test/another-test/
-                       DIR   s3://test/another/
-                       ...
-```
-
-specifying `another` as the `object_prefix` will find all objects in both directories, whereas specifying `another/` as the prefix will only find objects in the `another/` subdirectory.
+The bucket and optional prefix for data. If there is no `/` in this parameter, it will just be treated as a bucket name, and if there is no trailing `/`, any portion of the path that isn't the bucket will be treated as the object prefix.
 
 ## `connection`
 
@@ -81,6 +59,14 @@ Any string can be used as a delimiter for the reader. This allows for multi-char
 | Array of field | [] | N |
 
 Fields present in the files. This option is only used for `tsv` and `csv` formats, and it **MUST INCLUDE ALL FIELDS IN THE ORDER THEY APPEAR**.
+
+## `file_per_slice`
+
+| Valid Options | Default | Required |
+| ----------- | ------- | -------- |
+| 'true', 'false' | `false` | N |
+
+This setting determines if files will be split into multiple slices (`false`), each file will be contained in a single slice (`true`).  **If using `json` format, this option will be overridden to `true`.** See format notes below for more information.
 
 ## `remove_header`
 

@@ -2,27 +2,27 @@
 
 The `s3_exporter` will export slices to objects in S3. This exporter will ignore empty slices to prevent feeding empty objects into the S3 store.
 
+# Optional Routing Override
+
+If record metadata includes a `routingPath` attribute, this will override the `path` provided in this configuration.
+
 # Options
 
-## `bucket`
+## `path`
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any valid S3 bucket | `null` | Y |
+| Any valid S3 bucket/prefix name | `null` | Y |
 
-The bucket where the processed data will live.
+The bucket and optional prefix for data. If there is no `/` in this parameter, it will just be treated as a bucket name, and if there is no trailing `/`, any portion of the path that isn't the bucket will be treated as the object prefix.
 
-## `object_prefix`
+## `extension`
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any valid S3 object prefix | `export_` | N |
+| String | `''` | N |
 
-This will add an optional prefix to the **WHOLE OBJECT NAME**. If objects should go directly into the bucket without any name change, set this option to `''`. If objects should be placed in a bucket's subdirectory, set this option to the whole object prefix **INCLUDING THE TRAILING `/`**.
-
-i.e. For adding data to `s3://my-bucket/some/test/directory/`, the following must be set in the opConfig:
-- `bucket`: "my-bucket"
-- `object_prefix`: "some/test/directory/"
+Optional file extension to add to file names. A `.` is not automatically prepended to this value when being added to the filename.
 
 ## `connection`
 
@@ -64,7 +64,7 @@ Any string can be used as a delimiter for the exporter. This allows for multi-ch
 
 Any string can be used as a delimiter for the exporter. This allows for multi-character or custom delimiters. **This option is only used with the `csv` output.** See the notes on the `format` option for more information.
 
-## `object_per_slice`
+## `file_per_slice`
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |

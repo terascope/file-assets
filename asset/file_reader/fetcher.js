@@ -1,8 +1,9 @@
 'use strict';
 
 const { Fetcher } = require('@terascope/job-components');
-const { getChunk } = require('@terascope/chunked-file-reader');
 const fse = require('fs-extra');
+const { getChunk } = require('../_lib/chunked-file-reader');
+const { decompress } = require('../_lib/compression');
 
 class FileFetcher extends Fetcher {
     constructor(context, opConfig, executionConfig) {
@@ -31,7 +32,7 @@ class FileFetcher extends Fetcher {
             try {
                 const buf = Buffer.alloc(2 * this.opConfig.size);
                 const { bytesRead } = await fse.read(fd, buf, 0, length, offset);
-                return buf.slice(0, bytesRead).toString();
+                return decompress(buf.slice(0, bytesRead).toString(), this.opConfig.compression);
             } finally {
                 fse.close(fd);
             }

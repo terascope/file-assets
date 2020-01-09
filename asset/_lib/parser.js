@@ -14,14 +14,14 @@ async function parseForFile(slice, opConfig, csvOptions) {
     const parseData = (format) => {
         const csv = () => `${json2csv(slice, csvOptions)}${opConfig.line_delimiter}`;
         const raw = () => {
-            let outStr;
+            let outStr = '';
             slice.forEach((record) => {
                 outStr = `${outStr}${record.data}${opConfig.line_delimiter}`;
             });
             return outStr;
         };
         const ldjson = () => {
-            let outStr;
+            let outStr = '';
             if (opConfig.fields.length > 0) {
                 slice.forEach((record) => {
                     outStr = `${outStr}${stringify(record, opConfig.fields)}${opConfig.line_delimiter}`;
@@ -40,10 +40,11 @@ async function parseForFile(slice, opConfig, csvOptions) {
             raw,
             ldjson,
             json,
-            default: new Error(`Unsupported output format "${opConfig.format}"`)
+            default: () => new Error(`Unsupported output format "${opConfig.format}"`)
         };
-        return (formats[format] || formats.default);
+        return (formats[format] || formats.default)();
     };
+
     const outStr = parseData(opConfig.format);
 
     if (outStr instanceof Error) throw outStr;
