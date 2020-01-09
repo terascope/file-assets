@@ -7,6 +7,7 @@ const Promise = require('bluebird');
 const fse = require('fs-extra');
 const { TSError } = require('@terascope/utils');
 const { getName } = require('../_lib/fileName');
+const { batchSlice } = require('../_lib/slice');
 const { parseForFile } = require('../_lib/parser');
 
 class FileBatcher extends BatchProcessor {
@@ -18,7 +19,7 @@ class FileBatcher extends BatchProcessor {
             this.opConfig.file_per_slice = true;
         }
         // Used for incrementing file name with `file_per_slice`
-        this.sliceCount = 0;
+        this.sliceCount = -1;
         this.firstSlice = true;
         // Set the options for the parser
         this.csvOptions = {};
@@ -40,26 +41,32 @@ class FileBatcher extends BatchProcessor {
     }
 
     async onBatch(slice) {
-        const fileName = getName(this.worker, this.sliceCount, this.opConfig);
+        // TODO also need to chunk the batches for multipart uploads
+        const batches = batchSlice(slice, this.opConfig.path);
 
-        if (!this.opConfig.file_per_slice) {
-            if (!this.firstSlice) this.csvOptions.header = false;
-            this.firstSlice = false;
-        }
-
-        const outStr = await parseForFile(slice, this.opConfig, this.csvOptions);
         this.sliceCount += 1;
 
-        // Prevents empty slices from resulting in empty files
-        if (outStr === null) {
-            return [];
+        if (!this.opConfig.file_per_slice) {
+            if (this.sliceCount > 0) this.csvOptions.header = false;
         }
 
-        // Doesn't return a DataEntity or anything else if siccessful
-        return fse.appendFile(fileName, outStr)
-            .catch((err) => Promise.reject(new TSError(err, {
-                reason: `Failure to append to file ${fileName}`
-            })));
+        return Promise.map(Object.keys(batches), async (path) => {
+            const fileName = getName(this.worker, this.sliceCount, this.opConfig, path);
+
+
+            const outStr = await parseForFile(batches[path], this.opConfig, this.csvOptions);
+
+            // Prevents empty slices from resulting in empty files
+            if (!outStr || outStr.length === 0) {
+                return [];
+            }
+
+            // Doesn't return a DataEntity or anything else if successful
+            return fse.appendFile(fileName, outStr)
+                .catch((err) => Promise.reject(new TSError(err, {
+                    reason: `Failure to append to file ${fileName}`
+                })));
+        });
     }
 }
 

@@ -100,15 +100,17 @@ describe('S3 exporter processor', () => {
 
     it('generates a tsv/csv object with an empty slice', async () => {
         await processor.onBatch(emptySlice);
-
-        expect(s3PutParams.Body).toEqual('\n');
-        expect(s3PutParams.Key).toEqual(`testing/${worker}.2`);
+        // Should be equal to the previous test since this will exit instead of calling the mock
+        // writer to update the `s3PutParams` state
+        expect(s3PutParams.Body).toEqual('0\t1\t2\t3\t4\n');
+        expect(s3PutParams.Key).toEqual(`testing/${worker}.1`);
     });
 
     it('generates a raw object', async () => {
         processor.opConfig.format = 'raw';
         await processor.onBatch(rawSlice);
         expect(s3PutParams.Body).toEqual('This is a sentence.\n');
+        // The previous test will still increment the slice count
         expect(s3PutParams.Key).toEqual(`testing/${worker}.3`);
     });
 
