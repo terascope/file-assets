@@ -5,15 +5,15 @@ const { stringify } = require('./stringify');
 const { compress } = require('./compression');
 
 async function parseForFile(slice, opConfig, csvOptions) {
+    // null or empty slices get an empty output and will get filtered out below
+    if (!slice || !slice.length) return undefined;
     // Build the output string to dump to the object
     // TODO externalize this into a ./lib/ for use with the `file_exporter`
     let outStr = '';
     switch (opConfig.format) {
     case 'csv':
     case 'tsv':
-        // null or empty slices get an empty output and will get filtered out below
-        if (!slice || !slice.length) break;
-        else outStr = `${json2csv(slice, csvOptions)}${opConfig.line_delimiter}`;
+        outStr = `${json2csv(slice, csvOptions)}${opConfig.line_delimiter}`;
         break;
     case 'raw': {
         slice.forEach((record) => {
@@ -47,7 +47,7 @@ async function parseForFile(slice, opConfig, csvOptions) {
     }
 
     // Let the exporters prevent empty slices from making it through
-    if (outStr.length === 0) {
+    if (!outStr || outStr.length === 0 || outStr === opConfig.line_delimiter) {
         return null;
     }
 
