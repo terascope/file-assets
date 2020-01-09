@@ -23,7 +23,7 @@ describe('File asset supporting library', () => {
             expect(getName(
                 'worker1',
                 2,
-                { file_per_slice: true, extension: 'txt', path: '/data/' }
+                { file_per_slice: true, extension: '.txt', path: '/data/' }
             )).toEqual('/data/worker1.2.txt');
         });
         it('properly identifies buckets and object prefixes in a filepath', () => {
