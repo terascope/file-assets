@@ -6,7 +6,7 @@ const { compress } = require('./compression');
 
 async function parseForFile(slice, opConfig, csvOptions) {
     // null or empty slices get an empty output and will get filtered out below
-    if (!slice || !slice.length) return undefined;
+    if (!slice || !slice.length) return null;
     // Build the output string to dump to the object
     // TODO externalize this into a ./lib/ for use with the `file_exporter`
     let outStr = '';

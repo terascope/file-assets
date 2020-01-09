@@ -8,7 +8,7 @@ describe('File asset supporting library', () => {
         it('errors with invalid formats.', async () => {
             let error;
             try {
-                await parseForFile(null, { format: 'invalid' });
+                await parseForFile([{}], { format: 'invalid' });
             } catch (e) {
                 error = e;
             }
