@@ -38,14 +38,15 @@ function getChunk(readerClient, slice, opConfig, logger, metadata) {
 
     async function getMargin(offset, length) {
         let margin = '';
+        let currentOffset = offset;
         while (margin.indexOf(delimiter) === -1) {
             // reader clients must return false-y when nothing more to read.
-            const chunk = await readerClient(offset, length);
+            const chunk = await readerClient(currentOffset, length);
             if (!chunk) {
                 return margin.split(delimiter)[0];
             }
             margin += chunk;
-            offset += length;
+            currentOffset += length;
         }
         // Don't read too far - next slice will get it.
         return margin.split(delimiter)[0];
@@ -61,6 +62,7 @@ function getChunk(readerClient, slice, opConfig, logger, metadata) {
 
     return readerClient(slice.offset, slice.length)
         .then(async (data) => {
+            let collectedData = data;
             if (data.endsWith(delimiter)) {
                 // Skip the margin if the raw data ends with the delimiter since
                 // it will end with a complete record.
@@ -70,9 +72,9 @@ function getChunk(readerClient, slice, opConfig, logger, metadata) {
                 // Want to minimize reads since will typically be over the
                 // network. Using twice the average record size as a heuristic.
                 const avgSize = _averageRecordSize(data.split(delimiter));
-                data += await getMargin(slice.offset + slice.length, 2 * avgSize);
+                collectedData += await getMargin(slice.offset + slice.length, 2 * avgSize);
             }
-            return data;
+            return collectedData;
         })
         .then((data) => chunkFormatter[opConfig.format](data, logger, opConfig, metadata, slice))
         .then((data) => data.filter((record) => record));
