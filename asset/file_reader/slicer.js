@@ -2,7 +2,7 @@
 
 const { Slicer } = require('@terascope/job-components');
 const { TSError } = require('@terascope/utils');
-const Promise = require('bluebird');
+// const Promise = require('bluebird');
 const path = require('path');
 const fse = require('fs-extra');
 const { sliceFile } = require('../_lib/slice');
@@ -58,7 +58,7 @@ class FileSlicer extends Slicer {
     async getFilePaths(filePath) {
         const dirContents = await fse.readdir(filePath);
         // const slices = [];
-        const slices = await [].concat(...await Promise.all(dirContents, async (file) => {
+        const slices = await [].concat(...await Promise.all(dirContents.map(async (file) => {
             let fileSlices = [];
             const fullPath = path.join(filePath, file);
             const stats = await fse.lstat(fullPath);
@@ -77,7 +77,7 @@ class FileSlicer extends Slicer {
                 this.logger.error(error);
             }
             return fileSlices;
-        })
+        }))
             // Catch the error and log it so the execution controller doesn't crash and burn if
             // there is a bad file or directory
             .catch((err) => {

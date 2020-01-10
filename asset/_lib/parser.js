@@ -5,9 +5,7 @@ const { compress } = require('./compression');
 
 const csv = (slice, opConfig, csvOptions) => `${json2csv(slice, csvOptions)}${opConfig.line_delimiter}`;
 const raw = (slice, opConfig) => `${slice.map((record) => record.data).join(opConfig.line_delimiter)}${opConfig.line_delimiter}`;
-const ldjson = (slice, opConfig) => `${slice.map(
-    (record) => JSON.stringify(record, (opConfig.fields.length > 0) ? opConfig.fields : undefined)
-).join(opConfig.line_delimiter)}${opConfig.line_delimiter}`;
+const ldjson = (slice, opConfig) => `${slice.map((record) => JSON.stringify(record, (opConfig.fields.length > 0) ? opConfig.fields : undefined)).join(opConfig.line_delimiter)}${opConfig.line_delimiter}`;
 const json = (slice, opConfig) => `${JSON.stringify(slice)}${opConfig.line_delimiter}`;
 
 async function parseForFile(slice, opConfig, csvOptions) {
