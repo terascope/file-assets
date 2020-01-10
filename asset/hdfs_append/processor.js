@@ -3,22 +3,30 @@
 const {
     BatchProcessor, getClient
 } = require('@terascope/job-components');
+const { TSError } = require('@terascope/utils');
 const Promise = require('bluebird');
 const { parseForFile } = require('../_lib/parser');
 const { batchSlice } = require('../_lib/slice');
-const { getName, parsePath } = require('../_lib/fileName');
+const { getName } = require('../_lib/fileName');
 
-class S3Batcher extends BatchProcessor {
+class HDFSBatcher extends BatchProcessor {
     constructor(context, opConfig, executionConfig) {
         super(context, opConfig, executionConfig);
-        this.client = getClient(context, opConfig, 's3');
+        // Client connection cannot be cached, an endpoint needs to be re-instantiated for a
+        // different namenode_host
+        opConfig.connection_cache = false;
+        this.client = getClient(context, opConfig, 'hdfs_ha').client;
         this.worker = context.cluster.worker.id;
         this.ext = opConfig.extension;
         // This will be incremented as the worker processes slices and used as a way to create
         // unique object names. Set to -1 so it can be incremented before any slice processing is
         // done
         this.sliceCount = -1;
-        // Allows this to use the externalized name builder
+
+        // The append error detection and name change system need to be reworked to be compatible
+        // with the file batching. In the meantime, restarting the job will sidestep the issue with
+        // new worker names.
+        // this.appendErrors = {};
     }
 
     async onBatch(slice) {
@@ -30,12 +38,11 @@ class S3Batcher extends BatchProcessor {
         this.sliceCount += 1;
 
         return Promise.map(Object.keys(batches), async (path) => {
-            const objPath = parsePath(path);
-            const objName = getName(
+            const fileName = getName(
                 this.worker,
                 this.sliceCount,
                 this.opConfig,
-                objPath.prefix
+                path
             );
             // Set the options for the parser
             const csvOptions = {
@@ -64,16 +71,27 @@ class S3Batcher extends BatchProcessor {
                 return [];
             }
 
-            const params = {
-                Bucket: objPath.bucket,
-                Key: objName,
-                Body: outStr
-            };
-
-            return this.client.putObject_Async(params)
-                .then(() => slice);
+            return this.client.getFileStatusAsync(fileName)
+                .catch(() => this.client.mkdirsAsync(path.dirname(fileName))
+                    .then(() => this.client.createAsync(fileName, ''))
+                    .catch((err) => Promise.reject(new TSError(err, {
+                        reason: 'Error while attempting to create a file',
+                        context: {
+                            fileName
+                        }
+                    }))))
+                .return(outStr)
+                .then((data) => this.client.appendAsync(fileName, data))
+                .catch((err) => {
+                    throw new TSError(err, {
+                        reason: 'Error sending data to file',
+                        context: {
+                            file: fileName
+                        }
+                    });
+                });
         });
     }
 }
 
-module.exports = S3Batcher;
+module.exports = HDFSBatcher;

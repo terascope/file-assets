@@ -55,9 +55,8 @@ describe('S3 slicer when slicing JSON objects', () => {
         operations: [
             {
                 _op: 's3_reader',
-                bucket: 'data-store',
+                path: 'data-store/testing/',
                 connection: 'default',
-                object_prefix: 'testing/',
                 size: 500,
                 format: 'json'
             },
@@ -143,7 +142,7 @@ describe('S3 slicer when slicing other objects', () => {
         operations: [
             {
                 _op: 's3_reader',
-                bucket: 'data-store',
+                path: 'data-store',
                 connection: 'default',
                 object_prefix: 'testing/',
                 size: 500,

@@ -12,8 +12,18 @@ class Schema extends ConvictSchema {
                 default: null,
                 format: 'required_String'
             },
+            connection: {
+                doc: 'The S3 connection from Terafoundation to use',
+                default: null,
+                format: 'required_String'
+            },
+            user: {
+                doc: 'User to use when reading the files. Default: "hdfs"',
+                default: 'hdfs',
+                format: 'optional_String'
+            },
             compression: {
-                doc: 'Compression used on the files. Supports lz4 and gzip.',
+                doc: 'Compression used on the object. Supports lz4 and gzip.',
                 default: 'none',
                 format: ['none', 'lz4', 'gzip']
             },
@@ -61,7 +71,7 @@ class Schema extends ConvictSchema {
                 format: Object
             },
             file_per_slice: {
-                doc: 'Determines if each file should be treated as a single slice. If set, `size`'
+                doc: 'Determines if each object should be treated as a single slice. If set, `size`'
                     + ' will be ignored.',
                 default: false,
                 format: Boolean

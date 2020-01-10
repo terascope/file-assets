@@ -1,6 +1,7 @@
 'use strict';
 
 const { TestContext } = require('@terascope/job-components');
+const { DataEntity } = require('@terascope/utils');
 const path = require('path');
 const fs = require('fs');
 const { remove, ensureDir } = require('fs-extra');
@@ -25,9 +26,9 @@ describe('File exporter processor', () => {
     // This sets up the opconfig for the first test
     const processor = new Processor(context,
         {
-            _op: 'file_reader',
-            path: getTestFilePath(),
-            file_prefix: 'test_',
+            _op: 'file_exporter',
+            path: `${getTestFilePath()}/test_`,
+            compression: 'none',
             format: 'csv',
             line_delimiter: '\n',
             field_delimiter: ',',
@@ -43,47 +44,51 @@ describe('File exporter processor', () => {
         });
 
     const data = [
-        {
-            field1: 42,
-            field3: 'test data',
-            field2: 55
-        },
-        {
+        DataEntity.make(
+            {
+                field1: 42,
+                field3: 'test data',
+                field2: 55
+            }
+        ),
+        DataEntity.make({
             field1: 43,
             field3: 'more test data',
             field2: 56
-        },
-        {
+        }),
+        DataEntity.make({
             field1: 44,
             field3: 'even more test data',
             field2: 57
-        }
+        })
     ];
 
     const data2 = [
-        { data: 'record1' },
-        { data: 'record2' },
-        { data: 'record3' }
+        DataEntity.make({ data: 'record1' }),
+        DataEntity.make({ data: 'record2' }),
+        DataEntity.make({ data: 'record3' })
     ];
 
-    const data3 = [
+    const data3 = [DataEntity.make(
         {
             field1: 42,
             field3: 'test data',
             field2: 55,
             field4: 88
         }
-    ];
+    )];
 
     const complexData = [
-        {
-            field1: {
-                subfield1: 22,
-                subfield2: 44
-            },
-            field2: 66
-        },
-        {
+        DataEntity.make(
+            {
+                field1: {
+                    subfield1: 22,
+                    subfield2: 44
+                },
+                field2: 66
+            }
+        ),
+        DataEntity.make({
             field1: [
                 {
                     subfield1: 22,
@@ -91,10 +96,17 @@ describe('File exporter processor', () => {
                 }
             ],
             field2: 66
-        }
+        })
     ];
 
-    afterAll(() => {
+    const emptySlice = [DataEntity.make(null)];
+
+    beforeAll(async () => {
+        await processor.initialize();
+    });
+
+    afterAll(async () => {
+        await processor.shutdown();
         context.apis.foundation.getSystemEvents().removeAllListeners();
     });
 
@@ -102,6 +114,7 @@ describe('File exporter processor', () => {
         const nodeName = processor.worker;
         await processor.onBatch(data);
         await processor.onBatch(data);
+        // expect(processor.toEqual(1))
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(2);
         expect(fs.readFileSync(getTestFilePath(`test_${nodeName}.0`), 'utf-8')).toEqual(
             '"test data",42\n"more test data",43\n"even more test data",44\n'
@@ -110,10 +123,15 @@ describe('File exporter processor', () => {
             '"test data",42\n"more test data",43\n"even more test data",44\n'
         );
     });
+    it('ignores empty slices', async () => {
+        await processor.onBatch(emptySlice);
+        // expect(processor.toEqual(1))
+        expect(fs.readdirSync(getTestFilePath()).length).toEqual(0);
+    });
     it('creates multiple CSV files with all fields', async () => {
         const nodeName = processor.worker;
         // reset the slice count and CSV options since this is a "new" job
-        processor.sliceCount = 0;
+        processor.sliceCount = -1;
         processor.csvOptions.fields = null;
         await processor.onBatch(data);
         await processor.onBatch(data);
@@ -128,7 +146,7 @@ describe('File exporter processor', () => {
     it('creates multiple CSV files with all fields and headers', async () => {
         const nodeName = processor.worker;
         // reset the slice count and CSV options since this is a "new" job
-        processor.sliceCount = 0;
+        processor.sliceCount = -1;
         processor.csvOptions.fields = null;
         processor.csvOptions.header = true;
         await processor.onBatch(data);
@@ -149,13 +167,13 @@ describe('File exporter processor', () => {
     });
     it('creates a single csv file with custom fields', async () => {
         const nodeName = processor.worker;
-        processor.sliceCount = 0;
+        processor.sliceCount = -1;
         processor.csvOptions.fields = [
             'field3',
             'field1'
         ];
         processor.csvOptions.header = false;
-        processor.filePerSlice = false;
+        processor.opConfig.file_per_slice = false;
         await processor.onBatch(data);
         await processor.onBatch(data);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
@@ -170,13 +188,13 @@ describe('File exporter processor', () => {
     });
     it('creates a single csv file with custom complex fields', async () => {
         const nodeName = processor.worker;
-        processor.sliceCount = 0;
+        processor.sliceCount = -1;
         processor.csvOptions.fields = [
             'field2',
             'field1'
         ];
         processor.csvOptions.header = false;
-        processor.filePerSlice = false;
+        processor.opConfig.file_per_slice = false;
         await processor.onBatch(complexData);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
         expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
@@ -186,9 +204,9 @@ describe('File exporter processor', () => {
     });
     it('creates a single csv file with all fields', async () => {
         const nodeName = processor.worker;
-        processor.sliceCount = 0;
+        processor.sliceCount = -1;
         processor.csvOptions.fields = null;
-        processor.filePerSlice = false;
+        processor.opConfig.file_per_slice = false;
         await processor.onBatch(data);
         await processor.onBatch(data);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
@@ -203,11 +221,10 @@ describe('File exporter processor', () => {
     });
     it('creates a single csv file and adds a header properly', async () => {
         const nodeName = processor.worker;
-        processor.sliceCount = 0;
+        processor.sliceCount = -1;
         processor.csvOptions.fields = null;
         processor.csvOptions.header = true;
-        processor.firstSlice = true;
-        processor.filePerSlice = false;
+        processor.opConfig.file_per_slice = false;
         await processor.onBatch(data);
         await processor.onBatch(data);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
@@ -223,10 +240,10 @@ describe('File exporter processor', () => {
     });
     it('creates a single tsv file with a tab delimiter', async () => {
         const nodeName = processor.worker;
-        processor.sliceCount = 0;
+        processor.sliceCount = -1;
         processor.csvOptions.delimiter = '\t';
         processor.csvOptions.header = false;
-        processor.filePerSlice = false;
+        processor.opConfig.file_per_slice = false;
         await processor.onBatch(data);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
         expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
@@ -237,7 +254,7 @@ describe('File exporter processor', () => {
     });
     it('creates a single csv file with a custom delimiter', async () => {
         const nodeName = processor.worker;
-        processor.sliceCount = 0;
+        processor.sliceCount = -1;
         processor.csvOptions.delimiter = '^';
         processor.csvOptions.header = false;
         await processor.onBatch(data);
@@ -250,7 +267,7 @@ describe('File exporter processor', () => {
     });
     it('creates a single csv file with a custom line delimiter', async () => {
         const nodeName = processor.worker;
-        processor.sliceCount = 0;
+        processor.sliceCount = -1;
         processor.csvOptions.delimiter = ',';
         processor.csvOptions.header = false;
         processor.csvOptions.eol = '^';
@@ -265,7 +282,7 @@ describe('File exporter processor', () => {
     });
     it('creates a single file with line-delimited JSON records', async () => {
         const nodeName = processor.worker;
-        processor.sliceCount = 0;
+        processor.sliceCount = -1;
         processor.opConfig.line_delimiter = '\n';
         processor.opConfig.fields = [];
         processor.opConfig.format = 'ldjson';
@@ -279,7 +296,7 @@ describe('File exporter processor', () => {
     });
     it('filters and orders line-delimited JSON fields', async () => {
         const nodeName = processor.worker;
-        processor.sliceCount = 0;
+        processor.sliceCount = -1;
         processor.opConfig.fields = [
             'field3',
             'field1'
@@ -294,10 +311,12 @@ describe('File exporter processor', () => {
     });
     it('filters and line-delimited JSON fields with nested objects', async () => {
         const nodeName = processor.worker;
-        processor.sliceCount = 0;
+        processor.sliceCount = -1;
         processor.opConfig.fields = [
             'field2',
-            'field1'
+            'field1',
+            'subfield1',
+            'subfield2'
         ];
         await processor.onBatch(complexData);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
@@ -308,8 +327,8 @@ describe('File exporter processor', () => {
     });
     it('creates a single file with a JSON record for `json` format', async () => {
         const nodeName = processor.worker;
-        processor.sliceCount = 0;
-        processor.filePerSlice = true;
+        processor.sliceCount = -1;
+        processor.opConfig.file_per_slice = true;
         processor.opConfig.format = 'json';
         await processor.onBatch(data3);
         await processor.onBatch(data3);
@@ -321,10 +340,22 @@ describe('File exporter processor', () => {
             '[{"field1":42,"field3":"test data","field2":55,"field4":88}]\n'
         );
     });
+    it('ignores non-existant fields in ldjson', async () => {
+        const nodeName = processor.worker;
+        processor.sliceCount = -1;
+        processor.opConfig.file_per_slice = true;
+        processor.opConfig.format = 'ldjson';
+        processor.opConfig.fields = ['field1', 'field2', 'field8'];
+        await processor.onBatch(data3);
+        expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
+        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}.0`), 'utf-8')).toEqual(
+            '{"field1":42,"field2":55}\n'
+        );
+    });
     it('creates a single file wiht raw records on each line', async () => {
         const nodeName = processor.worker;
-        processor.sliceCount = 0;
-        processor.filePerSlice = false;
+        processor.sliceCount = -1;
+        processor.opConfig.file_per_slice = false;
         processor.opConfig.format = 'raw';
         await processor.onBatch(data2);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
@@ -337,7 +368,7 @@ describe('File exporter processor', () => {
     it('coerces field delimiter to \\t for TSV output', () => {
         const newProcessor = new Processor(context,
             {
-                _op: 'file_reader',
+                _op: 'file_exporter',
                 path: 'chillywilly',
                 format: 'tsv',
                 field_delimiter: ',',

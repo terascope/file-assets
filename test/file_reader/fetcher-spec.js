@@ -13,6 +13,7 @@ describe('File reader\'s fetcher', () => {
             {
                 _op: 'file_reader',
                 path: testDataDir,
+                compression: 'none',
                 size: 750,
                 format: 'ldjson',
                 line_delimiter: '\n'
@@ -40,6 +41,7 @@ describe('File reader\'s fetcher', () => {
             {
                 _op: 'file_reader',
                 path: testDataDir,
+                compression: 'none',
                 size: 400,
                 format: 'json',
                 line_delimiter: '\n'
@@ -65,6 +67,7 @@ describe('File reader\'s fetcher', () => {
             {
                 _op: 'file_reader',
                 path: testDataDir,
+                compression: 'none',
                 size: 4000,
                 format: 'json',
                 line_delimiter: '\n'
@@ -91,6 +94,7 @@ describe('File reader\'s fetcher', () => {
             {
                 _op: 'file_reader',
                 path: testDataDir,
+                compression: 'none',
                 size: 1000,
                 fields: ['data1', 'data2', 'data3', 'data4', 'data5', 'data6'],
                 format: 'csv',
@@ -125,6 +129,7 @@ describe('File reader\'s fetcher', () => {
             {
                 _op: 'file_reader',
                 path: testDataDir,
+                compression: 'none',
                 size: 1000,
                 fields: ['data1', 'data2', 'data3', 'data4', 'data5', 'data6'],
                 format: 'csv',
@@ -155,6 +160,7 @@ describe('File reader\'s fetcher', () => {
             {
                 _op: 'file_reader',
                 path: testDataDir,
+                compression: 'none',
                 size: 1000,
                 fields: ['data1', 'data2', 'data3', 'data4', 'data5', 'data6'],
                 format: 'tsv',
@@ -185,6 +191,7 @@ describe('File reader\'s fetcher', () => {
             {
                 _op: 'file_reader',
                 path: testDataDir,
+                compression: 'none',
                 size: 200,
                 format: 'raw',
                 line_delimiter: '\n'

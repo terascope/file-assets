@@ -48,7 +48,6 @@ describe('File slicer', () => {
         await getSlices();
         expect(slices.length).toBe(2);
 
-        // Verify the S3 request parameters are accurate
         // Since slicing happens asynchronously, we need to check which slice has each
         // file. Just need to check the path on one slice.
         if (slices[0].path === path.join(testDataDir, 'array/array.json')) {
@@ -75,6 +74,7 @@ describe('File slicer', () => {
                 {
                     _op: 'file_reader',
                     path: testDataDir,
+                    format: 'ldjson',
                     size: 750,
                     line_delimiter: '\n'
                 },
@@ -95,13 +95,14 @@ describe('File slicer', () => {
         async function getSlices() {
             const results = await harness.createSlices();
             if (results[0]) {
-                slices.push(results[0]);
+                slices.push(results);
                 await getSlices();
             }
         }
         await getSlices();
-        expect(slices.length).toBe(46);
-        expect(slices[22].length).toEqual(321);
-        expect(slices[45].length).toEqual(321);
+        const flatSlices = [].concat(...slices);
+        expect(flatSlices.length).toBe(46);
+        expect(flatSlices[22].length).toEqual(321);
+        expect(flatSlices[45].length).toEqual(321);
     });
 });
