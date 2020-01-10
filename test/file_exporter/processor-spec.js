@@ -314,7 +314,9 @@ describe('File exporter processor', () => {
         processor.sliceCount = -1;
         processor.opConfig.fields = [
             'field2',
-            'field1'
+            'field1',
+            'subfield1',
+            'subfield2'
         ];
         await processor.onBatch(complexData);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);

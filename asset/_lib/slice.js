@@ -1,6 +1,6 @@
 'use strict';
 
-const { getOffsets } = require('@terascope/chunked-file-reader');
+const { getOffsets } = require('./chunked-file-reader');
 
 function sliceFile(file, opConfig) {
     const slices = [];

@@ -6,13 +6,14 @@ const { parseForFile } = require('../../asset/_lib/parser');
 describe('File asset supporting library', () => {
     describe('parser module', () => {
         it('errors with invalid formats.', async () => {
-            let error;
+            await expect(parseForFile([{}], { format: 'invalid' })).rejects.toThrowError('Unsupported output format "invalid"');
+            /* let error;
             try {
                 await parseForFile([{}], { format: 'invalid' });
             } catch (e) {
                 error = e;
             }
-            expect(error).toEqual(new Error('Unsupported output format "invalid"'));
+            expect(error).toEqual(new Error('Unsupported output format "invalid"')); */
         });
         it('returns null for empty records.', async () => {
             expect(await parseForFile(null, { format: 'tsv' })).toEqual(null);

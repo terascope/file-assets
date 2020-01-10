@@ -1,7 +1,6 @@
 'use strict';
 
 const Promise = require('bluebird');
-const _ = require('lodash');
 const csvToJson = require('csvtojson');
 const { DataEntity } = require('@terascope/utils');
 
@@ -28,7 +27,7 @@ function _toRecords(rawData, delimiter, slice) {
     if (slice.offset === 0) {
         return outputData.split(delimiter);
     }
-    return outputData.split(delimiter).splice(1);
+    return outputData.split(delimiter).slice(1);
 }
 
 // No parsing, leaving to reader or a downstream op.
@@ -67,12 +66,13 @@ function csv(incomingData, logger, opConfig, metadata, slice) {
             let parsedLine = await csvToJson(csvParams)
                 .fromString(record).then((parsedData) => parsedData[0]);
             // csvToJson trim applied inconsistently so implemented this function
-            _.keys(parsedLine).forEach((key) => {
+            Object.keys(parsedLine).forEach((key) => {
                 parsedLine[key] = parsedLine[key].trim();
             });
             // Check for header row. Assumes there would only be one header row in a slice
             if (opConfig.remove_header && !foundHeader
-                && _.keys(parsedLine).sort().join() === _.values(parsedLine).sort().join()) {
+                && Object.keys(parsedLine)
+                    .sort().join() === Object.values(parsedLine).sort().join()) {
                 foundHeader = true;
                 parsedLine = null;
             }

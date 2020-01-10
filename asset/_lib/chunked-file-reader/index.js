@@ -40,12 +40,12 @@ function getChunk(readerClient, slice, opConfig, logger, metadata) {
         let margin = '';
         while (margin.indexOf(delimiter) === -1) {
             // reader clients must return false-y when nothing more to read.
-            const chunk = await readerClient(offset, length); // eslint-disable-line no-await-in-loop, max-len
+            const chunk = await readerClient(offset, length);
             if (!chunk) {
                 return margin.split(delimiter)[0];
             }
             margin += chunk;
-            offset += length; // eslint-disable-line no-param-reassign, max-len
+            offset += length;
         }
         // Don't read too far - next slice will get it.
         return margin.split(delimiter)[0];
@@ -70,7 +70,7 @@ function getChunk(readerClient, slice, opConfig, logger, metadata) {
                 // Want to minimize reads since will typically be over the
                 // network. Using twice the average record size as a heuristic.
                 const avgSize = _averageRecordSize(data.split(delimiter));
-                data += await getMargin(slice.offset + slice.length, 2 * avgSize); // eslint-disable-line no-param-reassign, max-len
+                data += await getMargin(slice.offset + slice.length, 2 * avgSize);
             }
             return data;
         })

@@ -48,7 +48,7 @@ class Schema extends ConvictSchema {
                 format: String
             },
             fields: {
-                doc: 'CSV field headers used to create the json key',
+                doc: 'Fields to include in the output',
                 default: [],
                 format: Array
             },
