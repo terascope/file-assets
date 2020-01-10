@@ -52,13 +52,13 @@ class FileSlicer extends Slicer {
 
     async slice() {
         if (this.directories.length > 0) return this.getFilePaths(this.directories.shift());
-        return this.directories;
+        return [];
     }
 
     async getFilePaths(filePath) {
         const dirContents = await fse.readdir(filePath);
         // const slices = [];
-        const slices = await [].concat(...await Promise.map(dirContents, async (file) => {
+        const slices = await [].concat(...await Promise.all(dirContents, async (file) => {
             let fileSlices = [];
             const fullPath = path.join(filePath, file);
             const stats = await fse.lstat(fullPath);

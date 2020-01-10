@@ -1,6 +1,5 @@
 'use strict';
 
-const Promise = require('bluebird');
 const { debugLogger } = require('@terascope/utils');
 const { getOffsets, getChunk, _averageRecordSize } = require('../../asset/_lib/chunked-file-reader/index.js');
 
@@ -9,7 +8,7 @@ const logger = debugLogger('chunked-file-reader');
 
 // Mock reader
 function Reader(reads) {
-    return () => Promise.resolve(reads.shift());
+    return async () => reads.shift();
 }
 
 const ldjsonOpConfig = {

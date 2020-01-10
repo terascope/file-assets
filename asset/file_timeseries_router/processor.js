@@ -32,7 +32,7 @@ class TimeseriesRouter extends BatchProcessor {
     }
 
     async onBatch(slice) {
-        return Promise.map(slice, (record) => this.addPath(record));
+        return Promise.all(slice, (record) => this.addPath(record));
     }
 }
 
