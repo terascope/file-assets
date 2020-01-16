@@ -24,7 +24,7 @@ async function decompress(data, compression) {
     case 'gzip':
         return ungzip(data).then((uncompressed) => uncompressed.toString());
     case 'none':
-        return data;
+        return data.toString();
     default:
         // This shouldn't happen since the config schemas will protect against it
         throw new Error('Unsupported compression:', compression);

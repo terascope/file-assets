@@ -37,8 +37,8 @@ describe('File asset supporting library', () => {
             const path2 = '/data';
             const path3 = 'data/';
             const path4 = '/data/';
-            const path5 = 'data/export_';
-            const path6 = '/data/export_';
+            const path5 = 'data/export';
+            const path6 = '/data/export';
             const path7 = 'data/export/';
             const path8 = '/data/export/';
 
@@ -69,11 +69,11 @@ describe('File asset supporting library', () => {
             });
             expect(info5).toEqual({
                 bucket: 'data',
-                prefix: 'export_'
+                prefix: 'export/'
             });
             expect(info6).toEqual({
                 bucket: 'data',
-                prefix: 'export_'
+                prefix: 'export/'
             });
             expect(info7).toEqual({
                 bucket: 'data',

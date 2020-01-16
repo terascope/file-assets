@@ -14,7 +14,7 @@ If record metadata includes a `routingPath` attribute, this will override the `p
 | ----------- | ------- | -------- |
 | Any valid S3 bucket/prefix name | `null` | Y |
 
-The bucket and optional prefix for data. If there is no `/` in this parameter, it will just be treated as a bucket name, and if there is no trailing `/`, any portion of the path that isn't the bucket will be treated as the object prefix.
+The bucket and optional prefix for data. If there is no `/` in this parameter, it will just be treated as a bucket name, and if there is no trailing `/`, one will be added to separate anything after the bucket from the worker names.
 
 ## `extension`
 

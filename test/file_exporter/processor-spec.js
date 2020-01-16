@@ -8,7 +8,7 @@ const { remove, ensureDir } = require('fs-extra');
 const Processor = require('../../asset/file_exporter/processor');
 
 function getTestFilePath(...parts) {
-    return path.join(__dirname, 'test_output', ...parts);
+    return path.join(__dirname, 'test_output/test', ...parts);
 }
 
 async function cleanTestDir() {
@@ -27,7 +27,7 @@ describe('File exporter processor', () => {
     const processor = new Processor(context,
         {
             _op: 'file_exporter',
-            path: `${getTestFilePath()}/test_`,
+            path: `${getTestFilePath()}`,
             compression: 'none',
             format: 'csv',
             line_delimiter: '\n',
@@ -116,10 +116,10 @@ describe('File exporter processor', () => {
         await processor.onBatch(data);
         // expect(processor.toEqual(1))
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(2);
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}.0`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(`${nodeName}.0`), 'utf-8')).toEqual(
             '"test data",42\n"more test data",43\n"even more test data",44\n'
         );
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}.1`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(`${nodeName}.1`), 'utf-8')).toEqual(
             '"test data",42\n"more test data",43\n"even more test data",44\n'
         );
     });
@@ -136,10 +136,10 @@ describe('File exporter processor', () => {
         await processor.onBatch(data);
         await processor.onBatch(data);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(2);
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}.0`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(`${nodeName}.0`), 'utf-8')).toEqual(
             '42,"test data",55\n43,"more test data",56\n44,"even more test data",57\n'
         );
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}.1`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(`${nodeName}.1`), 'utf-8')).toEqual(
             '42,"test data",55\n43,"more test data",56\n44,"even more test data",57\n'
         );
     });
@@ -152,13 +152,13 @@ describe('File exporter processor', () => {
         await processor.onBatch(data);
         await processor.onBatch(data);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(2);
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}.0`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(`${nodeName}.0`), 'utf-8')).toEqual(
             '"field1","field3","field2"\n'
             + '42,"test data",55\n'
             + '43,"more test data",56\n'
             + '44,"even more test data",57\n'
         );
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}.1`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(`${nodeName}.1`), 'utf-8')).toEqual(
             '"field1","field3","field2"\n'
             + '42,"test data",55\n'
             + '43,"more test data",56\n'
@@ -177,7 +177,7 @@ describe('File exporter processor', () => {
         await processor.onBatch(data);
         await processor.onBatch(data);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(nodeName), 'utf-8')).toEqual(
             '"test data",42\n'
             + '"more test data",43\n'
             + '"even more test data",44\n'
@@ -197,7 +197,7 @@ describe('File exporter processor', () => {
         processor.opConfig.file_per_slice = false;
         await processor.onBatch(complexData);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(nodeName), 'utf-8')).toEqual(
             '66,"{""subfield1"":22,""subfield2"":44}"\n'
             + '66,"[{""subfield1"":22,""subfield2"":44}]"\n'
         );
@@ -210,7 +210,7 @@ describe('File exporter processor', () => {
         await processor.onBatch(data);
         await processor.onBatch(data);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(nodeName), 'utf-8')).toEqual(
             '42,"test data",55\n'
             + '43,"more test data",56\n'
             + '44,"even more test data",57\n'
@@ -228,7 +228,7 @@ describe('File exporter processor', () => {
         await processor.onBatch(data);
         await processor.onBatch(data);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(nodeName), 'utf-8')).toEqual(
             '"field1","field3","field2"\n'
             + '42,"test data",55\n'
             + '43,"more test data",56\n'
@@ -246,7 +246,7 @@ describe('File exporter processor', () => {
         processor.opConfig.file_per_slice = false;
         await processor.onBatch(data);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(nodeName), 'utf-8')).toEqual(
             '42\t"test data"\t55\n'
             + '43\t"more test data"\t56\n'
             + '44\t"even more test data"\t57\n'
@@ -259,7 +259,7 @@ describe('File exporter processor', () => {
         processor.csvOptions.header = false;
         await processor.onBatch(data);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(nodeName), 'utf-8')).toEqual(
             '42^"test data"^55\n'
             + '43^"more test data"^56\n'
             + '44^"even more test data"^57\n'
@@ -274,7 +274,7 @@ describe('File exporter processor', () => {
         processor.opConfig.line_delimiter = '^';
         await processor.onBatch(data);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(nodeName), 'utf-8')).toEqual(
             '42,"test data",55^'
             + '43,"more test data",56^'
             + '44,"even more test data",57^'
@@ -288,7 +288,7 @@ describe('File exporter processor', () => {
         processor.opConfig.format = 'ldjson';
         await processor.onBatch(data);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(nodeName), 'utf-8')).toEqual(
             '{"field1":42,"field3":"test data","field2":55}\n'
             + '{"field1":43,"field3":"more test data","field2":56}\n'
             + '{"field1":44,"field3":"even more test data","field2":57}\n'
@@ -303,7 +303,7 @@ describe('File exporter processor', () => {
         ];
         await processor.onBatch(data);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(nodeName), 'utf-8')).toEqual(
             '{"field3":"test data","field1":42}\n'
             + '{"field3":"more test data","field1":43}\n'
             + '{"field3":"even more test data","field1":44}\n'
@@ -320,7 +320,7 @@ describe('File exporter processor', () => {
         ];
         await processor.onBatch(complexData);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(nodeName), 'utf-8')).toEqual(
             '{"field2":66,"field1":{"subfield1":22,"subfield2":44}}\n'
             + '{"field2":66,"field1":[{"subfield1":22,"subfield2":44}]}\n'
         );
@@ -333,10 +333,10 @@ describe('File exporter processor', () => {
         await processor.onBatch(data3);
         await processor.onBatch(data3);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(2);
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}.0`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(`${nodeName}.0`), 'utf-8')).toEqual(
             '[{"field1":42,"field3":"test data","field2":55,"field4":88}]\n'
         );
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}.1`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(`${nodeName}.1`), 'utf-8')).toEqual(
             '[{"field1":42,"field3":"test data","field2":55,"field4":88}]\n'
         );
     });
@@ -348,7 +348,7 @@ describe('File exporter processor', () => {
         processor.opConfig.fields = ['field1', 'field2', 'field8'];
         await processor.onBatch(data3);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}.0`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(`${nodeName}.0`), 'utf-8')).toEqual(
             '{"field1":42,"field2":55}\n'
         );
     });
@@ -359,7 +359,7 @@ describe('File exporter processor', () => {
         processor.opConfig.format = 'raw';
         await processor.onBatch(data2);
         expect(fs.readdirSync(getTestFilePath()).length).toEqual(1);
-        expect(fs.readFileSync(getTestFilePath(`test_${nodeName}`), 'utf-8')).toEqual(
+        expect(fs.readFileSync(getTestFilePath(nodeName), 'utf-8')).toEqual(
             'record1\n'
             + 'record2\n'
             + 'record3\n'

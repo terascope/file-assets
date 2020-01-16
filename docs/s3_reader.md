@@ -10,7 +10,7 @@ The `s3_reader` will slice up and read files in an S3 bucket. It is currently on
 | ----------- | ------- | -------- |
 | Any valid S3 bucket/prefix name | `null` | Y |
 
-The bucket and optional prefix for data. If there is no `/` in this parameter, it will just be treated as a bucket name, and if there is no trailing `/`, any portion of the path that isn't the bucket will be treated as the object prefix.
+The bucket and optional prefix for data. If there is no `/` in this parameter, it will just be treated as a bucket name, and anything separated from the bucket name with a `/` will be treated as a subdirectory whether or not there is a trailing `/`.
 
 ## `connection`
 

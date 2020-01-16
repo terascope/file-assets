@@ -32,7 +32,7 @@ class FileFetcher extends Fetcher {
             try {
                 const buf = Buffer.alloc(2 * this.opConfig.size);
                 const { bytesRead } = await fse.read(fd, buf, 0, length, offset);
-                return decompress(buf.slice(0, bytesRead).toString(), this.opConfig.compression);
+                return decompress(buf.slice(0, bytesRead), this.opConfig.compression);
             } finally {
                 fse.close(fd);
             }

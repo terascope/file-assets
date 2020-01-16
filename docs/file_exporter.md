@@ -16,7 +16,7 @@ This must be used with caution in combination with the this processor since it d
 | ----------- | ------- | -------- |
 | Any valid path | `null` | Y |
 
-This is the directory where data will be saved. All intermediate directories must pre-exist, and the directory must be accessible by the TS workers. Files will be named after the TS workers, so multiple workers can write data to the same directory concurrently. If there is no trailing `/`, the last portion of the path will be treated as a file prefix.
+This is the directory where data will be saved. All intermediate directories must pre-exist, and the directory must be accessible by the TS workers. Files will be named after the TS workers, so multiple workers can write data to the same directory concurrently. If there is no trailing `/`, one will be added.
 
 ## `extension`
 
