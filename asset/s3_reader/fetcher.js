@@ -3,13 +3,18 @@
 const {
     Fetcher, getClient
 } = require('@terascope/job-components');
+const path = require('path');
 const { getChunk } = require('../_lib/chunked-file-reader');
 const { decompress } = require('../_lib/compression');
+const { parsePath } = require('../_lib/fileName');
 
 class S3Fetcher extends Fetcher {
     constructor(context, opConfig, executionConfig) {
         super(context, opConfig, executionConfig);
         this.client = getClient(context, opConfig, 's3');
+        const objPath = parsePath(opConfig.path);
+        this.bucket = objPath.bucket;
+        this.prefix = objPath.prefix;
         this._initialized = false;
         this._shutdown = false;
     }
@@ -31,8 +36,8 @@ class S3Fetcher extends Fetcher {
         }
         const reader = (offset, length) => {
             const opts = {
-                Bucket: this.opConfig.bucket,
-                Key: slice.path,
+                Bucket: this.bucket,
+                Key: path.join(this.prefix, path.basename(slice.path)),
                 // We need to subtract 1 from the range in order to avoid collecting an extra byte.
                 // i.e. Requesting only the first byte of a file has a `length` of `1`, but the
                 //   request would be for `bytes=0-0`
@@ -53,7 +58,7 @@ class S3Fetcher extends Fetcher {
              * }
              */
             return this.client.getObject_Async(opts)
-                .then((object) => decompress(object.Body, this.opConfig.compression));
+                .then((object) => decompress(object.Body.toString(), this.opConfig.compression));
         };
         // Passing the slice in as the `metadata`. This will include the path, offset, and length
         return getChunk(reader, slice, this.opConfig, this.logger, slice);
