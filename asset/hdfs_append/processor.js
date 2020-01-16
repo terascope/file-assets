@@ -90,7 +90,7 @@ class HDFSBatcher extends BatchProcessor {
                         }
                     });
                 });
-        });
+        }).then(() => slice);
     }
 }
 
