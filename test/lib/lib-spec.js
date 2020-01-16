@@ -37,6 +37,8 @@ describe('File asset supporting library', () => {
             const path2 = '/data';
             const path3 = 'data/';
             const path4 = '/data/';
+            const path5 = 'data/export';
+            const path6 = '/data/export';
             const path7 = 'data/export/';
             const path8 = '/data/export/';
 
@@ -44,6 +46,8 @@ describe('File asset supporting library', () => {
             const info2 = parsePath(path2);
             const info3 = parsePath(path3);
             const info4 = parsePath(path4);
+            const info5 = parsePath(path5);
+            const info6 = parsePath(path6);
             const info7 = parsePath(path7);
             const info8 = parsePath(path8);
 
@@ -62,6 +66,14 @@ describe('File asset supporting library', () => {
             expect(info4).toEqual({
                 bucket: 'data',
                 prefix: ''
+            });
+            expect(info5).toEqual({
+                bucket: 'data',
+                prefix: 'export/'
+            });
+            expect(info6).toEqual({
+                bucket: 'data',
+                prefix: 'export/'
             });
             expect(info7).toEqual({
                 bucket: 'data',
