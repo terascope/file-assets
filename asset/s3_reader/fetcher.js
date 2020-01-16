@@ -58,7 +58,7 @@ class S3Fetcher extends Fetcher {
              * }
              */
             return this.client.getObject_Async(opts)
-                .then((object) => decompress(object.Body.toString(), this.opConfig.compression));
+                .then((object) => decompress(object.Body, this.opConfig.compression));
         };
         // Passing the slice in as the `metadata`. This will include the path, offset, and length
         return getChunk(reader, slice, this.opConfig, this.logger, slice);
