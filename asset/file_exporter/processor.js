@@ -65,7 +65,7 @@ class FileBatcher extends BatchProcessor {
                 .catch((err) => Promise.reject(new TSError(err, {
                     reason: `Failure to append to file ${fileName}`
                 })));
-        });
+        }).then(() => slice);
     }
 }
 

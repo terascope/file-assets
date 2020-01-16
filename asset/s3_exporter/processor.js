@@ -70,9 +70,8 @@ class S3Batcher extends BatchProcessor {
                 Body: outStr
             };
 
-            return this.client.putObject_Async(params)
-                .then(() => slice);
-        });
+            return this.client.putObject_Async(params);
+        }).then(() => slice);
     }
 }
 
