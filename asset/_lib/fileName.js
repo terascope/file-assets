@@ -36,7 +36,7 @@ function parsePath(objPath) {
             // Protects from adding a leading '/' to the object prefix
             if (splitPath[0].length !== 0) {
                 // Ensure the prefix ends with a trailing '/'
-                pathInfo.prefix = path.join(splitPath.join('/'), '/');
+                pathInfo.prefix = path.join(...splitPath, '/');
             }
         }
     } else {
