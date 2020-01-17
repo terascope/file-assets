@@ -29,7 +29,7 @@ function batchSlice(slice, defaultPath) {
     const batches = {};
     batches[defaultPath] = [];
     slice.forEach((record) => {
-        const override = record.getMetadata('routingPath');
+        const override = record.getMetadata('file:partition');
         if (override) {
             if (!batches[override]) {
                 batches[override] = [];

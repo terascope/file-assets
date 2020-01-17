@@ -1,6 +1,8 @@
-# file_timeseries_router
+# timeseries_path_partitioner
 
-The `file_timeseries_router` will specify a path as a DataEntity attribute on each record based on the specified date field. This path will take precedence over the exporter configuration.
+The `timeseries_path_partitioner` will specify a path as a DataEntity attribute on each record based on the specified date field. This path will take precedence over the exporter configuration.
+
+This will add the path partition as the metadata attribute `file:partition` on the DataEntity, and can then be accessed with something like `record.getMetadata('file:partition')`.
 
 # Options
 
@@ -42,23 +44,23 @@ A configuration like
 
 ```
 {
-    "_op": "file_timeseries_router",
+    "_op": "timeseries_path_partitioner",
     "base_path": "/data",
-    "prefix": "processed_",
+    "prefix": "processed",
     "date_field": "accepted",
     "type": "daily"
 }
 ```
 
-will add a `routingPath` attribute to records as DataEntity metadata and would result in values something like
+will add a `file:partition` attribute to records as DataEntity metadata with a value of:
 
 ```
-/data/2020.01.05/processed_
+/data/2020.01.05/processed
 ```
 
 ---
 
-If no configuration options are provided, the `routingPath` will be something like
+If no configuration options are provided, the `file:partition` will be something like
 
 ```
 2020.01.05/
