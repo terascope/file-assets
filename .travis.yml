@@ -14,7 +14,7 @@ branches:
 cache:
   npm: false
   yarn: false
-if: NOT (branch = master AND type = push AND os = osx)
+if: NOT (branch = master AND type = push AND tag IS blank AND os = osx)
 script:
   - yarn test
   - yarn lint
