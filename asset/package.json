@@ -1,17 +1,14 @@
 {
     "name": "file-assets",
-    "version": "0.10.0",
+    "version": "0.11.3",
     "description": "A set of processors for working with files",
     "dependencies": {
-        "@terascope/chunked-file-reader": "^2.2.0",
-        "@terascope/job-components": "^0.26.0",
-        "@terascope/queue": "^1.1.7",
-        "@terascope/utils": "^0.21.0",
+        "@terascope/job-components": "^0.27.0",
+        "@terascope/utils": "^0.22.0",
         "bluebird": "^3.7.2",
+        "csvtojson": "^2.0.10",
         "fs-extra": "^8.1.0",
-        "glob": "^7.1.6",
         "json2csv": "4.5.4",
-        "lodash": "^4.17.15",
         "lz4": "^0.6.3",
         "node-gzip": "^1.1.2"
     },

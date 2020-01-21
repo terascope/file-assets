@@ -5,8 +5,10 @@ const { ConvictSchema } = require('@terascope/job-components');
 class Schema extends ConvictSchema {
     build() {
         return {
-            bucket: {
-                doc: 'The S3 bucket with objects to process',
+            path: {
+                doc: 'Directory that contains the files to process. If the directory consists of a '
+                    + 'mix of subdirectories and files, the slicer will crawl through the '
+                    + 'subdirectories to slice all of the files.',
                 default: null,
                 format: 'required_String'
             },
@@ -19,13 +21,6 @@ class Schema extends ConvictSchema {
                 doc: 'Compression used on the object. Supports lz4 and gzip.',
                 default: 'none',
                 format: ['none', 'lz4', 'gzip']
-            },
-            object_prefix: {
-                doc: 'The object prefix. Will target a specific directory if a trailing `/` is provided'
-                    + ' or objects and directories starting with the `object_prefix` if there is no tra'
-                    + 'iling `/`',
-                default: '',
-                format: String
             },
             size: {
                 doc: 'Determines slice size in bytes',
@@ -70,7 +65,7 @@ class Schema extends ConvictSchema {
                 default: {},
                 format: Object
             },
-            object_per_slice: {
+            file_per_slice: {
                 doc: 'Determines if each object should be treated as a single slice. If set, `size`'
                     + ' will be ignored.',
                 default: false,

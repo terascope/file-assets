@@ -1,6 +1,10 @@
-# s3_reader
+# hdfs_reader
 
-The `s3_reader` will slice up and read files in an S3 bucket. It is currently only for use with `once` jobs.
+The `hdfs_reader` will export slices to files in HDFS.
+
+**This processor was migrated over from `hdfs_assets` and may not work properly. It currently does not support the append error avoidance that `hdfs_assets` included**
+
+If a functional processor is needed, use the old [HDFS asset bundle](https://github.com/terascope/hdfs-assets)
 
 # Options
 
@@ -10,7 +14,7 @@ The `s3_reader` will slice up and read files in an S3 bucket. It is currently on
 | ----------- | ------- | -------- |
 | Any valid S3 bucket/prefix name | `null` | Y |
 
-The bucket and optional prefix for data. If there is no `/` in this parameter, it will just be treated as a bucket name, and anything separated from the bucket name with a `/` will be treated as a subdirectory whether or not there is a trailing `/`.
+The bucket and optional prefix for data. If there is no `/` in this parameter, it will just be treated as a bucket name, and if there is no trailing `/`, any portion of the path that isn't the bucket will be treated as the object prefix.
 
 ## `connection`
 
@@ -19,6 +23,14 @@ The bucket and optional prefix for data. If there is no `/` in this parameter, i
 | Any valid S3 connector | `null` | Y |
 
 This is the name of the S3 connector defined in Terafoundation.
+
+## `user`
+
+| Valid Options | Default | Required |
+| ----------- | ------- | -------- |
+| Any valid HDFS user | `hdfs` | N |
+
+User to use when reading the files
 
 ## `compression`
 
@@ -101,51 +113,3 @@ Determines whether or not to keep column headers when they appear in a slice. If
 ### raw
 
 `raw` format will treat objects as a set of raw string separated by the `line_delimiter`, and each string will be stored in the `data` attribute of a data entity. The reader will make sure slices split on the `line_delimiter` so partial lines do not show up in records.
-
-# Example Job
-
-This test job will find and read the objects in the `staging` bucket, and then move them to ES.
-
-The bucket has this structure:
-```text
-s3://staging
-├── test_data1_200k_records.txt
-├── test_data2_200k_records.txt
-└── aux-data
-    ├── test_data3_200k_records.txt
-    └── test_data4_200k_records.txt
-```
-
-```json
-{
-  "name": "s3_to_es",
-  "lifecycle": "once",
-  "workers": 10,
-  "max_retries": 0,
-  "operations": [
-  {
-    "_op": "s3_reader",
-    "bucket": "staging",
-    "size": 100000,
-    "format": "ldjson",
-    "connector": "staging_s3"
-  },
-  {
-    "_op": "elasticsearch_index_selector",
-    "index": "zb-test_records",
-    "type": "events"
-  },
-  {
-    "_op": "elasticsearch_bulk",
-    "size": 10000,
-    "connection": "my-test-cluster"
-  }
-  ],
-  "assets": [
-    "file-assets",
-    "elasticsearch"
-  ]
-}
-```
-
-The result will be the ES index `zb-test_records` with 800k records.

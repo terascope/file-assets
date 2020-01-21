@@ -1,13 +1,15 @@
 'use strict';
 
-const { Fetcher } = require('@terascope/job-components');
-const fse = require('fs-extra');
+const {
+    Fetcher, getClient
+} = require('@terascope/job-components');
 const { getChunk } = require('../_lib/chunked-file-reader');
 const { decompress } = require('../_lib/compression');
 
-class FileFetcher extends Fetcher {
+class HDFSFetcher extends Fetcher {
     constructor(context, opConfig, executionConfig) {
         super(context, opConfig, executionConfig);
+        this.client = getClient(context, opConfig, 'hdfs_ha');
         this._initialized = false;
         this._shutdown = false;
     }
@@ -27,19 +29,17 @@ class FileFetcher extends Fetcher {
         if (this.opConfig.format === 'tsv') {
             this.opConfig.field_delimiter = '\t';
         }
-        const reader = async (offset, length) => {
-            const fd = await fse.open(slice.path, 'r');
-            try {
-                const buf = Buffer.alloc(2 * this.opConfig.size);
-                const { bytesRead } = await fse.read(fd, buf, 0, length, offset);
-                return decompress(buf.slice(0, bytesRead), this.opConfig.compression);
-            } finally {
-                fse.close(fd);
-            }
+        const reader = (offset, length) => {
+            const opts = {
+                offset,
+                length
+            };
+            return this.client.openAsync(slice.path, opts);
         };
         // Passing the slice in as the `metadata`. This will include the path, offset, and length
-        return getChunk(reader, slice, this.opConfig, this.logger, slice);
+        return getChunk(reader, slice, this.opConfig, this.logger, slice)
+            .then((object) => decompress(object.Body, this.opConfig.compression));
     }
 }
 
-module.exports = FileFetcher;
+module.exports = HDFSFetcher;

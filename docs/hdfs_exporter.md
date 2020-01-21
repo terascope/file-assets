@@ -1,6 +1,10 @@
-# s3_exporter
+# hdfs_exporter
 
-The `s3_exporter` will export slices to objects in S3. This exporter will ignore empty slices to prevent feeding empty objects into the S3 store.
+The `hdfs_exporter` will export slices to files in HDFS.
+
+**This processor was migrated over from `hdfs_assets` and may not work properly. It currently does not support the append error avoidance that `hdfs_assets` included**
+
+If a functional processor is needed, use the old [HDFS asset bundle](https://github.com/terascope/hdfs-assets)
 
 # Optional Routing Override
 
@@ -12,9 +16,9 @@ If record metadata includes a `routingPath` attribute, this will override the `p
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any valid S3 bucket/prefix name | `null` | Y |
+| Any valid HDFS path name | `null` | Y |
 
-The bucket and optional prefix for data. If there is no `/` in this parameter, it will just be treated as a bucket name, and if there is no trailing `/`, one will be added to separate anything after the bucket from the worker names.
+The path and optional prefix for files. If there is no trailing `/`, latter portion of the path will be treated as the object prefix.
 
 ## `extension`
 
@@ -68,9 +72,9 @@ Any string can be used as a delimiter for the exporter. This allows for multi-ch
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| 'true' | `true` | N |
+| 'true, false' | `false` | N |
 
-This processor currently only supports creating a single object for each slice. A future improvement will be to utilize multi-part uploads to allow workers to write larger batches of data to objects.
+Determines whether or not each slice should be put into a new file.
 
 ## `include_header`
 

@@ -17,13 +17,13 @@ describe('S3 exporter Schema', () => {
                 schema.validate({
                     _op: 's3_reader'
                 });
-            }).toThrowError(/Validation failed for operation config: s3_reader - bucket: This field is required and must by of type string/);
+            }).toThrowError(/Validation failed for operation config: s3_reader - path: This field is required and must by of type string/);
         });
         it('should throw an error if no connection is specified', () => {
             expect(() => {
                 schema.validate({
                     _op: 's3_reader',
-                    bucket: 'chillywilly'
+                    path: 'chillywilly'
                 });
             }).toThrowError(/Validation failed for operation config: s3_reader - connection: This field is required and must by of type string/);
         });
@@ -32,7 +32,7 @@ describe('S3 exporter Schema', () => {
             expect(() => {
                 schema.validate({
                     _op: 's3_reader',
-                    bucket: 'chillywilly',
+                    path: 'chillywilly',
                     connection: 'my-s3-connector'
                 });
             }).not.toThrowError();
