@@ -17,7 +17,7 @@ class TimeseriesPathPartitioner extends BatchProcessor {
         const end = offsets[opConfig.type];
         const date = new Date(record[opConfig.date_field]).toISOString().slice(0, end);
         record.setMetadata(
-            'routingPath',
+            'file:partition',
             path.join(
                 opConfig.base_path,
                 date.replace(/-/gi, '.'),
