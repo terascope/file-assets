@@ -40,18 +40,18 @@ describe('Timeseries router', () => {
     it('properly adds a daily path', async () => {
         const slice = await processor.onBatch(data);
         // expect(processor.toEqual(1))
-        expect(slice[0].getMetadata('routingPath')).toEqual('/data/2020.01.17/');
+        expect(slice[0].getMetadata('file:partition')).toEqual('/data/2020.01.17/');
     });
     it('properly adds a monthly path', async () => {
         processor.opConfig.type = 'monthly';
         const slice = await processor.onBatch(data);
         // expect(processor.toEqual(1))
-        expect(slice[0].getMetadata('routingPath')).toEqual('/data/2020.01/');
+        expect(slice[0].getMetadata('file:partition')).toEqual('/data/2020.01/');
     });
     it('properly adds a yearly path', async () => {
         processor.opConfig.type = 'yearly';
         const slice = await processor.onBatch(data);
         // expect(processor.toEqual(1))
-        expect(slice[0].getMetadata('routingPath')).toEqual('/data/2020/');
+        expect(slice[0].getMetadata('file:partition')).toEqual('/data/2020/');
     });
 });
