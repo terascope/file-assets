@@ -8,7 +8,7 @@ This bundle includes the following processors:
 - [`file_reader`](./docs/file_reader.md)
 - [`s3_exporter`](./docs/s3_exporter.md)
 - [`s3_reader`](./docs/s3_reader.md)
-- [`file_timeseries_router`](./docs/file_timeseries_router.md)
+- [`timeseries_path_partitioner`](./docs/timeseries_path_partitioner.md)
 
 
 ## Contributing

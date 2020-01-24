@@ -1,6 +1,6 @@
 {
     "name": "file-assets-bundle",
-    "version": "0.11.3",
+    "version": "0.12.0",
     "description": "Teraslice processors for working with data stored in files on disk",
     "repository": "https://github.com/terascope/file-assets.git",
     "author": "Terascope, LLC <info@terascope.io>",
@@ -24,6 +24,6 @@
         "jest-fixtures": "^0.6.0",
         "lz4": "^0.6.3",
         "node-gzip": "^1.1.2",
-        "teraslice-test-harness": "^0.12.0"
+        "teraslice-test-harness": "^0.12.1"
     }
 }
