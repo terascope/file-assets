@@ -15,7 +15,11 @@ describe('Timeseries path partitioner', () => {
         )
     ];
 
-    beforeAll(async () => {
+    afterEach(async () => {
+        await harness.shutdown();
+    });
+
+    it('properly adds a daily path', async () => {
         harness = WorkerTestHarness.testProcessor({
             _op: 'timeseries_path_partitioner',
             base_path: '/data',
@@ -24,13 +28,6 @@ describe('Timeseries path partitioner', () => {
             type: 'daily'
         }, {});
         await harness.initialize();
-    });
-
-    afterAll(async () => {
-        await harness.shutdown();
-    });
-
-    it('properly adds a daily path', async () => {
         const slice = await harness.runSlice(data);
         // expect(results).toEqual(data);
         expect(slice[0].getMetadata('file:partition')).toEqual('/data/2020.01.17/');
