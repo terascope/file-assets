@@ -6,7 +6,7 @@ const {
 const Promise = require('bluebird');
 const path = require('path');
 
-class PartitionByDate extends BatchProcessor {
+class PartitionByFields extends BatchProcessor {
     addPath(record, opConfig) {
         let partition = '';
         opConfig.fields.forEach((field) => {
@@ -28,4 +28,4 @@ class PartitionByDate extends BatchProcessor {
     }
 }
 
-module.exports = PartitionByDate;
+module.exports = PartitionByFields;
