@@ -9,7 +9,7 @@ class PartitionByFields extends BatchProcessor {
     addPath(record, opConfig) {
         const partitions = [];
         opConfig.fields.forEach((field) => {
-            partitions.push(`${field}=${record[field]}`);
+            partitions.push(`${field}=${record[field]}`.replace(/\//gi, '_'));
         });
         record.setMetadata(
             'file:partition',

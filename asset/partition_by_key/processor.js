@@ -7,7 +7,7 @@ const path = require('path');
 
 class PartitionByKey extends BatchProcessor {
     addPath(record, opConfig) {
-        const key = `_key=${record.getKey()}`;
+        const key = `_key=${record.getKey()}`.replace(/\//gi, '_');
         record.setMetadata(
             'file:partition',
             path.join(
