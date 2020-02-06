@@ -20,6 +20,13 @@ describe('Date path partitioner', () => {
                 field1: 'val/1',
                 field2: 'val/2'
             }
+        ),
+        DataEntity.make(
+            {
+                date: '2020-01-17T19:21:52.159Z',
+                field1: 'val=1',
+                field2: 'val=2'
+            }
         )
     ];
 
@@ -40,5 +47,6 @@ describe('Date path partitioner', () => {
         const slice = await harness.runSlice(data);
         expect(slice[0].getMetadata('file:partition')).toEqual('/data/field2=val2/field1=val1/');
         expect(slice[1].getMetadata('file:partition')).toEqual('/data/field2=val_2/field1=val_1/');
+        expect(slice[2].getMetadata('file:partition')).toEqual('/data/field2=val_2/field1=val_1/');
     });
 });

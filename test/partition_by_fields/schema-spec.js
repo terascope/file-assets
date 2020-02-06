@@ -3,7 +3,7 @@
 const { TestContext } = require('@terascope/job-components');
 const Schema = require('../../asset/partition_by_fields/schema');
 
-describe('S3 exporter Schema', () => {
+describe('Field partitioner Schema', () => {
     const context = new TestContext('partition-by-fields');
     const schema = new Schema(context);
 
@@ -17,7 +17,7 @@ describe('S3 exporter Schema', () => {
                 schema.validate({
                     _op: 'partition_by_fields'
                 });
-            }).toThrowError(/Invalid `fields` option: must include at least one field to partition on!/);
+            }).toThrowError(/Invalid `fields` option: must include at least one field to partition on./);
         });
         it('should throw an error if `fields` is not an array', () => {
             expect(() => {
@@ -25,25 +25,25 @@ describe('S3 exporter Schema', () => {
                     _op: 'partition_by_fields',
                     fields: null
                 });
-            }).toThrowError(/Invalid `fields` option: must be an array!/);
+            }).toThrowError(/Invalid `fields` option: must be an array./);
             expect(() => {
                 schema.validate({
                     _op: 'partition_by_fields',
                     fields: undefined
                 });
-            }).toThrowError(/Invalid `fields` option: must be an array!/);
+            }).toThrowError(/Invalid `fields` option: must be an array./);
             expect(() => {
                 schema.validate({
                     _op: 'partition_by_fields',
                     fields: JSON.stringify('this ia a string')
                 });
-            }).toThrowError(/Invalid `fields` option: must be an array!/);
+            }).toThrowError(/Invalid `fields` option: must be an array./);
             expect(() => {
                 schema.validate({
                     _op: 'partition_by_fields',
                     fields: 42
                 });
-            }).toThrowError(/Invalid `fields` option: must be an array!/);
+            }).toThrowError(/Invalid `fields` option: must be an array./);
         });
     });
 });

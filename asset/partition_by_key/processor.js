@@ -7,7 +7,7 @@ const path = require('path');
 
 class PartitionByKey extends BatchProcessor {
     addPath(record, opConfig) {
-        const key = `_key=${record.getKey()}`.replace(/\//gi, '_');
+        const key = `_key=${record.getKey().replace(/=/gi, '_')}`.replace(/\//gi, '_');
         record.setMetadata(
             'file:partition',
             path.join(
@@ -22,7 +22,7 @@ class PartitionByKey extends BatchProcessor {
     }
 
     async onBatch(slice) {
-        return Promise.all(slice.map((record) => this.addPath(record, this.opConfig)));
+        return slice.map((record) => this.addPath(record, this.opConfig));
     }
 }
 

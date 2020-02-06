@@ -3,7 +3,7 @@
 const { TestContext } = require('@terascope/job-components');
 const Schema = require('../../asset/partition_by_hash/schema');
 
-describe('S3 exporter Schema', () => {
+describe('Hash partitioner Schema', () => {
     const context = new TestContext('partition-by-hash');
     const schema = new Schema(context);
 
@@ -17,7 +17,33 @@ describe('S3 exporter Schema', () => {
                 schema.validate({
                     _op: 'partition_by_hash'
                 });
-            }).toThrowError(/Must include at least one field to hash for partitioning!/);
+            }).toThrowError(/Invalid `fields` option: must include at least one field to partition on./);
+        });
+        it('should throw an error if `fields` is not an array', () => {
+            expect(() => {
+                schema.validate({
+                    _op: 'partition_by_hash',
+                    fields: null
+                });
+            }).toThrowError(/Invalid `fields` option: must be an array./);
+            expect(() => {
+                schema.validate({
+                    _op: 'partition_by_hash',
+                    fields: undefined
+                });
+            }).toThrowError(/Invalid `fields` option: must be an array./);
+            expect(() => {
+                schema.validate({
+                    _op: 'partition_by_hash',
+                    fields: JSON.stringify('this ia a string')
+                });
+            }).toThrowError(/Invalid `fields` option: must be an array./);
+            expect(() => {
+                schema.validate({
+                    _op: 'partition_by_hash',
+                    fields: 42
+                });
+            }).toThrowError(/Invalid `fields` option: must be an array./);
         });
     });
 });

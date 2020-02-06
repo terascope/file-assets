@@ -24,6 +24,15 @@ describe('Key path partitioner', () => {
             {
                 _key: 'DaTaEnTiTy/K3Y'
             }
+        ),
+        DataEntity.make(
+            {
+                date: '2020-01-17T19:21:52.159Z',
+                text: 'test data'
+            },
+            {
+                _key: 'DaTaEnTiTy=K3Y'
+            }
         )
     ];
 
@@ -41,6 +50,7 @@ describe('Key path partitioner', () => {
         harness.fetcher().handle = () => data;
         const slice = await harness.runSlice(data);
         expect(slice[0].getMetadata('file:partition')).toEqual('/data/_key=DaTaEnTiTyK3Y/');
+        expect(slice[1].getMetadata('file:partition')).toEqual('/data/_key=DaTaEnTiTy_K3Y/');
         expect(slice[1].getMetadata('file:partition')).toEqual('/data/_key=DaTaEnTiTy_K3Y/');
     });
 });

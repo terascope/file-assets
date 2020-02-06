@@ -41,7 +41,7 @@ class PartitionByDate extends BatchProcessor {
     }
 
     async onBatch(slice) {
-        return Promise.all(slice.map((record) => this.addPath(record, this.opConfig)));
+        return slice.map((record) => this.addPath(record, this.opConfig));
     }
 }
 

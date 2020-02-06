@@ -9,7 +9,7 @@ class PartitionByFields extends BatchProcessor {
     addPath(record, opConfig) {
         const partitions = [];
         opConfig.fields.forEach((field) => {
-            partitions.push(`${field}=${record[field]}`.replace(/\//gi, '_'));
+            partitions.push(`${field}=${record[field].replace(/=/gi, '_')}`.replace(/\//gi, '_'));
         });
         record.setMetadata(
             'file:partition',
@@ -24,7 +24,7 @@ class PartitionByFields extends BatchProcessor {
     }
 
     async onBatch(slice) {
-        return Promise.all(slice.map((record) => this.addPath(record, this.opConfig)));
+        return slice.map((record) => this.addPath(record, this.opConfig));
     }
 }
 
