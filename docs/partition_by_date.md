@@ -1,12 +1,12 @@
-# timeseries_path_partitioner
+# partition_by_date
 
-The `timeseries_path_partitioner` will specify a path as a DataEntity attribute on each record based on the specified date field. This path will take precedence over the exporter configuration.
+The `partition_by_date` will specify a path as a DataEntity attribute on each record based on the specified date field. This path will take precedence over the exporter configuration.
 
 This will add the path partition as the metadata attribute `file:partition` on the DataEntity, and can then be accessed with something like `record.getMetadata('file:partition')`.
 
 # Options
 
-## `base_path`
+## `path`
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
@@ -14,15 +14,7 @@ This will add the path partition as the metadata attribute `file:partition` on t
 
 This is the base portion of the path. If not provided, the string created from the date will be the root of the path.
 
-## `prefix`
-
-| Valid Options | Default | Required |
-| ----------- | ------- | -------- |
-| Any valid path string | `''` | N |
-
-Optional file prefix.
-
-## `date_field`
+## `field`
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
@@ -30,13 +22,13 @@ Optional file prefix.
 
 Specifies the record field contains the timeseries date
 
-## `type`
+## `resolution`
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
 | `daily`, `monthly`, `yearly` | `daily` | N |
 
-Specifies the type of timeseries data
+Specifies the resolution of partitioning for the timeseries data
 
 # Example opConfig
 
@@ -44,18 +36,17 @@ A configuration like
 
 ```
 {
-    "_op": "timeseries_path_partitioner",
-    "base_path": "/data",
-    "prefix": "processed",
-    "date_field": "accepted",
-    "type": "daily"
+    "_op": "partition_by_date",
+    "path": "/data",
+    "field": "accepted",
+    "resolution": "daily"
 }
 ```
 
 will add a `file:partition` attribute to records as DataEntity metadata with a value of:
 
 ```
-/data/2020.01.05/processed
+/data/date_year=2020/date_month=01/date_day=05/
 ```
 
 ---
@@ -63,5 +54,5 @@ will add a `file:partition` attribute to records as DataEntity metadata with a v
 If no configuration options are provided, the `file:partition` will be something like
 
 ```
-2020.01.05/
+date_year=2020/date_month=01/date_day=05/
 ```

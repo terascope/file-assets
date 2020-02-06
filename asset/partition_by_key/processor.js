@@ -6,24 +6,16 @@ const {
 const Promise = require('bluebird');
 const path = require('path');
 
-class TimeseriesPathPartitioner extends BatchProcessor {
+class PartitionByKey extends BatchProcessor {
     addPath(record, opConfig) {
-        const offsets = {
-            daily: 10,
-            monthly: 7,
-            yearly: 4
-        };
-        // This value is enforced by the schema
-        const end = offsets[opConfig.type];
-        const date = new Date(record[opConfig.date_field]).toISOString().slice(0, end);
+        const key = `_key=${record.getKey()}`;
         record.setMetadata(
             'file:partition',
             path.join(
-                opConfig.base_path,
-                date.replace(/-/gi, '.'),
+                opConfig.path,
+                key,
                 // Guarantees the date won't end up as a filename prefix
-                '/',
-                opConfig.prefix
+                '/'
             )
         );
 
@@ -35,4 +27,4 @@ class TimeseriesPathPartitioner extends BatchProcessor {
     }
 }
 
-module.exports = TimeseriesPathPartitioner;
+module.exports = PartitionByKey;
