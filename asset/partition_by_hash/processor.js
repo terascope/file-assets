@@ -3,8 +3,7 @@
 const {
     BatchProcessor
 } = require('@terascope/job-components');
-const Promise = require('bluebird');
-const stringHash = require('string-hash');
+const fnv1a = require('@sindresorhus/fnv1a');
 const path = require('path');
 
 class PartitionByDate extends BatchProcessor {
@@ -13,7 +12,7 @@ class PartitionByDate extends BatchProcessor {
         opConfig.fields.forEach((field) => {
             hashString += `${record[field]}`;
         });
-        const partition = stringHash(hashString) % opConfig.partitions;
+        const partition = fnv1a(hashString) % opConfig.partitions;
         record.setMetadata(
             'file:partition',
             path.join(

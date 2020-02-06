@@ -17,7 +17,33 @@ describe('S3 exporter Schema', () => {
                 schema.validate({
                     _op: 'partition_by_fields'
                 });
-            }).toThrowError(/Must include at least one field to partition on!/);
+            }).toThrowError(/Invalid `fields` option: must include at least one field to partition on!/);
+        });
+        it('should throw an error if `fields` is not an array', () => {
+            expect(() => {
+                schema.validate({
+                    _op: 'partition_by_fields',
+                    fields: null
+                });
+            }).toThrowError(/Invalid `fields` option: must be an array!/);
+            expect(() => {
+                schema.validate({
+                    _op: 'partition_by_fields',
+                    fields: undefined
+                });
+            }).toThrowError(/Invalid `fields` option: must be an array!/);
+            expect(() => {
+                schema.validate({
+                    _op: 'partition_by_fields',
+                    fields: JSON.stringify('this ia a string')
+                });
+            }).toThrowError(/Invalid `fields` option: must be an array!/);
+            expect(() => {
+                schema.validate({
+                    _op: 'partition_by_fields',
+                    fields: 42
+                });
+            }).toThrowError(/Invalid `fields` option: must be an array!/);
         });
     });
 });

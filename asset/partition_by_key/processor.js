@@ -3,7 +3,6 @@
 const {
     BatchProcessor
 } = require('@terascope/job-components');
-const Promise = require('bluebird');
 const path = require('path');
 
 class PartitionByKey extends BatchProcessor {

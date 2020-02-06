@@ -39,7 +39,7 @@ describe('Date path partitioner', () => {
         }, {});
         await harness.initialize();
         const slice = await harness.runSlice(data);
-        expect(slice[0].getMetadata('file:partition')).toEqual('/data/partition=11/');
-        expect(slice[1].getMetadata('file:partition')).toEqual('/data/partition=13/');
+        expect(slice[0].getMetadata('file:partition')).toEqual('/data/partition=4/');
+        expect(slice[1].getMetadata('file:partition')).toEqual('/data/partition=8/');
     });
 });

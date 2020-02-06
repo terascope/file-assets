@@ -3,20 +3,20 @@
 const {
     BatchProcessor
 } = require('@terascope/job-components');
-const Promise = require('bluebird');
 const path = require('path');
 
 class PartitionByFields extends BatchProcessor {
     addPath(record, opConfig) {
-        let partition = '';
+        const partitions = [];
         opConfig.fields.forEach((field) => {
-            partition += `${field}=${record[field]}/`;
+            partitions.push(`${field}=${record[field]}`);
         });
         record.setMetadata(
             'file:partition',
             path.join(
                 opConfig.path,
-                partition
+                ...partitions,
+                '/'
             )
         );
 
