@@ -22,20 +22,6 @@
   resolved "https://registry.yarnpkg.com/@terascope/types/-/types-0.1.1.tgz#c0e93fbd792eb0df1a788405b3bc8cac3398f137"
   integrity sha512-eXgcr77Lkc8TMnBR4+NyVFrB7jg6ki/5g18AYPErKciAYut7phVDtE6QbCl0/sQsL3RXQMe3D+fPH4TEmK5S2g==
 
-"@terascope/utils@^0.22.0":
-  version "0.22.0"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.22.0.tgz#ce65b2659dbe23bf8ce6a5a1b114211ad9cd420f"
-  integrity sha512-jjB5Lr/ISKzC9TmgEnMpFU42YDHViRjqWu7WzXidVKk6oIq4hxv1kCW/G+xnzSx21yMev40yE2X2NFyQi1z1Hw==
-  dependencies:
-    debug "^4.1.1"
-    is-plain-object "^3.0.0"
-    js-string-escape "^1.0.1"
-    kind-of "^6.0.2"
-    lodash.clonedeep "^4.5.0"
-    lodash.get "^4.4.2"
-    lodash.set "^4.3.2"
-    lodash.unset "^4.5.2"
-
 "@terascope/utils@^0.23.1":
   version "0.23.1"
   resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.23.1.tgz#d1e12ae5ec0b1c3c744d705c29e5d42d45c26e80"
@@ -199,7 +185,7 @@ jsonparse@^1.3.1:
   resolved "https://registry.yarnpkg.com/jsonparse/-/jsonparse-1.3.1.tgz#3f4dae4a91fac315f71062f8521cc239f1366280"
   integrity sha1-P02uSpH6wxX3EGL4UhzCOfE2YoA=
 
-kind-of@^6.0.2, kind-of@^6.0.3:
+kind-of@^6.0.3:
   version "6.0.3"
   resolved "https://registry.yarnpkg.com/kind-of/-/kind-of-6.0.3.tgz#07c05034a6c349fa06e24fa35aa76db4580ce4dd"
   integrity sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw==
