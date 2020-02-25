@@ -2,9 +2,9 @@ import { BatchProcessor, WorkerContext, ExecutionConfig } from '@terascope/job-c
 import fse from 'fs-extra';
 import { TSError, DataEntity, isEmpty } from '@terascope/utils';
 import { FileExporterConfig } from './interfaces';
-import { getName, NameOptions } from '../_lib/fileName';
-import { batchSlice } from '../_lib/slice';
-import { parseForFile, CsvOptions } from '../_lib/parser';
+import { getName, NameOptions } from '../__lib/fileName';
+import { batchSlice } from '../__lib/slice';
+import { parseForFile, CsvOptions, makeCsvOptions } from '../__lib/parser';
 
 export default class FileBatcher extends BatchProcessor<FileExporterConfig> {
     workerId: string;
@@ -29,22 +29,7 @@ export default class FileBatcher extends BatchProcessor<FileExporterConfig> {
         this.sliceCount = -1;
         this.firstSlice = true;
         // Set the options for the parser
-        this.csvOptions = {};
-        if (this.opConfig.fields.length !== 0) {
-            this.csvOptions.fields = this.opConfig.fields;
-        } else {
-            this.csvOptions.fields = undefined;
-        }
-
-        this.csvOptions.header = opConfig.include_header;
-        this.csvOptions.eol = opConfig.line_delimiter;
-
-        // Assumes a custom delimiter will be used only if the `csv` output format is chosen
-        if (this.opConfig.format === 'csv') {
-            this.csvOptions.delimiter = opConfig.field_delimiter;
-        } else if (opConfig.format === 'tsv') {
-            this.csvOptions.delimiter = '\t';
-        }
+        this.csvOptions = makeCsvOptions(this.opConfig);
     }
 
     async process(path: string, list: DataEntity[]) {

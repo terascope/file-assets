@@ -1,15 +1,17 @@
 import { OpConfig } from '@terascope/job-components';
 import { Compression } from '../__lib/compression';
-import { Format } from '../__lib/parser';
+import { Format, CsvOptions } from '../__lib/parser';
 
-export interface FileExporterConfig extends OpConfig {
+export interface FileConfig extends OpConfig {
     path: string;
-    extension: string;
     compression: Compression;
+    size: number;
+    format: Format;
     field_delimiter: string;
     line_delimiter: string;
     fields: string[];
+    remove_header: boolean;
+    ignore_empty: boolean;
     file_per_slice: boolean;
-    include_header: boolean;
-    format: Format;
+    extra_args: CsvOptions;
 }

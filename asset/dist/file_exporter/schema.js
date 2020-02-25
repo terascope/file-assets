@@ -1,9 +1,9 @@
-import { ConvictSchema } from '@terascope/job-components';
-import { FileExporterConfig } from './interfaces';
-import { Compression } from '../__lib/compression';
-import { Format } from '../__lib/parser';
-
-export default class Schema extends ConvictSchema<FileExporterConfig> {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const job_components_1 = require("@terascope/job-components");
+const compression_1 = require("../__lib/compression");
+const parser_1 = require("../__lib/parser");
+class Schema extends job_components_1.ConvictSchema {
     build() {
         return {
             path: {
@@ -21,8 +21,8 @@ export default class Schema extends ConvictSchema<FileExporterConfig> {
             },
             compression: {
                 doc: 'Compression to use on the object. Supports lz4 and gzip.',
-                default: Compression.none,
-                format: Object.keys(Compression)
+                default: compression_1.Compression.none,
+                format: Object.keys(compression_1.Compression)
             },
             field_delimiter: {
                 doc: 'Delimiter character between record fields. Only used with `csv` format',
@@ -52,9 +52,11 @@ export default class Schema extends ConvictSchema<FileExporterConfig> {
             format: {
                 doc: 'Format of the target object. Currently supports "json", "ldjson", "raw", "tsv", and'
                     + ' "csv".',
-                default: Format.ldjson,
-                format: Object.keys(Format)
+                default: parser_1.Format.ldjson,
+                format: Object.keys(parser_1.Format)
             }
         };
     }
 }
+exports.default = Schema;
+//# sourceMappingURL=schema.js.map
