@@ -17,6 +17,7 @@ describe('S3 exporter Schema', () => {
                 });
             }).toThrowError(/Must include a bucket!/);
         });
+
         it('should throw an error if no connection is specified', () => {
             expect(() => {
                 schema.validate({

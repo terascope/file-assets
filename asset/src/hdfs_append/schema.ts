@@ -20,7 +20,7 @@ export default class Schema extends ConvictSchema<HDFSConfig> {
                 format: String
             },
             connection: {
-                doc: 'The S3 connection from Terafoundation to use',
+                doc: 'The hdfs connection from Terafoundation to use',
                 default: null,
                 format: 'required_String'
             },

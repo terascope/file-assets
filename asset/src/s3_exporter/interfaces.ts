@@ -13,5 +13,5 @@ export interface S3ExportConfig extends OpConfig {
     line_delimiter: string;
     fields: string[];
     include_header: boolean;
-    file_per_slice: string;
+    file_per_slice: boolean;
 }

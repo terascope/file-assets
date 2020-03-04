@@ -26,7 +26,7 @@ function batchSlice(data, defaultPath) {
     const batches = {};
     batches[defaultPath] = [];
     data.forEach((record) => {
-        const override = record.getMetadata('_partition');
+        const override = record.getMetadata('standard:route');
         if (override) {
             if (!batches[override]) {
                 batches[override] = [];

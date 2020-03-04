@@ -55,13 +55,13 @@ export default class Schema extends ConvictSchema<S3ExportConfig> {
                 doc: 'Determines whether or not to include column headers for the fields.'
                     + 'ects',
                 default: false,
-                format: 'Boolean'
+                format: Boolean
             },
             file_per_slice: {
                 doc: 'Determines whether to batch slices in a multi-part upload or not. This '
                     + 'capability will be included in a future improvement',
-                default: 'false',
-                format: [false]
+                default: false,
+                format: Boolean
             }
         };
     }

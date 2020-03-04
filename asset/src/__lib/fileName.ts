@@ -36,12 +36,12 @@ export function parsePath(objPath: string) {
         bucket: '',
         prefix: ''
     };
-    // let hasPrefix = false;
-    // if (path[path.length - 1] !== '/') hasPrefix = true;
     const splitPath = objPath.split('/');
+
     if (objPath[0] !== '/') {
         [pathInfo.bucket] = splitPath;
         splitPath.shift();
+
         if (splitPath.length > 0) {
             // Protects from adding a leading '/' to the object prefix
             if (splitPath[0].length !== 0) {
@@ -55,6 +55,7 @@ export function parsePath(objPath: string) {
         // Remove the empty string and the root dir (bucket)
         splitPath.shift();
         splitPath.shift();
+
         if (splitPath.length > 0) {
             // Protects from adding a leading '/' to the object prefix
             if (splitPath[0].length !== 0) {
@@ -63,5 +64,6 @@ export function parsePath(objPath: string) {
             }
         }
     }
+
     return pathInfo;
 }

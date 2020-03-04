@@ -5,19 +5,16 @@ import { parseForFile } from '../../asset/src/__lib/parser';
 describe('File asset supporting library', () => {
     describe('parser module', () => {
         it('errors with invalid formats.', async () => {
+            // @ts-ignore
             await expect(parseForFile([new DataEntity({})], { format: 'invalid' }, {})).rejects.toThrowError('Unsupported output format "invalid"');
-            /* let error;
-            try {
-                await parseForFile([{}], { format: 'invalid' });
-            } catch (e) {
-                error = e;
-            }
-            expect(error).toEqual(new Error('Unsupported output format "invalid"')); */
         });
+
         it('returns null for empty records.', async () => {
+            // @ts-ignore
             expect(await parseForFile(null, { format: 'tsv' }, {})).toEqual(null);
         });
     });
+
     describe('fileName module', () => {
         it('adds a file extension.', () => {
             expect(getName(
@@ -26,6 +23,7 @@ describe('File asset supporting library', () => {
                 { filePerSlice: true, extension: '.txt', filePath: '/data/' }
             )).toEqual('/data/worker1.2.txt');
         });
+
         it('properly identifies buckets and object prefixes in a filepath', () => {
             /* Eight possible inputs
              * - with(out) leading '/'

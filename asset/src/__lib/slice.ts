@@ -16,6 +16,7 @@ export interface SliceConfig {
 
 export function sliceFile(file: any, config: SliceConfig): SlicedFileResults[] {
     const slices: SlicedFileResults[] = [];
+
     if (config.format === 'json' || config.file_per_slice) {
         slices.push({
             path: file.path,
@@ -44,7 +45,7 @@ export function batchSlice(data: DataEntity[], defaultPath: string) {
     batches[defaultPath] = [];
 
     data.forEach((record: any) => {
-        const override = record.getMetadata('_partition');
+        const override = record.getMetadata('standard:route');
 
         if (override) {
             if (!batches[override]) {

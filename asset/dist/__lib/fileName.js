@@ -30,8 +30,6 @@ function parsePath(objPath) {
         bucket: '',
         prefix: ''
     };
-    // let hasPrefix = false;
-    // if (path[path.length - 1] !== '/') hasPrefix = true;
     const splitPath = objPath.split('/');
     if (objPath[0] !== '/') {
         [pathInfo.bucket] = splitPath;

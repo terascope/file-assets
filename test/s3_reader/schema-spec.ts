@@ -17,6 +17,7 @@ describe('S3 exporter Schema', () => {
                 });
             }).toThrowError(/Validation failed for operation config: s3_reader - path: This field is required and must by of type string/);
         });
+
         it('should throw an error if no connection is specified', () => {
             expect(() => {
                 schema.validate({

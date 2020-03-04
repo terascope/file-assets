@@ -9,7 +9,7 @@ export enum Compression {
     gzip = 'gzip'
 }
 
-export async function compress(compression: string, data: any) {
+export async function compress(data: any, compression: Compression): Promise<Buffer| any> {
     switch (compression) {
         case 'lz4':
             return encode(data);
@@ -22,8 +22,8 @@ export async function compress(compression: string, data: any) {
             throw new Error(`Unsupported compression: ${compression}`);
     }
 }
-// TODO: why is this backwards
-export async function decompress(data: any, compression: string) {
+
+export async function decompress(data: any, compression: Compression): Promise<string> {
     switch (compression) {
         case 'lz4':
             return decode(data).toString();

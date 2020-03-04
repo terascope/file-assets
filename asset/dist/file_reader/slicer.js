@@ -43,9 +43,9 @@ class FileSlicer extends job_components_1.Slicer {
         }
     }
     async getPath(filePath, file) {
-        let fileSlices = [];
         const fullPath = path_1.default.join(filePath, file);
         const stats = await fs_extra_1.default.lstat(fullPath);
+        let fileSlices = [];
         if (stats.isFile()) {
             const fileInfo = await fs_extra_1.default.stat(fullPath);
             fileSlices = slice_1.sliceFile({ size: fileInfo.size, path: fullPath }, this.sliceConfig);

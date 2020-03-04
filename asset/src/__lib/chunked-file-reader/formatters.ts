@@ -4,7 +4,7 @@ import { DataEntity, Logger } from '@terascope/utils';
 // This function takes the raw data and breaks it into records, getting rid
 // of anything preceding the first complete record if the data does not
 // start with a complete record.
-function _toRecords(rawData: any, delimiter: string, slice: any) {
+function _toRecords(rawData: string, delimiter: string, slice: any) {
     // Since slices with a non-zero chunk offset grab the character
     // immediately preceding the main chunk, if one of those chunks has a
     // delimiter as the first or second character, it means the chunk starts
@@ -99,7 +99,8 @@ export function csv(incomingData: any, logger: Logger, opConfig: any, metadata: 
 
 // tsv is just a specific case of csv
 export function tsv(incomingData: any, logger: Logger, opConfig: any, metadata: any, slice: any) {
-    return csv(incomingData, logger, opConfig, metadata, slice);
+    const config = Object.assign({}, opConfig, { field_delimiter: '\t' });
+    return csv(incomingData, logger, config, metadata, slice);
 }
 
 export function json(incomingData: any, logger: Logger, opConfig: any, metadata: any) {

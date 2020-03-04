@@ -4,15 +4,12 @@ const job_components_1 = require("@terascope/job-components");
 const chunked_file_reader_1 = require("../__lib/chunked-file-reader");
 const compression_1 = require("../__lib/compression");
 class HDFSFetcher extends job_components_1.Fetcher {
-    constructor() {
-        super(...arguments);
-        this._initialized = false;
-        this._shutdown = false;
-    }
     async initialize() {
         await super.initialize();
         this.client = job_components_1.getClient(this.context, this.opConfig, 'hdfs_ha');
     }
+    // TODO: decompress returns a string, but it should be a dataentity
+    // @ts-ignore
     async fetch(slice) {
         const reader = async (offset, length) => {
             const opts = {

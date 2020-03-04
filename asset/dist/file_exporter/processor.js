@@ -13,7 +13,11 @@ class FileBatcher extends job_components_1.BatchProcessor {
     constructor(context, opConfig, executionConfig) {
         super(context, opConfig, executionConfig);
         const extension = utils_1.isEmpty(opConfig.extension) ? undefined : opConfig.extension;
-        this.nameOptions = { filePath: opConfig.path, extension };
+        this.nameOptions = {
+            filePath: opConfig.path,
+            extension,
+            filePerSlice: opConfig.file_per_slice
+        };
         this.workerId = context.cluster.worker.id;
         // Coerce `file_per_slice` for JSON format or compressed output
         if ((opConfig.format === 'json') || (opConfig.compression !== 'none')) {

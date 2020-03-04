@@ -1,4 +1,5 @@
 import { newTestJobConfig, SlicerTestHarness } from 'teraslice-test-harness';
+import { SlicedFileResults } from '../../asset/src/__lib/slice';
 
 describe('S3 slicer when slicing JSON objects', () => {
     let s3ParamsFirstRequest: any;
@@ -28,7 +29,7 @@ describe('S3 slicer when slicing JSON objects', () => {
             create: () => ({
                 client: {
                     firstRun: true,
-                    listObjects_Async(params) {
+                    listObjects_Async(params: any) {
                         if (this.firstRun) {
                             // extract the s3 request options for validation
                             s3ParamsFirstRequest = params;
@@ -60,7 +61,7 @@ describe('S3 slicer when slicing JSON objects', () => {
         ]
     });
 
-    let harness;
+    let harness: SlicerTestHarness;
 
     beforeEach(async () => {
         harness = new SlicerTestHarness(job, {
@@ -69,6 +70,7 @@ describe('S3 slicer when slicing JSON objects', () => {
 
         await harness.initialize();
     });
+
     afterEach(async () => {
         await harness.shutdown();
     });
@@ -148,7 +150,7 @@ describe('S3 slicer when slicing other objects', () => {
         ]
     });
 
-    let harness;
+    let harness: SlicerTestHarness;
 
     beforeEach(async () => {
         harness = new SlicerTestHarness(job, {
@@ -157,6 +159,7 @@ describe('S3 slicer when slicing other objects', () => {
 
         await harness.initialize();
     });
+
     afterEach(async () => {
         await harness.shutdown();
     });
@@ -165,18 +168,29 @@ describe('S3 slicer when slicing other objects', () => {
         const slices = await harness.createSlices();
         expect(slices.length).toBe(4);
 
-        let currentRecord = slices.pop();
-        expect(currentRecord.offset).toEqual(0);
-        expect(currentRecord.length).toEqual(500);
-        currentRecord = slices.pop();
-        expect(currentRecord.offset).toEqual(0);
-        expect(currentRecord.length).toEqual(500);
-        currentRecord = slices.pop();
+        const record1 = slices.pop() as SlicedFileResults;
+
+        expect(record1).toBeDefined();
+        expect(record1.offset).toEqual(0);
+        expect(record1.length).toEqual(500);
+
+        const record2 = slices.pop() as SlicedFileResults;
+
+        expect(record2).toBeDefined();
+        expect(record2.offset).toEqual(0);
+        expect(record2.length).toEqual(500);
+
+        const record3 = slices.pop() as SlicedFileResults;
+
+        expect(record3).toBeDefined();
         // Middle slices have an extra byte at the beginning for line delimiter detection
-        expect(currentRecord.offset).toEqual(499);
-        expect(currentRecord.length).toEqual(501);
-        currentRecord = slices.pop();
-        expect(currentRecord.offset).toEqual(0);
-        expect(currentRecord.length).toEqual(500);
+        expect(record3.offset).toEqual(499);
+        expect(record3.length).toEqual(501);
+
+        const record4 = slices.pop() as SlicedFileResults;
+
+        expect(record4).toBeDefined();
+        expect(record4.offset).toEqual(0);
+        expect(record4.length).toEqual(500);
     });
 });

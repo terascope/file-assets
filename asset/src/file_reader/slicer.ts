@@ -31,11 +31,14 @@ export default class FileSlicer extends Slicer {
     checkProvidedPath() {
         try {
             const dirStats = fse.lstatSync(this.opConfig.path);
+
             if (dirStats.isSymbolicLink()) {
                 const error = new TSError({ reason: `Directory '${this.opConfig.path}' cannot be a symlink!` });
                 throw error;
             }
+
             const dirContents = fse.readdirSync(this.opConfig.path);
+
             if (dirContents.length === 0) {
                 const error = new TSError({ reason: `Directory '${this.opConfig.path}' must not be empty!` });
                 throw error;
@@ -47,9 +50,10 @@ export default class FileSlicer extends Slicer {
     }
 
     async getPath(filePath: string, file: string) {
-        let fileSlices: SlicedFileResults[] = [];
         const fullPath = path.join(filePath, file);
         const stats = await fse.lstat(fullPath);
+
+        let fileSlices: SlicedFileResults[] = [];
 
         if (stats.isFile()) {
             const fileInfo = await fse.stat(fullPath);

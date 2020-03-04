@@ -20,7 +20,7 @@ class Schema extends job_components_1.ConvictSchema {
                 format: String
             },
             connection: {
-                doc: 'The S3 connection from Terafoundation to use',
+                doc: 'The hdfs connection from Terafoundation to use',
                 default: null,
                 format: 'required_String'
             },

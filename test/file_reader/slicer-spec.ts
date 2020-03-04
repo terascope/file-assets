@@ -1,12 +1,23 @@
-import fixtures from 'jest-fixtures';
 import path from 'path';
 import { newTestJobConfig, SlicerTestHarness } from 'teraslice-test-harness';
+import { flatten } from '@terascope/job-components';
+import { Format } from '../../asset/src/__lib/parser';
+// @ts-ignore
+const fixtures = require('jest-fixtures');
 
 describe('File slicer json files', () => {
-    const slices = [];
+    const slices: any[] = [];
 
-    let harness;
-    let testDataDir;
+    let harness: SlicerTestHarness;
+    let testDataDir: string;
+
+    async function getSlices() {
+        const results = await harness.createSlices();
+        if (results[0]) {
+            slices.push(...results);
+            await getSlices();
+        }
+    }
 
     beforeEach(async () => {
         testDataDir = await fixtures.copyFixtureIntoTempDir(__dirname, 'file_reader/json');
@@ -17,32 +28,26 @@ describe('File slicer json files', () => {
                     _op: 'file_reader',
                     path: testDataDir,
                     size: 750,
-                    format: 'json'
+                    format: Format.json
                 },
                 {
                     _op: 'noop'
                 }
             ]
         });
+
         harness = new SlicerTestHarness(job, {});
 
         await harness.initialize();
     });
+
     afterEach(async () => {
         await harness.shutdown();
     });
 
     it('properly slices JSON files.', async () => {
-        async function getSlices() {
-            const results = await harness.createSlices();
-            if (results[0]) {
-                slices.push(results[0]);
-                await getSlices();
-            }
-        }
         await getSlices();
         expect(slices.length).toBe(2);
-
         // Since slicing happens asynchronously, we need to check which slice has each
         // file. Just need to check the path on one slice.
         if (slices[0].path === path.join(testDataDir, 'array/array.json')) {
@@ -56,10 +61,10 @@ describe('File slicer json files', () => {
 });
 
 describe('File slicer non json files', () => {
-    const slices = [];
+    const slices: any[] = [];
 
-    let harness;
-    let testDataDir;
+    let harness: SlicerTestHarness;
+    let testDataDir: string;
 
     beforeEach(async () => {
         testDataDir = await fixtures.copyFixtureIntoTempDir(__dirname, 'file_reader/ldjson');
@@ -69,7 +74,7 @@ describe('File slicer non json files', () => {
                 {
                     _op: 'file_reader',
                     path: testDataDir,
-                    format: 'ldjson',
+                    format: Format.ldjson,
                     size: 750,
                     line_delimiter: '\n'
                 },
@@ -78,24 +83,28 @@ describe('File slicer non json files', () => {
                 }
             ]
         });
+
         harness = new SlicerTestHarness(job, {});
 
         await harness.initialize();
     });
+
     afterEach(async () => {
         await harness.shutdown();
     });
 
-    it('properly slices non-JSON files', async () => {
-        async function getSlices() {
-            const results = await harness.createSlices();
-            if (results[0]) {
-                slices.push(results);
-                await getSlices();
-            }
+    async function getSlices() {
+        const results = await harness.createSlices();
+        if (results[0]) {
+            slices.push(...results);
+            await getSlices();
         }
+    }
+
+    it('properly slices non-JSON files', async () => {
         await getSlices();
-        const flatSlices = [].concat(...slices);
+        const flatSlices: any[] = flatten(slices);
+
         expect(flatSlices.length).toBe(46);
         expect(flatSlices[22].length).toEqual(321);
         expect(flatSlices[45].length).toEqual(321);

@@ -47,7 +47,7 @@ export default class Schema extends ConvictSchema<FileExporterConfig> {
             include_header: {
                 doc: 'Determines whether or not to include column headers for the fields.',
                 default: false,
-                format: 'Boolean'
+                format: Boolean
             },
             format: {
                 doc: 'Format of the target object. Currently supports "json", "ldjson", "raw", "tsv", and'

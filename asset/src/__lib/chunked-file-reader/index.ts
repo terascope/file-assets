@@ -14,6 +14,7 @@ export function getOffsets(size: number, total: number, delimiter: string): Offs
     if (total === 0) {
         return [];
     }
+
     if (total < size) {
         return [{ length: total, offset: 0 }];
     }
@@ -26,10 +27,12 @@ export function getOffsets(size: number, total: number, delimiter: string): Offs
     for (let chunk = 1; chunk < fullChunks; chunk += 1) {
         chunks.push({ length, offset: (chunk * size) - delta });
     }
+
     // First chunk doesn't need +/- delta.
     chunks.unshift({ offset: 0, length: size });
     // When last chunk is not full chunk size.
     const lastChunk = total % size;
+
     if (lastChunk > 0) {
         chunks.push({ offset: (fullChunks * size) - delta, length: lastChunk + delta });
     }

@@ -5,8 +5,6 @@ import { decompress } from '../__lib/compression';
 import { SlicedFileResults } from '../__lib/slice';
 
 export default class HDFSFetcher extends Fetcher<HDFSReaderConfig> {
-    _initialized = false;
-    _shutdown = false;
     client: any;
 
     async initialize() {
@@ -14,6 +12,8 @@ export default class HDFSFetcher extends Fetcher<HDFSReaderConfig> {
         this.client = getClient(this.context, this.opConfig, 'hdfs_ha');
     }
 
+    // TODO: decompress returns a string, but it should be a dataentity
+    // @ts-ignore
     async fetch(slice: SlicedFileResults) {
         const reader = async (offset: number, length: number) => {
             const opts = {

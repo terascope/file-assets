@@ -23,7 +23,11 @@ class HDFSBatcher extends job_components_1.BatchProcessor {
         const extension = utils_1.isEmpty(opConfig.extension) ? undefined : opConfig.extension;
         this.client = job_components_1.getClient(context, clientConfig, 'hdfs_ha').client;
         this.workerId = context.cluster.worker.id;
-        this.nameOptions = { filePath: opConfig.path, extension };
+        this.nameOptions = {
+            filePath: opConfig.path,
+            extension,
+            filePerSlice: opConfig.file_per_slice
+        };
         // This will be incremented as the worker processes slices and used as a way to create
         // unique object names. Set to -1 so it can be incremented before any slice processing is
         // done

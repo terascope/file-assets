@@ -21,7 +21,11 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
         this.csvOptions = makeCsvOptions(opConfig);
         const extension = isEmpty(opConfig.extension) ? undefined : opConfig.extension;
 
-        this.nameOptions = { filePath: opConfig.path, extension };
+        this.nameOptions = {
+            filePath: opConfig.path,
+            extension,
+            filePerSlice: opConfig.file_per_slice
+        };
 
         // This will be incremented as the worker processes slices and used as a way to create
         // unique object names. Set to -1 so it can be incremented before any slice processing is
@@ -38,9 +42,7 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
             this.nameOptions,
             objPath.prefix
         );
-
         const outStr = await parseForFile(list, this.opConfig, this.csvOptions);
-
         // This will prevent empty objects from being added to the S3 store, which can cause
         // problems with the S3 reader
         if (!outStr || outStr.length === 0) {

@@ -10,7 +10,7 @@ var Compression;
     // eslint-disable-next-line no-shadow
     Compression["gzip"] = "gzip";
 })(Compression = exports.Compression || (exports.Compression = {}));
-async function compress(compression, data) {
+async function compress(data, compression) {
     switch (compression) {
         case 'lz4':
             return lz4_1.encode(data);
@@ -24,7 +24,6 @@ async function compress(compression, data) {
     }
 }
 exports.compress = compress;
-// TODO: why is this backwards
 async function decompress(data, compression) {
     switch (compression) {
         case 'lz4':

@@ -93,7 +93,8 @@ function csv(incomingData, logger, opConfig, metadata, slice) {
 exports.csv = csv;
 // tsv is just a specific case of csv
 function tsv(incomingData, logger, opConfig, metadata, slice) {
-    return csv(incomingData, logger, opConfig, metadata, slice);
+    const config = Object.assign({}, opConfig, { field_delimiter: '\t' });
+    return csv(incomingData, logger, config, metadata, slice);
 }
 exports.tsv = tsv;
 function json(incomingData, logger, opConfig, metadata) {
