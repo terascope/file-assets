@@ -3,10 +3,8 @@
     "version": "0.14.0",
     "description": "A set of processors for working with files",
     "dependencies": {
-        "@sindresorhus/fnv1a": "^2.0.0",
         "@terascope/job-components": "^0.29.2",
         "@terascope/utils": "^0.24.2",
-        "bluebird": "^3.7.2",
         "csvtojson": "^2.0.10",
         "fs-extra": "^8.1.0",
         "json2csv": "4.5.4",
