@@ -117,6 +117,7 @@ describe('File exporter processor', () => {
     });
 
     afterEach(async () => {
+        await cleanTestDir();
         if (harness) await harness.shutdown();
     });
 
