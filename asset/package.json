@@ -1,6 +1,6 @@
 {
     "name": "file",
-    "version": "0.13.0",
+    "version": "0.14.0",
     "description": "A set of processors for working with files",
     "dependencies": {
         "@sindresorhus/fnv1a": "^2.0.0",
