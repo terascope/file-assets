@@ -1,12 +1,29 @@
 import { Compression } from './compression';
-import { Format } from './parser';
+import { Format, CsvOptions } from './parser';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface CommonSchemaType {
-
+export interface FileConfig {
+    path: string;
+    extension: string;
+    compression: Compression;
+    field_delimiter: string;
+    line_delimiter: string;
+    fields: string[];
+    file_per_slice: boolean;
+    include_header: boolean;
+    format: Format;
 }
 
-export const commonReaderSchema = {
+// TODO: include_header vs remove_header, can they be unified??
+export interface ReaderFileConfig extends FileConfig {
+    size: number;
+    connection: string;
+    remove_header: boolean;
+    ignore_empty: boolean;
+    extra_args: CsvOptions;
+}
+
+const readerSchema = {
     size: {
         doc: 'Determines slice size in bytes',
         default: 10000000,
@@ -31,7 +48,7 @@ export const commonReaderSchema = {
     },
     connection: {
         doc: 'The connection from Terafoundation to use',
-        default: null,
+        default: 'default',
         format: 'required_String'
     },
 };
@@ -87,3 +104,5 @@ export const commonSchema = {
         format: Object.keys(Format)
     }
 };
+
+export const fileReaderSchema = Object.assign({}, commonSchema, readerSchema);

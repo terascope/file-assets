@@ -15,16 +15,7 @@ describe('S3 exporter Schema', () => {
                 schema.validate({
                     _op: 's3_exporter'
                 });
-            }).toThrowError(/Must include a bucket!/);
-        });
-
-        it('should throw an error if no connection is specified', () => {
-            expect(() => {
-                schema.validate({
-                    _op: 's3_exporter',
-                    path: 'chillywilly'
-                });
-            }).toThrowError(/Validation failed for operation config: s3_exporter - connection: This field is required and must by of type string/);
+            }).toThrowError();
         });
 
         it('should not throw an error if valid config is given', () => {
