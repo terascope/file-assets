@@ -1,35 +1,32 @@
-import { Fetcher } from '@terascope/job-components';
+import { Fetcher, WorkerContext, ExecutionConfig } from '@terascope/job-components';
 import fse from 'fs-extra';
 import { FileConfig } from './interfaces';
-import { getChunk } from '../__lib/chunked-file-reader';
+import { SlicedFileResults } from '../__lib/interfaces';
+import { getChunk, FetcherFn } from '../__lib/chunked-file-reader';
 import { decompress } from '../__lib/compression';
 
 export default class FileFetcher extends Fetcher<FileConfig> {
-    _initialized = false;
-    _shutdown = false
+    reader: FetcherFn;
 
-    async initialize() {
-        this._initialized = true;
-        return super.initialize();
+    constructor(context: WorkerContext, opConfig: FileConfig, exConfig: ExecutionConfig) {
+        super(context, opConfig, exConfig);
+        this.reader = this.fileReader.bind(this);
     }
 
-    async shutdown() {
-        this._shutdown = true;
-        return super.shutdown();
+    async fileReader(slice: SlicedFileResults) {
+        const { path, length, offset } = slice;
+        const fd = await fse.open(path, 'r');
+
+        try {
+            const buf = Buffer.alloc(2 * this.opConfig.size);
+            const { bytesRead } = await fse.read(fd, buf, 0, length, offset);
+            return decompress(buf.slice(0, bytesRead), this.opConfig.compression);
+        } finally {
+            fse.close(fd);
+        }
     }
 
-    async fetch(slice: any) {
-        const reader = async (offset: number, length: number) => {
-            const fd = await fse.open(slice.path, 'r');
-            try {
-                const buf = Buffer.alloc(2 * this.opConfig.size);
-                const { bytesRead } = await fse.read(fd, buf, 0, length, offset);
-                return decompress(buf.slice(0, bytesRead), this.opConfig.compression);
-            } finally {
-                fse.close(fd);
-            }
-        };
-        // Passing the slice in as the `metadata`. This will include the path, offset, and length
-        return getChunk(reader, slice, this.opConfig, this.logger, slice);
+    async fetch(slice: SlicedFileResults) {
+        return getChunk(this.reader, this.opConfig, this.logger, slice);
     }
 }

@@ -1,13 +1,7 @@
 import { gzip, ungzip } from 'node-gzip';
 // @ts-ignore
 import { encode, decode } from 'lz4';
-
-export enum Compression {
-    none = 'none',
-    lz4 = 'lz4',
-    // eslint-disable-next-line no-shadow
-    gzip = 'gzip'
-}
+import { Compression } from './interfaces';
 
 export async function compress(data: any, compression: Compression): Promise<Buffer| any> {
     switch (compression) {

@@ -1,5 +1,4 @@
-import { Compression } from './compression';
-import { Format, CsvOptions } from './parser';
+import { Compression, Format, CSVOptions } from './interfaces';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface FileConfig {
@@ -20,7 +19,7 @@ export interface ReaderFileConfig extends FileConfig {
     connection: string;
     remove_header: boolean;
     ignore_empty: boolean;
-    extra_args: CsvOptions;
+    extra_args: CSVOptions;
 }
 
 const readerSchema = {

@@ -1,34 +1,12 @@
 import json2csv, { parse } from 'json2csv';
 import { DataEntity, TSError } from '@terascope/utils';
-import { compress, Compression } from './compression';
+import {
+    CSVOptions, CSVConfig, ParseOptions, Format
+} from './interfaces';
+import { compress } from './compression';
 
-export type CsvOptions = json2csv.Options<any>;
-
-export enum Format {
-    json = 'json',
-    ldjson = 'ldjson',
-    raw = 'raw',
-    tsv = 'tsv',
-    csv = 'csv',
-}
-
-export interface CSVOptions {
-    fields: string[];
-    include_header: boolean;
-    line_delimiter: string;
-    field_delimiter: string;
-    format: Format;
-}
-
-export interface ParseOptions {
-    fields: string[];
-    line_delimiter: string;
-    format: Format;
-    compression: Compression;
-}
-
-export function makeCsvOptions(config: CSVOptions) {
-    const csvOptions: CsvOptions = {};
+export function makeCsvOptions(config: CSVConfig) {
+    const csvOptions: CSVOptions = {};
 
     if (config.fields.length !== 0) {
         csvOptions.fields = config.fields;
@@ -76,7 +54,7 @@ function getFormatFn(format: Format): FormatFn {
 }
 
 export async function parseForFile(
-    slice: DataEntity[] | null | undefined, opConfig: ParseOptions, csvOptions: CsvOptions
+    slice: DataEntity[] | null | undefined, opConfig: ParseOptions, csvOptions: CSVOptions
 ) {
     // null or empty slices get an empty output and will get filtered out below
     if (!slice || !slice.length) return null;

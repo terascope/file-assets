@@ -1,7 +1,7 @@
 import path from 'path';
 import { newTestJobConfig, SlicerTestHarness } from 'teraslice-test-harness';
 import { flatten } from '@terascope/job-components';
-import { Format } from '../../asset/src/__lib/parser';
+import { Format } from '../../asset/src/__lib/interfaces';
 // @ts-ignore
 const fixtures = require('jest-fixtures');
 

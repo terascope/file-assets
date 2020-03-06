@@ -3,15 +3,16 @@ import {
 } from '@terascope/job-components';
 import { isEmpty } from '@terascope/utils';
 import { S3ExportConfig } from './interfaces';
-import { parseForFile, makeCsvOptions, CsvOptions } from '../__lib/parser';
+import { parseForFile, makeCsvOptions } from '../__lib/parser';
 import { batchSlice } from '../__lib/slice';
-import { getName, parsePath, NameOptions } from '../__lib/fileName';
+import { getName, parsePath } from '../__lib/fileName';
+import { NameOptions, CSVOptions } from '../__lib/interfaces';
 
 export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
     client: any;
     sliceCount = -1;
     workerId: string;
-    csvOptions: CsvOptions;
+    csvOptions: CSVOptions;
     nameOptions: NameOptions;
 
     constructor(context: WorkerContext, opConfig: S3ExportConfig, exConfig: ExecutionConfig) {

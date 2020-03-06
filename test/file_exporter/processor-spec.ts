@@ -3,7 +3,7 @@ import { DataEntity } from '@terascope/utils';
 import path from 'path';
 import fs from 'fs';
 import { remove, ensureDir } from 'fs-extra';
-import { Format } from '../../asset/src/__lib/parser';
+import { Format } from '../../asset/src/__lib/interfaces';
 
 function getTestFilePath(filename?: string) {
     if (filename) return path.join(__dirname, 'test_output/test', filename);

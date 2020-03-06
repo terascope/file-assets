@@ -1,10 +1,11 @@
 import csvToJson from 'csvtojson';
 import { DataEntity, Logger } from '@terascope/utils';
+import { SlicedFileResults, ProcessorConfig } from '../interfaces';
 
 // This function takes the raw data and breaks it into records, getting rid
 // of anything preceding the first complete record if the data does not
 // start with a complete record.
-function _toRecords(rawData: string, delimiter: string, slice: any) {
+function splitChunks(rawData: string, delimiter: string, slice: SlicedFileResults) {
     // Since slices with a non-zero chunk offset grab the character
     // immediately preceding the main chunk, if one of those chunks has a
     // delimiter as the first or second character, it means the chunk starts
@@ -24,18 +25,21 @@ function _toRecords(rawData: string, delimiter: string, slice: any) {
     if (slice.offset === 0) {
         return outputData.split(delimiter);
     }
+
     return outputData.split(delimiter).slice(1);
 }
 
 // No parsing, leaving to reader or a downstream op.
-export function raw(incomingData: any, logger: Logger, opConfig: any, metadata: any, slice: any) {
-    const data = _toRecords(incomingData, opConfig.line_delimiter, slice);
+export async function raw(
+    incomingData: string, logger: Logger, opConfig: ProcessorConfig, slice: SlicedFileResults
+): Promise<(DataEntity | null)[]> {
+    const data = splitChunks(incomingData, opConfig.line_delimiter, slice);
 
     return data.map((record: any) => {
         try {
             return DataEntity.make(
                 { data: record },
-                metadata
+                slice
             );
         } catch (err) {
             if (opConfig._dead_letter_action === 'log') {
@@ -48,7 +52,9 @@ export function raw(incomingData: any, logger: Logger, opConfig: any, metadata: 
     });
 }
 
-export function csv(incomingData: any, logger: Logger, opConfig: any, metadata: any, slice: any) {
+export async function csv(
+    incomingData: string, logger: Logger, opConfig: ProcessorConfig, slice: SlicedFileResults
+): Promise<(DataEntity | null)[]> {
     const csvParams = Object.assign({
         delimiter: opConfig.field_delimiter,
         headers: opConfig.fields,
@@ -59,12 +65,13 @@ export function csv(incomingData: any, logger: Logger, opConfig: any, metadata: 
     }, opConfig.extra_args);
 
     let foundHeader = false;
-    const data = _toRecords(incomingData, opConfig.line_delimiter, slice);
+    const data = splitChunks(incomingData, opConfig.line_delimiter, slice);
 
-    async function call(record: any) {
+    async function processChunk(record: string) {
         try {
-            let parsedLine = await csvToJson(csvParams)
-                .fromString(record).then((parsedData) => parsedData[0]);
+            const cvsJson = await csvToJson(csvParams).fromString(record);
+            let parsedLine = cvsJson[0];
+
             // csvToJson trim applied inconsistently so implemented this function
             Object.keys(parsedLine).forEach((key) => {
                 parsedLine[key] = parsedLine[key].trim();
@@ -80,7 +87,7 @@ export function csv(incomingData: any, logger: Logger, opConfig: any, metadata: 
                 return DataEntity.fromBuffer(
                     JSON.stringify(parsedLine),
                     opConfig,
-                    metadata
+                    slice
                 );
             }
             return null;
@@ -94,16 +101,21 @@ export function csv(incomingData: any, logger: Logger, opConfig: any, metadata: 
         }
     }
 
-    return Promise.all(data.map(call));
+    const actions = data.map(processChunk);
+    return Promise.all(actions);
 }
 
 // tsv is just a specific case of csv
-export function tsv(incomingData: any, logger: Logger, opConfig: any, metadata: any, slice: any) {
+export async function tsv(
+    incomingData: string, logger: Logger, opConfig: ProcessorConfig, slice: SlicedFileResults
+): Promise<(DataEntity | null)[]> {
     const config = Object.assign({}, opConfig, { field_delimiter: '\t' });
-    return csv(incomingData, logger, config, metadata, slice);
+    return csv(incomingData, logger, config, slice);
 }
 
-export function json(incomingData: any, logger: Logger, opConfig: any, metadata: any) {
+export async function json(
+    incomingData: string, logger: Logger, opConfig: ProcessorConfig, slice: SlicedFileResults
+): Promise<(DataEntity | null)[]> {
     const data = JSON.parse(incomingData);
     if (Array.isArray(data)) {
         return data.map((record) => {
@@ -111,7 +123,7 @@ export function json(incomingData: any, logger: Logger, opConfig: any, metadata:
                 return DataEntity.fromBuffer(
                     JSON.stringify(record),
                     opConfig,
-                    metadata
+                    slice
                 );
             } catch (err) {
                 if (opConfig._dead_letter_action === 'log') {
@@ -127,7 +139,7 @@ export function json(incomingData: any, logger: Logger, opConfig: any, metadata:
         return [DataEntity.fromBuffer(
             JSON.stringify(data),
             opConfig,
-            metadata
+            slice
         )];
     } catch (err) {
         if (opConfig._dead_letter_action === 'log') {
@@ -135,20 +147,20 @@ export function json(incomingData: any, logger: Logger, opConfig: any, metadata:
         } else if (opConfig._dead_letter_action === 'throw') {
             throw err;
         }
-        return null;
+        return [null];
     }
 }
 
-export function ldjson(
-    incomingData: any, logger: Logger, opConfig: any, metadata: any, slice: any
-) {
-    const data = _toRecords(incomingData, opConfig.line_delimiter, slice);
+export async function ldjson(
+    incomingData: string, logger: Logger, opConfig: ProcessorConfig, slice: SlicedFileResults
+): Promise<(DataEntity | null)[]> {
+    const data = splitChunks(incomingData, opConfig.line_delimiter, slice);
     return data.map((record: any) => {
         try {
             return DataEntity.fromBuffer(
                 record,
                 opConfig,
-                metadata
+                slice
             );
         } catch (err) {
             if (opConfig._dead_letter_action === 'log') {

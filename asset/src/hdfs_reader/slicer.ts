@@ -4,7 +4,8 @@ import {
 import { TSError, flatten } from '@terascope/utils';
 import path from 'path';
 import { HDFSReaderConfig } from './interfaces';
-import { sliceFile, SlicedFileResults, SliceConfig } from '../__lib/slice';
+import { SliceConfig, SlicedFileResults } from '../__lib/interfaces';
+import { sliceFile } from '../__lib/slice';
 
 export default class FileSlicer extends Slicer<HDFSReaderConfig> {
     client: any;

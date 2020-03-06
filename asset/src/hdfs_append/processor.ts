@@ -4,15 +4,16 @@ import {
 import path from 'path';
 import { TSError, isEmpty } from '@terascope/utils';
 import { HDFSConfig } from './interfaces';
-import { parseForFile, CsvOptions, makeCsvOptions } from '../__lib/parser';
+import { parseForFile, makeCsvOptions } from '../__lib/parser';
 import { batchSlice } from '../__lib/slice';
-import { getName, NameOptions } from '../__lib/fileName';
+import { getName } from '../__lib/fileName';
+import { NameOptions, CSVOptions } from '../__lib/interfaces';
 
 export default class HDFSBatcher extends BatchProcessor<HDFSConfig> {
     sliceCount: number;
     client: any;
     workerId: string;
-    csvOptions: CsvOptions;
+    csvOptions: CSVOptions;
     nameOptions: NameOptions;
 
     constructor(context: WorkerContext, opConfig: HDFSConfig, executionConfig: ExecutionConfig) {

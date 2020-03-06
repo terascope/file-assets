@@ -2,15 +2,16 @@ import { BatchProcessor, WorkerContext, ExecutionConfig } from '@terascope/job-c
 import fse from 'fs-extra';
 import { TSError, DataEntity, isEmpty } from '@terascope/utils';
 import { FileExporterConfig } from './interfaces';
-import { getName, NameOptions } from '../__lib/fileName';
+import { getName } from '../__lib/fileName';
 import { batchSlice } from '../__lib/slice';
-import { parseForFile, CsvOptions, makeCsvOptions } from '../__lib/parser';
+import { parseForFile, makeCsvOptions } from '../__lib/parser';
+import { NameOptions, CSVOptions } from '../__lib/interfaces';
 
 export default class FileBatcher extends BatchProcessor<FileExporterConfig> {
     workerId: string;
     sliceCount: number;
     firstSlice: boolean;
-    csvOptions: CsvOptions;
+    csvOptions: CSVOptions;
     nameOptions: NameOptions;
 
     constructor(

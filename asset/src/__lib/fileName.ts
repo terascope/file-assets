@@ -1,10 +1,5 @@
 import path from 'path';
-
-export interface NameOptions {
-    filePath: string;
-    filePerSlice?: boolean;
-    extension?: string;
-}
+import { NameOptions } from './interfaces';
 
 export function getName(id: string, count: number, config: NameOptions, pathOverride?: string) {
     // Can't use path.join() here since the path might include a filename prefix

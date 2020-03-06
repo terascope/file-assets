@@ -1,5 +1,5 @@
 import { newTestJobConfig, SlicerTestHarness } from 'teraslice-test-harness';
-import { SlicedFileResults } from '../../asset/src/__lib/slice';
+import { SlicedFileResults } from '../../asset/src/__lib/interfaces';
 
 describe('S3 slicer when slicing JSON objects', () => {
     let s3ParamsFirstRequest: any;

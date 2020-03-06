@@ -1,13 +1,12 @@
+import { Logger, cloneDeep } from '@terascope/utils';
 import * as chunkFormatter from './formatters';
+import { SlicedFileResults, ProcessorConfig, Offsets } from '../interfaces';
 
 export function _averageRecordSize(array: string[]) {
     return Math.floor(array.reduce((accum, str) => accum + str.length, 0) / array.length);
 }
 
-export interface Offsets {
-    length: number;
-    offset: number;
-}
+export type FetcherFn = (slice: SlicedFileResults) => Promise<string>
 
 // [{offset, length}] of chunks `size` assuming `delimiter` for a file with `total` size.
 export function getOffsets(size: number, total: number, delimiter: string): Offsets[] {
@@ -40,15 +39,22 @@ export function getOffsets(size: number, total: number, delimiter: string): Offs
     return chunks;
 }
 
-async function getMargin(readerClient: any, delimiter: string, offset: number, length: number) {
+async function getMargin(readerClient: FetcherFn, slice: SlicedFileResults, delimiter: string) {
+    const { offset, length } = slice;
     let margin = '';
     let currentOffset = offset;
+
     while (margin.indexOf(delimiter) === -1) {
         // reader clients must return false-y when nothing more to read.
-        const chunk = await readerClient(currentOffset, length);
+        const newSlice = cloneDeep(slice);
+        newSlice.offset = currentOffset;
+
+        const chunk = await readerClient(newSlice);
+
         if (!chunk) {
             return margin.split(delimiter)[0];
         }
+
         margin += chunk;
         currentOffset += length;
     }
@@ -59,7 +65,7 @@ async function getMargin(readerClient: any, delimiter: string, offset: number, l
 // This function will grab the chunk of data specified by the slice plus an
 // extra margin if the slice does not end with the delimiter.
 export async function getChunk(
-    readerClient: any, slice: any, opConfig: any, logger: any, metadata: any
+    readerClient: FetcherFn, opConfig: ProcessorConfig, logger: Logger, slice: SlicedFileResults,
 ) {
     const delimiter = opConfig.line_delimiter;
 
@@ -71,8 +77,7 @@ export async function getChunk(
         }
     }
 
-    const data = await readerClient(slice.offset, slice.length);
-
+    const data = await readerClient(slice);
     let collectedData = data;
 
     if (data.endsWith(delimiter)) {
@@ -85,15 +90,17 @@ export async function getChunk(
         // Want to minimize reads since will typically be over the
         // network. Using twice the average record size as a heuristic.
         const avgSize = _averageRecordSize(data.split(delimiter));
-        const offset = slice.offset + slice.length;
-        const length = 2 * avgSize;
-        collectedData += await getMargin(readerClient, delimiter, offset, length);
+        const newSlice = cloneDeep(slice);
+        newSlice.offset = slice.offset + slice.length;
+        newSlice.length = 2 * avgSize;
+
+        collectedData += await getMargin(readerClient, newSlice, delimiter);
     }
 
     const results = await chunkFormatter[opConfig.format](
-        collectedData, logger, opConfig, metadata, slice
+        collectedData, logger, opConfig, slice
     );
 
-    // TODO: what is this filter here for?
-    return results.filter((record: any) => record);
+    if (results) return results.filter(Boolean);
+    return results;
 }

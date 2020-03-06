@@ -5,7 +5,8 @@ import { TSError, flatten } from '@terascope/utils';
 import path from 'path';
 import fse from 'fs-extra';
 import { FileConfig } from './interfaces';
-import { sliceFile, SliceConfig, SlicedFileResults } from '../__lib/slice';
+import { SliceConfig, SlicedFileResults } from '../__lib/interfaces';
+import { sliceFile } from '../__lib/slice';
 
 export default class FileSlicer extends Slicer {
     directories: string[];

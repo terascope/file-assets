@@ -4,8 +4,9 @@ import {
 import { flatten } from '@terascope/utils';
 import { S3ReaderConfig } from './interfaces';
 // import { getOffsets } from '@terascope/chunked-file-reader';
-import { sliceFile, SliceConfig } from '../__lib/slice';
+import { sliceFile } from '../__lib/slice';
 import { parsePath } from '../__lib/fileName';
+import { SliceConfig } from '../__lib/interfaces';
 
 export default class S3Slicer extends Slicer<S3ReaderConfig> {
     client: any;

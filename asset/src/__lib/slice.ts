@@ -1,22 +1,9 @@
 import { DataEntity } from '@terascope/utils';
-import { getOffsets, Offsets } from './chunked-file-reader';
-import { Format } from './parser';
-
-export interface SlicedFileResults extends Offsets {
-    path: string;
-    total: string;
-}
-
-export interface SliceConfig {
-    file_per_slice: boolean;
-    format: Format;
-    size: number;
-    line_delimiter: string;
-}
+import { getOffsets } from './chunked-file-reader';
+import { SliceConfig, SlicedFileResults } from './interfaces';
 
 export function sliceFile(file: any, config: SliceConfig): SlicedFileResults[] {
     const slices: SlicedFileResults[] = [];
-
     if (config.format === 'json' || config.file_per_slice) {
         slices.push({
             path: file.path,
