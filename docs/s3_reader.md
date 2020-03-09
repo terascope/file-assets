@@ -125,7 +125,7 @@ s3://staging
   "operations": [
   {
     "_op": "s3_reader",
-    "bucket": "staging",
+    "path": "staging",
     "size": 100000,
     "format": "ldjson",
     "connector": "staging_s3"
@@ -142,7 +142,7 @@ s3://staging
   }
   ],
   "assets": [
-    "file-assets",
+    "file",
     "elasticsearch"
   ]
 }

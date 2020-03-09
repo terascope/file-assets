@@ -133,7 +133,7 @@ The directory has this structure:
   }
   ],
   "assets": [
-    "file-assets",
+    "file",
     "elasticsearch"
   ]
 }
