@@ -192,5 +192,9 @@ describe('S3 slicer when slicing other objects', () => {
         expect(record4).toBeDefined();
         expect(record4.offset).toEqual(0);
         expect(record4.length).toEqual(500);
+
+        const [allDone] = await harness.createSlices();
+
+        expect(allDone).toBeNull();
     });
 });

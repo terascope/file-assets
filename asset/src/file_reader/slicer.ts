@@ -103,6 +103,6 @@ export default class FileSlicer extends Slicer {
         if (this.directories.length > 0) {
             return this.getFilePaths(this.directories.shift() as string);
         }
-        return [];
+        return null;
     }
 }
