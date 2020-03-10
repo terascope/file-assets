@@ -42,13 +42,14 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
 
     async ensureBucket() {
         const { path } = this.opConfig;
-        const query = { Bucket: path };
+        const { bucket } = parsePath(path);
+        const query = { Bucket: bucket };
 
         try {
             await this.client.headBucket_Async(query);
         } catch (_err) {
             try {
-                await this.client.createBucket_Async({ Bucket: path });
+                await this.client.createBucket_Async(query);
             } catch (err) {
                 throw new TSError(err, { reason: `Could not setup bucket ${path}}` });
             }
