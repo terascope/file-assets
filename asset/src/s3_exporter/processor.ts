@@ -1,8 +1,8 @@
 import {
     BatchProcessor, getClient, ExecutionConfig, WorkerContext, DataEntity
 } from '@terascope/job-components';
-import { isEmpty } from '@terascope/utils';
-import { S3ExportConfig } from './interfaces';
+import { isEmpty, TSError } from '@terascope/utils';
+import { S3ExportConfig, S3PutConfig } from './interfaces';
 import { parseForFile, makeCsvOptions } from '../__lib/parser';
 import { batchSlice } from '../__lib/slice';
 import { getName, parsePath } from '../__lib/fileName';
@@ -35,6 +35,26 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
         // Allows this to use the externalized name builder
     }
 
+    async initialize() {
+        await super.initialize();
+        await this.ensureBucket();
+    }
+
+    async ensureBucket() {
+        const { path } = this.opConfig;
+        const query = { Bucket: path };
+
+        try {
+            await this.client.headBucket_Async(query);
+        } catch (_err) {
+            try {
+                await this.client.createBucket_Async({ Bucket: path });
+            } catch (err) {
+                throw new TSError(err, { reason: `Could not setup bucket ${path}}` });
+            }
+        }
+    }
+
     async searchS3(filename: string, list: DataEntity[]) {
         const objPath = parsePath(filename);
         const objName = getName(
@@ -50,7 +70,7 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
             return [];
         }
 
-        const params = {
+        const params: S3PutConfig = {
             Bucket: objPath.bucket,
             Key: objName,
             Body: outStr

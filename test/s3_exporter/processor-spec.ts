@@ -4,21 +4,35 @@ import { DataEntity } from '@terascope/utils';
 // @ts-ignore
 import lz4 from 'lz4';
 import { ungzip } from 'node-gzip';
+import { S3PutConfig } from '../../asset/src/s3_exporter/interfaces';
 
 describe('S3 exporter processor', () => {
     let harness: WorkerTestHarness;
     let workerId: string;
     let data: DataEntity[];
-
-    let s3PutParams: any;
+    let routeSlice: DataEntity[];
+    const metaRoute1 = '0';
+    const metaRoute2 = '1';
+    // eslint-disable-next-line prefer-const
+    let bucketExists = true;
+    let createBucketCalled = false;
+    let s3PutParams: S3PutConfig[] = [];
 
     const s3Client: TestClientConfig = {
         type: 's3',
         endpoint: 'my-s3-connector',
         create: () => ({
             client: {
-                putObject_Async: (putParams: any) => {
-                    s3PutParams = putParams;
+                putObject_Async: (putParams: S3PutConfig) => {
+                    s3PutParams.push(putParams);
+                    return Promise.resolve();
+                },
+                headBucket_Async: (_params: { Bucket: string }) => {
+                    if (!bucketExists) throw new Error('I exists');
+                    return Promise.resolve();
+                },
+                createBucket_Async: (_params: { Bucket: string }) => {
+                    createBucketCalled = true;
                     return Promise.resolve();
                 }
             }
@@ -67,11 +81,48 @@ describe('S3 exporter processor', () => {
             field4: 4,
             field5: 5
         })];
-        s3PutParams = undefined;
+
+        routeSlice = [
+            DataEntity.make(
+                {
+                    field1: 'first',
+
+                },
+                { 'standard:route': metaRoute1 }
+            ),
+            DataEntity.make(
+                {
+                    field1: 'second',
+                },
+                { 'standard:route': metaRoute2 }
+            )
+        ];
     });
 
     afterEach(async () => {
+        s3PutParams = [];
+        createBucketCalled = false;
+        bucketExists = true;
         if (harness) await harness.shutdown();
+    });
+
+    it('if bucket does not exists, it will create one', async () => {
+        const config = { format: 'json' };
+        bucketExists = false;
+        const test = await makeTest(config);
+
+        await test.runSlice(routeSlice);
+
+        expect(createBucketCalled).toBeTruthy();
+    });
+
+    it('if bucket exists, create will not be called', async () => {
+        const config = { format: 'json' };
+        const test = await makeTest(config);
+
+        await test.runSlice(routeSlice);
+
+        expect(createBucketCalled).toBeFalsy();
     });
 
     it('generates a csv object', async () => {
@@ -79,9 +130,11 @@ describe('S3 exporter processor', () => {
 
         await test.runSlice(data);
 
-        expect(s3PutParams.Body).toEqual('0,1,2,3,4\n');
-        expect(s3PutParams.Key).toEqual(`testing/${workerId}.0`);
-        expect(s3PutParams.Bucket).toEqual('data-store');
+        const results = s3PutParams.shift() as S3PutConfig;
+
+        expect(results.Body).toEqual('0,1,2,3,4\n');
+        expect(results.Key).toEqual(`testing/${workerId}.0`);
+        expect(results.Bucket).toEqual('data-store');
     });
 
     it('generates a tsv object', async () => {
@@ -90,9 +143,11 @@ describe('S3 exporter processor', () => {
 
         await test.runSlice(data);
 
-        expect(s3PutParams.Body).toEqual('0\t1\t2\t3\t4\n');
-        expect(s3PutParams.Key).toEqual(`testing/${workerId}.0`);
-        expect(s3PutParams.Bucket).toEqual('data-store');
+        const results = s3PutParams.shift() as S3PutConfig;
+
+        expect(results.Body).toEqual('0\t1\t2\t3\t4\n');
+        expect(results.Key).toEqual(`testing/${workerId}.0`);
+        expect(results.Bucket).toEqual('data-store');
     });
 
     it('generates a tsv/csv object with an empty slice', async () => {
@@ -100,7 +155,9 @@ describe('S3 exporter processor', () => {
 
         await test.runSlice(emptySlice);
 
-        expect(s3PutParams).toBeUndefined();
+        const results = s3PutParams.shift() as S3PutConfig;
+
+        expect(results).toBeUndefined();
     });
 
     it('generates a raw object', async () => {
@@ -109,9 +166,11 @@ describe('S3 exporter processor', () => {
 
         await test.runSlice(rawSlice);
 
-        expect(s3PutParams.Body).toEqual('This is a sentence.\n');
+        const results = s3PutParams.shift() as S3PutConfig;
+
+        expect(results.Body).toEqual('This is a sentence.\n');
         // The previous test will still increment the slice count
-        expect(s3PutParams.Key).toEqual(`testing/${workerId}.0`);
+        expect(results.Key).toEqual(`testing/${workerId}.0`);
     });
 
     it('generates an ldjson object and exludes a field', async () => {
@@ -120,8 +179,10 @@ describe('S3 exporter processor', () => {
 
         await test.runSlice(data);
 
-        expect(s3PutParams.Body).toEqual('{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4}\n');
-        expect(s3PutParams.Key).toEqual(`testing/${workerId}.0`);
+        const results = s3PutParams.shift() as S3PutConfig;
+
+        expect(results.Body).toEqual('{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4}\n');
+        expect(results.Key).toEqual(`testing/${workerId}.0`);
     });
 
     it('generates an ldjson object', async () => {
@@ -130,8 +191,10 @@ describe('S3 exporter processor', () => {
 
         await test.runSlice(data);
 
-        expect(s3PutParams.Body).toEqual('{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4,"field5":5}\n');
-        expect(s3PutParams.Key).toEqual(`testing/${workerId}.0`);
+        const results = s3PutParams.shift() as S3PutConfig;
+
+        expect(results.Body).toEqual('{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4,"field5":5}\n');
+        expect(results.Key).toEqual(`testing/${workerId}.0`);
     });
 
     it('generates a json object', async () => {
@@ -140,8 +203,10 @@ describe('S3 exporter processor', () => {
 
         await test.runSlice(data);
 
-        expect(s3PutParams.Body).toEqual('[{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4,"field5":5}]\n');
-        expect(s3PutParams.Key).toEqual(`testing/${workerId}.0`);
+        const results = s3PutParams.shift() as S3PutConfig;
+
+        expect(results.Body).toEqual('[{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4,"field5":5}]\n');
+        expect(results.Key).toEqual(`testing/${workerId}.0`);
     });
 
     it('generates lz4 compressed object', async () => {
@@ -150,9 +215,11 @@ describe('S3 exporter processor', () => {
 
         await test.runSlice(data);
 
-        expect(lz4.decode(Buffer.from(s3PutParams.Body)).toString()).toEqual('[{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4,"field5":5}]\n');
+        const results = s3PutParams.shift() as S3PutConfig;
+
+        expect(lz4.decode(Buffer.from(results.Body)).toString()).toEqual('[{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4,"field5":5}]\n');
         // No file extensions since not configures in opConfig
-        expect(s3PutParams.Key).toEqual(`testing/${workerId}.0`);
+        expect(results.Key).toEqual(`testing/${workerId}.0`);
     });
 
     it('generates gzip compressed object', async () => {
@@ -161,11 +228,36 @@ describe('S3 exporter processor', () => {
 
         await test.runSlice(data);
 
-        const decompressedObj = await ungzip(Buffer.from(s3PutParams.Body));
-        const results = decompressedObj.toString();
+        const results = s3PutParams.shift() as S3PutConfig;
 
-        expect(results).toEqual('[{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4,"field5":5}]\n');
+        const decompressedObj = await ungzip(Buffer.from(results.Body));
+        const expectedBody = decompressedObj.toString();
+
+        expect(expectedBody).toEqual('[{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4,"field5":5}]\n');
         // No file extensions since not configures in opConfig
-        expect(s3PutParams.Key).toEqual(`testing/${workerId}.0`);
+        expect(results.Key).toEqual(`testing/${workerId}.0`);
+    });
+
+    it('can respect metadata routing', async () => {
+        const config = { format: 'json' };
+        const test = await makeTest(config);
+
+        await test.runSlice(routeSlice);
+
+        const results1 = s3PutParams.shift() as S3PutConfig;
+
+        const expectedBody = results1.Body;
+
+        expect(expectedBody).toEqual('[{"field1":"first"}]\n');
+        // No file extensions since not configures in opConfig
+        expect(results1.Key).toEqual(`testing/0/${workerId}.0`);
+
+        const results2 = s3PutParams.shift() as S3PutConfig;
+
+        const expectedBody2 = results2.Body;
+
+        expect(expectedBody2).toEqual('[{"field1":"second"}]\n');
+        // No file extensions since not configures in opConfig
+        expect(results2.Key).toEqual(`testing/1/${workerId}.0`);
     });
 });

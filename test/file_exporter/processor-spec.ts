@@ -458,7 +458,7 @@ describe('File exporter processor', () => {
         );
     });
 
-    it('can route', async () => {
+    it('can respect metadata routing', async () => {
         const config = {
             fields: ['field1'],
             field_delimiter: ',',
