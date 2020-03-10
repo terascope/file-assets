@@ -13,17 +13,20 @@ export default class FileBatcher extends BatchProcessor<FileExporterConfig> {
     firstSlice: boolean;
     csvOptions: CSVOptions;
     nameOptions: NameOptions;
+    pathList = new Map<string, boolean>();
 
     constructor(
         context: WorkerContext, opConfig: FileExporterConfig, executionConfig: ExecutionConfig
     ) {
         super(context, opConfig, executionConfig);
         const extension = isEmpty(opConfig.extension) ? undefined : opConfig.extension;
+        const { path } = opConfig;
         this.nameOptions = {
-            filePath: opConfig.path,
+            filePath: path,
             extension,
             filePerSlice: opConfig.file_per_slice
         };
+        this.pathList.set(path, true);
         this.workerId = context.cluster.worker.id;
         // Coerce `file_per_slice` for JSON format or compressed output
         if ((opConfig.format === 'json') || (opConfig.compression !== 'none')) {
@@ -37,6 +40,12 @@ export default class FileBatcher extends BatchProcessor<FileExporterConfig> {
     }
 
     async process(path: string, list: DataEntity[]) {
+        // we make dir path if route does not exist
+        if (!this.pathList.has(path)) {
+            await fse.ensureDir(path);
+            this.pathList.set(path, true);
+        }
+
         const fileName = getName(this.workerId, this.sliceCount, this.nameOptions, path);
         const outStr = await parseForFile(list, this.opConfig, this.csvOptions);
 

@@ -63,7 +63,6 @@ export async function parseForFile(
     // let outStr = '';
     const fn = getFormatFn(opConfig.format);
     const outStr = fn(slice, opConfig, csvOptions);
-
     // Let the exporters prevent empty slices from making it through
     if (!outStr || outStr.length === 0 || outStr === opConfig.line_delimiter) {
         return null;

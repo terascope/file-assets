@@ -2,7 +2,7 @@ import { WorkerTestHarness } from 'teraslice-test-harness';
 import { DataEntity } from '@terascope/utils';
 import path from 'path';
 import fs from 'fs';
-import { remove, ensureDir } from 'fs-extra';
+import { remove, ensureDir, readJson } from 'fs-extra';
 import { Format } from '../../asset/src/__lib/interfaces';
 
 function getTestFilePath(filename?: string) {
@@ -26,6 +26,9 @@ describe('File exporter processor', () => {
     let data3: DataEntity[];
     let complexData: DataEntity[];
     let emptySlice: DataEntity[];
+    let routeSlice: DataEntity[];
+    const metaRoute1 = '0';
+    const metaRoute2 = '1';
 
     async function makeTest(config?: any) {
         const _op = {
@@ -111,6 +114,22 @@ describe('File exporter processor', () => {
                 ],
                 field2: 66
             })
+        ];
+
+        routeSlice = [
+            DataEntity.make(
+                {
+                    field1: 'first',
+
+                },
+                { 'standard:route': metaRoute1 }
+            ),
+            DataEntity.make(
+                {
+                    field1: 'second',
+                },
+                { 'standard:route': metaRoute2 }
+            )
         ];
 
         emptySlice = [];
@@ -437,5 +456,36 @@ describe('File exporter processor', () => {
             + 'record2\n'
             + 'record3\n'
         );
+    });
+
+    it('can route', async () => {
+        const config = {
+            fields: ['field1'],
+            field_delimiter: ',',
+            include_header: false,
+            file_per_slice: false,
+            line_delimiter: '\n',
+            format: Format.json
+        };
+        const test = await makeTest(config);
+
+        const expectedResults1 = Object.assign({}, routeSlice[0]);
+        const expectedResults2 = Object.assign({}, routeSlice[1]);
+
+        await test.runSlice(routeSlice);
+
+        const routePath1 = getTestFilePath(metaRoute1);
+        const routePath2 = getTestFilePath(metaRoute2);
+
+        const slice = `${workerId}.0`;
+
+        const results1 = await readJson(`${routePath1}/${slice}`);
+        const results2 = await readJson(`${routePath2}/${slice}`);
+
+        expect(fs.readdirSync(routePath1).length).toEqual(1);
+        expect(results1).toEqual([expectedResults1]);
+
+        expect(fs.readdirSync(routePath2).length).toEqual(1);
+        expect(results2).toEqual([expectedResults2]);
     });
 });

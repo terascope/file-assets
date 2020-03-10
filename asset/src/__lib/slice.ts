@@ -1,4 +1,5 @@
 import { DataEntity } from '@terascope/utils';
+import path from 'path';
 import { getOffsets } from './chunked-file-reader';
 import { SliceConfig, SlicedFileResults } from './interfaces';
 
@@ -35,10 +36,12 @@ export function batchSlice(data: DataEntity[], defaultPath: string) {
         const override = record.getMetadata('standard:route');
 
         if (override) {
-            if (!batches[override]) {
-                batches[override] = [];
+            const routePath = path.join(defaultPath, '/', override);
+
+            if (!batches[routePath]) {
+                batches[routePath] = [];
             }
-            batches[override].push(record);
+            batches[routePath].push(record);
         } else {
             batches[defaultPath].push(record);
         }
