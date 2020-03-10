@@ -121,7 +121,7 @@ This test job will generate 500k records and put them into tab-delimited files t
     }
   ],
   "assets": [
-    "file-assets"
+    "file"
   ]
 }
 ```

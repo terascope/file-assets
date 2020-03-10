@@ -8,10 +8,7 @@ This bundle includes the following processors:
 - [`file_reader`](./docs/file_reader.md)
 - [`s3_exporter`](./docs/s3_exporter.md)
 - [`s3_reader`](./docs/s3_reader.md)
-- [`partition_by_date`](./docs/partition_by_date.md)
-- [`partition_by_fields`](./docs/partition_by_fields.md)
-- [`partition_by_hash`](./docs/partition_by_hash.md)
-- [`partition_by_key`](./docs/partition_by_key.md)
+
 
 
 ## Contributing

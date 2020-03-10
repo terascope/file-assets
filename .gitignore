@@ -60,6 +60,12 @@ typings/
 # next.js build output
 .next
 
+# Ignore teraslice asset builds
+build/
+builds/
+
+asset/dist
+
 # Editor files
 .tern-port
 
