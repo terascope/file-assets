@@ -1,7 +1,7 @@
 import {
     BatchProcessor, getClient, ExecutionConfig, WorkerContext, DataEntity
 } from '@terascope/job-components';
-import { isEmpty, TSError } from '@terascope/utils';
+import { isEmpty, TSError, pMap } from '@terascope/utils';
 import { S3ExportConfig, S3PutConfig } from './interfaces';
 import { parseForFile, makeCsvOptions } from '../__lib/parser';
 import { batchSlice } from '../__lib/slice';
@@ -91,10 +91,14 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
         const actions = [];
 
         for (const [filename, list] of Object.entries(batches)) {
-            actions.push(this.searchS3(filename, list));
+            actions.push([filename, list]);
         }
 
-        await Promise.all(actions);
+        await pMap(
+            actions,
+            (tuple: any[]) => this.searchS3(tuple[0], tuple[1]),
+            { concurrency: 10 }
+        );
 
         return slice;
     }

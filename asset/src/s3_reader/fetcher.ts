@@ -1,7 +1,6 @@
 import {
     Fetcher, getClient, WorkerContext, ExecutionConfig
 } from '@terascope/job-components';
-import path from 'path';
 import { S3ReaderConfig } from './interfaces';
 import { getChunk, FetcherFn } from '../__lib/chunked-file-reader';
 import { decompress } from '../__lib/compression';
@@ -27,8 +26,7 @@ export default class S3Fetcher extends Fetcher<S3ReaderConfig> {
         const { offset, length } = slice;
         const opts = {
             Bucket: this.bucket,
-            // TODO: figure out way to not shaeow slice.path here
-            Key: path.join(this.prefix, path.basename(slice.path)),
+            Key: slice.path,
             // We need to subtract 1 from the range in order to avoid collecting an extra byte.
             // i.e. Requesting only the first byte of a file has a `length` of `1`, but the
             //   request would be for `bytes=0-0`
