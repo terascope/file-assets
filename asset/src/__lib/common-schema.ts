@@ -1,3 +1,4 @@
+import { isNumber } from '@terascope/utils';
 import { Compression, Format, CSVOptions } from './interfaces';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -101,6 +102,13 @@ export const commonSchema = {
             + ' "csv".',
         default: Format.ldjson,
         format: Object.keys(Format)
+    },
+    concurrency: {
+        doc: 'the number of in flight actions',
+        default: 10,
+        format: (val: any) => {
+            if (!isNumber(val) || val <= 0) throw new Error('Invalid concurrency setting, it must be a number and greater than 0');
+        }
     }
 };
 

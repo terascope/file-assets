@@ -12,12 +12,14 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
     client: any;
     sliceCount = -1;
     workerId: string;
+    concurrency: number;
     csvOptions: CSVOptions;
     nameOptions: NameOptions;
 
     constructor(context: WorkerContext, opConfig: S3ExportConfig, exConfig: ExecutionConfig) {
         super(context, opConfig, exConfig);
         this.client = getClient(context, opConfig, 's3');
+        this.concurrency = opConfig.concurrency;
         this.workerId = context.cluster.worker.id;
         this.csvOptions = makeCsvOptions(opConfig);
         const extension = isEmpty(opConfig.extension) ? undefined : opConfig.extension;
@@ -56,7 +58,7 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
         }
     }
 
-    async searchS3(filename: string, list: DataEntity[]) {
+    async sendToS3(filename: string, list: DataEntity[]) {
         const objPath = parsePath(filename);
         const objName = getName(
             this.workerId,
@@ -81,6 +83,7 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
     }
 
     async onBatch(slice: DataEntity[]) {
+        const { concurrency } = this;
         // TODO also need to chunk the batches for multipart uploads
         const batches = batchSlice(slice, this.opConfig.path);
 
@@ -88,7 +91,7 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
         // directory
         this.sliceCount += 1;
 
-        const actions = [];
+        const actions: [string, DataEntity[]][] = [];
 
         for (const [filename, list] of Object.entries(batches)) {
             actions.push([filename, list]);
@@ -96,8 +99,8 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
 
         await pMap(
             actions,
-            (tuple: any[]) => this.searchS3(tuple[0], tuple[1]),
-            { concurrency: 10 }
+            ([fileName, list]) => this.sendToS3(fileName, list),
+            { concurrency }
         );
 
         return slice;
