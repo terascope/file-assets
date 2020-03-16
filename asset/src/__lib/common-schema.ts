@@ -35,7 +35,7 @@ const readerSchema = {
         format: 'Boolean'
     },
     ignore_empty: {
-        doc: 'Ignores fields without values when parsing CSV.\ni.e. the row "val1,,val3" '
+        doc: 'Ignores fields without values when parsing CSV.\ni.e. the row "val1,val3" '
             + 'will generate the record \'{"field1":"val1","field3":"val3"}\' if set to '
             + 'true',
         default: true,
@@ -49,7 +49,7 @@ const readerSchema = {
     connection: {
         doc: 'The connection from Terafoundation to use',
         default: 'default',
-        format: 'required_String'
+        format: 'optional_String'
     },
 };
 

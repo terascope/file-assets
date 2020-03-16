@@ -42,7 +42,7 @@ Compression type to use with files.
 
 This is an optional setting that will filter and order the fields in the output. It will work with `csv`, `tsv`, and `ldjson` output formats, and if not specified, all fields will be included in the output.
 
-## `delimiter`
+## `field_delimiter`
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
@@ -50,11 +50,19 @@ This is an optional setting that will filter and order the fields in the output.
 
 Any string can be used as a delimiter for the exporter. This allows for multi-character or custom delimiters. **This option is only used with the `csv` output.** See the notes on the `format` option for more information.
 
+## `line_delimiter`
+
+| Valid Options | Default | Required |
+| ----------- | ------- | -------- |
+| Any string | `\n` | N |
+
+Any string can be used as a delimiter for the exporter. This allows for multi-character or custom delimiters. **This option is only used with the `csv` output.** See the notes on the `format` option for more information.
+
 ## `file_per_slice`
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| 'true', 'false' | `false` | N |
+| 'true', 'false' | `true` | N |
 
 This setting determines if the output for a worker will be in a single file (`false`), or if the worker will create a new file for every slice it processes  (`true`). If set to `true`, an integer, starting at 0, will be appended to the filename and incremented by 1 for each slice a worker processes. **If using `json` format, this option will be overridden to `true`.** See format notes below for more information.
 
@@ -65,6 +73,14 @@ This setting determines if the output for a worker will be in a single file (`fa
 | 'true', 'false' | `false` | N |
 
 Determines whether or not to include column headers for the fields in output files. If set to `true`, a header will be added as the first entry to every file created. This option is only used for `tsv` and `csv` formats.
+
+## `concurrency`
+
+| Valid Options | Default | Required |
+| ----------- | ------- | -------- |
+| Any positive integer | `10` | N |
+
+The concurrencty the slicer slicer will use to write to s3
 
 ## `format`
 
@@ -114,7 +130,6 @@ This test job will generate 500k records and put them into tab-delimited files t
     {
       "_op": "file_exporter",
       "path": "/app/data/testfiles",
-      "file_prefix": "test",
       "format": "tsv",
       "file_per_slice": true,
       "include_header": true

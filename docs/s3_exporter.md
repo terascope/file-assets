@@ -4,7 +4,7 @@ The `s3_exporter` will export slices to objects in S3. This exporter will ignore
 
 # Optional Routing Override
 
-If record metadata includes a `routingPath` attribute, this will override the `path` provided in this configuration.
+If record metadata includes a `standard:route` attribute, this will be used with the `path` provided in this configuration to create nested directories.
 
 # Options
 
@@ -28,7 +28,7 @@ Optional file extension to add to file names. A `.` is not automatically prepend
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any valid S3 connector | `null` | Y |
+| Any valid S3 connector | `'default'` | N |
 
 This is the name of the S3 connector defined in Terafoundation.
 
@@ -60,7 +60,7 @@ Any string can be used as a delimiter for the exporter. This allows for multi-ch
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any string | `,` | N |
+| Any string | `\n` | N |
 
 Any string can be used as a delimiter for the exporter. This allows for multi-character or custom delimiters. **This option is only used with the `csv` output.** See the notes on the `format` option for more information.
 
@@ -79,6 +79,14 @@ This processor currently only supports creating a single object for each slice. 
 | 'true', 'false' | `false` | N |
 
 Determines whether or not to include column headers for the fields in output files. If set to `true`, a header will be added as the first entry to every file created. This option is only used for `tsv` and `csv` formats.
+
+## `concurrency`
+
+| Valid Options | Default | Required |
+| ----------- | ------- | -------- |
+| Any positive integer | `10` | N |
+
+The concurrencty the slicer slicer will use to write to s3
 
 ## `format`
 
