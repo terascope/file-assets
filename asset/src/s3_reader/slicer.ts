@@ -35,6 +35,14 @@ export default class S3Slicer extends Slicer<S3ReaderConfig> {
         return Boolean(this.executionConfig.autorecover);
     }
 
+    canReadFile(path: string) {
+        const args = path.split('/');
+        const hasDot = args.some((segment) => segment.charAt(0) === '.');
+
+        if (hasDot) return false;
+        return true;
+    }
+
     async slice() {
         // First check to see if there are more objects in S3
         if (this._doneSlicing) return null;
@@ -74,11 +82,15 @@ export default class S3Slicer extends Slicer<S3ReaderConfig> {
 
         // Slice whatever objects are returned from the query
         for (const content of data.Contents) {
-            const file = {
-                path: content.Key,
-                size: content.Size
-            };
-            actions.push(sliceFile(file, this.sliceConfig));
+            if (this.canReadFile(content.Key)) {
+                const file = {
+                    path: content.Key,
+                    size: content.Size
+                };
+                actions.push(sliceFile(file, this.sliceConfig));
+            } else {
+                this.logger.warn(`Invalid path ${content.Key}, cannot start with a dot in directory of file name, skipping path`)
+            }
         }
 
         const results = await Promise.all(actions);
