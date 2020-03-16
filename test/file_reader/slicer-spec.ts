@@ -76,7 +76,8 @@ describe('File slicer non json files', () => {
                     path: testDataDir,
                     format: Format.ldjson,
                     size: 750,
-                    line_delimiter: '\n'
+                    line_delimiter: '\n',
+                    file_per_slice: false
                 },
                 {
                     _op: 'noop'

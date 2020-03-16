@@ -89,7 +89,7 @@ export const commonSchema = {
     },
     file_per_slice: {
         doc: 'Determines if a new file is created for each slice.',
-        default: false,
+        default: true,
         format: Boolean
     },
     include_header: {

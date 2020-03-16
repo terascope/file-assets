@@ -142,7 +142,8 @@ describe('S3 slicer when slicing other objects', () => {
                 connection: 'default',
                 object_prefix: 'testing/',
                 size: 500,
-                format: 'ldjson'
+                format: 'ldjson',
+                file_per_slice: false
             },
             {
                 _op: 'noop'
