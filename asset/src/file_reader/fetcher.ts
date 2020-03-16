@@ -27,6 +27,7 @@ export default class FileFetcher extends Fetcher<FileConfig> {
     }
 
     async fetch(slice: SlicedFileResults) {
-        return getChunk(this.reader, this.opConfig, this.logger, slice);
+        const results = await getChunk(this.reader, this.opConfig, this.logger, slice);
+        return results;
     }
 }
