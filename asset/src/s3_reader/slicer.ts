@@ -89,7 +89,7 @@ export default class S3Slicer extends Slicer<S3ReaderConfig> {
                 };
                 actions.push(sliceFile(file, this.sliceConfig));
             } else {
-                this.logger.warn(`Invalid path ${content.Key}, cannot start with a dot in directory of file name, skipping path`)
+                this.logger.warn(`Invalid path ${content.Key}, cannot start with a dot in directory of file name, skipping path`);
             }
         }
 
