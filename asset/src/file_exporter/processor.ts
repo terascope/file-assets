@@ -1,6 +1,8 @@
 import { BatchProcessor, WorkerContext, ExecutionConfig } from '@terascope/job-components';
 import fse from 'fs-extra';
-import { TSError, DataEntity, isEmpty } from '@terascope/utils';
+import {
+    TSError, DataEntity, isEmpty, pMap
+} from '@terascope/utils';
 import { FileExporterConfig } from './interfaces';
 import { getName } from '../__lib/fileName';
 import { batchSlice } from '../__lib/slice';
@@ -11,6 +13,7 @@ export default class FileBatcher extends BatchProcessor<FileExporterConfig> {
     workerId: string;
     sliceCount: number;
     firstSlice: boolean;
+    concurrency: number;
     csvOptions: CSVOptions;
     nameOptions: NameOptions;
     pathList = new Map<string, boolean>();
@@ -20,7 +23,8 @@ export default class FileBatcher extends BatchProcessor<FileExporterConfig> {
     ) {
         super(context, opConfig, executionConfig);
         const extension = isEmpty(opConfig.extension) ? undefined : opConfig.extension;
-        const { path } = opConfig;
+        const { path, concurrency } = opConfig;
+        this.concurrency = concurrency;
         this.nameOptions = {
             filePath: path,
             extension,
@@ -39,7 +43,7 @@ export default class FileBatcher extends BatchProcessor<FileExporterConfig> {
         this.csvOptions = makeCsvOptions(this.opConfig);
     }
 
-    async process(path: string, list: DataEntity[]) {
+    async sendToFile(path: string, list: DataEntity[]) {
         // we make dir path if route does not exist
         if (!this.pathList.has(path)) {
             await fse.ensureDir(path);
@@ -66,6 +70,7 @@ export default class FileBatcher extends BatchProcessor<FileExporterConfig> {
 
     async onBatch(slice: DataEntity[]) {
         // TODO also need to chunk the batches for multipart uploads
+        const { concurrency } = this;
         const batches = batchSlice(slice, this.opConfig.path);
 
         this.sliceCount += 1;
@@ -74,13 +79,17 @@ export default class FileBatcher extends BatchProcessor<FileExporterConfig> {
             if (this.sliceCount > 0) this.csvOptions.header = false;
         }
 
-        const actions = [];
+        const actions: [string, DataEntity[]][] = [];
 
-        for (const [path, list] of Object.entries(batches)) {
-            actions.push(this.process(path, list));
+        for (const [filename, list] of Object.entries(batches)) {
+            actions.push([filename, list]);
         }
 
-        await Promise.all(actions);
+        await pMap(
+            actions,
+            ([fileName, list]) => this.sendToFile(fileName, list),
+            { concurrency }
+        );
 
         return slice;
     }

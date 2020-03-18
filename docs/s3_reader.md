@@ -16,7 +16,7 @@ The bucket and optional prefix for data. If there is no `/` in this parameter, i
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any valid S3 connector | `null` | Y |
+| Any valid S3 connector | `default` | N |
 
 This is the name of the S3 connector defined in Terafoundation.
 
@@ -64,7 +64,7 @@ Fields present in the files. This option is only used for `tsv` and `csv` format
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| 'true', 'false' | `false` | N |
+| 'true', 'false' | `true` | N |
 
 This setting determines if files will be split into multiple slices (`false`), each file will be contained in a single slice (`true`).  **If using `json` format, this option will be overridden to `true`.** See format notes below for more information.
 
@@ -72,9 +72,26 @@ This setting determines if files will be split into multiple slices (`false`), e
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| 'true', 'false' | `false` | N |
+| 'true', 'false' | `true` | N |
 
 Determines whether or not to keep column headers when they appear in a slice. If set to `true`, the record will be set to `null` every time a header is encountered. This option is only used for `tsv` and `csv` formats.
+
+## `ignore_empty`
+
+| Valid Options | Default | Required |
+| ----------- | ------- | -------- |
+| 'true', 'false' | `true` | N |
+
+Ignores fields without values when parsing CSV.
+i.e. the row "val1,val3" will generate the record '{"field1":"val1","field3":"val3"}' if set to true.
+
+## `extra_args`
+
+| Valid Options | Default | Required |
+| ----------- | ------- | -------- |
+| Object | `{}` | N |
+
+An object used to pass in any extra csv parsing arguments
 
 ## `format`
 

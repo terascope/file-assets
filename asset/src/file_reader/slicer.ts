@@ -69,6 +69,11 @@ export default class FileSlicer extends Slicer {
         return fileSlices;
     }
 
+    canReadFile(fileName: string) {
+        if (fileName.charAt(0) === '.') return false;
+        return true;
+    }
+
     async getFilePaths(filePath: string): Promise<SlicedFileResults[]> {
         const dirContents = await fse.readdir(filePath);
         let slices: SlicedFileResults[] = [];
@@ -78,7 +83,7 @@ export default class FileSlicer extends Slicer {
 
             // Slice whatever objects are returned from the query
             for (const file of dirContents) {
-                actions.push(this.getPath(filePath, file));
+                if (this.canReadFile(file)) actions.push(this.getPath(filePath, file));
             }
 
             const results = await Promise.all(actions);

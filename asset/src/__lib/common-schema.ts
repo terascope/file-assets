@@ -1,3 +1,4 @@
+import { isNumber } from '@terascope/utils';
 import { Compression, Format, CSVOptions } from './interfaces';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -34,7 +35,7 @@ const readerSchema = {
         format: 'Boolean'
     },
     ignore_empty: {
-        doc: 'Ignores fields without values when parsing CSV.\ni.e. the row "val1,,val3" '
+        doc: 'Ignores fields without values when parsing CSV.\ni.e. the row "val1,val3" '
             + 'will generate the record \'{"field1":"val1","field3":"val3"}\' if set to '
             + 'true',
         default: true,
@@ -48,7 +49,7 @@ const readerSchema = {
     connection: {
         doc: 'The connection from Terafoundation to use',
         default: 'default',
-        format: 'required_String'
+        format: 'optional_String'
     },
 };
 
@@ -88,7 +89,7 @@ export const commonSchema = {
     },
     file_per_slice: {
         doc: 'Determines if a new file is created for each slice.',
-        default: false,
+        default: true,
         format: Boolean
     },
     include_header: {
@@ -101,6 +102,13 @@ export const commonSchema = {
             + ' "csv".',
         default: Format.ldjson,
         format: Object.keys(Format)
+    },
+    concurrency: {
+        doc: 'the number of in flight actions',
+        default: 10,
+        format: (val: any) => {
+            if (!isNumber(val) || val <= 0) throw new Error('Invalid concurrency setting, it must be a number and greater than 0');
+        }
     }
 };
 
