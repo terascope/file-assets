@@ -6,7 +6,7 @@
         "@terascope/job-components": "^0.30.1",
         "@terascope/utils": "^0.24.3",
         "csvtojson": "^2.0.10",
-        "fs-extra": "^8.1.0",
+        "fs-extra": "^9.0.0",
         "json2csv": "4.5.4",
         "lz4": "^0.6.3",
         "node-gzip": "^1.1.2"
