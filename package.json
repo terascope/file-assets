@@ -18,7 +18,7 @@
     },
     "dependencies": {},
     "devDependencies": {
-        "@terascope/eslint-config": "^0.2.4",
+        "@terascope/eslint-config": "^0.2.5",
         "@terascope/job-components": "^0.32.2",
         "@terascope/utils": "^0.24.4",
         "@types/fs-extra": "^8.1.0",
