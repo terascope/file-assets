@@ -1,7 +1,7 @@
 import {
-    Slicer, getClient, WorkerContext, ExecutionConfig
+    Slicer, getClient, WorkerContext, ExecutionConfig,
+    TSError, flatten
 } from '@terascope/job-components';
-import { TSError, flatten } from '@terascope/utils';
 import path from 'path';
 import { HDFSReaderConfig } from './interfaces';
 import { SliceConfig, SlicedFileResults } from '../__lib/interfaces';

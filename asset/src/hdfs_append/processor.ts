@@ -1,8 +1,8 @@
 import {
-    BatchProcessor, getClient, WorkerContext, ExecutionConfig, DataEntity, GetClientConfig
+    BatchProcessor, getClient, WorkerContext, ExecutionConfig, DataEntity, GetClientConfig,
+    TSError, isEmpty
 } from '@terascope/job-components';
 import path from 'path';
-import { TSError, isEmpty } from '@terascope/utils';
 import { HDFSConfig } from './interfaces';
 import { parseForFile, makeCsvOptions } from '../__lib/parser';
 import { batchSlice } from '../__lib/slice';

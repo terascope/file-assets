@@ -1,5 +1,5 @@
 import { WorkerTestHarness } from 'teraslice-test-harness';
-import { DataEntity } from '@terascope/utils';
+import { DataEntity } from '@terascope/job-components';
 import path from 'path';
 import fs from 'fs';
 import { remove, ensureDir, readJson } from 'fs-extra';

@@ -1,5 +1,5 @@
 import json2csv, { parse } from 'json2csv';
-import { DataEntity, TSError } from '@terascope/utils';
+import { DataEntity, TSError } from '@terascope/job-components';
 import {
     CSVOptions, CSVConfig, ParseOptions, Format
 } from './interfaces';

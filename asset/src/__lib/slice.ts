@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity } from '@terascope/job-components';
 import path from 'path';
 import { getOffsets } from './chunked-file-reader';
 import { SliceConfig, SlicedFileResults } from './interfaces';

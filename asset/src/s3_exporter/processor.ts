@@ -1,7 +1,7 @@
 import {
-    BatchProcessor, getClient, ExecutionConfig, WorkerContext, DataEntity
+    BatchProcessor, getClient, ExecutionConfig, WorkerContext, DataEntity,
+    isEmpty, TSError, pMap
 } from '@terascope/job-components';
-import { isEmpty, TSError, pMap } from '@terascope/utils';
 import { S3ExportConfig, S3PutConfig } from './interfaces';
 import { parseForFile, makeCsvOptions } from '../__lib/parser';
 import { batchSlice } from '../__lib/slice';

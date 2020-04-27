@@ -1,5 +1,5 @@
 import csvToJson from 'csvtojson';
-import { DataEntity, Logger } from '@terascope/utils';
+import { DataEntity, Logger } from '@terascope/job-components';
 import { SlicedFileResults, ProcessorConfig } from '../interfaces';
 
 // This function takes the raw data and breaks it into records, getting rid

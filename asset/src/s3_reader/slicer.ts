@@ -1,7 +1,7 @@
 import {
-    Slicer, getClient, WorkerContext, ExecutionConfig
+    Slicer, getClient, WorkerContext, ExecutionConfig,
+    flatten
 } from '@terascope/job-components';
-import { flatten } from '@terascope/utils';
 import { S3ReaderConfig } from './interfaces';
 // import { getOffsets } from '@terascope/chunked-file-reader';
 import { sliceFile } from '../__lib/slice';

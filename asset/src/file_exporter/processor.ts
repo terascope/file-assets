@@ -1,8 +1,8 @@
-import { BatchProcessor, WorkerContext, ExecutionConfig } from '@terascope/job-components';
-import fse from 'fs-extra';
 import {
+    BatchProcessor, WorkerContext, ExecutionConfig,
     TSError, DataEntity, isEmpty, pMap
-} from '@terascope/utils';
+} from '@terascope/job-components';
+import fse from 'fs-extra';
 import { FileExporterConfig } from './interfaces';
 import { getName } from '../__lib/fileName';
 import { batchSlice } from '../__lib/slice';

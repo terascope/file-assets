@@ -1,4 +1,4 @@
-import { isNumber } from '@terascope/utils';
+import { isNumber } from '@terascope/job-components';
 import { Compression, Format, CSVOptions } from './interfaces';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

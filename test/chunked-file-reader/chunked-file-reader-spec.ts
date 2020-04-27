@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { debugLogger, DataEntity } from '@terascope/utils';
+import { debugLogger, DataEntity } from '@terascope/job-components';
 import { Format, ProcessorConfig, SlicedFileResults } from '../../asset/src/__lib/interfaces';
 import { getOffsets, getChunk, _averageRecordSize } from '../../asset/src/__lib/chunked-file-reader';
 
@@ -62,8 +62,8 @@ describe('The chunked file reader', () => {
 
         const results = await getChunk(reader, ldjsonOpConfig, logger, slice);
 
-        expect(results).toBeDefined();
-        const data = results[0] as DataEntity;
+        expect(results).toBeArray();
+        const data = results[0];
         expect(DataEntity.isDataEntity(data)).toBeTrue();
         const metaData = data.getMetadata();
         expect(metaData.path).toEqual('/test/file');
@@ -81,7 +81,7 @@ describe('The chunked file reader', () => {
         const results = await getChunk(reader, rawOpConfig, logger, slice);
 
         expect(results).toBeDefined();
-        const data = results[0] as DataEntity;
+        const data = results[0];
         expect(DataEntity.isDataEntity(data)).toBeTrue();
         const metaData = data.getMetadata();
         expect(metaData.path).toEqual('/test/file');

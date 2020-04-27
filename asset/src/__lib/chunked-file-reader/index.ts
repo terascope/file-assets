@@ -1,4 +1,6 @@
-import { Logger, cloneDeep } from '@terascope/utils';
+import {
+    Logger, cloneDeep, DataEntity, isNotNil
+} from '@terascope/job-components';
 import * as chunkFormatter from './formatters';
 import { SlicedFileResults, ProcessorConfig, Offsets } from '../interfaces';
 
@@ -66,7 +68,7 @@ async function getMargin(readerClient: FetcherFn, slice: SlicedFileResults, deli
 // extra margin if the slice does not end with the delimiter.
 export async function getChunk(
     readerClient: FetcherFn, opConfig: ProcessorConfig, logger: Logger, slice: SlicedFileResults,
-) {
+): Promise<DataEntity<any, any>[]> {
     const delimiter = opConfig.line_delimiter;
 
     let needMargin = false;
@@ -101,6 +103,6 @@ export async function getChunk(
         collectedData, logger, opConfig, slice
     );
 
-    if (results) return results.filter(Boolean);
+    if (results) return results.filter(isNotNil) as DataEntity<any, any>[];
     return results;
 }

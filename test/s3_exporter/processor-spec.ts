@@ -1,6 +1,5 @@
 import { WorkerTestHarness } from 'teraslice-test-harness';
-import { TestClientConfig } from '@terascope/job-components';
-import { DataEntity } from '@terascope/utils';
+import { TestClientConfig, DataEntity } from '@terascope/job-components';
 // @ts-ignore
 import lz4 from 'lz4';
 import { ungzip } from 'node-gzip';

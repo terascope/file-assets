@@ -1,7 +1,7 @@
 import {
-    Slicer, WorkerContext, ExecutionConfig
+    Slicer, WorkerContext, ExecutionConfig,
+    TSError, flatten
 } from '@terascope/job-components';
-import { TSError, flatten } from '@terascope/utils';
 import path from 'path';
 import fse from 'fs-extra';
 import { FileConfig } from './interfaces';
