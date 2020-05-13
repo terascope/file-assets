@@ -1,6 +1,6 @@
 {
     "name": "file",
-    "version": "0.14.2",
+    "version": "0.14.3",
     "description": "A set of processors for working with files",
     "dependencies": {
         "@terascope/job-components": "^0.33.0",
