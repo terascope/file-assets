@@ -24,10 +24,11 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
         this.csvOptions = makeCsvOptions(opConfig);
         const extension = isEmpty(opConfig.extension) ? undefined : opConfig.extension;
 
+        // `filePerSlice` needs to be ignored since you cannot append to S3 objects
         this.nameOptions = {
             filePath: opConfig.path,
             extension,
-            filePerSlice: opConfig.file_per_slice
+            filePerSlice: true
         };
 
         // This will be incremented as the worker processes slices and used as a way to create
