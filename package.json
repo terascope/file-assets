@@ -22,7 +22,7 @@
         "@terascope/job-components": "^0.33.0",
         "@types/fs-extra": "^9.0.0",
         "@types/jest": "^25.2.1",
-        "@types/json2csv": "^5.0.0",
+        "@types/json2csv": "^5.0.1",
         "@types/node": "^13.11.1",
         "@types/node-gzip": "^1.1.0",
         "eslint": "^6.8.0",
