@@ -1,5 +1,7 @@
 import { WorkerTestHarness } from 'teraslice-test-harness';
 import { TestClientConfig, DataEntity } from '@terascope/job-components';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import lz4 from 'lz4';
 import { ungzip } from 'node-gzip';
 import { S3PutConfig } from '../../asset/src/s3_exporter/interfaces';

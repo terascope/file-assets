@@ -59,7 +59,7 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
         }
     }
 
-    async sendToS3(filename: string, list: DataEntity[]): Promise<void> {
+    async sendToS3(filename: string, list: DataEntity[]): Promise<any> {
         const objPath = parsePath(filename);
         const objName = getName(
             this.workerId,
@@ -71,7 +71,7 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
         // This will prevent empty objects from being added to the S3 store, which can cause
         // problems with the S3 reader
         if (!outStr || outStr.length === 0) {
-            return;
+            return [];
         }
 
         const params: S3PutConfig = {

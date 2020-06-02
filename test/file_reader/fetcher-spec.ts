@@ -1,6 +1,6 @@
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
 import path from 'path';
-// @ts-expect-error
+
 const fixtures = require('jest-fixtures');
 
 describe('File reader\'s fetcher', () => {
