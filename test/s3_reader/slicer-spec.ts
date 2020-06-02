@@ -29,6 +29,7 @@ describe('S3 slicer when slicing JSON objects', () => {
             create: () => ({
                 client: {
                     firstRun: true,
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
                     listObjects_Async(params: any) {
                         if (this.firstRun) {
                             // extract the s3 request options for validation
@@ -110,6 +111,7 @@ describe('S3 slicer when slicing other objects', () => {
             create: () => ({
                 client: {
                     firstRun: true,
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
                     listObjects_Async() {
                         return {
                             Contents: [

@@ -5,12 +5,12 @@ import { parseForFile } from '../../asset/src/__lib/parser';
 describe('File asset supporting library', () => {
     describe('parser module', () => {
         it('errors with invalid formats.', async () => {
-            // @ts-ignore
+            // @ts-expect-error
             await expect(parseForFile([new DataEntity({})], { format: 'invalid' }, {})).rejects.toThrowError('Unsupported output format "invalid"');
         });
 
         it('returns null for empty records.', async () => {
-            // @ts-ignore
+            // @ts-expect-error
             expect(await parseForFile(null, { format: 'tsv' }, {})).toEqual(null);
         });
     });

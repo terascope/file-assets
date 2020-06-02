@@ -106,7 +106,7 @@ export const commonSchema = {
     concurrency: {
         doc: 'the number of in flight actions',
         default: 10,
-        format: (val: any) => {
+        format: (val: unknown): void => {
             if (!isNumber(val) || val <= 0) throw new Error('Invalid concurrency setting, it must be a number and greater than 0');
         }
     }

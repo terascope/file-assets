@@ -1,5 +1,6 @@
 import csvToJson from 'csvtojson';
 import { DataEntity, Logger } from '@terascope/job-components';
+import { CSVParseParam } from 'csvtojson/v2/Parameters';
 import { SlicedFileResults, ProcessorConfig } from '../interfaces';
 
 // This function takes the raw data and breaks it into records, getting rid
@@ -62,7 +63,7 @@ export async function csv(
         noheader: true,
         ignoreEmpty: opConfig.ignore_empty || false,
         output: 'json'
-    }, opConfig.extra_args);
+    } as Partial<CSVParseParam>, opConfig.extra_args);
 
     let foundHeader = false;
     const data = splitChunks(incomingData, opConfig.line_delimiter, slice);

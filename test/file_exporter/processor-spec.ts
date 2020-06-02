@@ -51,7 +51,7 @@ describe('File exporter processor', () => {
 
         await harness.initialize();
 
-        // @ts-ignore
+        // @ts-expect-error
         workerId = harness.context.cluster.worker.id;
 
         return harness;

@@ -3,7 +3,7 @@ import { HDFSReaderConfig } from './interfaces';
 import { fileReaderSchema } from '../__lib/common-schema';
 
 export default class Schema extends ConvictSchema<HDFSReaderConfig> {
-    build() {
+    build(): Record<string, any> {
         const hdfsSchema = {
             user: {
                 doc: 'User to use when reading the files. Default: "hdfs"',

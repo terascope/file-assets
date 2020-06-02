@@ -1,5 +1,5 @@
 import {
-    Fetcher, getClient, WorkerContext, ExecutionConfig
+    Fetcher, getClient, WorkerContext, ExecutionConfig, DataEntity
 } from '@terascope/job-components';
 import { S3ReaderConfig } from './interfaces';
 import { getChunk, FetcherFn } from '../__lib/chunked-file-reader';
@@ -22,7 +22,7 @@ export default class S3Fetcher extends Fetcher<S3ReaderConfig> {
         this.reader = this.s3Reader.bind(this);
     }
 
-    async s3Reader(slice: SlicedFileResults) {
+    async s3Reader(slice: SlicedFileResults): Promise<any> {
         const { offset, length } = slice;
         const opts = {
             Bucket: this.bucket,
@@ -50,7 +50,7 @@ export default class S3Fetcher extends Fetcher<S3ReaderConfig> {
         return decompress(results.Body, this.opConfig.compression);
     }
 
-    async fetch(slice: SlicedFileResults) {
+    async fetch(slice: SlicedFileResults): Promise<DataEntity[]> {
         return getChunk(this.reader, this.opConfig, this.logger, slice);
     }
 }

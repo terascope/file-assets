@@ -25,11 +25,11 @@ export default class FileSlicer extends Slicer<HDFSReaderConfig> {
      *
      * @todo we should probably support full recovery
     */
-    isRecoverable() {
+    isRecoverable(): boolean {
         return Boolean(this.executionConfig.autorecover);
     }
 
-    searchFiles(metadata: any, filePath: string) {
+    searchFiles(metadata: Record<string, any>, filePath: string): SlicedFileResults[] {
         let fileSlices: SlicedFileResults[] = [];
         const fullPath = path.join(filePath, metadata.pathSuffix);
 
@@ -69,7 +69,7 @@ export default class FileSlicer extends Slicer<HDFSReaderConfig> {
         return slices;
     }
 
-    async slice() {
+    async slice(): Promise<any[]> {
         if (this.directories.length > 0) {
             return this.getFilePaths(this.directories.shift() as string);
         }

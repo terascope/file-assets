@@ -25,11 +25,11 @@ export default class FileSlicer extends Slicer {
      *
      * @todo we should probably support full recovery
     */
-    isRecoverable() {
+    isRecoverable(): boolean {
         return Boolean(this.executionConfig.autorecover);
     }
 
-    checkProvidedPath() {
+    checkProvidedPath(): void {
         try {
             const dirStats = fse.lstatSync(this.opConfig.path);
 
@@ -50,7 +50,7 @@ export default class FileSlicer extends Slicer {
         }
     }
 
-    async getPath(filePath: string, file: string) {
+    async getPath(filePath: string, file: string): Promise<SlicedFileResults[]> {
         const fullPath = path.join(filePath, file);
         const stats = await fse.lstat(fullPath);
 
@@ -69,7 +69,7 @@ export default class FileSlicer extends Slicer {
         return fileSlices;
     }
 
-    canReadFile(fileName: string) {
+    canReadFile(fileName: string): boolean {
         if (fileName.charAt(0) === '.') return false;
         return true;
     }
@@ -104,7 +104,7 @@ export default class FileSlicer extends Slicer {
         return slices;
     }
 
-    async slice() {
+    async slice(): Promise<any[]|null> {
         if (this.directories.length > 0) {
             return this.getFilePaths(this.directories.shift() as string);
         }

@@ -48,7 +48,7 @@ export default class HDFSBatcher extends BatchProcessor<HDFSConfig> {
         // this.appendErrors = {};
     }
 
-    async ensureFile(fileName: string) {
+    async ensureFile(fileName: string): Promise<any> {
         try {
             return this.client.getFileStatusAsync(fileName);
         } catch (_err) {
@@ -66,7 +66,7 @@ export default class HDFSBatcher extends BatchProcessor<HDFSConfig> {
         }
     }
 
-    async searchHdfs(filename: string, list: DataEntity[]) {
+    async searchHdfs(filename: string, list: DataEntity[]): Promise<any[]> {
         const fileName = getName(this.workerId, this.sliceCount, this.nameOptions, filename);
         const outStr = await parseForFile(list, this.opConfig, this.csvOptions);
 
@@ -90,7 +90,7 @@ export default class HDFSBatcher extends BatchProcessor<HDFSConfig> {
         }
     }
 
-    async onBatch(slice: DataEntity[]) {
+    async onBatch(slice: DataEntity[]): Promise<DataEntity[]> {
         // TODO also need to chunk the batches for multipart uploads
         const batches = batchSlice(slice, this.opConfig.path);
 

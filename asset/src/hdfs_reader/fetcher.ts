@@ -7,20 +7,20 @@ import { SlicedFileResults } from '../__lib/interfaces';
 export default class HDFSFetcher extends Fetcher<HDFSReaderConfig> {
     client: any;
 
-    async initialize() {
+    async initialize(): Promise<void> {
         await super.initialize();
         this.client = getClient(this.context, this.opConfig, 'hdfs_ha');
     }
 
-    async getHdfsData(slice: SlicedFileResults) {
+    async getHdfsData(slice: SlicedFileResults): Promise<any> {
         const { offset, length, path } = slice;
         return this.client.openAsync(path, { offset, length });
     }
 
-    // @ts-ignore
-    async fetch(slice: SlicedFileResults) {
+    // @ts-expect-error
+    async fetch(slice: SlicedFileResults): Promise<string> {
         const results = await getChunk(this.getHdfsData, this.opConfig, this.logger, slice);
-        // @ts-ignore TODO: need to verify data from client, and use getChunk fn
+        // @ts-expect-error TODO: need to verify data from client, and use getChunk fn
         return decompress(results.Body, this.opConfig.compression);
     }
 }

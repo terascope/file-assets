@@ -6,7 +6,7 @@ import { S3ReaderConfig } from './interfaces';
 // import { getOffsets } from '@terascope/chunked-file-reader';
 import { sliceFile } from '../__lib/slice';
 import { parsePath } from '../__lib/fileName';
-import { SliceConfig } from '../__lib/interfaces';
+import { SliceConfig, SlicedFileResults } from '../__lib/interfaces';
 
 export default class S3Slicer extends Slicer<S3ReaderConfig> {
     client: any;
@@ -31,11 +31,11 @@ export default class S3Slicer extends Slicer<S3ReaderConfig> {
      *
      * @todo we should probably support full recovery
     */
-    isRecoverable() {
+    isRecoverable(): boolean {
         return Boolean(this.executionConfig.autorecover);
     }
 
-    canReadFile(path: string) {
+    canReadFile(path: string): boolean {
         const args = path.split('/');
         const hasDot = args.some((segment) => segment.charAt(0) === '.');
 
@@ -43,7 +43,7 @@ export default class S3Slicer extends Slicer<S3ReaderConfig> {
         return true;
     }
 
-    async slice() {
+    async slice(): Promise<any|null> {
         // First check to see if there are more objects in S3
         if (this._doneSlicing) return null;
 
@@ -56,7 +56,7 @@ export default class S3Slicer extends Slicer<S3ReaderConfig> {
         return slices;
     }
 
-    async getObjects() {
+    async getObjects(): Promise<SlicedFileResults[]> {
         const data = await this.client.listObjects_Async({
             Bucket: this.bucket,
             Prefix: this.prefix,

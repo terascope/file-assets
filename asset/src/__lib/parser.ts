@@ -5,7 +5,7 @@ import {
 } from './interfaces';
 import { compress } from './compression';
 
-export function makeCsvOptions(config: CSVConfig) {
+export function makeCsvOptions(config: CSVConfig): CSVOptions {
     const csvOptions: CSVOptions = {};
 
     if (config.fields.length !== 0) {
@@ -55,7 +55,7 @@ function getFormatFn(format: Format): FormatFn {
 
 export async function parseForFile(
     slice: DataEntity[] | null | undefined, opConfig: ParseOptions, csvOptions: CSVOptions
-) {
+): Promise<any|null> {
     // null or empty slices get an empty output and will get filtered out below
     if (!slice || !slice.length) return null;
     // Build the output string to dump to the object

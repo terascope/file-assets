@@ -1,6 +1,5 @@
 import { WorkerTestHarness } from 'teraslice-test-harness';
 import { TestClientConfig, DataEntity } from '@terascope/job-components';
-// @ts-ignore
 import lz4 from 'lz4';
 import { ungzip } from 'node-gzip';
 import { S3PutConfig } from '../../asset/src/s3_exporter/interfaces';
@@ -22,14 +21,17 @@ describe('S3 exporter processor', () => {
         endpoint: 'my-s3-connector',
         create: () => ({
             client: {
+                // eslint-disable-next-line @typescript-eslint/naming-convention
                 putObject_Async: (putParams: S3PutConfig) => {
                     s3PutParams.push(putParams);
                     return Promise.resolve();
                 },
+                // eslint-disable-next-line @typescript-eslint/naming-convention
                 headBucket_Async: (_params: { Bucket: string }) => {
                     if (!bucketExists) throw new Error('I exists');
                     return Promise.resolve();
                 },
+                // eslint-disable-next-line @typescript-eslint/naming-convention
                 createBucket_Async: (_params: { Bucket: string }) => {
                     createBucketCalled = true;
                     return Promise.resolve();
@@ -65,7 +67,7 @@ describe('S3 exporter processor', () => {
         harness = WorkerTestHarness.testProcessor(opConfig, { clients: [s3Client] });
 
         await harness.initialize();
-        // @ts-ignore
+        // @ts-expect-error
         workerId = harness.context.cluster.worker.id;
 
         return harness;

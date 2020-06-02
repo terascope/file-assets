@@ -3,7 +3,10 @@ import path from 'path';
 import { getOffsets } from './chunked-file-reader';
 import { SliceConfig, SlicedFileResults } from './interfaces';
 
-export function sliceFile(file: any, config: SliceConfig): SlicedFileResults[] {
+export function sliceFile(file: {
+    path: string;
+    size: number;
+}, config: SliceConfig): SlicedFileResults[] {
     const slices: SlicedFileResults[] = [];
     if (config.format === 'json' || config.file_per_slice) {
         slices.push({
@@ -28,7 +31,7 @@ export function sliceFile(file: any, config: SliceConfig): SlicedFileResults[] {
 }
 
 // Batches records in a slice into groups based on the `routingPath` override (if present)
-export function batchSlice(data: DataEntity[], defaultPath: string) {
+export function batchSlice(data: DataEntity[], defaultPath: string): Record<string, DataEntity[]> {
     const batches: Record<string, DataEntity[]> = {};
     batches[defaultPath] = [];
 

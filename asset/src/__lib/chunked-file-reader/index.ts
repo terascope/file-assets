@@ -4,7 +4,7 @@ import {
 import * as chunkFormatter from './formatters';
 import { SlicedFileResults, ProcessorConfig, Offsets } from '../interfaces';
 
-export function _averageRecordSize(array: string[]) {
+export function _averageRecordSize(array: string[]): number {
     return Math.floor(array.reduce((accum, str) => accum + str.length, 0) / array.length);
 }
 

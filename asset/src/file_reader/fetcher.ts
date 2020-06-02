@@ -1,4 +1,6 @@
-import { Fetcher, WorkerContext, ExecutionConfig } from '@terascope/job-components';
+import {
+    Fetcher, WorkerContext, ExecutionConfig, DataEntity
+} from '@terascope/job-components';
 import fse from 'fs-extra';
 import { FileConfig } from './interfaces';
 import { SlicedFileResults } from '../__lib/interfaces';
@@ -13,7 +15,7 @@ export default class FileFetcher extends Fetcher<FileConfig> {
         this.reader = this.fileReader.bind(this);
     }
 
-    async fileReader(slice: SlicedFileResults) {
+    async fileReader(slice: SlicedFileResults): Promise<string> {
         const { path, length, offset } = slice;
         const fd = await fse.open(path, 'r');
 
@@ -26,7 +28,7 @@ export default class FileFetcher extends Fetcher<FileConfig> {
         }
     }
 
-    async fetch(slice: SlicedFileResults) {
+    async fetch(slice: SlicedFileResults): Promise<DataEntity[]> {
         const results = await getChunk(this.reader, this.opConfig, this.logger, slice);
         return results;
     }

@@ -1,7 +1,9 @@
 import path from 'path';
 import { NameOptions } from './interfaces';
 
-export function getName(id: string, count: number, config: NameOptions, pathOverride?: string) {
+export function getName(
+    id: string, count: number, config: NameOptions, pathOverride?: string
+): string {
     // Can't use path.join() here since the path might include a filename prefix
     const { filePath, filePerSlice = false, extension } = config;
 
@@ -26,7 +28,10 @@ export function getName(id: string, count: number, config: NameOptions, pathOver
 }
 
 // Parses the provided path and translates it to a bucket/prefix combo
-export function parsePath(objPath: string) {
+export function parsePath(objPath: string): {
+    bucket: string;
+    prefix: string;
+} {
     const pathInfo = {
         bucket: '',
         prefix: ''

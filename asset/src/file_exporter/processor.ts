@@ -43,7 +43,7 @@ export default class FileBatcher extends BatchProcessor<FileExporterConfig> {
         this.csvOptions = makeCsvOptions(this.opConfig);
     }
 
-    async sendToFile(path: string, list: DataEntity[]) {
+    async sendToFile(path: string, list: DataEntity[]): Promise<void> {
         // we make dir path if route does not exist
         if (!this.pathList.has(path)) {
             await fse.ensureDir(path);
@@ -55,7 +55,7 @@ export default class FileBatcher extends BatchProcessor<FileExporterConfig> {
 
         // Prevents empty slices from resulting in empty files
         if (!outStr || outStr.length === 0) {
-            return [];
+            return;
         }
 
         // Doesn't return a DataEntity or anything else if successful
@@ -68,7 +68,7 @@ export default class FileBatcher extends BatchProcessor<FileExporterConfig> {
         }
     }
 
-    async onBatch(slice: DataEntity[]) {
+    async onBatch(slice: DataEntity[]): Promise<DataEntity[]> {
         // TODO also need to chunk the batches for multipart uploads
         const { concurrency } = this;
         const batches = batchSlice(slice, this.opConfig.path);

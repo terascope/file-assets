@@ -10,6 +10,7 @@ describe('S3 reader\'s fetcher', () => {
     };
 
     const mockClient = {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         getObject_Async: (params: any) => {
             s3Params = params;
             return Promise.resolve(response);

@@ -38,12 +38,12 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
         // Allows this to use the externalized name builder
     }
 
-    async initialize() {
+    async initialize(): Promise<void> {
         await super.initialize();
         await this.ensureBucket();
     }
 
-    async ensureBucket() {
+    async ensureBucket(): Promise<any> {
         const { path } = this.opConfig;
         const { bucket } = parsePath(path);
         const query = { Bucket: bucket };
@@ -59,7 +59,7 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
         }
     }
 
-    async sendToS3(filename: string, list: DataEntity[]) {
+    async sendToS3(filename: string, list: DataEntity[]): Promise<void> {
         const objPath = parsePath(filename);
         const objName = getName(
             this.workerId,
@@ -71,7 +71,7 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
         // This will prevent empty objects from being added to the S3 store, which can cause
         // problems with the S3 reader
         if (!outStr || outStr.length === 0) {
-            return [];
+            return;
         }
 
         const params: S3PutConfig = {
@@ -83,7 +83,7 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
         return this.client.putObject_Async(params);
     }
 
-    async onBatch(slice: DataEntity[]) {
+    async onBatch(slice: DataEntity[]): Promise<DataEntity[]> {
         const { concurrency } = this;
         // TODO also need to chunk the batches for multipart uploads
         const batches = batchSlice(slice, this.opConfig.path);
