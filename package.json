@@ -23,9 +23,9 @@
     "dependencies": {},
     "devDependencies": {
         "@terascope/eslint-config": "^0.4.0",
-        "@terascope/job-components": "^0.34.2",
+        "@terascope/job-components": "^0.35.0",
         "@types/fs-extra": "^9.0.1",
-        "@types/jest": "^25.2.3",
+        "@types/jest": "^26.0.0",
         "@types/json2csv": "^5.0.1",
         "@types/node": "^14.0.6",
         "@types/node-gzip": "^1.1.0",
@@ -36,7 +36,7 @@
         "jest-fixtures": "^0.6.0",
         "lz4": "^0.6.3",
         "node-gzip": "^1.1.2",
-        "teraslice-test-harness": "^0.19.2",
+        "teraslice-test-harness": "^0.21.0",
         "ts-jest": "^26.1.0",
         "ts-node": "^8.10.2",
         "typescript": "~3.9.3"

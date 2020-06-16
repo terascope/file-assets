@@ -544,16 +544,6 @@
     eslint-plugin-react "^7.19.0"
     eslint-plugin-react-hooks "^4.0.4"
 
-"@terascope/job-components@^0.34.2":
-  version "0.34.3"
-  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.34.3.tgz#69fdd1a0b6dafa2dde503efee87bf18702d4b681"
-  integrity sha512-8ZqB1kRShnRir1XHAxGGHjTOllPhFmzvzc7945MtNlqknlMzGU5WRt8VJ6FiKjSpFXK6K28rbcDEg5sMNrzL1Q==
-  dependencies:
-    "@terascope/utils" "^0.27.3"
-    convict "^4.4.1"
-    datemath-parser "^1.0.6"
-    uuid "^8.1.0"
-
 "@terascope/job-components@^0.35.0":
   version "0.35.0"
   resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.35.0.tgz#e268cdff4e4fd68522b3190989c77a7bcf7460ad"
@@ -564,7 +554,7 @@
     datemath-parser "^1.0.6"
     uuid "^8.1.0"
 
-"@terascope/teraslice-op-test-harness@^1.18.2":
+"@terascope/teraslice-op-test-harness@^1.19.0":
   version "1.19.0"
   resolved "https://registry.yarnpkg.com/@terascope/teraslice-op-test-harness/-/teraslice-op-test-harness-1.19.0.tgz#089daf67f71883c76ea39e1ded3c9ba4b7d78e2e"
   integrity sha512-OV9vT+Zs5NjeKmGWnHATJZmXpVxqgzhre2j+1SgfhH4zLKZcGoLt9rOtVofq8CxB4CHUsihn/gC79CvcLDUriQ==
@@ -572,33 +562,10 @@
     "@terascope/job-components" "^0.35.0"
     bluebird "^3.7.2"
 
-"@terascope/types@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@terascope/types/-/types-0.3.0.tgz#41a0ac5a440841d89d6902064f360cc03fd0f4d0"
-  integrity sha512-qvCI0gfsI8HYHJhnfRa5rRTkITM0ZnPpAYX1M0GdYsR8h2ytIUF5jnsf2Bn6OqDdReQCFisr4h+FQafpqxmE6g==
-
 "@terascope/types@^0.4.0":
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/@terascope/types/-/types-0.4.0.tgz#63a6e2c8f1487c5b6f781092431aa10386519010"
   integrity sha512-WOSuYZ0x7WRC1L6zLqFqbqqr95UZ/SQnWNN6uA14pyq67s782gXsmxrqgs/MsR7jOuggVGQQBUoxB7dk7E56sA==
-
-"@terascope/utils@^0.27.3":
-  version "0.27.3"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.27.3.tgz#ce5374cb933d3cff243fe8f220b730b3f4d02a7e"
-  integrity sha512-qJy0UQ9L8/TOoI4UDsJnYSXRnWf1bMJZ+8vRx0IcXpStHsjAqzVkVCBUHw1zAfPzYZNv0EhAGnTGJW3YySB9/Q==
-  dependencies:
-    "@terascope/types" "^0.3.0"
-    debug "^4.1.1"
-    is-plain-object "^3.0.0"
-    js-string-escape "^1.0.1"
-    kind-of "^6.0.3"
-    latlon-geohash "^1.1.0"
-    lodash.get "^4.4.2"
-    lodash.has "^4.5.2"
-    lodash.set "^4.3.2"
-    lodash.unset "^4.5.2"
-    p-map "^4.0.0"
-    shallow-clone "^3.0.1"
 
 "@terascope/utils@^0.28.0":
   version "0.28.0"
@@ -695,10 +662,10 @@
     "@types/istanbul-lib-coverage" "*"
     "@types/istanbul-lib-report" "*"
 
-"@types/jest@^25.2.3":
-  version "25.2.3"
-  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-25.2.3.tgz#33d27e4c4716caae4eced355097a47ad363fdcaf"
-  integrity sha512-JXc1nK/tXHiDhV55dvfzqtmP4S3sy3T3ouV2tkViZgxY/zeUkcpQcQPGRlgF4KmWzWW5oiWYSZwtCB+2RsE4Fw==
+"@types/jest@^26.0.0":
+  version "26.0.0"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-26.0.0.tgz#a6d7573dffa9c68cbbdf38f2e0de26f159e11134"
+  integrity sha512-/yeMsH9HQ1RLORlXAwoLXe8S98xxvhNtUz3yrgrwbaxYjT+6SFPZZRksmRKRA6L5vsUtSHeN71viDOTTyYAD+g==
   dependencies:
     jest-diff "^25.2.1"
     pretty-format "^25.2.1"
@@ -4750,13 +4717,13 @@ table@^5.2.3:
     slice-ansi "^2.1.0"
     string-width "^3.0.0"
 
-teraslice-test-harness@^0.19.2:
-  version "0.19.2"
-  resolved "https://registry.yarnpkg.com/teraslice-test-harness/-/teraslice-test-harness-0.19.2.tgz#43f6eedf4449b0014e82607f6e68df597cfffb41"
-  integrity sha512-I1I3/hABW9DQeKvucihF1pyjNOhS+dHtw07x8c47MvyWVg5e94ZzqQUmh+nXps/xO7DgWxDnl0TmSJhOhuTd6g==
+teraslice-test-harness@^0.21.0:
+  version "0.21.0"
+  resolved "https://registry.yarnpkg.com/teraslice-test-harness/-/teraslice-test-harness-0.21.0.tgz#cf11b57163491caae9c4496e0d6fb0428226279f"
+  integrity sha512-e5+nB2IEih5tQTumvNRSTGsQxk1RLUZQoTU59ruIAVf4LVypFv0lEpXG0/vgN4IqNNT0G+Dd4XjcEnZAFKbP4A==
   dependencies:
-    "@terascope/job-components" "^0.34.2"
-    "@terascope/teraslice-op-test-harness" "^1.18.2"
+    "@terascope/job-components" "^0.35.0"
+    "@terascope/teraslice-op-test-harness" "^1.19.0"
 
 terminal-link@^2.0.0:
   version "2.1.1"
