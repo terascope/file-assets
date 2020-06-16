@@ -1,23 +1,15 @@
+import 'jest-extended';
 import path from 'path';
 import { newTestJobConfig, SlicerTestHarness } from 'teraslice-test-harness';
-import { flatten } from '@terascope/job-components';
+import { flatten, SliceRequest } from '@terascope/job-components';
 import { Format } from '../../asset/src/__lib/interfaces';
 
 const fixtures = require('jest-fixtures');
 
 describe('File slicer json files', () => {
-    const slices: any[] = [];
-
     let harness: SlicerTestHarness;
     let testDataDir: string;
-
-    async function getSlices() {
-        const results = await harness.createSlices();
-        if (results[0]) {
-            slices.push(...results);
-            await getSlices();
-        }
-    }
+    let slices: (SliceRequest|null)[];
 
     beforeEach(async () => {
         testDataDir = await fixtures.copyFixtureIntoTempDir(__dirname, 'file_reader/json');
@@ -39,24 +31,37 @@ describe('File slicer json files', () => {
         harness = new SlicerTestHarness(job, {});
 
         await harness.initialize();
+
+        slices = await harness.getAllSlices() as (SliceRequest|null)[];
     });
 
     afterEach(async () => {
         await harness.shutdown();
     });
 
-    it('properly slices JSON files.', async () => {
-        await getSlices();
-        expect(slices.length).toBe(2);
-        // Since slicing happens asynchronously, we need to check which slice has each
-        // file. Just need to check the path on one slice.
-        if (slices[0].path === path.join(testDataDir, 'array/array.json')) {
-            expect(slices[0].length).toEqual(1822);
-            expect(slices[1].length).toEqual(364);
-        } else {
-            expect(slices[1].length).toEqual(1822);
-            expect(slices[0].length).toEqual(364);
-        }
+    it('should create 3 slices (one null)', async () => {
+        expect(slices).toBeArrayOfSize(3);
+        expect(slices).toContain(null);
+    });
+
+    it('should properly slice the single json file', async () => {
+        const result = slices.find((slice) => {
+            if (slice == null) return false;
+            return slice.path === path.join(testDataDir, 'single/single.json');
+        });
+        expect(result).toMatchObject({
+            length: 364
+        });
+    });
+
+    it('should properly slice the array json file', async () => {
+        const result = slices.find((slice) => {
+            if (slice == null) return false;
+            return slice.path === path.join(testDataDir, 'array/array.json');
+        });
+        expect(result).toMatchObject({
+            length: 1822
+        });
     });
 });
 

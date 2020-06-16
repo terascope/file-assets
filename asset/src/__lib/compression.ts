@@ -1,4 +1,3 @@
-import { toString } from '@terascope/job-components';
 import { gzip, ungzip } from 'node-gzip';
 // @ts-expect-error
 import { encode, decode } from 'lz4';
@@ -25,7 +24,7 @@ export async function decompress(data: unknown, compression: Compression): Promi
         case 'gzip':
             return ungzip(data as any).then((uncompressed) => uncompressed.toString());
         case 'none':
-            return toString(data);
+            return (data as any).toString();
         default:
         // This shouldn't happen since the config schemas will protect against it
             throw new Error(`Unsupported compression: ${compression}`);
