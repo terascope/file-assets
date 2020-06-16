@@ -94,6 +94,8 @@ describe('S3 slicer when slicing JSON objects', () => {
         expect(s3ParamsSecondRequest.Marker).toEqual('testing/obj2');
 
         slices.forEach((record) => {
+            if (record == null) return;
+
             expect(record.offset).toEqual(0);
             if (record.path === 'testing/obj0') {
                 expect(record.length).toEqual(1000);

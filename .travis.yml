@@ -3,7 +3,7 @@ dist: bionic
 language: node_js
 node_js:
   - '10.19'
-  - '12.17'
+  - '12.18'
 os:
   - linux
   - osx
@@ -15,13 +15,15 @@ cache:
   npm: false
   yarn: false
 if: NOT (branch = master AND type = push AND tag IS blank AND os = osx)
+before_script:
+  - yarn build
+  - yarn global add teraslice-cli
 script:
   - yarn test
   - yarn lint
+  - teraslice-cli assets build
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-  - yarn global add teraslice-cli
-  - teraslice-cli assets build
 deploy:
   provider: releases
   api_key: $GITHUB_TOKEN

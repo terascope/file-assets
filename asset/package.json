@@ -2,8 +2,14 @@
     "name": "file",
     "version": "0.14.3",
     "description": "A set of processors for working with files",
+    "private": true,
+    "workspaces": {
+        "nohoist": [
+            "**"
+        ]
+    },
     "dependencies": {
-        "@terascope/job-components": "^0.34.2",
+        "@terascope/job-components": "^0.35.0",
         "csvtojson": "^2.0.10",
         "fs-extra": "^9.0.0",
         "json2csv": "5.0.1",

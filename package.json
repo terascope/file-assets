@@ -5,23 +5,26 @@
     "repository": "https://github.com/terascope/file-assets.git",
     "author": "Terascope, LLC <info@terascope.io>",
     "license": "MIT",
+    "private": true,
+    "workspaces": [
+        "asset"
+    ],
     "scripts": {
-        "asset:build": "yarn run build",
+        "asset:build": "yarn && yarn run build",
         "build": "rm -rf asset/dist; tsc --project tsconfig.json",
         "build:watch": "yarn build --watch",
         "lint": "eslint --ignore-path .gitignore --ext .js,.ts .",
         "lint:fix": "yarn lint --fix",
         "test": "jest",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
-        "postinstall": "yarn --cwd ./asset --prod --no-progress"
+        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand"
     },
     "dependencies": {},
     "devDependencies": {
         "@terascope/eslint-config": "^0.4.0",
-        "@terascope/job-components": "^0.34.2",
+        "@terascope/job-components": "^0.35.0",
         "@types/fs-extra": "^9.0.1",
-        "@types/jest": "^25.2.3",
+        "@types/jest": "^26.0.0",
         "@types/json2csv": "^5.0.1",
         "@types/node": "^14.0.6",
         "@types/node-gzip": "^1.1.0",
@@ -32,10 +35,10 @@
         "jest-fixtures": "^0.6.0",
         "lz4": "^0.6.3",
         "node-gzip": "^1.1.2",
-        "teraslice-test-harness": "^0.19.2",
+        "teraslice-test-harness": "^0.21.0",
         "ts-jest": "^26.1.0",
         "ts-node": "^8.10.2",
-        "typescript": "~3.9.3"
+        "typescript": "~3.9.5"
     },
     "engines": {
         "node": ">=10.0.0"

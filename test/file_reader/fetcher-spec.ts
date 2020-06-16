@@ -1,3 +1,4 @@
+import 'jest-extended';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
 import path from 'path';
 
@@ -45,7 +46,7 @@ describe('File reader\'s fetcher', () => {
 
         const data = await test.runSlice(beginningSlice);
         // 3 JSON records in the test ldjson file
-        expect(data.length).toEqual(3);
+        expect(data).toBeArrayOfSize(3);
     // increase the timeout for this one
     }, 10000);
 
