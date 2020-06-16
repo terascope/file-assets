@@ -5,8 +5,12 @@
     "repository": "https://github.com/terascope/file-assets.git",
     "author": "Terascope, LLC <info@terascope.io>",
     "license": "MIT",
+    "private": true,
+    "workspaces": [
+        "asset"
+    ],
     "scripts": {
-        "asset:build": "yarn run build",
+        "asset:build": "yarn && yarn run build",
         "build": "rm -rf asset/dist; tsc --project tsconfig.json",
         "build:watch": "yarn build --watch",
         "lint": "eslint --ignore-path .gitignore --ext .js,.ts .",

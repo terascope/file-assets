@@ -2,6 +2,10 @@
     "name": "file",
     "version": "0.14.3",
     "description": "A set of processors for working with files",
+    "private": true,
+    "workspaces": {
+        "nohoist": ["**"]
+    },
     "dependencies": {
         "@terascope/job-components": "^0.34.2",
         "csvtojson": "^2.0.10",
