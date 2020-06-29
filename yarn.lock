@@ -544,16 +544,6 @@
     eslint-plugin-react "^7.19.0"
     eslint-plugin-react-hooks "^4.0.4"
 
-"@terascope/job-components@^0.35.0":
-  version "0.35.0"
-  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.35.0.tgz#e268cdff4e4fd68522b3190989c77a7bcf7460ad"
-  integrity sha512-z7/P/YnywJs4Z6fWh0sgKoDXEZycfAo5UCdPDBGClVhjCgUsQnEsUh8p9PlR9RbN/Ts51Q7IqXmUkOi71mcuQA==
-  dependencies:
-    "@terascope/utils" "^0.28.0"
-    convict "^4.4.1"
-    datemath-parser "^1.0.6"
-    uuid "^8.1.0"
-
 "@terascope/job-components@^0.36.0":
   version "0.36.0"
   resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.36.0.tgz#89f2f83306ce736f258af1b2a26126614baaeef5"
