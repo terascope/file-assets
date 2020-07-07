@@ -60,7 +60,7 @@ export const commonSchema = {
             + 'be treated as a file prefix.\ni.e. "/data/export_" will result in files like'
             + ' "/data/export_X7eLvcvd.1079.gz"',
         default: null,
-        format: 'required_String'
+        format: 'optional_String'
     },
     extension: {
         doc: 'A file extension to add to the object name.',

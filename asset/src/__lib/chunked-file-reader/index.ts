@@ -1,8 +1,11 @@
 import {
-    Logger, cloneDeep, DataEntity, isNotNil
+    Logger, cloneDeep, DataEntity, isNotNil, AnyObject
 } from '@terascope/job-components';
+import { ungzip } from 'node-gzip';
+// @ts-expect-error
+import { decode } from 'lz4';
 import * as chunkFormatter from './formatters';
-import { SlicedFileResults, ProcessorConfig, Offsets } from '../interfaces';
+import { SlicedFileResults, Offsets } from '../interfaces';
 
 export function _averageRecordSize(array: string[]): number {
     return Math.floor(array.reduce((accum, str) => accum + str.length, 0) / array.length);
@@ -41,68 +44,100 @@ export function getOffsets(size: number, total: number, delimiter: string): Offs
     return chunks;
 }
 
-async function getMargin(readerClient: FetcherFn, slice: SlicedFileResults, delimiter: string) {
-    const { offset, length } = slice;
-    let margin = '';
-    let currentOffset = offset;
+export default abstract class ChunkedFileReader {
+    client: any;
+    config: AnyObject;
+    logger: Logger;
 
-    while (margin.indexOf(delimiter) === -1) {
-        // reader clients must return false-y when nothing more to read.
-        const newSlice = cloneDeep(slice);
-        newSlice.offset = currentOffset;
+    constructor(client: AnyObject, config: AnyObject, logger: Logger) {
+        this.client = client;
+        this.config = config;
+        this.logger = logger;
+    }
 
-        const chunk = await readerClient(newSlice);
+    abstract async fetch(msg: AnyObject): Promise<string>
 
-        if (!chunk) {
-            return margin.split(delimiter)[0];
+    // This method will grab the chunk of data specified by the slice plus an
+    // extra margin if the slice does not end with the delimiter.
+    private async getChunk(
+        slice: SlicedFileResults,
+    ): Promise<DataEntity<any, any>[]> {
+        const delimiter = this.config.line_delimiter;
+
+        let needMargin = false;
+        if (slice.length) {
+            // Determines whether or not to grab the extra margin.
+            if (slice.offset + slice.length !== slice.total) {
+                needMargin = true;
+            }
         }
 
-        margin += chunk;
-        currentOffset += length;
+        const data = await this.fetch(slice);
+        let collectedData = data;
+
+        if (data.endsWith(delimiter)) {
+            // Skip the margin if the raw data ends with the delimiter since
+            // it will end with a complete record.
+            needMargin = false;
+        }
+
+        if (needMargin) {
+            // Want to minimize reads since will typically be over the
+            // network. Using twice the average record size as a heuristic.
+            const avgSize = _averageRecordSize(data.split(delimiter));
+            const newSlice = cloneDeep(slice);
+            newSlice.offset = slice.offset + slice.length;
+            newSlice.length = 2 * avgSize;
+
+            collectedData += await this.getMargin(newSlice, delimiter);
+        }
+
+        const results = await chunkFormatter[this.config.format](
+            collectedData, this.logger, this.config, slice
+        );
+
+        if (results) return results.filter(isNotNil) as DataEntity<any, any>[];
+        return results;
     }
-    // Don't read too far - next slice will get it.
-    return margin.split(delimiter)[0];
-}
 
-// This function will grab the chunk of data specified by the slice plus an
-// extra margin if the slice does not end with the delimiter.
-export async function getChunk(
-    readerClient: FetcherFn, opConfig: ProcessorConfig, logger: Logger, slice: SlicedFileResults,
-): Promise<DataEntity<any, any>[]> {
-    const delimiter = opConfig.line_delimiter;
+    private async getMargin(slice: SlicedFileResults, delimiter: string) {
+        const { offset, length } = slice;
+        let margin = '';
+        let currentOffset = offset;
 
-    let needMargin = false;
-    if (slice.length) {
-        // Determines whether or not to grab the extra margin.
-        if (slice.offset + slice.length !== slice.total) {
-            needMargin = true;
+        while (margin.indexOf(delimiter) === -1) {
+            // reader clients must return false-y when nothing more to read.
+            const newSlice = cloneDeep(slice);
+            newSlice.offset = currentOffset;
+
+            const chunk = await this.fetch(newSlice);
+
+            if (!chunk) {
+                return margin.split(delimiter)[0];
+            }
+
+            margin += chunk;
+            currentOffset += length;
+        }
+        // Don't read too far - next slice will get it.
+        return margin.split(delimiter)[0];
+    }
+
+    async decompress(data: unknown): Promise<string> {
+        switch (this.config.compression) {
+            case 'lz4':
+                return decode(data).toString();
+            case 'gzip':
+                return ungzip(data as any).then((uncompressed) => uncompressed.toString());
+            case 'none':
+                return (data as any).toString();
+            default:
+            // This shouldn't happen since the config schemas will protect against it
+                throw new Error(`Unsupported compression: ${this.config.compression}`);
         }
     }
 
-    const data = await readerClient(slice);
-    let collectedData = data;
-
-    if (data.endsWith(delimiter)) {
-        // Skip the margin if the raw data ends with the delimiter since
-        // it will end with a complete record.
-        needMargin = false;
+    async read(slice: SlicedFileResults): Promise<DataEntity[]> {
+        return this.getChunk(slice);
     }
-
-    if (needMargin) {
-        // Want to minimize reads since will typically be over the
-        // network. Using twice the average record size as a heuristic.
-        const avgSize = _averageRecordSize(data.split(delimiter));
-        const newSlice = cloneDeep(slice);
-        newSlice.offset = slice.offset + slice.length;
-        newSlice.length = 2 * avgSize;
-
-        collectedData += await getMargin(readerClient, newSlice, delimiter);
-    }
-
-    const results = await chunkFormatter[opConfig.format](
-        collectedData, logger, opConfig, slice
-    );
-
-    if (results) return results.filter(isNotNil) as DataEntity<any, any>[];
-    return results;
 }

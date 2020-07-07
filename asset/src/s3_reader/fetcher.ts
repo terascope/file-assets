@@ -2,7 +2,7 @@ import {
     Fetcher, getClient, WorkerContext, ExecutionConfig, DataEntity
 } from '@terascope/job-components';
 import { S3ReaderConfig } from './interfaces';
-import { getChunk, FetcherFn } from '../__lib/chunked-file-reader';
+// import { getChunk, FetcherFn } from '../__lib/chunked-file-reader';
 import { decompress } from '../__lib/compression';
 import { parsePath } from '../__lib/fileName';
 import { SlicedFileResults } from '../__lib/interfaces';
@@ -11,7 +11,7 @@ export default class S3Fetcher extends Fetcher<S3ReaderConfig> {
     client: any;
     bucket: string;
     prefix: string;
-    reader: FetcherFn;
+    // reader: FetcherFn;
 
     constructor(context: WorkerContext, opConfig: S3ReaderConfig, exeConfig: ExecutionConfig) {
         super(context, opConfig, exeConfig);
@@ -19,7 +19,7 @@ export default class S3Fetcher extends Fetcher<S3ReaderConfig> {
         const { bucket, prefix } = parsePath(opConfig.path);
         this.bucket = bucket;
         this.prefix = prefix;
-        this.reader = this.s3Reader.bind(this);
+        //  this.reader = this.s3Reader.bind(this);
     }
 
     async s3Reader(slice: SlicedFileResults): Promise<any> {
@@ -50,7 +50,8 @@ export default class S3Fetcher extends Fetcher<S3ReaderConfig> {
         return decompress(results.Body, this.opConfig.compression);
     }
 
-    async fetch(slice: SlicedFileResults): Promise<DataEntity[]> {
-        return getChunk(this.reader, this.opConfig, this.logger, slice);
+    async fetch(_slice: SlicedFileResults): Promise<DataEntity[]> {
+        // return getChunk(this.reader, this.opConfig, this.logger, slice);
+        return [new DataEntity({})];
     }
 }

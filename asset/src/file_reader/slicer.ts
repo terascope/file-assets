@@ -1,23 +1,28 @@
 import {
-    Slicer, WorkerContext, ExecutionConfig,
-    TSError, flatten
+    Slicer,
+    WorkerContext,
+    ExecutionConfig,
+    TSError,
+    flatten,
+    SlicerRecoveryData
 } from '@terascope/job-components';
 import path from 'path';
-import fse from 'fs-extra';
 import { FileConfig } from './interfaces';
 import { SliceConfig, SlicedFileResults } from '../__lib/interfaces';
 import { sliceFile } from '../__lib/slice';
+import { FileReaderFactoryAPI } from '../file_reader_api/interfaces';
+import FileReader from '../file_reader_api/reader';
 
 export default class FileSlicer extends Slicer {
     directories: string[];
     _doneSlicing = false;
     sliceConfig: SliceConfig;
+    api!: FileReader;
 
     constructor(context: WorkerContext, opConfig: FileConfig, executionConfig: ExecutionConfig) {
         super(context, opConfig, executionConfig);
         this.directories = [opConfig.path];
         this.sliceConfig = Object.assign({}, opConfig);
-        this.checkProvidedPath();
     }
 
     /**
@@ -29,16 +34,31 @@ export default class FileSlicer extends Slicer {
         return Boolean(this.executionConfig.autorecover);
     }
 
-    checkProvidedPath(): void {
+    async initialize(recoveryData: SlicerRecoveryData[]): Promise<void> {
+        await super.initialize(recoveryData);
+
+        const apiName = this.opConfig.api_name;
+        const apiManager = this.getAPI<FileReaderFactoryAPI>(apiName);
+        // FIXME: remove as any
+        this.api = await apiManager.create(apiName, {} as any);
+
+        // NOTE ORDER MATTERS
+        // a parallel slicer initialize calls newSlicer multiple times
+        // need to make api before newSlicer is called
+
+        this.checkProvidedPath();
+    }
+
+    private checkProvidedPath(): void {
         try {
-            const dirStats = fse.lstatSync(this.opConfig.path);
+            const dirStats = this.api.client.lstatSync(this.opConfig.path);
 
             if (dirStats.isSymbolicLink()) {
                 const error = new TSError({ reason: `Directory '${this.opConfig.path}' cannot be a symlink!` });
                 throw error;
             }
 
-            const dirContents = fse.readdirSync(this.opConfig.path);
+            const dirContents = this.api.client.readdirSync(this.opConfig.path);
 
             if (dirContents.length === 0) {
                 const error = new TSError({ reason: `Directory '${this.opConfig.path}' must not be empty!` });
@@ -52,12 +72,12 @@ export default class FileSlicer extends Slicer {
 
     async getPath(filePath: string, file: string): Promise<SlicedFileResults[]> {
         const fullPath = path.join(filePath, file);
-        const stats = await fse.lstat(fullPath);
+        const stats = await this.api.client.lstat(fullPath);
 
         let fileSlices: SlicedFileResults[] = [];
 
         if (stats.isFile()) {
-            const fileInfo = await fse.stat(fullPath);
+            const fileInfo = await this.api.client.stat(fullPath);
             fileSlices = sliceFile({ size: fileInfo.size, path: fullPath }, this.sliceConfig);
         } else if (stats.isDirectory()) {
             this.directories.push(fullPath);
@@ -75,7 +95,7 @@ export default class FileSlicer extends Slicer {
     }
 
     async getFilePaths(filePath: string): Promise<SlicedFileResults[]> {
-        const dirContents = await fse.readdir(filePath);
+        const dirContents = await this.api.client.readdir(filePath);
         let slices: SlicedFileResults[] = [];
 
         try {
