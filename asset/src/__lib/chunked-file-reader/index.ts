@@ -1,11 +1,9 @@
 import {
     Logger, cloneDeep, DataEntity, isNotNil, AnyObject
 } from '@terascope/job-components';
-import { ungzip } from 'node-gzip';
-// @ts-expect-error
-import { decode } from 'lz4';
 import * as chunkFormatter from './formatters';
 import { SlicedFileResults, Offsets } from '../interfaces';
+import FileFormatter from '../compression';
 
 export function _averageRecordSize(array: string[]): number {
     return Math.floor(array.reduce((accum, str) => accum + str.length, 0) / array.length);
@@ -44,12 +42,13 @@ export function getOffsets(size: number, total: number, delimiter: string): Offs
     return chunks;
 }
 
-export default abstract class ChunkedFileReader {
+export default abstract class ChunkedFileReader extends FileFormatter {
     client: any;
     config: AnyObject;
     logger: Logger;
 
     constructor(client: AnyObject, config: AnyObject, logger: Logger) {
+        super(config.compression);
         this.client = client;
         this.config = config;
         this.logger = logger;
@@ -121,20 +120,6 @@ export default abstract class ChunkedFileReader {
         }
         // Don't read too far - next slice will get it.
         return margin.split(delimiter)[0];
-    }
-
-    async decompress(data: unknown): Promise<string> {
-        switch (this.config.compression) {
-            case 'lz4':
-                return decode(data).toString();
-            case 'gzip':
-                return ungzip(data as any).then((uncompressed) => uncompressed.toString());
-            case 'none':
-                return (data as any).toString();
-            default:
-            // This shouldn't happen since the config schemas will protect against it
-                throw new Error(`Unsupported compression: ${this.config.compression}`);
-        }
     }
 
     async read(slice: SlicedFileResults): Promise<DataEntity[]> {

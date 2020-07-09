@@ -2,7 +2,7 @@ import 'jest-extended';
 import { OpConfig, APIConfig, ValidatedJobConfig } from '@terascope/job-components';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
 
-describe('S3 exporter Schema', () => {
+describe('File Reader Schema', () => {
     let harness: WorkerTestHarness;
 
     async function makeTest(config: OpConfig, apiConfig?: APIConfig) {

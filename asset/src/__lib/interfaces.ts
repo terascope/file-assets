@@ -14,6 +14,12 @@ export enum Format {
     csv = 'csv',
 }
 
+export enum FileSenderType {
+    file = 'file',
+    s3 = 's3',
+    hdfs = 'hdfs'
+}
+
 export interface Offsets {
     length: number;
     offset: number;
@@ -33,6 +39,7 @@ export interface ParseOptions {
     format: Format;
     compression: Compression;
 }
+
 export enum Compression {
     none = 'none',
     lz4 = 'lz4',

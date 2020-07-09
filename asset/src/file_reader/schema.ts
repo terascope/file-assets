@@ -10,7 +10,7 @@ import {
     isEmpty,
     isNotNil
 } from '@terascope/job-components';
-import { FileConfig } from './interfaces';
+import { FileReaderConfig } from './interfaces';
 import { fileReaderSchema } from '../__lib/common-schema';
 import { DEFAULT_API_NAME } from '../file_reader_api/interfaces';
 
@@ -27,9 +27,9 @@ clonedSchema.api_name = {
 
 export const schema = clonedSchema;
 
-export default class Schema extends ConvictSchema<FileConfig> {
+export default class Schema extends ConvictSchema<FileReaderConfig> {
     validateJob(job: ValidatedJobConfig): void {
-        const opConfig = getOpConfig(job, 'file_reader') as FileConfig | undefined;
+        const opConfig = getOpConfig(job, 'file_reader') as FileReaderConfig | undefined;
         if (isNil(opConfig)) throw new Error('Could not find opConfig for operation field_reader');
         const { api_name, ...apiConfig } = opConfig;
         if (!Array.isArray(job.apis)) job.apis = [];

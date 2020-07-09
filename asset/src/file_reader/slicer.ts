@@ -7,7 +7,7 @@ import {
     SlicerRecoveryData
 } from '@terascope/job-components';
 import path from 'path';
-import { FileConfig } from './interfaces';
+import { FileReaderConfig } from './interfaces';
 import { SliceConfig, SlicedFileResults } from '../__lib/interfaces';
 import { sliceFile } from '../__lib/slice';
 import { FileReaderFactoryAPI } from '../file_reader_api/interfaces';
@@ -19,7 +19,9 @@ export default class FileSlicer extends Slicer {
     sliceConfig: SliceConfig;
     api!: FileReader;
 
-    constructor(context: WorkerContext, opConfig: FileConfig, executionConfig: ExecutionConfig) {
+    constructor(
+        context: WorkerContext, opConfig: FileReaderConfig, executionConfig: ExecutionConfig
+    ) {
         super(context, opConfig, executionConfig);
         this.directories = [opConfig.path];
         this.sliceConfig = Object.assign({}, opConfig);
