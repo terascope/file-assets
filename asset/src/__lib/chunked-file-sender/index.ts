@@ -79,11 +79,9 @@ export default class ChunkedSender {
     }
 
     private async converFileChunk(slice: DataEntity[] | null | undefined): Promise<any|null> {
-    // null or empty slices get an empty output and will get filtered out below
+        // null or empty slices get an empty output and will get filtered out below
         if (!slice || !slice.length) return null;
         // Build the output string to dump to the object
-        // TODO externalize this into a ./lib/ for use with the `file_exporter`
-        // let outStr = '';
         const outStr = this.fileFormatter.format(slice);
         // Let the exporters prevent empty slices from making it through
         if (!outStr || outStr.length === 0 || outStr === this.config.line_delimiter) {
@@ -91,6 +89,11 @@ export default class ChunkedSender {
         }
 
         return this.compressionFormatter.compress(outStr);
+    }
+
+    protected joinPath(path: string): string {
+        const { filePath } = this.nameOptions;
+        return nodePathModule.join(filePath, '/', path);
     }
 
     // Batches records in a slice into groups based on the `routingPath` override (if present)
@@ -104,7 +107,7 @@ export default class ChunkedSender {
             const override = record.getMetadata('standard:route');
 
             if (this.isRouter && override) {
-                const routePath = nodePathModule.join(filePath, '/', override);
+                const routePath = this.joinPath(override);
 
                 if (!batches[routePath]) {
                     batches[routePath] = [];

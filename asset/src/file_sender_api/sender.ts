@@ -21,7 +21,7 @@ export default class FileSender extends ChunkedSender implements RouteSenderAPI 
         this.concurrency = concurrency;
     }
 
-    async sendToFile(path: string, records: DataEntity[]): Promise<any> {
+    private async sendToFile(path: string, records: DataEntity[]): Promise<any> {
         const { fileName, output } = await this.prepareSegment(path, records);
         // Prevents empty slices from resulting in empty files
         if (!output || output.length === 0) {
@@ -61,8 +61,8 @@ export default class FileSender extends ChunkedSender implements RouteSenderAPI 
         );
     }
 
-    async verify(fileName: string): Promise<void> {
-        // TODO: verify if I need to add path to this
-        await fse.ensureDir(fileName);
+    async verify(route: string): Promise<void> {
+        const newPath = this.joinPath(route);
+        await fse.ensureDir(newPath);
     }
 }

@@ -1,10 +1,12 @@
-import { APIFactory, AnyObject } from '@terascope/job-components';
+import {
+    APIFactory, AnyObject, isNil, isString, getTypeOf
+} from '@terascope/job-components';
 import FileReader from './reader';
 import { ReaderFileAPI } from './interfaces';
 
 export default class FileReaderApi extends APIFactory<FileReader, ReaderFileAPI> {
     validateConfig(input: AnyObject): ReaderFileAPI {
-        // TODO: check configs
+        if (isNil(input.path) || !isString(input.path)) throw new Error(`Invalid parameter path: it must be of type string, was given ${getTypeOf(input.path)}`);
         return input as ReaderFileAPI;
     }
 
