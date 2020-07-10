@@ -1,3 +1,4 @@
+import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
 import { DataEntity } from '@terascope/job-components';
 import path from 'path';
@@ -458,14 +459,38 @@ describe('File exporter processor', () => {
         );
     });
 
-    it('can respect metadata routing', async () => {
+    it('will not respect metadata routing when used normally', async () => {
         const config = {
             fields: ['field1'],
             field_delimiter: ',',
             include_header: false,
             file_per_slice: false,
             line_delimiter: '\n',
-            format: Format.json
+            format: Format.json,
+        };
+
+        const test = await makeTest(config);
+
+        const routePath = getTestFilePath();
+
+        await test.runSlice(routeSlice);
+
+        const slice = `${workerId}.0`;
+        const results = fs.readFileSync(getTestFilePath(slice), 'utf-8');
+
+        expect(fs.readdirSync(routePath)).toBeArrayOfSize(1);
+        expect(JSON.parse(results)).toBeArrayOfSize(2);
+    });
+
+    it('can respect metadata routing when used as part of routed_sender', async () => {
+        const config = {
+            fields: ['field1'],
+            field_delimiter: ',',
+            include_header: false,
+            file_per_slice: false,
+            line_delimiter: '\n',
+            format: Format.json,
+            _key: 'a'
         };
         const test = await makeTest(config);
 

@@ -2,8 +2,10 @@ import {
     isEmpty,
     DataEntity,
     AnyObject,
+    isString
 } from '@terascope/job-components';
 import * as nodePathModule from 'path';
+import fse from 'fs-extra';
 import CompressionFormatter from '../compression';
 import FileFormatter from '../file-formatter';
 import {
@@ -13,17 +15,17 @@ import {
     CSVConfig,
     Format,
 } from '../interfaces';
-// TODO: this should live in interfaces
-// import { FileConfig } from '../common-schema';
 
 export default class ChunkedSender {
     workerId: string;
     nameOptions: NameOptions;
     sliceCount = -1;
     format: Format;
+    readonly isRouter: boolean;
     readonly config: AnyObject;
     private compressionFormatter: CompressionFormatter
     protected fileFormatter: FileFormatter
+    pathList = new Map<string, boolean>();
 
     constructor(type: FileSenderType, config: AnyObject) {
         const {
@@ -50,19 +52,19 @@ export default class ChunkedSender {
         this.compressionFormatter = new CompressionFormatter(compression);
         this.fileFormatter = new FileFormatter(format, config as any, csvOptions);
         this.config = config;
+        this.isRouter = config._key && isString(config._key);
     }
 
-    createFileDestinationName(pathOverride?: string): string {
+    async createFileDestinationName(pathing: string): Promise<string> {
         // Can't use path.join() here since the path might include a filename prefix
-        const { filePath, filePerSlice = false, extension } = this.nameOptions;
-
-        let fileName;
-
-        if (pathOverride !== undefined) {
-            fileName = nodePathModule.join(pathOverride, this.workerId);
-        } else {
-            fileName = nodePathModule.join(filePath, this.workerId);
+        const { filePerSlice = false, extension } = this.nameOptions;
+        let fileName: string;
+        // we make dir path if route does not exist
+        if (!this.pathList.has(pathing)) {
+            await fse.ensureDir(pathing);
+            this.pathList.set(pathing, true);
         }
+        fileName = nodePathModule.join(pathing, this.workerId);
 
         // The slice count is only added for `file_per_slice`
         if (filePerSlice) {
@@ -91,12 +93,36 @@ export default class ChunkedSender {
         return this.compressionFormatter.compress(outStr);
     }
 
-    async prepareSegment(
-        slice: DataEntity[] | null | undefined, pathOverride?: string
-    ): Promise<{ fileName: string, output: any|null }> {
-        const fileName = this.createFileDestinationName(pathOverride);
-        const output = await this.converFileChunk(slice);
+    // Batches records in a slice into groups based on the `routingPath` override (if present)
+    prepareDispatch(data: DataEntity[]): Record<string, DataEntity[]> {
+        const batches: Record<string, DataEntity[]> = {};
+        const { filePath } = this.nameOptions;
 
+        batches[filePath] = [];
+
+        data.forEach((record: any) => {
+            const override = record.getMetadata('standard:route');
+
+            if (this.isRouter && override) {
+                const routePath = nodePathModule.join(filePath, '/', override);
+
+                if (!batches[routePath]) {
+                    batches[routePath] = [];
+                }
+                batches[routePath].push(record);
+            } else {
+                batches[filePath].push(record);
+            }
+        });
+
+        return batches;
+    }
+
+    async prepareSegment(
+        path: string, records: DataEntity[] | null | undefined,
+    ): Promise<{ fileName: string, output: DataEntity[]| null | undefined }> {
+        const fileName = await this.createFileDestinationName(path);
+        const output = await this.converFileChunk(records);
         return { fileName, output };
     }
 
