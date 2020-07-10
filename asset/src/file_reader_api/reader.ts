@@ -1,12 +1,9 @@
 import fse from 'fs-extra';
-import { AnyObject, Logger } from '@terascope/job-components';
 import { SlicedFileResults } from '../__lib/interfaces';
 import ChunkedReader from '../__lib/chunked-file-reader';
 
 export default class FileReader extends ChunkedReader {
-    constructor(config: AnyObject, logger: Logger) {
-        super(fse, config, logger);
-    }
+    client = fse;
 
     async fetch(slice: SlicedFileResults): Promise<string> {
         const { path, length, offset } = slice;

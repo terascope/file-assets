@@ -91,9 +91,10 @@ export default class ChunkedSender {
         return this.compressionFormatter.compress(outStr);
     }
 
-    protected joinPath(path: string): string {
+    protected joinPath(path?: string): string {
         const { filePath } = this.nameOptions;
-        return nodePathModule.join(filePath, '/', path);
+        if (path) return nodePathModule.join(filePath, '/', path);
+        return filePath;
     }
 
     // Batches records in a slice into groups based on the `routingPath` override (if present)

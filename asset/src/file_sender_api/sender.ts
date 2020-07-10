@@ -61,7 +61,7 @@ export default class FileSender extends ChunkedSender implements RouteSenderAPI 
         );
     }
 
-    async verify(route: string): Promise<void> {
+    async verify(route?: string): Promise<void> {
         const newPath = this.joinPath(route);
         await fse.ensureDir(newPath);
     }

@@ -43,13 +43,11 @@ export function getOffsets(size: number, total: number, delimiter: string): Offs
 }
 
 export default abstract class ChunkedFileReader extends FileFormatter {
-    client: any;
     config: AnyObject;
     logger: Logger;
 
-    constructor(client: AnyObject, config: AnyObject, logger: Logger) {
+    constructor(config: AnyObject, logger: Logger) {
         super(config.compression);
-        this.client = client;
         this.config = config;
         this.logger = logger;
     }

@@ -20,7 +20,7 @@ clonedSchema.api_name = {
     default: DEFAULT_API_NAME,
     format: (val: unknown): void => {
         if (!isString(val)) throw new Error(`Invalid parameter api_name, it must be of type string, was given ${getTypeOf(val)}`);
-        if (!val.includes(DEFAULT_API_NAME)) throw new Error('Invalid parameter api_name, it must be an file_sender_api');
+        if (!val.includes(DEFAULT_API_NAME)) throw new Error(`Invalid parameter api_name, it must be an ${DEFAULT_API_NAME}`);
     }
 };
 
