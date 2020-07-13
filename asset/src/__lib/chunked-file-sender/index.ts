@@ -5,7 +5,6 @@ import {
     isString
 } from '@terascope/job-components';
 import * as nodePathModule from 'path';
-import fse from 'fs-extra';
 import CompressionFormatter from '../compression';
 import FileFormatter from '../file-formatter';
 import {
@@ -16,7 +15,7 @@ import {
     Format,
 } from '../interfaces';
 
-export default class ChunkedSender {
+export default abstract class ChunkedSender {
     workerId: string;
     nameOptions: NameOptions;
     sliceCount = -1;
@@ -55,13 +54,15 @@ export default class ChunkedSender {
         this.isRouter = config._key && isString(config._key);
     }
 
+    async abstract verify(path: string): Promise<void>
+
     async createFileDestinationName(pathing: string): Promise<string> {
         // Can't use path.join() here since the path might include a filename prefix
         const { filePerSlice = false, extension } = this.nameOptions;
         let fileName: string;
         // we make dir path if route does not exist
         if (!this.pathList.has(pathing)) {
-            await fse.ensureDir(pathing);
+            await this.verify(pathing);
             this.pathList.set(pathing, true);
         }
         fileName = nodePathModule.join(pathing, this.workerId);
@@ -124,7 +125,7 @@ export default class ChunkedSender {
 
     async prepareSegment(
         path: string, records: DataEntity[] | null | undefined,
-    ): Promise<{ fileName: string, output: DataEntity[]| null | undefined }> {
+    ): Promise<{ fileName: string, output: DataEntity[]| null | undefined | string | Buffer }> {
         const fileName = await this.createFileDestinationName(path);
         const output = await this.converFileChunk(records);
         return { fileName, output };

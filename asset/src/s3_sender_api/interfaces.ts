@@ -8,4 +8,10 @@ export interface S3ExporterAPI extends ReaderFileConfig, APIConfig {
     workerId: string;
 }
 
+export interface S3PutConfig {
+    Bucket: string;
+    Key: string;
+    Body: string;
+}
+
 export type S3SenderFactoryAPI = APIFactoryRegistry<FileSender, S3ExporterAPI>

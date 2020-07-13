@@ -6,12 +6,11 @@ import {
     TSError,
     pMap
 } from '@terascope/job-components';
-import { parsePath } from '../s3_reader/helpers';
+import path from 'path';
 import ChunkedSender from '../__lib/chunked-file-sender';
 import { FileSenderType } from '../__lib/interfaces';
-import { S3PutConfig } from './interfaces';
 
-export default class S3Sender extends ChunkedSender implements RouteSenderAPI {
+export default class HDFSSender extends ChunkedSender implements RouteSenderAPI {
     logger: Logger;
     concurrency: number;
     client: AnyObject;
@@ -24,25 +23,26 @@ export default class S3Sender extends ChunkedSender implements RouteSenderAPI {
         this.client = client;
     }
 
-    private async sendToS3(filename: string, list: DataEntity[]): Promise<any> {
-        const objPath = parsePath(filename);
+    async sendToHdfs(filename: string, list: DataEntity[]): Promise<any[]> {
+        const { fileName, output } = await this.prepareSegment(filename, list);
 
-        const { fileName, output } = await this.prepareSegment(objPath.prefix, list);
         // This will prevent empty objects from being added to the S3 store, which can cause
         // problems with the S3 reader
         if (!output || output.length === 0) {
             return [];
         }
-        // TODO: may need to verify bucket first
-        const params: S3PutConfig = {
-            Bucket: objPath.bucket,
-            Key: fileName,
-            Body: output as string
-        };
 
-        return this.client.putObject_Async(params);
+        try {
+            return this.client.appendAsync(fileName, output);
+        } catch (err) {
+            throw new TSError(err, {
+                reason: 'Error sending data to file',
+                context: {
+                    file: fileName
+                }
+            });
+        }
     }
-
     async send(records: DataEntity[]):Promise<void> {
         const { concurrency } = this;
         this.sliceCount += 1;
@@ -61,23 +61,27 @@ export default class S3Sender extends ChunkedSender implements RouteSenderAPI {
 
         await pMap(
             actions,
-            ([fileName, list]) => this.sendToS3(fileName, list),
+            ([fileName, list]) => this.sendToHdfs(fileName, list),
             { concurrency }
         );
     }
 
     async verify(route: string): Promise<void> {
         const newPath = this.joinPath(route);
-        const { bucket } = parsePath(newPath);
-        const query = { Bucket: bucket };
 
         try {
-            await this.client.headBucket_Async(query);
+            return this.client.getFileStatusAsync(newPath);
         } catch (_err) {
             try {
-                await this.client.createBucket_Async(query);
+                await this.client.mkdirsAsync(path.dirname(newPath));
+                await this.client.createAsync(newPath, '');
             } catch (err) {
-                throw new TSError(err, { reason: `Could not setup bucket ${newPath}}` });
+                new TSError(err, {
+                    reason: 'Error while attempting to create a file',
+                    context: {
+                        newPath
+                    }
+                });
             }
         }
     }

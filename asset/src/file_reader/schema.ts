@@ -30,7 +30,7 @@ export const schema = clonedSchema;
 export default class Schema extends ConvictSchema<FileReaderConfig> {
     validateJob(job: ValidatedJobConfig): void {
         const opConfig = getOpConfig(job, 'file_reader') as FileReaderConfig | undefined;
-        if (isNil(opConfig)) throw new Error('Could not find opConfig for operation field_reader');
+        if (isNil(opConfig)) throw new Error('Could not find opConfig for operation file_reader');
         const { api_name, ...apiConfig } = opConfig;
         if (!Array.isArray(job.apis)) job.apis = [];
         const FileReaderAPI = job.apis.find((jobApi) => jobApi._name === api_name);

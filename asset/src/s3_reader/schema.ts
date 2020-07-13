@@ -33,9 +33,9 @@ export default class Schema extends ConvictSchema<S3ReaderConfig> {
         if (isNil(opConfig)) throw new Error('Could not find opConfig for operation s3_reader');
         const { api_name, ...apiConfig } = opConfig;
         if (!Array.isArray(job.apis)) job.apis = [];
-        const FileReaderAPI = job.apis.find((jobApi) => jobApi._name === api_name);
+        const S3ReaderAPI = job.apis.find((jobApi) => jobApi._name === api_name);
 
-        if (isNil(FileReaderAPI)) {
+        if (isNil(S3ReaderAPI)) {
             if (isNil(opConfig.path)) throw new Error(`Invalid parameter path, must be of type string, got ${getTypeOf(opConfig.path)}`);
 
             job.apis.push({

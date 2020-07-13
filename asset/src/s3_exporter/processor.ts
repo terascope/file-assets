@@ -5,8 +5,8 @@ import {
     DataEntity,
     isEmpty,
 } from '@terascope/job-components';
-import { S3ExportConfig, S3PutConfig } from './interfaces';
-import { NameOptions, CSVOptions } from '../__lib/interfaces';
+import { S3ExportConfig } from './interfaces';
+import { NameOptions } from '../__lib/interfaces';
 import S3Sender from '../s3_sender_api/sender';
 import { S3SenderFactoryAPI } from '../s3_sender_api/interfaces';
 
@@ -31,8 +31,6 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
         const apiName = this.opConfig.api_name;
         const apiManager = this.getAPI<S3SenderFactoryAPI>(apiName);
         this.api = await apiManager.create(apiName, {} as any);
-        // this should go in the api
-        await this.api.verify();
     }
 
     async onBatch(slice: DataEntity[]): Promise<DataEntity[]> {

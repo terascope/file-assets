@@ -1,21 +1,26 @@
 import {
-    Slicer, getClient, WorkerContext, ExecutionConfig,
-    TSError, flatten
+    Slicer,
+    WorkerContext,
+    ExecutionConfig,
+    TSError,
+    flatten,
+    SlicerRecoveryData
 } from '@terascope/job-components';
 import path from 'path';
 import { HDFSReaderConfig } from './interfaces';
 import { SliceConfig, SlicedFileResults } from '../__lib/interfaces';
 import { sliceFile } from '../__lib/slice';
+import { HDFSReaderFactoryAPI } from '../hdfs_reader_api/interfaces';
+import HDFSReader from '../hdfs_reader_api/reader';
 
-export default class FileSlicer extends Slicer<HDFSReaderConfig> {
-    client: any;
+export default class HDFSFileSlicer extends Slicer<HDFSReaderConfig> {
+    api!: HDFSReader;
     directories: string[];
     _doneSlicing = false;
     sliceConfig: SliceConfig;
 
     constructor(context: WorkerContext, opConfig: HDFSReaderConfig, exConfig: ExecutionConfig) {
         super(context, opConfig, exConfig);
-        this.client = getClient(context, opConfig, 'hdfs_ha').client;
         this.sliceConfig = Object.assign({}, opConfig);
         this.directories = [opConfig.path];
     }
@@ -27,6 +32,15 @@ export default class FileSlicer extends Slicer<HDFSReaderConfig> {
     */
     isRecoverable(): boolean {
         return Boolean(this.executionConfig.autorecover);
+    }
+
+    async initialize(recoveryData: SlicerRecoveryData[]): Promise<void> {
+        await super.initialize(recoveryData);
+
+        const apiName = this.opConfig.api_name;
+        const apiManager = this.getAPI<HDFSReaderFactoryAPI>(apiName);
+        // FIXME: remove as any
+        this.api = await apiManager.create(apiName, {} as any);
     }
 
     searchFiles(metadata: Record<string, any>, filePath: string): SlicedFileResults[] {
@@ -49,7 +63,7 @@ export default class FileSlicer extends Slicer<HDFSReaderConfig> {
         let slices: SlicedFileResults[] = [];
 
         try {
-            const dirContents: any[] = await this.client.listStatusAsync(filePath);
+            const dirContents: any[] = await this.api.client.listStatusAsync(filePath);
             slices = flatten(
                 dirContents.map((meta: any) => this.searchFiles(meta, filePath))
             );

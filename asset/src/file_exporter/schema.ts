@@ -29,12 +29,12 @@ export const schema = clonedSchema;
 export default class Schema extends ConvictSchema<FileExporterConfig> {
     validateJob(job: ValidatedJobConfig): void {
         const opConfig = getOpConfig(job, 'file_exporter') as FileExporterConfig | undefined;
-        if (isNil(opConfig)) throw new Error('Could not find opConfig for operation field_reader');
+        if (isNil(opConfig)) throw new Error('Could not find opConfig for operation file_exporter');
         const { api_name, ...apiConfig } = opConfig;
         if (!Array.isArray(job.apis)) job.apis = [];
-        const FileReaderAPI = job.apis.find((jobApi) => jobApi._name === api_name);
+        const FileSenderAPI = job.apis.find((jobApi) => jobApi._name === api_name);
 
-        if (isNil(FileReaderAPI)) {
+        if (isNil(FileSenderAPI)) {
             if (isNil(opConfig.path)) throw new Error(`Invalid parameter path, must be of type string, got ${getTypeOf(opConfig.path)}`);
 
             job.apis.push({
