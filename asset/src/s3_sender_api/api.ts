@@ -22,8 +22,12 @@ export default class FileReaderApi extends APIFactory<S3Sender, S3ExporterAPI> {
             endpoint: config.connection,
             type: 's3',
             cached: true
-        });
+        }).client;
+
         const client = new S3Sender(s3Client, config, this.logger);
+
+        await client.ensureBucket(config.path);
+
         return { client, config };
     }
 

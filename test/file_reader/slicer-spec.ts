@@ -11,7 +11,7 @@ describe('File slicer json files', () => {
     let testDataDir: string;
     let slices: (SliceRequest|null)[];
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         testDataDir = await fixtures.copyFixtureIntoTempDir(__dirname, 'file_reader/json');
         const job = newTestJobConfig({
             analytics: true,
@@ -35,7 +35,7 @@ describe('File slicer json files', () => {
         slices = await harness.getAllSlices() as (SliceRequest|null)[];
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
         await harness.shutdown();
     });
 
@@ -66,8 +66,7 @@ describe('File slicer json files', () => {
 });
 
 describe('File slicer non json files', () => {
-    const slices: any[] = [];
-
+    let slices: (SliceRequest|null)[];
     let harness: SlicerTestHarness;
     let testDataDir: string;
 
@@ -93,25 +92,18 @@ describe('File slicer non json files', () => {
         harness = new SlicerTestHarness(job, {});
 
         await harness.initialize();
+
+        slices = await harness.getAllSlices() as (SliceRequest|null)[];
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
         await harness.shutdown();
     });
 
-    async function getSlices() {
-        const results = await harness.createSlices();
-        if (results[0]) {
-            slices.push(...results);
-            await getSlices();
-        }
-    }
-
     it('properly slices non-JSON files', async () => {
-        await getSlices();
-        const flatSlices: any[] = flatten(slices);
+        const flatSlices: any[] = flatten(slices as any);
 
-        expect(flatSlices.length).toBe(46);
+        expect(flatSlices.length).toBe(47);
         expect(flatSlices[22].length).toEqual(321);
         expect(flatSlices[45].length).toEqual(321);
     });

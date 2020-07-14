@@ -16,7 +16,7 @@ export default class HDFSSender extends ChunkedSender implements RouteSenderAPI 
     client: AnyObject;
 
     constructor(client: AnyObject, config: AnyObject, logger: Logger) {
-        super(FileSenderType.file, config as any);
+        super(FileSenderType.hdfs, config as any);
         this.logger = logger;
         const { concurrency } = config;
         this.concurrency = concurrency;

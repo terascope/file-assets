@@ -4,7 +4,7 @@ import { TestClientConfig, DataEntity } from '@terascope/job-components';
 // @ts-ignore
 import lz4 from 'lz4';
 import { ungzip } from 'node-gzip';
-import { S3PutConfig } from '../../asset/src/s3_exporter/interfaces';
+import { S3PutConfig } from '../../asset/src/s3_sender_api/interfaces';
 
 describe('S3 exporter processor', () => {
     let harness: WorkerTestHarness;
@@ -242,7 +242,7 @@ describe('S3 exporter processor', () => {
     });
 
     it('can respect metadata routing', async () => {
-        const config = { format: 'json' };
+        const config = { format: 'json', _key: 'a' };
         const test = await makeTest(config);
 
         await test.runSlice(routeSlice);

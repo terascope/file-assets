@@ -18,7 +18,8 @@ export default class S3ReaderAPI extends APIFactory<S3Reader, S3ReaderApi> {
             endpoint: config.connection,
             type: 's3',
             cached: true
-        });
+        }).client;
+
         const client = new S3Reader(s3Client, config, this.logger);
         return { client, config };
     }

@@ -49,6 +49,6 @@ export default class Schema extends ConvictSchema<S3ReaderConfig> {
     }
 
     build(): Record<string, any> {
-        return fileReaderSchema;
+        return clonedSchema;
     }
 }

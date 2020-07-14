@@ -22,7 +22,8 @@ export default class HDFSSenderFactoryApi extends APIFactory<HDFSSender, HDFSExp
             endpoint: config.connection,
             type: 'hdfs_ha',
             cached: false
-        });
+        }).client;
+
         const client = new HDFSSender(hdfsClient, config, this.logger);
         return { client, config };
     }

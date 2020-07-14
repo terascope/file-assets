@@ -16,21 +16,22 @@ import {
 } from '../interfaces';
 
 export default abstract class ChunkedSender {
-    workerId: string;
-    nameOptions: NameOptions;
-    sliceCount = -1;
-    format: Format;
+    readonly workerId: string;
+    readonly nameOptions: NameOptions;
+    protected sliceCount = -1;
+    readonly format: Format;
     readonly isRouter: boolean;
     readonly config: AnyObject;
     private compressionFormatter: CompressionFormatter
     protected fileFormatter: FileFormatter
-    pathList = new Map<string, boolean>();
+    readonly pathList = new Map<string, boolean>();
+    readonly type: FileSenderType;
 
     constructor(type: FileSenderType, config: AnyObject) {
         const {
             path, workerId, format, compression
         } = config;
-
+        this.type = type;
         this.workerId = workerId;
         this.format = format;
         // FIXME: types
@@ -56,16 +57,38 @@ export default abstract class ChunkedSender {
 
     async abstract verify(path: string): Promise<void>
 
+    async ensurePathing(path: string, removeFilePath = false): Promise<void> {
+        if (!this.pathList.has(path)) {
+            if (removeFilePath) {
+                const route = path.replace(this.nameOptions.filePath, '');
+                // we make sure file_path is not present becuase its added back in with verify call
+                await this.verify(route);
+            } else {
+                await this.verify(path);
+            }
+            this.pathList.set(path, true);
+        }
+    }
+
     async createFileDestinationName(pathing: string): Promise<string> {
         // Can't use path.join() here since the path might include a filename prefix
-        const { filePerSlice = false, extension } = this.nameOptions;
+        const { filePerSlice = false, extension, filePath } = this.nameOptions;
         let fileName: string;
-        // we make dir path if route does not exist
-        if (!this.pathList.has(pathing)) {
-            await this.verify(pathing);
-            this.pathList.set(pathing, true);
+
+        if (this.type === FileSenderType.file || this.type === FileSenderType.hdfs) {
+            if (pathing === filePath) {
+                await this.ensurePathing(pathing);
+            } else {
+                await this.ensurePathing(pathing, true);
+            }
+
+            fileName = nodePathModule.join(pathing, this.workerId);
+        } else if (this.type === FileSenderType.s3) {
+            // we treat this different because of working with a single bucket
+            fileName = nodePathModule.join(pathing, this.workerId);
+        } else {
+            fileName = '';
         }
-        fileName = nodePathModule.join(pathing, this.workerId);
 
         // The slice count is only added for `file_per_slice`
         if (filePerSlice) {
@@ -94,7 +117,9 @@ export default abstract class ChunkedSender {
 
     protected joinPath(path?: string): string {
         const { filePath } = this.nameOptions;
-        if (path) return nodePathModule.join(filePath, '/', path);
+        if (path && path !== filePath) {
+            return nodePathModule.join(filePath, '/', path);
+        }
         return filePath;
     }
 
@@ -109,7 +134,7 @@ export default abstract class ChunkedSender {
             const override = record.getMetadata('standard:route');
 
             if (this.isRouter && override) {
-                const routePath = this.joinPath(override);
+                const routePath = nodePathModule.join(filePath, '/', override);
 
                 if (!batches[routePath]) {
                     batches[routePath] = [];

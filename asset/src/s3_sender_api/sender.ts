@@ -17,17 +17,17 @@ export default class S3Sender extends ChunkedSender implements RouteSenderAPI {
     client: AnyObject;
 
     constructor(client: AnyObject, config: AnyObject, logger: Logger) {
-        super(FileSenderType.file, config as any);
+        super(FileSenderType.s3, config as any);
         this.logger = logger;
         const { concurrency } = config;
         this.concurrency = concurrency;
         this.client = client;
     }
 
-    private async sendToS3(filename: string, list: DataEntity[]): Promise<any> {
-        const objPath = parsePath(filename);
-
+    private async sendToS3(file: string, list: DataEntity[]): Promise<any> {
+        const objPath = parsePath(file);
         const { fileName, output } = await this.prepareSegment(objPath.prefix, list);
+
         // This will prevent empty objects from being added to the S3 store, which can cause
         // problems with the S3 reader
         if (!output || output.length === 0) {
@@ -66,9 +66,8 @@ export default class S3Sender extends ChunkedSender implements RouteSenderAPI {
         );
     }
 
-    async verify(route: string): Promise<void> {
-        const newPath = this.joinPath(route);
-        const { bucket } = parsePath(newPath);
+    async ensureBucket(route: string): Promise<void> {
+        const { bucket } = parsePath(route);
         const query = { Bucket: bucket };
 
         try {
@@ -77,8 +76,12 @@ export default class S3Sender extends ChunkedSender implements RouteSenderAPI {
             try {
                 await this.client.createBucket_Async(query);
             } catch (err) {
-                throw new TSError(err, { reason: `Could not setup bucket ${newPath}}` });
+                throw new TSError(err, { reason: `Could not setup bucket ${route}}` });
             }
         }
     }
+
+    // TODO: for now this will not be used as we are still unclear how
+    // routing to mutliple buckets will work
+    async verify(_route: string): Promise<void> {}
 }
