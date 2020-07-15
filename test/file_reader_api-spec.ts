@@ -29,7 +29,7 @@ describe('File Reader API', () => {
 
         await harness.initialize();
 
-        const api = harness.getOperationAPI('file_reader_api') as unknown as FileReaderFactoryAPI;
+        const api = harness.getAPI<FileReaderFactoryAPI>('file_reader_api');
         return api;
     }
 

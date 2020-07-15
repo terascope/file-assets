@@ -7,7 +7,7 @@ import { FileSenderFactoryAPI } from '../asset/src/file_sender_api/interfaces';
 
 const fixtures = require('jest-fixtures');
 
-describe('File Reader API', () => {
+describe('File Sender API', () => {
     let harness: WorkerTestHarness;
     let data: DataEntity[];
     let workerId: string;
@@ -19,10 +19,9 @@ describe('File Reader API', () => {
 
         await harness.initialize();
 
-        // @ts-expect-error
         workerId = harness.context.cluster.worker.id;
 
-        const api = harness.getOperationAPI('file_sender_api') as unknown as FileSenderFactoryAPI;
+        const api = harness.getAPI('file_sender_api') as unknown as FileSenderFactoryAPI;
         return api;
     }
 

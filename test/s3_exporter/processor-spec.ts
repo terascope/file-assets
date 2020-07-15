@@ -69,7 +69,7 @@ describe('S3 exporter processor', () => {
         harness = WorkerTestHarness.testProcessor(opConfig, { clients: [s3Client] });
 
         await harness.initialize();
-        // @ts-expect-error
+
         workerId = harness.context.cluster.worker.id;
 
         return harness;
