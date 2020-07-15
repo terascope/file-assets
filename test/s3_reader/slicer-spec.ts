@@ -1,205 +1,147 @@
+import 'jest-extended';
+import { AnyObject, isNil, DataEntity } from '@terascope/job-components';
 import { newTestJobConfig, SlicerTestHarness } from 'teraslice-test-harness';
-import { SlicedFileResults } from '../../asset/src/__lib/interfaces';
+import { Format } from '../../asset/src/__lib/interfaces';
+import { makeClient, cleanupBucket, upload } from '../helpers';
 
-describe('S3 slicer when slicing JSON objects', () => {
-    let s3ParamsFirstRequest: any;
-    let s3ParamsSecondRequest: any;
+describe('S3 slicer', () => {
+    let harness: SlicerTestHarness;
 
-    const response = {
-        IsTruncated: true,
-        Contents: [
-            {
-                Key: 'testing/obj0',
-                Size: 1000
-            },
-            {
-                Key: 'testing/obj1',
-                Size: 500
-            },
-            {
-                Key: 'testing/obj2',
-                Size: 500
-            }
-        ]
-    };
+    const client = makeClient();
 
     const clients = [
         {
             type: 's3',
+            endpoint: 'default',
             create: () => ({
-                client: {
-                    firstRun: true,
-                    // eslint-disable-next-line @typescript-eslint/naming-convention
-                    listObjects_Async(params: any) {
-                        if (this.firstRun) {
-                            // extract the s3 request options for validation
-                            s3ParamsFirstRequest = params;
-                            this.firstRun = false;
-                            return response;
-                        }
-                        response.IsTruncated = false;
-                        s3ParamsSecondRequest = params;
-                        return response;
-                    },
-                },
+                client
             }),
         },
     ];
 
-    const job = newTestJobConfig({
-        analytics: true,
-        operations: [
+    const data = [
+        {
+            car: 'Audi',
+            price: 40000,
+            color: 'blue'
+        }, {
+            car: 'BMW',
+            price: 35000,
+            color: 'black'
+        }, {
+            car: 'Porsche',
+            price: 60000,
+            color: 'green'
+        }
+    ].map((obj) => DataEntity.make(obj));
+
+    async function makeTest(config: AnyObject = {}) {
+        if (isNil(config.path)) throw new Error('test config must have path');
+        if (isNil(config.format)) throw new Error('test config must have format');
+
+        const opConfig = Object.assign(
+            {},
             {
                 _op: 's3_reader',
-                path: 'data-store/testing/',
-                connection: 'default',
-                size: 500,
-                format: 'json'
+                size: 70,
+                path: config.path,
+                format: config.format
             },
-            {
-                _op: 'noop'
-            }
-        ]
-    });
+            config
+        );
 
-    let harness: SlicerTestHarness;
+        const job = newTestJobConfig({
+            analytics: true,
+            operations: [
+                opConfig,
+                {
+                    _op: 'noop'
+                }
+            ]
+        });
 
-    beforeEach(async () => {
         harness = new SlicerTestHarness(job, {
             clients,
         });
 
         await harness.initialize();
-    });
+
+        return harness;
+    }
 
     afterEach(async () => {
-        await harness.shutdown();
+        if (harness) await harness.shutdown();
     });
 
-    it('should generate whole-object slices.', async () => {
-        // Expecting a truncated response, so we need to call slice() twice
-        const firstBatch = await harness.createSlices();
-        const secondBatch = await harness.createSlices();
-        const slices = firstBatch.concat(secondBatch);
+    describe('when slicing JSON objects', () => {
+        const bucket = 'slicer-test-json';
+        const dirPath = '/my/test/';
+        const path = `${bucket}${dirPath}`;
+        const format = Format.json;
 
-        expect(slices.length).toBe(6);
-
-        // Verify the S3 request parameters are accurate
-        expect(s3ParamsFirstRequest.Bucket).toEqual('data-store');
-        expect(s3ParamsFirstRequest.Prefix).toEqual('testing/');
-        expect(s3ParamsFirstRequest.Marker).toEqual(undefined);
-
-        expect(s3ParamsSecondRequest.Bucket).toEqual('data-store');
-        expect(s3ParamsSecondRequest.Prefix).toEqual('testing/');
-        expect(s3ParamsSecondRequest.Marker).toEqual('testing/obj2');
-
-        slices.forEach((record) => {
-            if (record == null) return;
-
-            expect(record.offset).toEqual(0);
-            if (record.path === 'testing/obj0') {
-                expect(record.length).toEqual(1000);
-            } else {
-                expect(record.length).toEqual(500);
-            }
-        });
-    });
-});
-
-describe('S3 slicer when slicing other objects', () => {
-    const clients = [
-        {
-            type: 's3',
-            create: () => ({
-                client: {
-                    firstRun: true,
-                    // eslint-disable-next-line @typescript-eslint/naming-convention
-                    listObjects_Async() {
-                        return {
-                            Contents: [
-                                {
-                                    Key: 'testing/obj0',
-                                    Size: 1000
-                                },
-                                {
-                                    Key: 'testing/obj1',
-                                    Size: 500
-                                },
-                                {
-                                    Key: 'testing/obj2',
-                                    Size: 500
-                                }
-                            ]
-                        };
-                    },
-                },
-            }),
-        },
-    ];
-
-    const job = newTestJobConfig({
-        analytics: true,
-        operations: [
-            {
-                _op: 's3_reader',
-                path: 'data-store',
-                connection: 'default',
-                object_prefix: 'testing/',
-                size: 500,
-                format: 'ldjson',
-                file_per_slice: false
-            },
-            {
-                _op: 'noop'
-            }
-        ]
-    });
-
-    let harness: SlicerTestHarness;
-
-    beforeEach(async () => {
-        harness = new SlicerTestHarness(job, {
-            clients,
+        beforeAll(async () => {
+            await cleanupBucket(client, bucket);
+            await upload(client, { format, bucket, path }, data);
         });
 
-        await harness.initialize();
+        afterAll(async () => {
+            await cleanupBucket(client, bucket);
+        });
+
+        it('should generate whole-object slices.', async () => {
+            const opConfig = { format, path };
+            const expectedSlice = {
+                path: 'my/test/test-id',
+                offset: 0,
+                total: 138,
+                length: 138
+            };
+
+            const test = await makeTest(opConfig);
+            const firstBatch = await test.createSlices();
+            const secondBatch = await test.createSlices();
+            const slices = firstBatch.concat(secondBatch);
+
+            expect(slices).toBeArrayOfSize(2);
+            expect(slices[0]).toMatchObject(expectedSlice);
+            expect(slices[1]).toBeNull();
+        });
     });
 
-    afterEach(async () => {
-        await harness.shutdown();
-    });
+    describe('when slicing ldjson objects', () => {
+        const bucket = 'slicer-test-ldjson';
+        const dirPath = '/my/test/';
+        const path = `${bucket}${dirPath}`;
+        const format = Format.ldjson;
 
-    it('should generate regular slices.', async () => {
-        const slices = await harness.createSlices();
-        expect(slices.length).toBe(4);
+        beforeAll(async () => {
+            await cleanupBucket(client, bucket);
+            await upload(client, { format, bucket, path }, data);
+        });
 
-        const record1 = slices.pop() as SlicedFileResults;
+        afterAll(async () => {
+            await cleanupBucket(client, bucket);
+        });
 
-        expect(record1).toBeDefined();
-        expect(record1.offset).toEqual(0);
-        expect(record1.length).toEqual(500);
+        it('should chop up the data', async () => {
+            const opConfig = { format, path };
 
-        const record2 = slices.pop() as SlicedFileResults;
+            const expectedSlice1 = {
+                offset: 0, length: 70, path: 'my/test/test-id', total: 136
+            };
+            const expectedSlice2 = {
+                offset: 69, length: 67, path: 'my/test/test-id', total: 136
+            };
 
-        expect(record2).toBeDefined();
-        expect(record2.offset).toEqual(0);
-        expect(record2.length).toEqual(500);
+            const test = await makeTest(opConfig);
+            const firstBatch = await test.createSlices();
+            const secondBatch = await test.createSlices();
+            const slices = firstBatch.concat(secondBatch);
 
-        const record3 = slices.pop() as SlicedFileResults;
-
-        expect(record3).toBeDefined();
-        // Middle slices have an extra byte at the beginning for line delimiter detection
-        expect(record3.offset).toEqual(499);
-        expect(record3.length).toEqual(501);
-
-        const record4 = slices.pop() as SlicedFileResults;
-
-        expect(record4).toBeDefined();
-        expect(record4.offset).toEqual(0);
-        expect(record4.length).toEqual(500);
-
-        const [allDone] = await harness.createSlices();
-
-        expect(allDone).toBeNull();
+            expect(slices).toBeArrayOfSize(3);
+            expect(slices[0]).toMatchObject(expectedSlice1);
+            expect(slices[1]).toMatchObject(expectedSlice2);
+            expect(slices[2]).toBeNull();
+        });
     });
 });

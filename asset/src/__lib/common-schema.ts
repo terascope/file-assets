@@ -80,7 +80,6 @@ export const commonSchema = {
     line_delimiter: {
         doc: 'Line delimiter character for the object',
         default: '\n',
-        format: String
     },
     fields: {
         doc: 'Fields to include in the output',

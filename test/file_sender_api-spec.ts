@@ -21,8 +21,7 @@ describe('File Sender API', () => {
 
         workerId = harness.context.cluster.worker.id;
 
-        const api = harness.getAPI('file_sender_api') as unknown as FileSenderFactoryAPI;
-        return api;
+        return harness.getAPI<FileSenderFactoryAPI>('file_sender_api');
     }
 
     beforeEach(() => {
