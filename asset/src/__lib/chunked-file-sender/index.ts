@@ -107,6 +107,7 @@ export default abstract class ChunkedSender {
         if (!slice || !slice.length) return null;
         // Build the output string to dump to the object
         const outStr = this.fileFormatter.format(slice);
+
         // Let the exporters prevent empty slices from making it through
         if (!outStr || outStr.length === 0 || outStr === this.config.line_delimiter) {
             return null;

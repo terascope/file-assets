@@ -26,6 +26,7 @@ export default class S3Sender extends ChunkedSender implements RouteSenderAPI {
 
     private async sendToS3(file: string, list: DataEntity[]): Promise<any> {
         const objPath = parsePath(file);
+
         const { fileName, output } = await this.prepareSegment(objPath.prefix, list);
 
         // This will prevent empty objects from being added to the S3 store, which can cause
