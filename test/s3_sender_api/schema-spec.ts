@@ -1,10 +1,9 @@
 import 'jest-extended';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
-import {
-    AnyObject, APIConfig, ValidatedJobConfig, TestClientConfig, Logger
-} from '@terascope/job-components';
+import { ValidatedJobConfig, TestClientConfig, Logger } from '@terascope/job-components';
+import { S3ExporterAPI } from '../../asset/src/s3_sender_api/interfaces';
 
-describe('S3 Reader Schema', () => {
+describe('S3 Sender API Schema', () => {
     let harness: WorkerTestHarness;
 
     const clientConfig: TestClientConfig = {
@@ -18,22 +17,22 @@ describe('S3 Reader Schema', () => {
 
     const clients = [clientConfig];
 
-    async function makeTest(config: AnyObject, apiConfig?: APIConfig) {
-        const opConfig = Object.assign(
-            { _op: 's3_reader' },
-            config
+    async function makeTest(apiConfig: Partial<S3ExporterAPI> = {}) {
+        const apiName = 's3_sender_api';
+
+        const config = Object.assign(
+            { _name: apiName },
+            apiConfig
         );
 
         const testJob: Partial<ValidatedJobConfig> = {
             analytics: true,
-            apis: [],
+            apis: [config],
             operations: [
-                opConfig,
+                { _op: 's3_sender', api_name: apiName },
                 { _op: 'noop' },
             ],
         };
-
-        if (apiConfig) testJob!.apis!.push(apiConfig);
 
         const job = newTestJobConfig(testJob);
 
@@ -48,22 +47,6 @@ describe('S3 Reader Schema', () => {
     describe('when validating the schema', () => {
         it('should throw an error if no path is specified', async () => {
             await expect(makeTest({})).toReject();
-        });
-
-        it('should not throw an error if valid config is given', async () => {
-            const opConfig = {
-                _op: 's3_reader',
-                path: 'chillywilly',
-            };
-
-            await expect(makeTest(opConfig)).toResolve();
-        });
-
-        it('should not throw path is given in api', async () => {
-            const opConfig = {};
-            const apiConfig = { _name: 's3_reader_api', path: 'chillywilly' };
-
-            await expect(makeTest(opConfig, apiConfig)).toResolve();
         });
     });
 });

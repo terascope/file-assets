@@ -43,7 +43,6 @@ export interface ParseOptions {
 export enum Compression {
     none = 'none',
     lz4 = 'lz4',
-    // eslint-disable-next-line no-shadow
     gzip = 'gzip'
 }
 
