@@ -2,7 +2,7 @@ import 'jest-extended';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
 import { AnyObject } from '@terascope/job-components';
 import path from 'path';
-import { FileReaderFactoryAPI } from '../asset/src/file_reader_api/interfaces';
+import { FileReaderFactoryAPI } from '../../asset/src/file_reader_api/interfaces';
 
 const fixtures = require('jest-fixtures');
 

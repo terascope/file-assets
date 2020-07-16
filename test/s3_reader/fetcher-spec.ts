@@ -1,6 +1,6 @@
 import 'jest-extended';
 import {
-    DataEntity, toString, AnyObject, isNil, toNumber
+    DataEntity, AnyObject, isNil, toNumber
 } from '@terascope/job-components';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
 import { Format, SlicedFileResults } from '../../asset/src/__lib/interfaces';
@@ -79,133 +79,7 @@ describe('S3Reader fetcher', () => {
         if (harness) await harness.shutdown();
     });
 
-    describe('tsv data', () => {
-        const bucket = 'fetcher-test-tsv';
-        const dirPath = '/my/test/';
-        const path = `${bucket}${dirPath}`;
-        const slicePath = `${dirPath}${testWorkerId}`;
-        const format = Format.tsv;
-
-        beforeAll(async () => {
-            await cleanupBucket(client, bucket);
-            await upload(client, { format, bucket, path }, data);
-        });
-
-        afterAll(async () => {
-            await cleanupBucket(client, bucket);
-        });
-
-        const slice: SlicedFileResults = {
-            length: 10000,
-            offset: 0,
-            path: slicePath,
-            total: 10000
-        };
-
-        it('can be fetched', async () => {
-            const opConfig = { path, format };
-
-            const test = await makeTest(opConfig);
-            const results = await test.runSlice(slice);
-
-            expect(results).toBeArrayOfSize(4);
-
-            const cars = results.map((obj) => obj.field1);
-            const price = results.map((obj) => obj.field2);
-            const color = results.map((obj) => obj.field3);
-
-            data.forEach((record) => {
-                expect(cars).toContain(record.car);
-                expect(price).toContain(toString(record.price));
-                expect(color).toContain(record.color);
-            });
-        });
-    });
-
-    describe('csv data', () => {
-        const bucket = 'fetcher-test-csv';
-        const dirPath = '/my/test/';
-        const path = `${bucket}${dirPath}`;
-        const slicePath = `${dirPath}${testWorkerId}`;
-        const format = Format.csv;
-
-        beforeAll(async () => {
-            await cleanupBucket(client, bucket);
-            await upload(client, { format, bucket, path }, data);
-        });
-
-        afterAll(async () => {
-            await cleanupBucket(client, bucket);
-        });
-
-        const slice: SlicedFileResults = {
-            length: 10000,
-            offset: 0,
-            path: slicePath,
-            total: 10000
-        };
-
-        it('can be fetched', async () => {
-            const opConfig = { path, format };
-
-            const test = await makeTest(opConfig);
-            const results = await test.runSlice(slice);
-
-            expect(results).toBeArrayOfSize(4);
-
-            const cars = results.map((obj) => obj.field1);
-            const price = results.map((obj) => obj.field2);
-            const color = results.map((obj) => obj.field3);
-
-            data.forEach((record) => {
-                expect(cars).toContain(record.car);
-                expect(price).toContain(toString(record.price));
-                expect(color).toContain(record.color);
-            });
-        });
-    });
-
-    describe('json data', () => {
-        const bucket = 'fetcher-test-json';
-        const dirPath = '/my/test/';
-        const path = `${bucket}${dirPath}`;
-        const slicePath = `${dirPath}${testWorkerId}`;
-        const format = Format.json;
-
-        beforeAll(async () => {
-            await cleanupBucket(client, bucket);
-            await upload(client, { format, bucket, path }, data);
-        });
-
-        afterAll(async () => {
-            await cleanupBucket(client, bucket);
-        });
-
-        const slice: SlicedFileResults = {
-            length: 10000,
-            offset: 0,
-            path: slicePath,
-            total: 10000
-        };
-
-        it('can be fetched', async () => {
-            const opConfig = { path, format };
-
-            const test = await makeTest(opConfig);
-            const results = await test.runSlice(slice);
-
-            expect(results).toBeArrayOfSize(3);
-
-            data.forEach((record) => {
-                const carData = results.find((obj) => obj.car === record.car) as AnyObject;
-                expect(carData).toBeDefined();
-                expect(carData.color).toEqual(record.color);
-                expect(toNumber(carData.price)).toEqual(record.price);
-            });
-        });
-    });
-
-    describe('ldjson data', () => {
+    describe('can reade data', () => {
         const bucket = 'fetcher-test-ldjson';
         const dirPath = '/my/test/';
         const path = `${bucket}${dirPath}`;
@@ -241,45 +115,6 @@ describe('S3Reader fetcher', () => {
                 expect(carData).toBeDefined();
                 expect(carData.color).toEqual(record.color);
                 expect(toNumber(carData.price)).toEqual(record.price);
-            });
-        });
-    });
-
-    describe('raw data', () => {
-        const bucket = 'fetcher-test-raw';
-        const dirPath = '/my/test/';
-        const path = `${bucket}${dirPath}`;
-        const slicePath = `${dirPath}${testWorkerId}`;
-        const format = Format.raw;
-        const rawData = ['chillywilly', 'johndoe'];
-        const newData = rawData.map((name) => DataEntity.make({ data: name }));
-
-        beforeAll(async () => {
-            await cleanupBucket(client, bucket);
-            await upload(client, { format, bucket, path }, newData);
-        });
-
-        afterAll(async () => {
-            await cleanupBucket(client, bucket);
-        });
-
-        const slice: SlicedFileResults = {
-            length: 10000,
-            offset: 0,
-            path: slicePath,
-            total: 10000
-        };
-
-        it('can be fetched', async () => {
-            const opConfig = { path, format };
-
-            const test = await makeTest(opConfig);
-            const results = await test.runSlice(slice);
-
-            expect(results).toBeArrayOfSize(2);
-
-            results.forEach((record) => {
-                expect(rawData).toContain(record.data);
             });
         });
     });

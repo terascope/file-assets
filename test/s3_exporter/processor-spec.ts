@@ -4,6 +4,9 @@ import { TestClientConfig, DataEntity } from '@terascope/job-components';
 // @ts-ignore
 import lz4 from 'lz4';
 import { ungzip } from 'node-gzip';
+import {
+    makeClient, cleanupBucket, upload, testWorkerId
+} from '../helpers';
 import { S3PutConfig } from '../../asset/src/s3_sender_api/interfaces';
 
 describe('S3 exporter processor', () => {
@@ -13,34 +16,18 @@ describe('S3 exporter processor', () => {
     let routeSlice: DataEntity[];
     const metaRoute1 = '0';
     const metaRoute2 = '1';
-    // eslint-disable-next-line prefer-const
-    let bucketExists = true;
-    let createBucketCalled = false;
-    let s3PutParams: S3PutConfig[] = [];
 
-    const s3Client: TestClientConfig = {
-        type: 's3',
-        endpoint: 'my-s3-connector',
-        create: () => ({
-            client: {
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                putObject_Async: (putParams: S3PutConfig) => {
-                    s3PutParams.push(putParams);
-                    return Promise.resolve();
-                },
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                headBucket_Async: (_params: { Bucket: string }) => {
-                    if (!bucketExists) throw new Error('I exists');
-                    return Promise.resolve();
-                },
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                createBucket_Async: (_params: { Bucket: string }) => {
-                    createBucketCalled = true;
-                    return Promise.resolve();
-                }
-            }
-        })
-    };
+    const client = makeClient();
+
+    const clients = [
+        {
+            type: 's3',
+            endpoint: 'my-s3-connector',
+            create: () => ({
+                client
+            }),
+        },
+    ];
 
     const emptySlice: DataEntity[] = [];
     const rawSlice = [DataEntity.make({ data: 'This is a sentence.' })];
@@ -66,7 +53,7 @@ describe('S3 exporter processor', () => {
             include_header: false
         };
         const opConfig = config ? Object.assign({}, _op, config) : _op;
-        harness = WorkerTestHarness.testProcessor(opConfig, { clients: [s3Client] });
+        harness = WorkerTestHarness.testProcessor(opConfig, { clients });
 
         await harness.initialize();
 
@@ -103,9 +90,6 @@ describe('S3 exporter processor', () => {
     });
 
     afterEach(async () => {
-        s3PutParams = [];
-        createBucketCalled = false;
-        bucketExists = true;
         if (harness) await harness.shutdown();
     });
 

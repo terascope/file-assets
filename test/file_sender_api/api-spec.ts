@@ -3,7 +3,7 @@ import { WorkerTestHarness } from 'teraslice-test-harness';
 import { AnyObject, DataEntity } from '@terascope/job-components';
 import path from 'path';
 import fs from 'fs';
-import { FileSenderFactoryAPI } from '../asset/src/file_sender_api/interfaces';
+import { FileSenderFactoryAPI } from '../../asset/src/file_sender_api/interfaces';
 
 const fixtures = require('jest-fixtures');
 
