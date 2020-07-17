@@ -13,7 +13,6 @@ export interface FileConfig {
     format: Format;
 }
 
-// TODO: include_header vs remove_header, can they be unified??
 export interface ReaderFileConfig extends FileConfig {
     size: number;
     connection: string;
@@ -27,6 +26,11 @@ export type CSVOptions = json2csv.Options<any>;
 export interface ChunkedConfig extends ReaderFileConfig, Pick<OpConfig, '_encoding' | '_dead_letter_action'> {
     tryFn: (fn:(msg: any) => DataEntity) => (input: any) => DataEntity | null;
     rejectFn: (input: unknown, err: Error) => never | null;
+}
+
+export interface ChunkedSenderConfig extends ChunkedConfig {
+    workerId: string;
+    _key?: string;
 }
 
 export enum Format {
@@ -54,13 +58,6 @@ export interface CSVConfig {
     line_delimiter: string;
     field_delimiter: string;
     format: Format;
-}
-
-export interface ParseOptions {
-    fields: string[];
-    line_delimiter: string;
-    format: Format;
-    compression: Compression;
 }
 
 export enum Compression {

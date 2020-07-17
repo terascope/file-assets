@@ -2,7 +2,8 @@ import {
     isEmpty,
     DataEntity,
     AnyObject,
-    isString
+    isString,
+    isNotNil
 } from '@terascope/job-components';
 import * as nodePathModule from 'path';
 import CompressionFormatter from '../compression';
@@ -10,9 +11,8 @@ import FileFormatter from '../file-formatter';
 import {
     NameOptions,
     FileSenderType,
-    CSVOptions,
-    CSVConfig,
     Format,
+    ChunkedSenderConfig
 } from '../interfaces';
 
 export default abstract class ChunkedSender {
@@ -27,15 +27,13 @@ export default abstract class ChunkedSender {
     readonly pathList = new Map<string, boolean>();
     readonly type: FileSenderType;
 
-    constructor(type: FileSenderType, config: AnyObject) {
+    constructor(type: FileSenderType, config: ChunkedSenderConfig) {
         const {
             path, workerId, format, compression
         } = config;
         this.type = type;
         this.workerId = workerId;
         this.format = format;
-        // FIXME: types
-        const csvOptions = makeCsvOptions(config as any);
         const extension = isEmpty(config.extension) ? undefined : config.extension;
 
         this.nameOptions = {
@@ -50,9 +48,9 @@ export default abstract class ChunkedSender {
         }
 
         this.compressionFormatter = new CompressionFormatter(compression);
-        this.fileFormatter = new FileFormatter(format, config as any, csvOptions);
+        this.fileFormatter = new FileFormatter(format, config);
         this.config = config;
-        this.isRouter = config._key && isString(config._key);
+        this.isRouter = isNotNil(config._key) && isString(config._key);
     }
 
     async abstract verify(path: string): Promise<void>
@@ -160,26 +158,4 @@ export default abstract class ChunkedSender {
     incrementCount(): void {
         this.sliceCount += 1;
     }
-}
-
-function makeCsvOptions(config: CSVConfig): CSVOptions {
-    const csvOptions: CSVOptions = {};
-
-    if (config.fields.length !== 0) {
-        csvOptions.fields = config.fields;
-    } else {
-        csvOptions.fields = undefined;
-    }
-
-    csvOptions.header = config.include_header;
-    csvOptions.eol = config.line_delimiter;
-
-    // Assumes a custom delimiter will be used only if the `csv` output format is chosen
-    if (config.format === 'csv') {
-        csvOptions.delimiter = config.field_delimiter;
-    } else if (config.format === 'tsv') {
-        csvOptions.delimiter = '\t';
-    }
-
-    return csvOptions;
 }
