@@ -21,13 +21,13 @@ before_script:
         mkdir ./data;
         sudo chown -R travis ./data && sudo chmod u+rxw ./data;
         chmod 755 minio;
-        ./minio server ./data;
+        ./minio server ./data &;
     else
         wget https://dl.min.io/server/minio/release/darwin-amd64/minio;
         mkdir ./data;
         sudo chown -R travis ./data && sudo chmod u+rxw ./data;
         chmod 755 minio;
-        ./minio server ./data;
+        ./minio server ./data &;
     fi
   - yarn build
   - yarn global add teraslice-cli
