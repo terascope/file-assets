@@ -52,7 +52,8 @@ export async function fetch(
     client: AnyObject, config: AnyObject, slice: SlicedFileResults
 ): Promise<string> {
     if (isNil(config.bucket) || !isString(config.bucket)) throw new Error('config must include parameter bucket');
-    const fetchConfig = Object.assign({}, defaultConfigs, config);
+    // TODO: fix this
+    const fetchConfig = Object.assign({}, defaultConfigs, config) as any;
     const api = new S3Fetcher(client, fetchConfig, logger);
 
     return api.fetch(slice);
@@ -63,8 +64,8 @@ export async function upload(
 ): Promise<void> {
     if (isNil(config.bucket) || !isString(config.bucket)) throw new Error('config must include parameter bucket');
     if (isNil(config.path) || !isString(config.path)) throw new Error('config must include parameter path');
-
-    const senderConfig = Object.assign({}, defaultConfigs, config);
+    // TODO: fix this
+    const senderConfig = Object.assign({}, defaultConfigs, config) as any;
     const api = new S3Sender(client, senderConfig, logger);
 
     await api.ensureBucket(config.bucket);

@@ -9,14 +9,14 @@ import {
 import { parsePath } from '../s3_reader/helpers';
 import ChunkedSender from '../__lib/chunked-file-sender';
 import { FileSenderType } from '../__lib/interfaces';
-import { S3PutConfig } from './interfaces';
+import { S3PutConfig, S3ExporterAPIConfig } from './interfaces';
 
 export default class S3Sender extends ChunkedSender implements RouteSenderAPI {
     logger: Logger;
     concurrency: number;
     client: AnyObject;
 
-    constructor(client: AnyObject, config: AnyObject, logger: Logger) {
+    constructor(client: AnyObject, config: S3ExporterAPIConfig, logger: Logger) {
         super(FileSenderType.s3, config as any);
         this.logger = logger;
         const { concurrency } = config;

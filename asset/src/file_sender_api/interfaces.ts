@@ -1,11 +1,11 @@
 import { APIConfig, APIFactoryRegistry } from '@terascope/job-components';
-import { ReaderFileConfig } from '../__lib/common-schema';
+import { ReaderFileConfig } from '../__lib/interfaces';
 import FileSender from './sender';
 
 export const DEFAULT_API_NAME = 'file_sender_api';
 
-export interface ReaderFileAPI extends ReaderFileConfig, APIConfig {
+export interface FileSenderAPIConfig extends ReaderFileConfig, APIConfig {
     workerId: string;
 }
 
-export type FileSenderFactoryAPI = APIFactoryRegistry<FileSender, ReaderFileAPI>
+export type FileSenderFactoryAPI = APIFactoryRegistry<FileSender, FileSenderAPIConfig>

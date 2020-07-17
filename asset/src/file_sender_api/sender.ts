@@ -1,20 +1,20 @@
 import {
     RouteSenderAPI,
     DataEntity,
-    AnyObject,
     Logger,
     TSError,
     pMap
 } from '@terascope/job-components';
 import fse from 'fs-extra';
 import ChunkedSender from '../__lib/chunked-file-sender';
+import { FileSenderAPIConfig } from './interfaces';
 import { FileSenderType } from '../__lib/interfaces';
 
 export default class FileSender extends ChunkedSender implements RouteSenderAPI {
     logger: Logger;
     concurrency: number;
 
-    constructor(config: AnyObject, logger: Logger) {
+    constructor(config: FileSenderAPIConfig, logger: Logger) {
         super(FileSenderType.file, config as any);
         this.logger = logger;
         const { concurrency } = config;

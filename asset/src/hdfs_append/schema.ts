@@ -9,7 +9,7 @@ import {
     getOpConfig,
     isNotNil,
 } from '@terascope/job-components';
-import { HDFSConfig } from './interfaces';
+import { HDFSExportConfig } from './interfaces';
 import { DEFAULT_API_NAME } from '../hdfs_sender_api/interfaces';
 import { fileReaderSchema } from '../__lib/common-schema';
 
@@ -26,9 +26,9 @@ clonedSchema.api_name = {
 
 export const schema = clonedSchema;
 
-export default class Schema extends ConvictSchema<HDFSConfig> {
+export default class Schema extends ConvictSchema<HDFSExportConfig> {
     validateJob(job: ValidatedJobConfig): void {
-        const opConfig = getOpConfig(job, 'hdfs_exporter') as HDFSConfig | undefined;
+        const opConfig = getOpConfig(job, 'hdfs_exporter') as HDFSExportConfig | undefined;
         if (isNil(opConfig)) throw new Error('Could not find opConfig for operation hdfs_exporter');
         const { api_name, ...apiConfig } = opConfig;
         if (!Array.isArray(job.apis)) job.apis = [];

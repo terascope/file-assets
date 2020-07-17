@@ -1,6 +1,6 @@
 import 'jest-extended';
-import { debugLogger, DataEntity, AnyObject } from '@terascope/job-components';
-import { Format, ProcessorConfig, Compression } from '../../asset/src/__lib/interfaces';
+import { debugLogger, DataEntity } from '@terascope/job-components';
+import { Format, ChunkedConfig, Compression } from '../../asset/src/__lib/interfaces';
 import ChunkedReader from '../../asset/src/__lib/chunked-file-reader';
 
 // Mock logger
@@ -9,7 +9,7 @@ const logger = debugLogger('chunked-file-reader');
 class Test extends ChunkedReader {
     data: string[];
 
-    constructor(config: AnyObject, data: string[]) {
+    constructor(config: ChunkedConfig, data: string[]) {
         super(config, logger);
         this.data = data;
     }
@@ -27,7 +27,7 @@ function makeConfig(config: any) {
         _dead_letter_action: 'none',
         compression: Compression.none
     };
-    return Object.assign({}, defaults, config) as ProcessorConfig;
+    return Object.assign({}, defaults, config) as ChunkedConfig;
 }
 
 const ldjsonOpConfig = makeConfig({
@@ -293,37 +293,4 @@ describe('The chunked file reader', () => {
 
         expect(results).toEqual(expected);
     });
-
-    // it('computes offsets', () => {
-    //     expect(getOffsets(10, 0, '\n')).toEqual([]);
-
-    //     expect(getOffsets(10, 9, '\n')).toEqual([
-    //         { offset: 0, length: 9 },
-    //     ]);
-
-    //     expect(getOffsets(10, 10, '\n')).toEqual([
-    //         { offset: 0, length: 10 },
-    //     ]);
-
-    //     expect(getOffsets(10, 15, '\n')).toEqual([
-    //         { offset: 0, length: 10 },
-    //         { offset: 9, length: 6 },
-    //     ]);
-
-    //     expect(getOffsets(10, 20, '\n')).toEqual([
-    //         { offset: 0, length: 10 },
-    //         { offset: 9, length: 11 },
-    //     ]);
-
-    //     expect(getOffsets(10, 20, '\r\n')).toEqual([
-    //         { offset: 0, length: 10 },
-    //         { offset: 8, length: 12 },
-    //     ]);
-
-    //     expect(getOffsets(10, 21, '\r\n')).toEqual([
-    //         { offset: 0, length: 10 },
-    //         { offset: 8, length: 12 },
-    //         { offset: 18, length: 3 },
-    //     ]);
-    // });
 });

@@ -9,13 +9,14 @@ import {
 import path from 'path';
 import ChunkedSender from '../__lib/chunked-file-sender';
 import { FileSenderType } from '../__lib/interfaces';
+import { HDFSExporterAPIConfig } from './interfaces';
 
 export default class HDFSSender extends ChunkedSender implements RouteSenderAPI {
     logger: Logger;
     concurrency: number;
     client: AnyObject;
 
-    constructor(client: AnyObject, config: AnyObject, logger: Logger) {
+    constructor(client: AnyObject, config: HDFSExporterAPIConfig, logger: Logger) {
         super(FileSenderType.hdfs, config as any);
         this.logger = logger;
         const { concurrency } = config;

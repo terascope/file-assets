@@ -1,12 +1,12 @@
 import 'jest-extended';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
 import { ValidatedJobConfig } from '@terascope/job-components';
-import { ReaderFileAPI } from '../../asset/src/file_reader_api/interfaces';
+import { FileReaderAPIConfig } from '../../asset/src/file_reader_api/interfaces';
 
 describe('File Reader API Schema', () => {
     let harness: WorkerTestHarness;
 
-    async function makeTest(apiConfig: Partial<ReaderFileAPI> = {}) {
+    async function makeTest(apiConfig: Partial<FileReaderAPIConfig> = {}) {
         const apiName = 'file_reader_api';
 
         const config = Object.assign(

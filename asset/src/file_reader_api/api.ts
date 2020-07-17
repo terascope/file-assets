@@ -2,19 +2,23 @@ import {
     APIFactory, AnyObject, isNil, isString, getTypeOf
 } from '@terascope/job-components';
 import FileReader from './reader';
-import { ReaderFileAPI } from './interfaces';
+import { FileReaderAPIConfig } from './interfaces';
 
-export default class FileReaderApi extends APIFactory<FileReader, ReaderFileAPI> {
-    validateConfig(input: AnyObject): ReaderFileAPI {
+export default class FileReaderApi extends APIFactory<FileReader, FileReaderAPIConfig> {
+    validateConfig(input: AnyObject): FileReaderAPIConfig {
         if (isNil(input.path) || !isString(input.path)) throw new Error(`Invalid parameter path: it must be of type string, was given ${getTypeOf(input.path)}`);
-        return input as ReaderFileAPI;
+        return input as FileReaderAPIConfig;
     }
 
     async create(
-        _name: string, overrideConfigs: Partial<ReaderFileAPI>
-    ):Promise<{ client: FileReader, config: ReaderFileAPI }> {
+        _name: string, overrideConfigs: Partial<FileReaderAPIConfig>
+    ):Promise<{ client: FileReader, config: FileReaderAPIConfig }> {
         const config = this.validateConfig(Object.assign({}, this.apiConfig, overrideConfigs));
-        const client = new FileReader(config, this.logger);
+        const tryFn = this.tryRecord.bind(this);
+        const rejectFn = this.rejectRecord.bind(this);
+        const chunckedConfig = Object.assign(config, { tryFn, rejectFn });
+
+        const client = new FileReader(chunckedConfig, this.logger);
         return { client, config };
     }
 

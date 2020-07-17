@@ -2,19 +2,19 @@ import {
     APIFactory, AnyObject, isNil, isString, getTypeOf
 } from '@terascope/job-components';
 import S3Sender from './sender';
-import { S3ExporterAPI } from './interfaces';
+import { S3ExporterAPIConfig } from './interfaces';
 
-export default class FileReaderApi extends APIFactory<S3Sender, S3ExporterAPI> {
-    validateConfig(input: AnyObject): S3ExporterAPI {
+export default class FileReaderApi extends APIFactory<S3Sender, S3ExporterAPIConfig> {
+    validateConfig(input: AnyObject): S3ExporterAPIConfig {
         if (isNil(input.path) || !isString(input.path)) throw new Error(`Invalid parameter path: it must be of type string, was given ${getTypeOf(input.path)}`);
         const workerId = this.context.cluster.worker.id;
         input.workerId = workerId;
-        return input as S3ExporterAPI;
+        return input as S3ExporterAPIConfig;
     }
 
     async create(
-        _name: string, overrideConfigs: Partial<S3ExporterAPI>
-    ):Promise<{ client: S3Sender, config: S3ExporterAPI }> {
+        _name: string, overrideConfigs: Partial<S3ExporterAPIConfig>
+    ):Promise<{ client: S3Sender, config: S3ExporterAPIConfig }> {
         const config = this.validateConfig(
             Object.assign({}, this.apiConfig, overrideConfigs)
         );

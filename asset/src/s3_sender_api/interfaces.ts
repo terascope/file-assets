@@ -1,10 +1,10 @@
 import { APIConfig, APIFactoryRegistry } from '@terascope/job-components';
-import { ReaderFileConfig } from '../__lib/common-schema';
+import { ReaderFileConfig } from '../__lib/interfaces';
 import FileSender from './sender';
 
 export const DEFAULT_API_NAME = 's3_sender_api';
 
-export interface S3ExporterAPI extends ReaderFileConfig, APIConfig {
+export interface S3ExporterAPIConfig extends ReaderFileConfig, APIConfig {
     workerId: string;
 }
 
@@ -14,4 +14,4 @@ export interface S3PutConfig {
     Body: string;
 }
 
-export type S3SenderFactoryAPI = APIFactoryRegistry<FileSender, S3ExporterAPI>
+export type S3SenderFactoryAPI = APIFactoryRegistry<FileSender, S3ExporterAPIConfig>

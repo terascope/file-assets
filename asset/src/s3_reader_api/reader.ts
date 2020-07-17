@@ -1,5 +1,5 @@
 import { AnyObject, Logger } from '@terascope/job-components';
-import { SlicedFileResults } from '../__lib/interfaces';
+import { SlicedFileResults, ChunkedConfig } from '../__lib/interfaces';
 import ChunkedReader from '../__lib/chunked-file-reader';
 import { parsePath } from '../s3_reader/helpers';
 
@@ -7,7 +7,7 @@ export default class S3Reader extends ChunkedReader {
     client: AnyObject
     bucket: string;
 
-    constructor(client: AnyObject, config: AnyObject, logger: Logger) {
+    constructor(client: AnyObject, config: ChunkedConfig, logger: Logger) {
         super(config, logger);
         this.client = client;
         const { bucket } = parsePath(this.config.path);

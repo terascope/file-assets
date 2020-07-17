@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
 import { ValidatedJobConfig, TestClientConfig, Logger } from '@terascope/job-components';
-import { S3ReaderApi } from '../../asset/src/s3_reader_api/interfaces';
+import { S3ReaderFactoryAPI } from '../../asset/src/s3_reader_api/interfaces';
 
 describe('S3 Reader API Schema', () => {
     let harness: WorkerTestHarness;
@@ -17,7 +17,7 @@ describe('S3 Reader API Schema', () => {
 
     const clients = [clientConfig];
 
-    async function makeTest(apiConfig: Partial<S3ReaderApi> = {}) {
+    async function makeTest(apiConfig: Partial<S3ReaderFactoryAPI> = {}) {
         const apiName = 's3_reader_api';
 
         const config = Object.assign(

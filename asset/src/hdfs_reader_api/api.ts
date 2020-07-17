@@ -19,7 +19,11 @@ export default class HDFSReaderFactoryAPI extends APIFactory<HDFSReader, HDFSRea
             type: 'hdfs_ha',
             cached: true
         }).client;
-        const client = new HDFSReader(s3Client, config, this.logger);
+        const tryFn = this.tryRecord.bind(this);
+        const rejectFn = this.rejectRecord.bind(this);
+        const chunckedConfig = Object.assign(config, { tryFn, rejectFn });
+
+        const client = new HDFSReader(s3Client, chunckedConfig, this.logger);
         return { client, config };
     }
 

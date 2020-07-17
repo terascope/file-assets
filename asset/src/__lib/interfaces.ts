@@ -1,10 +1,33 @@
 import json2csv from 'json2csv';
-import { OpConfig } from '@terascope/job-components';
-import { ReaderFileConfig } from './common-schema';
+import { OpConfig, DataEntity } from '@terascope/job-components';
+
+export interface FileConfig {
+    path: string;
+    extension: string;
+    compression: Compression;
+    field_delimiter: string;
+    line_delimiter: string;
+    fields: string[];
+    file_per_slice: boolean;
+    include_header: boolean;
+    format: Format;
+}
+
+// TODO: include_header vs remove_header, can they be unified??
+export interface ReaderFileConfig extends FileConfig {
+    size: number;
+    connection: string;
+    remove_header: boolean;
+    ignore_empty: boolean;
+    extra_args: CSVOptions;
+}
 
 export type CSVOptions = json2csv.Options<any>;
 
-export interface ProcessorConfig extends ReaderFileConfig, OpConfig{}
+export interface ChunkedConfig extends ReaderFileConfig, Pick<OpConfig, '_encoding' | '_dead_letter_action'> {
+    tryFn: (fn:(msg: any) => DataEntity) => (input: any) => DataEntity | null;
+    rejectFn: (input: unknown, err: Error) => never | null;
+}
 
 export enum Format {
     json = 'json',

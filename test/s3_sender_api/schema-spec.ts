@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
 import { ValidatedJobConfig, TestClientConfig, Logger } from '@terascope/job-components';
-import { S3ExporterAPI } from '../../asset/src/s3_sender_api/interfaces';
+import { S3ExporterAPIConfig } from '../../asset/src/s3_sender_api/interfaces';
 
 describe('S3 Sender API Schema', () => {
     let harness: WorkerTestHarness;
@@ -17,7 +17,7 @@ describe('S3 Sender API Schema', () => {
 
     const clients = [clientConfig];
 
-    async function makeTest(apiConfig: Partial<S3ExporterAPI> = {}) {
+    async function makeTest(apiConfig: Partial<S3ExporterAPIConfig> = {}) {
         const apiName = 's3_sender_api';
 
         const config = Object.assign(

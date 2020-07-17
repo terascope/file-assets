@@ -29,8 +29,6 @@ export function sliceFile(file: {
     return slices;
 }
 
-export type FetcherFn = (slice: SlicedFileResults) => Promise<string>
-
 // [{offset, length}] of chunks `size` assuming `delimiter` for a file with `total` size.
 export function getOffsets(size: number, total: number, delimiter: string): Offsets[] {
     if (total === 0) {

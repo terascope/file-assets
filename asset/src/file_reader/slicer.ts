@@ -41,12 +41,7 @@ export default class FileSlicer extends Slicer {
 
         const apiName = this.opConfig.api_name;
         const apiManager = this.getAPI<FileReaderFactoryAPI>(apiName);
-        // FIXME: remove as any
-        this.api = await apiManager.create(apiName, {} as any);
-
-        // NOTE ORDER MATTERS
-        // a parallel slicer initialize calls newSlicer multiple times
-        // need to make api before newSlicer is called
+        this.api = await apiManager.create(apiName, {});
 
         this.checkProvidedPath();
     }
@@ -121,7 +116,7 @@ export default class FileSlicer extends Slicer {
             });
             this.logger.error(error);
         }
-        // TODO: what if this is undefined
+
         if (slices.length === 0) return this.getFilePaths(this.directories.shift() as string);
         return slices;
     }

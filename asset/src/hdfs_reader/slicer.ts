@@ -39,8 +39,8 @@ export default class HDFSFileSlicer extends Slicer<HDFSReaderConfig> {
 
         const apiName = this.opConfig.api_name;
         const apiManager = this.getAPI<HDFSReaderFactoryAPI>(apiName);
-        // FIXME: remove as any
-        this.api = await apiManager.create(apiName, {} as any);
+
+        this.api = await apiManager.create(apiName, {});
     }
 
     searchFiles(metadata: Record<string, any>, filePath: string): SlicedFileResults[] {

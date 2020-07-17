@@ -1,27 +1,5 @@
 import { isNumber } from '@terascope/job-components';
-import { Compression, Format, CSVOptions } from './interfaces';
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface FileConfig {
-    path: string;
-    extension: string;
-    compression: Compression;
-    field_delimiter: string;
-    line_delimiter: string;
-    fields: string[];
-    file_per_slice: boolean;
-    include_header: boolean;
-    format: Format;
-}
-
-// TODO: include_header vs remove_header, can they be unified??
-export interface ReaderFileConfig extends FileConfig {
-    size: number;
-    connection: string;
-    remove_header: boolean;
-    ignore_empty: boolean;
-    extra_args: CSVOptions;
-}
+import { Compression, Format } from './interfaces';
 
 const readerSchema = {
     size: {
