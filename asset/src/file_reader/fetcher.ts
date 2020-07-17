@@ -15,7 +15,6 @@ export default class FileFetcher extends Fetcher<FileReaderConfig> {
     }
 
     async fetch(slice: SlicedFileResults): Promise<DataEntity[]> {
-        this.tryRecord
         return this.api.read(slice);
     }
 }
