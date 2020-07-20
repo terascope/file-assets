@@ -1,26 +1,90 @@
-# s3_exporter
+# s3_sender_api
 
-The `s3_exporter` will export slices to objects in S3. This exporter will ignore empty slices to prevent feeding empty objects into the S3 store.
+The `s3_sender_api` will provide a factory that can create file sender apis that can be accessed in any operation through the `getAPI` method on the operation.
 
-# Options
 
-## `path`
+This is a [Factory API](https://terascope.github.io/teraslice/docs/packages/job-components/api/interfaces/apifactoryregistry), which can be used to fully manage api creation and configuration.
+
+## S3 Sender Factory API Methods
+
+### size
+
+this will return how many seperate sender apis are in the cache
+
+### get
+parameters
+- name: String
+
+this will fetch any sender api that is associated with the name provided
+
+### getConfig
+parameters
+- name: String
+
+this will fetch any sender api config that is associated with the name provided
+
+### create (async)
+parameters
+- name: String
+- configOverrides: Check options below, optional
+
+this will create an instance of a sender api, and cache it with the name given. Any
+config provided in the second argument will override what is specified in the apiConfig and cache it with the name provided. It will throw an error if you try creating another api with the same name parameter
+
+```typescript
+    const apiManager = this.getAPI<S3SenderFactoryAPI>(apiName);
+    // this will return an api cached at "normalClient" and this instance will use all configurations listed on the apiConfig
+    const client = apiManager.create('normalClient')
+
+    // this will return an api cached at "overrideClient" and this instance will have an override setting the parameter compression to "gzip", this will use the rest of the configurations listed in the apiConfig
+    const overrideClient = apiManager.create('overrideClient', { compression: 'gzip'})
+```
+
+### remove (async)
+parameters
+- name: String
+
+this will remove an instance of a sender api from the cache and will follow any cleanup code specified in the api code.
+
+### entries
+
+This will allow you to iterate over the cache name and client of the cache
+
+### keys
+
+This will allow you to iterate over the cache name of the cache
+
+### values
+
+This will allow you to iterate over the clients of the cache
+
+
+### S3 Sender Instance
+This is the sender class that is returned from the create method of the APIFactory
+
+### send
+```(records: DataEntity[]) => Promise<void>```
+parameters
+- records: DataEntity[]
+
+This method will send the records to file
+
+```js
+    const docs = [ DataEntity.make({ some: 'data' })]
+    await api.send(docs)
+```
+
+## Options
+
+### path
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any valid S3 bucket/prefix name | `null` | N |
+| Any valid S3 bucket/prefix name | `null` | Y |
 
 The bucket and optional prefix for data. If there is no `/` in this parameter, it will just be treated as a bucket name, and if there is no trailing `/`, one will be added to separate anything after the bucket from the worker names. If path is not provided in the opConfig, it must be provided in the api configuration.
 
-## `api_name`
-
-| Valid Options | Default | Required |
-| ----------- | ------- | -------- |
-| String | `file_reader_api` | N |
-
-This parameter will determine which api file sender api to use. If one is not provided, the default file_sender_api will be instantiated and hooked up to this processor.
-
-## `extension`
+### extension
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
@@ -28,7 +92,7 @@ This parameter will determine which api file sender api to use. If one is not pr
 
 Optional file extension to add to file names. A `.` is not automatically prepended to this value when being added to the filename.
 
-## `connection`
+### connection
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
@@ -36,7 +100,7 @@ Optional file extension to add to file names. A `.` is not automatically prepend
 
 This is the name of the S3 connector defined in Terafoundation.
 
-## `compression`
+### compression
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
@@ -44,7 +108,7 @@ This is the name of the S3 connector defined in Terafoundation.
 
 Compression type to use with objects.
 
-## `fields`
+### fields
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
@@ -52,7 +116,7 @@ Compression type to use with objects.
 
 This is an optional setting that will filter and order the fields in the output. It will work with `csv`, `tsv`, and `ldjson` output formats, and if not specified, all fields will be included in the output.
 
-## `field_delimiter`
+### field_delimiter
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
@@ -60,7 +124,7 @@ This is an optional setting that will filter and order the fields in the output.
 
 Any string can be used as a delimiter for the exporter. This allows for multi-character or custom delimiters. **This option is only used with the `csv` output.** See the notes on the `format` option for more information.
 
-## `line_delimiter`
+### line_delimiter
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
@@ -68,7 +132,7 @@ Any string can be used as a delimiter for the exporter. This allows for multi-ch
 
 Any string can be used as a delimiter for the exporter. This allows for multi-character or custom delimiters. **This option is only used with the `csv` output.** See the notes on the `format` option for more information.
 
-## `file_per_slice`
+### file_per_slice
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
@@ -76,7 +140,7 @@ Any string can be used as a delimiter for the exporter. This allows for multi-ch
 
 This processor currently only supports creating a single object for each slice. A future improvement will be to utilize multi-part uploads to allow workers to write larger batches of data to objects.
 
-## `include_header`
+### include_header
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
@@ -84,7 +148,7 @@ This processor currently only supports creating a single object for each slice. 
 
 Determines whether or not to include column headers for the fields in output files. If set to `true`, a header will be added as the first entry to every file created. This option is only used for `tsv` and `csv` formats.
 
-## `concurrency`
+### concurrency
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
@@ -92,7 +156,7 @@ Determines whether or not to include column headers for the fields in output fil
 
 The concurrencty the slicer slicer will use to write to s3
 
-## `format`
+### format
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
@@ -122,84 +186,24 @@ The concurrencty the slicer slicer will use to write to s3
 { "data": "some processed data string" }
 ```
 
-`SHORT FORM (no api specified)`
 
-```json
-{
-    "name": "s3_sender",
-    "lifecycle": "once",
-    "analytics": true,
-    "slicers": 1,
-    "workers": 1,
-    "assets": [
-        "file",
-        "elasticsearch"
-    ],
-    "operations": [
-        {
-            "_op": "elasticsearch_reader",
-            "size": 500,
-            "index": "test_index",
-            "type": "events",
-            "date_field_name": "created",
-            "time_resolution": "ms"
-        },
-        {
-            "_op": "key_router",
-            "from": "beginning",
-            "use": 1
-        },
-        {
-            "_op": "s3_exporter",
-            "api_name": "s3_sender_api",
-            "path": "routed-path-s3",
-            "file_per_slice": true
-        }
-    ]
+### Example Processor using a file sender api
+```typescript
+export default class SomeBatcher extends BatchProcessor<SomeConfig> {
+    api!: S3Sender;
+
+    async initialize(): Promise<void> {
+        await super.initialize();
+        const apiName = this.opConfig.api_name;
+        const apiManager = this.getAPI<S3SenderFactoryAPI>(apiName);
+        this.api = await apiManager.create(apiName);
+    }
+
+    async onBatch(slice: DataEntity[]): Promise<DataEntity[]> {
+        await this.api.send(slice);
+        // it is best practice to return the slice for any processors after this operation
+        return slice;
+    }
 }
+
 ```
-
-this configuration will be expanded out to the long form underneath the hood
-
-`LONG FORM (api is specified)`
-
-```json
-{
-    "name": "s3_sender",
-    "lifecycle": "once",
-    "analytics": true,
-    "slicers": 1,
-    "workers": 1,
-    "assets": [
-        "file",
-        "elasticsearch"
-    ],
-    "apis": [
-        {
-            "_name": "s3_sender_api",
-            "path": "routed-path-s3",
-            "file_per_slice": true
-        },
-        {
-            "_name": "elasticsearch_reader_api",
-            "size": 500,
-            "index": "test_index",
-            "type": "events",
-            "date_field_name": "created",
-            "time_resolution": "ms"
-        }
-    ],
-    "operations": [
-        {
-            "_op": "elasticsearch_reader",
-            "api_name": "elasticsearch_reader_api",
-        },
-        {
-            "_op": "s3_exporter",
-            "api_name": "s3_sender_api",
-          }
-    ]
-}
-```
-
-If you specify the long form of the job (you create the api yourself and wire it up) then the "path" parameter must NOT be placed in opConfig as it is specified on the api.

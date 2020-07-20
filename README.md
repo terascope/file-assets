@@ -8,7 +8,10 @@ This bundle includes the following processors:
 - [`file_reader`](./docs/file_reader.md)
 - [`s3_exporter`](./docs/s3_exporter.md)
 - [`s3_reader`](./docs/s3_reader.md)
-
+- [`file_sender_api`](./docs/file_sender_api.md)
+- [`file_reader_api`](./docs/file_reader_api.md)
+- [`s3_sender_api`](./docs/s3_sender_api.md)
+- [`s3_reader_api`](./docs/s3_reader_api.md)
 
 
 ## Contributing

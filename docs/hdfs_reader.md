@@ -12,9 +12,9 @@ If a functional processor is needed, use the old [HDFS asset bundle](https://git
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any valid S3 bucket/prefix name | `null` | Y |
+| Any valid S3 bucket/prefix name | `null` | N |
 
-The bucket and optional prefix for data. If there is no `/` in this parameter, it will just be treated as a bucket name, and if there is no trailing `/`, any portion of the path that isn't the bucket will be treated as the object prefix.
+The bucket and optional prefix for data. If there is no `/` in this parameter, it will just be treated as a bucket name, and if there is no trailing `/`, any portion of the path that isn't the bucket will be treated as the object prefix. If path is not provided in the opConfig, it must be provided in the api configuration.
 
 ## `connection`
 
@@ -31,6 +31,14 @@ This is the name of the S3 connector defined in Terafoundation.
 | Any valid HDFS user | `hdfs` | N |
 
 User to use when reading the files
+
+## `api_name`
+
+| Valid Options | Default | Required |
+| ----------- | ------- | -------- |
+| String | `hdfs_reader_api` | N |
+
+This parameter will determine which api file sender api to use. If one is not provided, the default file_sender_api will be instantiated and hooked up to this processor.
 
 ## `compression`
 
