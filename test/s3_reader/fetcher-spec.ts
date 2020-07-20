@@ -83,7 +83,7 @@ describe('S3Reader fetcher', () => {
         const bucket = 'fetcher-test-ldjson';
         const dirPath = '/my/test/';
         const path = `${bucket}${dirPath}`;
-        const slicePath = `${dirPath}${testWorkerId}`;
+        const slicePath = `${dirPath}${testWorkerId}.0`;
         const format = Format.ldjson;
 
         beforeAll(async () => {

@@ -38,7 +38,7 @@ export default class FileSender extends ChunkedSender implements RouteSenderAPI 
         }
     }
 
-    async send(records: DataEntity[]):Promise<void> {
+    async send(records: DataEntity[]): Promise<void> {
         const { concurrency } = this;
         this.sliceCount += 1;
 

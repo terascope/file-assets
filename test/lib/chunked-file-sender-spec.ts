@@ -49,7 +49,7 @@ describe('ChunkedSlicer', () => {
         const test = new Test(FileSenderType.file, makeConfig({ format: Format.json }));
         expect(test.nameOptions.filePerSlice).toBeTrue();
 
-        const test2 = new Test(FileSenderType.s3, makeConfig({ format: Format.json }));
+        const test2 = new Test(FileSenderType.hdfs, makeConfig({ format: Format.json }));
         expect(test2.nameOptions.filePerSlice).toBeFalse();
     });
 
@@ -62,6 +62,11 @@ describe('ChunkedSlicer', () => {
 
         const test3 = new Test(FileSenderType.file, makeConfig({ compression: Compression.none }));
         expect(test3.nameOptions.filePerSlice).toBeFalse();
+    });
+
+    it('will set file filePerSlice to true if its a s3 type', () => {
+        const test = new Test(FileSenderType.s3, makeConfig({ format: Format.json }));
+        expect(test.nameOptions.filePerSlice).toBeTrue();
     });
 
     it('can check its a router is being used', () => {
@@ -175,32 +180,26 @@ describe('ChunkedSlicer', () => {
     describe('s3 destination names', () => {
         it('can make correct base paths', async () => {
             const test = new Test(FileSenderType.s3, makeConfig());
+            test.incrementCount();
 
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}`);
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0`);
             expect(test.vefiyCalled).toEqual(false);
         });
 
         it('can make correct path', async () => {
             const newPath = `${path}/final/dir`;
             const test = new Test(FileSenderType.s3, makeConfig());
+            test.incrementCount();
 
-            expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}`);
+            expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}.0`);
             expect(test.vefiyCalled).toEqual(false);
         });
 
         it('can add extensions', async () => {
             const test = new Test(FileSenderType.s3, makeConfig({ extension: 'stuff' }));
-
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}stuff`);
-        });
-
-        it('can add slice count', async () => {
-            const test = new Test(FileSenderType.s3, makeConfig({ file_per_slice: true }));
             test.incrementCount();
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0`);
 
-            test.incrementCount();
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.1`);
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0stuff`);
         });
     });
 
@@ -211,13 +210,15 @@ describe('ChunkedSlicer', () => {
             DataEntity.make({ other: 'stuff' }),
         ];
 
+        test.incrementCount();
+
         const results = await test.prepareSegment(path, records);
 
         expect(results).toBeDefined();
         expect(results.fileName).toBeDefined();
         expect(results.output).toBeDefined();
 
-        expect(results.fileName).toEqual(`${path}/${workerId}`);
+        expect(results.fileName).toEqual(`${path}/${workerId}.0`);
         expect(results.output).toEqual('{"some":"data"}\n{"other":"stuff"}\n');
     });
 });

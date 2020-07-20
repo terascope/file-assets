@@ -84,7 +84,7 @@ describe('S3 API Reader', () => {
         const bucket = 'api-reader-test-tsv';
         const dirPath = '/my/test/';
         const path = `${bucket}${dirPath}`;
-        const slicePath = `${dirPath}${testWorkerId}`;
+        const slicePath = `${dirPath}${testWorkerId}.0`;
         const format = Format.tsv;
 
         beforeAll(async () => {
@@ -128,7 +128,7 @@ describe('S3 API Reader', () => {
         const bucket = 'api-reader-test-csv';
         const dirPath = '/my/test/';
         const path = `${bucket}${dirPath}`;
-        const slicePath = `${dirPath}${testWorkerId}`;
+        const slicePath = `${dirPath}${testWorkerId}.0`;
         const format = Format.csv;
 
         beforeAll(async () => {
@@ -172,7 +172,7 @@ describe('S3 API Reader', () => {
         const bucket = 'api-reader-test-json';
         const dirPath = '/my/test/';
         const path = `${bucket}${dirPath}`;
-        const slicePath = `${dirPath}${testWorkerId}`;
+        const slicePath = `${dirPath}${testWorkerId}.0`;
         const format = Format.json;
 
         beforeAll(async () => {
@@ -213,7 +213,7 @@ describe('S3 API Reader', () => {
         const bucket = 'api-reader-test-ldjson';
         const dirPath = '/my/test/';
         const path = `${bucket}${dirPath}`;
-        const slicePath = `${dirPath}${testWorkerId}`;
+        const slicePath = `${dirPath}${testWorkerId}.0`;
         const format = Format.ldjson;
 
         beforeAll(async () => {
@@ -254,7 +254,7 @@ describe('S3 API Reader', () => {
         const bucket = 'api-reader-test-raw';
         const dirPath = '/my/test/';
         const path = `${bucket}${dirPath}`;
-        const slicePath = `${dirPath}${testWorkerId}`;
+        const slicePath = `${dirPath}${testWorkerId}.0`;
         const format = Format.raw;
         const rawData = ['chillywilly', 'johndoe'];
         const newData = rawData.map((name) => DataEntity.make({ data: name }));

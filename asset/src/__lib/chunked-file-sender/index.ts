@@ -47,6 +47,11 @@ export default abstract class ChunkedSender {
             this.nameOptions.filePerSlice = true;
         }
 
+        // `filePerSlice` needs to be ignored since you cannot append to S3 objects
+        if (type === FileSenderType.s3) {
+            this.nameOptions.filePerSlice = true;
+        }
+
         this.compressionFormatter = new CompressionFormatter(compression);
         this.fileFormatter = new FileFormatter(format, config);
         this.config = config;
