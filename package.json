@@ -24,7 +24,7 @@
         "@terascope/eslint-config": "^0.4.0",
         "@terascope/job-components": "^0.35.0",
         "@types/fs-extra": "^9.0.1",
-        "@types/jest": "^26.0.0",
+        "@types/jest": "^26.0.5",
         "@types/json2csv": "^5.0.1",
         "@types/node": "^14.0.6",
         "@types/node-gzip": "^1.1.0",
