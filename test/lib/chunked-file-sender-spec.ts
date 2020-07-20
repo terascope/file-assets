@@ -10,6 +10,7 @@ import {
 
 describe('ChunkedSlicer', () => {
     const path = 'some/path';
+    const workerId = '1234';
 
     class Test extends ChunkedSlicer {
         vefiyCalled = false;
@@ -24,7 +25,7 @@ describe('ChunkedSlicer', () => {
     }
 
     const defaults: Partial<ChunkedSenderConfig> = {
-        workerId: '1234',
+        workerId,
         size: 1000,
         connection: 'default',
         remove_header: true,
@@ -105,5 +106,118 @@ describe('ChunkedSlicer', () => {
         expect(test.testJoinPath()).toEqual(path);
         expect(test.testJoinPath(path)).toEqual(path);
         expect(test.testJoinPath('last/part')).toEqual(`${path}/last/part`);
+    });
+
+    describe('file destination names', () => {
+        it('can make correct base paths', async () => {
+            const test = new Test(FileSenderType.file, makeConfig());
+
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}`);
+            expect(test.vefiyCalled).toEqual(true);
+        });
+
+        it('can make correct path', async () => {
+            const newPath = `${path}/final/dir`;
+            const test = new Test(FileSenderType.file, makeConfig());
+
+            expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}`);
+            expect(test.vefiyCalled).toEqual(true);
+        });
+
+        it('can add extensions', async () => {
+            const test = new Test(FileSenderType.file, makeConfig({ extension: 'stuff' }));
+
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}stuff`);
+        });
+
+        it('can add slice count', async () => {
+            const test = new Test(FileSenderType.file, makeConfig({ file_per_slice: true }));
+            test.incrementCount();
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0`);
+
+            test.incrementCount();
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.1`);
+        });
+    });
+
+    describe('hdfs destination names', () => {
+        it('can make correct base paths', async () => {
+            const test = new Test(FileSenderType.hdfs, makeConfig());
+
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}`);
+            expect(test.vefiyCalled).toEqual(true);
+        });
+
+        it('can make correct path', async () => {
+            const newPath = `${path}/final/dir`;
+            const test = new Test(FileSenderType.hdfs, makeConfig());
+
+            expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}`);
+            expect(test.vefiyCalled).toEqual(true);
+        });
+
+        it('can add extensions', async () => {
+            const test = new Test(FileSenderType.hdfs, makeConfig({ extension: 'stuff' }));
+
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}stuff`);
+        });
+
+        it('can add slice count', async () => {
+            const test = new Test(FileSenderType.hdfs, makeConfig({ file_per_slice: true }));
+            test.incrementCount();
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0`);
+
+            test.incrementCount();
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.1`);
+        });
+    });
+
+    describe('s3 destination names', () => {
+        it('can make correct base paths', async () => {
+            const test = new Test(FileSenderType.s3, makeConfig());
+
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}`);
+            expect(test.vefiyCalled).toEqual(false);
+        });
+
+        it('can make correct path', async () => {
+            const newPath = `${path}/final/dir`;
+            const test = new Test(FileSenderType.s3, makeConfig());
+
+            expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}`);
+            expect(test.vefiyCalled).toEqual(false);
+        });
+
+        it('can add extensions', async () => {
+            const test = new Test(FileSenderType.s3, makeConfig({ extension: 'stuff' }));
+
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}stuff`);
+        });
+
+        it('can add slice count', async () => {
+            const test = new Test(FileSenderType.s3, makeConfig({ file_per_slice: true }));
+            test.incrementCount();
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0`);
+
+            test.incrementCount();
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.1`);
+        });
+    });
+
+    it('can prepare a segement for sending', async () => {
+        const test = new Test(FileSenderType.s3, makeConfig());
+        const records = [
+            DataEntity.make({ some: 'data' }),
+            DataEntity.make({ other: 'stuff' }),
+        ];
+
+        const results = await test.prepareSegment(path, records);
+
+        expect(results).toBeDefined();
+        expect(results.fileName).toBeDefined();
+        expect(results.output).toBeDefined();
+
+        expect(results.fileName).toEqual(`${path}/${workerId}`);
+        expect(results.output).toEqual('{"some":"data"}\n{"other":"stuff"}\n');
     });
 });
