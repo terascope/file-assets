@@ -677,10 +677,10 @@
     "@types/istanbul-lib-coverage" "*"
     "@types/istanbul-lib-report" "*"
 
-"@types/jest@^26.0.4":
-  version "26.0.4"
-  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-26.0.4.tgz#d2e513e85aca16992816f192582b5e67b0b15efb"
-  integrity sha512-4fQNItvelbNA9+sFgU+fhJo8ZFF+AS4Egk3GWwCW2jFtViukXbnztccafAdLhzE/0EiCogljtQQXP8aQ9J7sFg==
+"@types/jest@^26.0.5":
+  version "26.0.5"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-26.0.5.tgz#23a8eecf4764a770ea8d3a0d1ea16b96c822035d"
+  integrity sha512-heU+7w8snfwfjtcj2H458aTx3m5unIToOJhx75ebHilBiiQ39OIdA18WkG4LP08YKeAoWAGvWg8s+22w/PeJ6w==
   dependencies:
     jest-diff "^25.2.1"
     pretty-format "^25.2.1"
@@ -1053,10 +1053,10 @@ atob@^2.1.2:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-aws-sdk@^2.714.0:
-  version "2.714.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.714.0.tgz#b248ecd68f0f8061dc95b6919ff64cc7ae1e8c97"
-  integrity sha512-5wtzueYdq8nj/7TgW64kfVUJC2lXSMb+0Iv3F4tBqzdZMAjbva82qnGGkWRFmy1jqq9Zll0tJsR1tnskkuK67g==
+aws-sdk@^2.715.0:
+  version "2.715.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.715.0.tgz#b890892098e0a4d9e7189ed341267d4a9a6e856b"
+  integrity sha512-O6ytb66IXFCowp0Ng2bSPM6v/cZVOhjJWFTR1CG4ieG4IroAaVgB3YQKkfPKA0Cy9B/Ovlsm7B737iuroKsd0w==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
