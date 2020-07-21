@@ -2,11 +2,6 @@
 
 The `file_exporter` will export slices to files local to the Teraslice workers.
 
-# Optional Routing Override
-
-If record metadata includes a `routingPath` attribute, this will override the `path` provided in this configuration.
-
-This must be used with caution in combination with the this processor since it does not currently support directory creation and all directories being written to must already exist.
 
 # Options
 
@@ -14,9 +9,9 @@ This must be used with caution in combination with the this processor since it d
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any valid path | `null` | Y |
+| Any valid path | `null` | N |
 
-This is the directory where data will be saved. All intermediate directories must pre-exist, and the directory must be accessible by the TS workers. Files will be named after the TS workers, so multiple workers can write data to the same directory concurrently. If there is no trailing `/`, one will be added.
+This is the directory where data will be saved. All intermediate directories must pre-exist, and the directory must be accessible by the TS workers. Files will be named after the TS workers, so multiple workers can write data to the same directory concurrently. If there is no trailing `/`, one will be added. If path is not provided in the opConfig, it must be provided in the api configuration.
 
 ## `extension`
 
@@ -41,6 +36,14 @@ Compression type to use with files.
 | Array containing record fields | `[]` | N |
 
 This is an optional setting that will filter and order the fields in the output. It will work with `csv`, `tsv`, and `ldjson` output formats, and if not specified, all fields will be included in the output.
+
+## `api_name`
+
+| Valid Options | Default | Required |
+| ----------- | ------- | -------- |
+| String | `file_sender_api` | N |
+
+This parameter will determine which api file sender api to use. If one is not provided, the default file_sender_api will be instantiated and hooked up to this processor.
 
 ## `field_delimiter`
 
@@ -116,12 +119,17 @@ The concurrencty the slicer slicer will use to write to s3
 
 This test job will generate 500k records and put them into tab-delimited files that include column headers in the worker's `/app/data/testfiles` directory. (Since the `elasticsearch_data_generator` breaks records into batches of 10k records, this will result in 50 `test_*` tsv files)
 
+`SHORT FORM (no api specified)`
 ```json
 {
   "name": "file_exporter",
   "lifecycle": "once",
   "workers": 1,
   "max_retries": 0,
+  "assets": [
+    "file",
+    "elasticsearch"
+  ],
   "operations": [
     {
       "_op": "elasticsearch_data_generator",
@@ -140,3 +148,43 @@ This test job will generate 500k records and put them into tab-delimited files t
   ]
 }
 ```
+
+this configuration will be expanded out to the long form underneath the hood
+
+`LONG FORM (api is specified)`
+```json
+{
+  "name": "file_exporter",
+  "lifecycle": "once",
+  "workers": 1,
+  "max_retries": 0,
+  "assets": [
+    "file",
+    "elasticsearch"
+  ],
+  "apis": [
+      {
+          "_name": "file_sender_api",
+          "path": "/app/data/testfiles",
+          "format": "tsv",
+          "file_per_slice": true,
+          "include_header": true
+      }
+  ],
+  "operations": [
+    {
+      "_op": "elasticsearch_data_generator",
+      "size": 500000
+    },
+    {
+      "_op": "file_exporter",
+      "api_name": "file_sender_api"
+    }
+  ],
+  "assets": [
+    "file"
+  ]
+}
+```
+
+If you specify the long form of the job (you create the api yourself and wire it up) then the "path" parameter must NOT be placed in opConfig as it is specified on the api.

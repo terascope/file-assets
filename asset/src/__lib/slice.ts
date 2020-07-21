@@ -1,7 +1,6 @@
 import { DataEntity } from '@terascope/job-components';
 import path from 'path';
-import { getOffsets } from './chunked-file-reader';
-import { SliceConfig, SlicedFileResults } from './interfaces';
+import { SliceConfig, SlicedFileResults, Offsets } from './interfaces';
 
 export function sliceFile(file: {
     path: string;
@@ -28,6 +27,37 @@ export function sliceFile(file: {
     }
 
     return slices;
+}
+
+// [{offset, length}] of chunks `size` assuming `delimiter` for a file with `total` size.
+export function getOffsets(size: number, total: number, delimiter: string): Offsets[] {
+    if (total === 0) {
+        return [];
+    }
+
+    if (total < size) {
+        return [{ length: total, offset: 0 }];
+    }
+
+    const fullChunks = Math.floor(total / size);
+    const delta = delimiter.length;
+    const length = size + delta;
+    const chunks = [];
+
+    for (let chunk = 1; chunk < fullChunks; chunk += 1) {
+        chunks.push({ length, offset: (chunk * size) - delta });
+    }
+
+    // First chunk doesn't need +/- delta.
+    chunks.unshift({ offset: 0, length: size });
+    // When last chunk is not full chunk size.
+    const lastChunk = total % size;
+
+    if (lastChunk > 0) {
+        chunks.push({ offset: (fullChunks * size) - delta, length: lastChunk + delta });
+    }
+
+    return chunks;
 }
 
 // Batches records in a slice into groups based on the `routingPath` override (if present)

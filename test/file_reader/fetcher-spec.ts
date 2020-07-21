@@ -25,6 +25,10 @@ describe('File reader\'s fetcher', () => {
         return harness;
     }
 
+    afterEach(async () => {
+        if (harness) await harness.shutdown();
+    });
+
     it('properly reads an ldjson slice', async () => {
         const testDataDir = await fixtures.copyFixtureIntoTempDir(__dirname, 'file_reader/ldjson/subdir');
         const opConfig = {

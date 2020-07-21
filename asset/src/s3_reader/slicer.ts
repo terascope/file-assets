@@ -1,24 +1,27 @@
 import {
-    Slicer, getClient, WorkerContext, ExecutionConfig,
-    flatten
+    Slicer,
+    WorkerContext,
+    ExecutionConfig,
+    flatten,
+    SlicerRecoveryData
 } from '@terascope/job-components';
 import { S3ReaderConfig } from './interfaces';
-// import { getOffsets } from '@terascope/chunked-file-reader';
+import { parsePath } from './helpers';
 import { sliceFile } from '../__lib/slice';
-import { parsePath } from '../__lib/fileName';
 import { SliceConfig, SlicedFileResults } from '../__lib/interfaces';
+import { S3ReaderFactoryAPI } from '../s3_reader_api/interfaces';
+import S3Reader from '../s3_reader_api/reader';
 
 export default class S3Slicer extends Slicer<S3ReaderConfig> {
-    client: any;
     bucket: string;
     prefix: string;
     _doneSlicing = false;
     _lastKey: string | undefined;
     sliceConfig: SliceConfig;
+    api!: S3Reader;
 
     constructor(context: WorkerContext, opConfig: S3ReaderConfig, exConfig: ExecutionConfig) {
         super(context, opConfig, exConfig);
-        this.client = getClient(context, opConfig, 's3');
         const { bucket, prefix } = parsePath(opConfig.path);
         this.bucket = bucket;
         this.prefix = prefix;
@@ -35,12 +38,21 @@ export default class S3Slicer extends Slicer<S3ReaderConfig> {
         return Boolean(this.executionConfig.autorecover);
     }
 
-    canReadFile(path: string): boolean {
-        const args = path.split('/');
+    canReadFile(filePath: string): boolean {
+        const args = filePath.split('/');
         const hasDot = args.some((segment) => segment.charAt(0) === '.');
 
         if (hasDot) return false;
         return true;
+    }
+
+    async initialize(recoveryData: SlicerRecoveryData[]): Promise<void> {
+        await super.initialize(recoveryData);
+
+        const apiName = this.opConfig.api_name;
+        const apiManager = this.getAPI<S3ReaderFactoryAPI>(apiName);
+        // FIXME: remove as any
+        this.api = await apiManager.create(apiName, {} as any);
     }
 
     async slice(): Promise<any|null> {
@@ -57,7 +69,7 @@ export default class S3Slicer extends Slicer<S3ReaderConfig> {
     }
 
     async getObjects(): Promise<SlicedFileResults[]> {
-        const data = await this.client.listObjects_Async({
+        const data = await this.api.client.listObjects_Async({
             Bucket: this.bucket,
             Prefix: this.prefix,
             Marker: this._lastKey,

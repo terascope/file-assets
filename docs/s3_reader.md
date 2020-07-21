@@ -8,9 +8,10 @@ The `s3_reader` will slice up and read files in an S3 bucket. It is currently on
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any valid S3 bucket/prefix name | `null` | Y |
+| Any valid S3 bucket/prefix name | `null` | N |
 
 The bucket and optional prefix for data. If there is no `/` in this parameter, it will just be treated as a bucket name, and anything separated from the bucket name with a `/` will be treated as a subdirectory whether or not there is a trailing `/`.
+If path is not provided in the opConfig, it must be provided in the api configuration.
 
 ## `connection`
 
@@ -67,6 +68,14 @@ Fields present in the files. This option is only used for `tsv` and `csv` format
 | 'true', 'false' | `true` | N |
 
 This setting determines if files will be split into multiple slices (`false`), each file will be contained in a single slice (`true`).  **If using `json` format, this option will be overridden to `true`.** See format notes below for more information.
+
+## `api_name`
+
+| Valid Options | Default | Required |
+| ----------- | ------- | -------- |
+| String | `file_sender_api` | N |
+
+This parameter will determine which api file sender api to use. If one is not provided, the default file_sender_api will be instantiated and hooked up to this processor.
 
 ## `remove_header`
 
@@ -133,36 +142,84 @@ s3://staging
     └── test_data4_200k_records.txt
 ```
 
+`SHORT FORM (no api specified)`
+
 ```json
 {
   "name": "s3_to_es",
   "lifecycle": "once",
   "workers": 10,
   "max_retries": 0,
-  "operations": [
-  {
-    "_op": "s3_reader",
-    "path": "staging",
-    "size": 100000,
-    "format": "ldjson",
-    "connector": "staging_s3"
-  },
-  {
-    "_op": "elasticsearch_index_selector",
-    "index": "zb-test_records",
-    "type": "events"
-  },
-  {
-    "_op": "elasticsearch_bulk",
-    "size": 10000,
-    "connection": "my-test-cluster"
-  }
-  ],
   "assets": [
     "file",
     "elasticsearch"
+  ],
+  "operations": [
+    {
+        "_op": "s3_reader",
+        "path": "staging",
+        "size": 100000,
+        "format": "ldjson",
+        "connector": "staging_s3"
+    },
+    {
+        "_op": "elasticsearch_index_selector",
+        "index": "zb-test_records",
+        "type": "events"
+    },
+    {
+        "_op": "elasticsearch_bulk",
+        "size": 10000,
+        "connection": "my-test-cluster"
+    }
+  ]
+}
+```
+
+this configuration will be expanded out to the long form underneath the hood
+
+`LONG FORM (api is specified)`
+
+```json
+{
+  "name": "s3_to_es",
+  "lifecycle": "once",
+  "workers": 10,
+  "max_retries": 0,
+  "assets": [
+    "file",
+    "elasticsearch"
+  ],
+  "apis": [
+      {
+          "_name": "s3_reader_api",
+          "path": "staging",
+          "size": 100000,
+          "format": "ldjson",
+          "connector": "staging_s3"
+      },
+       {
+           "_name": "elasticsearch_sender_api",
+           "size": 10000,
+           "connection": "my-test-cluster",
+           "index": "zb-test_records",
+           "type": "events"
+      }
+  ],
+  "operations": [
+    {
+        "_op": "s3_reader",
+        "api_name": "s3_reader_api"
+    },
+    {
+        "_op": "elasticsearch_bulk",
+        "api_name": "elasticsearch_sender_api"
+
+    }
   ]
 }
 ```
 
 The result will be the ES index `zb-test_records` with 800k records.
+
+If you specify the long form of the job (you create the api yourself and wire it up) then the "path" parameter must NOT be placed in opConfig as it is specified on the api.

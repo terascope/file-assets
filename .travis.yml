@@ -16,6 +16,12 @@ cache:
   yarn: false
 if: NOT (branch = master AND type = push AND tag IS blank AND os = osx)
 before_script:
+  - curl -LO "https://dl.min.io/server/minio/release/${TRAVIS_OS_NAME/osx/darwin}-amd64/minio"
+  - sudo chmod +x minio
+  - mkdir -p ./data
+  - sudo chown -R travis ./data
+  - sudo chmod u+rxw ./data
+  - ./minio server ./data &
   - yarn build
   - yarn global add teraslice-cli
 script:

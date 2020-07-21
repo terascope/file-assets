@@ -8,9 +8,9 @@ The `file_reader` will slice up and read files local to the Teraslice workers. I
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any valid path | `null` | Y |
+| Any valid path | `null` | N |
 
-This is the directory where data should be staged for processing. The directory must be accessible by the TS workers, and all files must be present at the time the job is started. Files added after the job is started will not be read.
+This is the directory where data should be staged for processing. The directory must be accessible by the TS workers, and all files must be present at the time the job is started. Files added after the job is started will not be read. If path is not provided in the opConfig, it must be provided in the api configuration.
 
 ## `compression`
 
@@ -27,6 +27,14 @@ Compression type to use with files.
 | Line-delimiting string | `\n` | N |
 
 If a line delimiter other than `\n` is used in the files, this option will tell the reader how to read records in the file. This option is ignored for `json` format. See `json` format option below for more info.
+
+## `api_name`
+
+| Valid Options | Default | Required |
+| ----------- | ------- | -------- |
+| String | `file_reader_api` | N |
+
+This parameter will determine which api file sender api to use. If one is not provided, the default file_sender_api will be instantiated and hooked up to this processor.
 
 ## `size`
 
@@ -125,35 +133,80 @@ The directory has this structure:
     └── test_data4_200k_records.txt
 ```
 
+`SHORT FORM (no api specified)`
 ```json
 {
   "name": "file_reader",
   "lifecycle": "once",
   "workers": 10,
   "max_retries": 0,
-  "operations": [
-  {
-    "_op": "file_reader",
-    "path": "/app/data/testfiles",
-    "size": 100000,
-    "format": "ldjson"
-  },
-  {
-    "_op": "elasticsearch_index_selector",
-    "index": "zb-test_records",
-    "type": "events"
-  },
-  {
-    "_op": "elasticsearch_bulk",
-    "size": 10000,
-    "connection": "my-test-cluster"
-  }
+   "assets": [
+    "file",
+    "elasticsearch"
   ],
+  "operations": [
+    {
+        "_op": "file_reader",
+        "path": "/app/data/testfiles",
+        "size": 100000,
+        "format": "ldjson"
+    },
+    {
+        "_op": "elasticsearch_index_selector",
+        "index": "zb-test_records",
+        "type": "events"
+    },
+    {
+        "_op": "elasticsearch_bulk",
+        "size": 10000,
+        "connection": "my-test-cluster"
+    }
+  ]
+}
+```
+
+this configuration will be expanded out to the long form underneath the hood
+
+`LONG FORM (api is specified)`
+```json
+{
+  "name": "file_reader",
+  "lifecycle": "once",
+  "workers": 10,
+  "max_retries": 0,
   "assets": [
     "file",
     "elasticsearch"
+  ],
+  "apis": [
+      {
+          "_name": "file_reader_api",
+          "path": "/app/data/testfiles",
+          "size": 100000,
+          "format": "ldjson"
+      },
+       {
+           "_name": "elasticsearch_sender_api",
+           "size": 10000,
+           "connection": "my-test-cluster",
+           "index": "zb-test_records",
+           "type": "events"
+      }
+  ],
+  "operations": [
+    {
+        "_op": "file_reader",
+        "api_name": "file_reader_api"
+    },
+    {
+        "_op": "elasticsearch_bulk",
+        "api_name": "elasticsearch_sender_api"
+    }
   ]
 }
 ```
 
 The result will be the ES index `zb-test_records` with 800k records.
+
+If you specify the long form of the job (you create the api yourself and wire it up) then the "path" parameter must NOT be placed in opConfig as it is specified on the api.
+

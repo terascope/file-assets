@@ -1,6 +1,6 @@
 {
     "name": "file",
-    "version": "0.14.3",
+    "version": "1.0.0",
     "description": "A set of processors for working with files",
     "private": true,
     "workspaces": {
@@ -9,7 +9,7 @@
         ]
     },
     "dependencies": {
-        "@terascope/job-components": "^0.35.0",
+        "@terascope/job-components": "^0.38.1",
         "csvtojson": "^2.0.10",
         "fs-extra": "^9.0.0",
         "json2csv": "5.0.1",

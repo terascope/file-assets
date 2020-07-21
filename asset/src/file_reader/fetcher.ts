@@ -1,35 +1,20 @@
-import {
-    Fetcher, WorkerContext, ExecutionConfig, DataEntity
-} from '@terascope/job-components';
-import fse from 'fs-extra';
-import { FileConfig } from './interfaces';
+import { Fetcher, DataEntity } from '@terascope/job-components';
+import { FileReaderConfig } from './interfaces';
 import { SlicedFileResults } from '../__lib/interfaces';
-import { getChunk, FetcherFn } from '../__lib/chunked-file-reader';
-import { decompress } from '../__lib/compression';
+import FileReader from '../file_reader_api/reader';
+import { FileReaderFactoryAPI } from '../file_reader_api/interfaces';
 
-export default class FileFetcher extends Fetcher<FileConfig> {
-    reader: FetcherFn;
+export default class FileFetcher extends Fetcher<FileReaderConfig> {
+    api!: FileReader
 
-    constructor(context: WorkerContext, opConfig: FileConfig, exConfig: ExecutionConfig) {
-        super(context, opConfig, exConfig);
-        this.reader = this.fileReader.bind(this);
-    }
-
-    async fileReader(slice: SlicedFileResults): Promise<string> {
-        const { path, length, offset } = slice;
-        const fd = await fse.open(path, 'r');
-
-        try {
-            const buf = Buffer.alloc(2 * this.opConfig.size);
-            const { bytesRead } = await fse.read(fd, buf, 0, length, offset);
-            return decompress(buf.slice(0, bytesRead), this.opConfig.compression);
-        } finally {
-            fse.close(fd);
-        }
+    async initialize(): Promise<void> {
+        await super.initialize();
+        const apiName = this.opConfig.api_name;
+        const apiManager = this.getAPI<FileReaderFactoryAPI>(apiName);
+        this.api = await apiManager.create(apiName, {} as any);
     }
 
     async fetch(slice: SlicedFileResults): Promise<DataEntity[]> {
-        const results = await getChunk(this.reader, this.opConfig, this.logger, slice);
-        return results;
+        return this.api.read(slice);
     }
 }

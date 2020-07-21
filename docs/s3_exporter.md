@@ -2,19 +2,23 @@
 
 The `s3_exporter` will export slices to objects in S3. This exporter will ignore empty slices to prevent feeding empty objects into the S3 store.
 
-# Optional Routing Override
-
-If record metadata includes a `standard:route` attribute, this will be used with the `path` provided in this configuration to create nested directories.
-
 # Options
 
 ## `path`
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any valid S3 bucket/prefix name | `null` | Y |
+| Any valid S3 bucket/prefix name | `null` | N |
 
-The bucket and optional prefix for data. If there is no `/` in this parameter, it will just be treated as a bucket name, and if there is no trailing `/`, one will be added to separate anything after the bucket from the worker names.
+The bucket and optional prefix for data. If there is no `/` in this parameter, it will just be treated as a bucket name, and if there is no trailing `/`, one will be added to separate anything after the bucket from the worker names. If path is not provided in the opConfig, it must be provided in the api configuration.
+
+## `api_name`
+
+| Valid Options | Default | Required |
+| ----------- | ------- | -------- |
+| String | `file_reader_api` | N |
+
+This parameter will determine which api file sender api to use. If one is not provided, the default file_sender_api will be instantiated and hooked up to this processor.
 
 ## `extension`
 
@@ -117,3 +121,85 @@ The concurrencty the slicer slicer will use to write to s3
 ```json
 { "data": "some processed data string" }
 ```
+
+`SHORT FORM (no api specified)`
+
+```json
+{
+    "name": "s3_sender",
+    "lifecycle": "once",
+    "analytics": true,
+    "slicers": 1,
+    "workers": 1,
+    "assets": [
+        "file",
+        "elasticsearch"
+    ],
+    "operations": [
+        {
+            "_op": "elasticsearch_reader",
+            "size": 500,
+            "index": "test_index",
+            "type": "events",
+            "date_field_name": "created",
+            "time_resolution": "ms"
+        },
+        {
+            "_op": "key_router",
+            "from": "beginning",
+            "use": 1
+        },
+        {
+            "_op": "s3_exporter",
+            "api_name": "s3_sender_api",
+            "path": "routed-path-s3",
+            "file_per_slice": true
+        }
+    ]
+}
+```
+
+this configuration will be expanded out to the long form underneath the hood
+
+`LONG FORM (api is specified)`
+
+```json
+{
+    "name": "s3_sender",
+    "lifecycle": "once",
+    "analytics": true,
+    "slicers": 1,
+    "workers": 1,
+    "assets": [
+        "file",
+        "elasticsearch"
+    ],
+    "apis": [
+        {
+            "_name": "s3_sender_api",
+            "path": "routed-path-s3",
+            "file_per_slice": true
+        },
+        {
+            "_name": "elasticsearch_reader_api",
+            "size": 500,
+            "index": "test_index",
+            "type": "events",
+            "date_field_name": "created",
+            "time_resolution": "ms"
+        }
+    ],
+    "operations": [
+        {
+            "_op": "elasticsearch_reader",
+            "api_name": "elasticsearch_reader_api",
+        },
+        {
+            "_op": "s3_exporter",
+            "api_name": "s3_sender_api",
+          }
+    ]
+}
+```
+
+If you specify the long form of the job (you create the api yourself and wire it up) then the "path" parameter must NOT be placed in opConfig as it is specified on the api.

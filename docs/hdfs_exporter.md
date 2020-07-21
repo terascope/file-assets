@@ -16,9 +16,9 @@ If record metadata includes a `routingPath` attribute, this will override the `p
 
 | Valid Options | Default | Required |
 | ----------- | ------- | -------- |
-| Any valid HDFS path name | `null` | Y |
+| Any valid HDFS path name | `null` | N |
 
-The path and optional prefix for files. If there is no trailing `/`, latter portion of the path will be treated as the object prefix.
+The path and optional prefix for files. If there is no trailing `/`, latter portion of the path will be treated as the object prefix. If path is not provided in the opConfig, it must be provided in the api configuration.
 
 ## `extension`
 
@@ -35,6 +35,14 @@ Optional file extension to add to file names. A `.` is not automatically prepend
 | Any valid S3 connector | `null` | Y |
 
 This is the name of the S3 connector defined in Terafoundation.
+
+## `api_name`
+
+| Valid Options | Default | Required |
+| ----------- | ------- | -------- |
+| String | `hdfs_sender_api` | N |
+
+This parameter will determine which api file sender api to use. If one is not provided, the default file_sender_api will be instantiated and hooked up to this processor.
 
 ## `compression`
 

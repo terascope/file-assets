@@ -1,11 +1,4 @@
 import { OpConfig } from '@terascope/job-components';
-import { ReaderFileConfig } from '../__lib/common-schema';
+import { ReaderFileConfig } from '../__lib/interfaces';
 
-export interface S3ExportConfig extends ReaderFileConfig, OpConfig {
-}
-
-export interface S3PutConfig {
-    Bucket: string;
-    Key: string;
-    Body: string;
-}
+export interface S3ExportConfig extends ReaderFileConfig, OpConfig {}
