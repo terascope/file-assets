@@ -1,5 +1,7 @@
 import 'jest-extended';
-import { OpConfig, APIConfig, ValidatedJobConfig } from '@terascope/job-components';
+import {
+    OpConfig, APIConfig, ValidatedJobConfig, DataEncoding
+} from '@terascope/job-components';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
 
 describe('File exporter Schema', () => {
@@ -45,6 +47,66 @@ describe('File exporter Schema', () => {
             };
 
             await expect(makeTest(opConfig)).toResolve();
+        });
+
+        it('should not throw if _dead_letter_action are the same', async () => {
+            const opConfig = {
+                _op: 'file_exporter',
+                _dead_letter_action: 'throw'
+            };
+
+            const apiConfig = {
+                _name: 'file_sender_api',
+                path: '/chillywilly',
+                _dead_letter_action: 'throw'
+            };
+
+            await expect(makeTest(opConfig, apiConfig)).toResolve();
+        });
+
+        it('should throw if opConig _dead_letter_action is not a default value while apiConfig _dead_letter_action is set', async () => {
+            const opConfig = {
+                _op: 'file_exporter',
+                _dead_letter_action: 'none'
+            };
+
+            const apiConfig = {
+                _name: 'file_sender_api',
+                path: '/chillywilly',
+                _dead_letter_action: 'throw'
+            };
+
+            await expect(makeTest(opConfig, apiConfig)).toReject();
+        });
+
+        it('should not throw if _encoding are the same', async () => {
+            const opConfig = {
+                _op: 'file_exporter',
+                _encoding: DataEncoding.JSON
+            };
+
+            const apiConfig = {
+                _name: 'file_sender_api',
+                path: '/chillywilly',
+                _encoding: DataEncoding.JSON
+            };
+
+            await expect(makeTest(opConfig, apiConfig)).toResolve();
+        });
+
+        it('should throw if opConig _encoding is not a default value while apiConfig _encoding is set', async () => {
+            const opConfig = {
+                _op: 'file_exporter',
+                _encoding: DataEncoding.RAW
+            };
+
+            const apiConfig = {
+                _name: 'file_sender_api',
+                path: '/chillywilly',
+                _encoding: DataEncoding.JSON
+            };
+
+            await expect(makeTest(opConfig, apiConfig)).toReject();
         });
     });
 });

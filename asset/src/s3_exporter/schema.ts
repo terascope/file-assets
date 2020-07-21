@@ -7,10 +7,9 @@ import {
     ValidatedJobConfig,
     isNil,
     getOpConfig,
-    isNotNil,
 } from '@terascope/job-components';
 import { S3ExportConfig } from './interfaces';
-import { fileReaderSchema } from '../__lib/common-schema';
+import { fileReaderSchema, compareConfig } from '../__lib/common-schema';
 import { DEFAULT_API_NAME } from '../s3_sender_api/interfaces';
 
 const clonedSchema = cloneDeep(fileReaderSchema) as AnyObject;
@@ -41,7 +40,9 @@ export default class Schema extends ConvictSchema<S3ExportConfig> {
                 _name: DEFAULT_API_NAME,
                 ...apiConfig
             });
-        } else if (isNotNil(opConfig.path)) throw new Error('If api is specified on this operation, the parameter path must not be specified in the opConfig');
+        } else {
+            compareConfig(opConfig, S3SenderAPI);
+        }
     }
 
     build(): Record<string, any> {

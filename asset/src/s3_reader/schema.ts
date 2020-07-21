@@ -8,10 +8,9 @@ import {
     isString,
     getTypeOf,
     isEmpty,
-    isNotNil
 } from '@terascope/job-components';
 import { S3ReaderConfig } from './interfaces';
-import { fileReaderSchema } from '../__lib/common-schema';
+import { fileReaderSchema, compareConfig } from '../__lib/common-schema';
 import { DEFAULT_API_NAME } from '../s3_reader_api/interfaces';
 
 const clonedSchema = cloneDeep(fileReaderSchema) as AnyObject;
@@ -43,8 +42,8 @@ export default class Schema extends ConvictSchema<S3ReaderConfig> {
                 ...apiConfig
             });
         } else {
-            if (isNotNil(opConfig.path)) throw new Error('If api is specified on this operation, the parameter path must not be specified in the opConfig');
             if (!isEmpty(opConfig.extra_args)) throw new Error('If api is specified on this operation, the parameter extra_args must not be specified in the opConfig');
+            compareConfig(opConfig, S3ReaderAPI);
         }
     }
 

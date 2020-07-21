@@ -7,11 +7,10 @@ import {
     AnyObject,
     isString,
     getTypeOf,
-    isEmpty,
-    isNotNil
+    isEmpty
 } from '@terascope/job-components';
 import { HDFSReaderConfig } from './interfaces';
-import { fileReaderSchema } from '../__lib/common-schema';
+import { fileReaderSchema, compareConfig } from '../__lib/common-schema';
 import { DEFAULT_API_NAME } from '../hdfs_reader_api/interfaces';
 
 const clonedSchema = cloneDeep(fileReaderSchema) as AnyObject;
@@ -49,8 +48,8 @@ export default class Schema extends ConvictSchema<HDFSReaderConfig> {
                 ...apiConfig
             });
         } else {
-            if (isNotNil(opConfig.path)) throw new Error('If api is specified on this operation, the parameter path must not be specified in the opConfig');
             if (!isEmpty(opConfig.extra_args)) throw new Error('If api is specified on this operation, the parameter extra_args must not be specified in the opConfig');
+            compareConfig(opConfig, HDFSReaderAPI);
         }
     }
 

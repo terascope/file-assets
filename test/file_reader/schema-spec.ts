@@ -1,5 +1,7 @@
 import 'jest-extended';
-import { OpConfig, APIConfig, ValidatedJobConfig } from '@terascope/job-components';
+import {
+    OpConfig, APIConfig, ValidatedJobConfig, DataEncoding
+} from '@terascope/job-components';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
 
 describe('File Reader Schema', () => {
@@ -53,6 +55,66 @@ describe('File Reader Schema', () => {
         it('should throw is extra_args is specified and api is specified', async () => {
             const opConfig = { _op: 'file_reader', extra_args: { some: 'stuff' } };
             const apiConfig = { _name: 'file_reader_api', path: 'some/path' };
+
+            await expect(makeTest(opConfig, apiConfig)).toReject();
+        });
+
+        it('should not throw if _dead_letter_action are the same', async () => {
+            const opConfig = {
+                _op: 'file_reader',
+                _dead_letter_action: 'throw'
+            };
+
+            const apiConfig = {
+                _name: 'file_reader_api',
+                path: '/chillywilly',
+                _dead_letter_action: 'throw'
+            };
+
+            await expect(makeTest(opConfig, apiConfig)).toResolve();
+        });
+
+        it('should throw if opConig _dead_letter_action is not a default value while apiConfig _dead_letter_action is set', async () => {
+            const opConfig = {
+                _op: 'file_reader',
+                _dead_letter_action: 'none'
+            };
+
+            const apiConfig = {
+                _name: 'file_reader_api',
+                path: '/chillywilly',
+                _dead_letter_action: 'throw'
+            };
+
+            await expect(makeTest(opConfig, apiConfig)).toReject();
+        });
+
+        it('should not throw if _encoding are the same', async () => {
+            const opConfig = {
+                _op: 'file_reader',
+                _encoding: DataEncoding.JSON
+            };
+
+            const apiConfig = {
+                _name: 'file_reader_api',
+                path: '/chillywilly',
+                _encoding: DataEncoding.JSON
+            };
+
+            await expect(makeTest(opConfig, apiConfig)).toResolve();
+        });
+
+        it('should throw if opConig _encoding is not a default value while apiConfig _encoding is set', async () => {
+            const opConfig = {
+                _op: 'file_reader',
+                _encoding: DataEncoding.RAW
+            };
+
+            const apiConfig = {
+                _name: 'file_reader_api',
+                path: '/chillywilly',
+                _encoding: DataEncoding.JSON
+            };
 
             await expect(makeTest(opConfig, apiConfig)).toReject();
         });

@@ -7,10 +7,9 @@ import {
     ValidatedJobConfig,
     isNil,
     getOpConfig,
-    isNotNil,
 } from '@terascope/job-components';
 import { FileExporterConfig } from './interfaces';
-import { commonSchema } from '../__lib/common-schema';
+import { commonSchema, compareConfig } from '../__lib/common-schema';
 import { DEFAULT_API_NAME } from '../file_sender_api/interfaces';
 
 const clonedSchema = cloneDeep(commonSchema) as AnyObject;
@@ -41,7 +40,9 @@ export default class Schema extends ConvictSchema<FileExporterConfig> {
                 _name: DEFAULT_API_NAME,
                 ...apiConfig
             });
-        } else if (isNotNil(opConfig.path)) throw new Error('If api is specified on this operation, the parameter path must not be specified in the opConfig');
+        } else {
+            compareConfig(opConfig, FileSenderAPI);
+        }
     }
 
     build(): Record<string, any> {
