@@ -22,7 +22,7 @@
     "dependencies": {},
     "devDependencies": {
         "@terascope/eslint-config": "^0.4.2",
-        "@terascope/job-components": "^0.38.1",
+        "@terascope/job-components": "^0.38.2",
         "@types/bluebird": "^3.5.32",
         "@types/fs-extra": "^9.0.1",
         "@types/jest": "^26.0.7",
