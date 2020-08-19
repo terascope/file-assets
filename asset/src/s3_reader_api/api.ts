@@ -21,9 +21,9 @@ export default class S3ReaderAPI extends APIFactory<S3Reader, S3ReaderAPIConfig>
         }).client;
         const tryFn = this.tryRecord.bind(this);
         const rejectFn = this.rejectRecord.bind(this);
-        const chunckedConfig = Object.assign(config, { tryFn, rejectFn });
+        const chunkedConfig = Object.assign(config, { tryFn, rejectFn });
 
-        const client = new S3Reader(s3Client, chunckedConfig, this.logger);
+        const client = new S3Reader(s3Client, chunkedConfig, this.logger);
         return { client, config };
     }
 

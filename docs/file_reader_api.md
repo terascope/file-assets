@@ -10,7 +10,7 @@ This is a [Factory API](https://terascope.github.io/teraslice/docs/packages/job-
 
 ### size
 
-this will return how many seperate reader apis are in the cache
+this will return how many separate reader apis are in the cache
 
 ### get
 parameters:
@@ -204,7 +204,7 @@ export default class SomeFetcher extends Fetcher<SomeConfig> {
     async initialize(): Promise<void> {
         await super.initialize();
         const apiName = this.opConfig.api_name;
-        const apiManager = this.getAPI<FilereaderFactoryAPI>(apiName);
+        const apiManager = this.getAPI<FileReaderFactoryAPI>(apiName);
         this.api = await apiManager.create(apiName);
     }
 

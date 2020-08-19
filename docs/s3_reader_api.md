@@ -8,7 +8,7 @@ This is a [Factory API](https://terascope.github.io/teraslice/docs/packages/job-
 ## S3 Reader Factory API Methods
 ### size
 
-this will return how many seperate reader apis are in the cache
+this will return how many separate reader apis are in the cache
 
 ### get
 parameters

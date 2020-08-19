@@ -121,11 +121,11 @@ An object used to pass in any extra csv parsing arguments
 
 # Example Job
 
-This test job will find and read the files in the `/app/data/testfiles`, and then put them into ES. In this example, the TS cluster could be a single-node cluster or a multi-node cluster where `/app/data` is directory shared between all the workers.
+This test job will find and read the files in the `/app/data/test_files`, and then put them into ES. In this example, the TS cluster could be a single-node cluster or a multi-node cluster where `/app/data` is directory shared between all the workers.
 
 The directory has this structure:
 ```text
-/app/data/testfiles
+/app/data/test_files
 ├── test_data1_200k_records.txt
 ├── test_data2_200k_records.txt
 └── subdir
@@ -147,7 +147,7 @@ The directory has this structure:
   "operations": [
     {
         "_op": "file_reader",
-        "path": "/app/data/testfiles",
+        "path": "/app/data/test_files",
         "size": 100000,
         "format": "ldjson"
     },
@@ -181,7 +181,7 @@ this configuration will be expanded out to the long form underneath the hood
   "apis": [
       {
           "_name": "file_reader_api",
-          "path": "/app/data/testfiles",
+          "path": "/app/data/test_files",
           "size": 100000,
           "format": "ldjson"
       },
@@ -209,4 +209,3 @@ this configuration will be expanded out to the long form underneath the hood
 The result will be the ES index `zb-test_records` with 800k records.
 
 If you specify the long form of the job (you create the api yourself and wire it up) then the "path" parameter must NOT be placed in opConfig as it is specified on the api.
-

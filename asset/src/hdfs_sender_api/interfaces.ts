@@ -4,7 +4,6 @@ import HDFSSender from './sender';
 
 export const DEFAULT_API_NAME = 'hdfs_sender_api';
 
-// TODO: verify workerID
 export interface HDFSExporterAPIConfig extends HDFSExportConfig, APIConfig {
     workerId: string;
 }

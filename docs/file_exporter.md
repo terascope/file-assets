@@ -83,7 +83,7 @@ Determines whether or not to include column headers for the fields in output fil
 | ----------- | ------- | -------- |
 | Any positive integer | `10` | N |
 
-The concurrencty the slicer slicer will use to write to s3
+The concurrency the slicer slicer will use to write to s3
 
 ## `format`
 
@@ -117,7 +117,7 @@ The concurrencty the slicer slicer will use to write to s3
 
 # Example Job
 
-This test job will generate 500k records and put them into tab-delimited files that include column headers in the worker's `/app/data/testfiles` directory. (Since the `elasticsearch_data_generator` breaks records into batches of 10k records, this will result in 50 `test_*` tsv files)
+This test job will generate 500k records and put them into tab-delimited files that include column headers in the worker's `/app/data/test_files` directory. (Since the `elasticsearch_data_generator` breaks records into batches of 10k records, this will result in 50 `test_*` tsv files)
 
 `SHORT FORM (no api specified)`
 ```json
@@ -137,7 +137,7 @@ This test job will generate 500k records and put them into tab-delimited files t
     },
     {
       "_op": "file_exporter",
-      "path": "/app/data/testfiles",
+      "path": "/app/data/test_files",
       "format": "tsv",
       "file_per_slice": true,
       "include_header": true
@@ -165,7 +165,7 @@ this configuration will be expanded out to the long form underneath the hood
   "apis": [
       {
           "_name": "file_sender_api",
-          "path": "/app/data/testfiles",
+          "path": "/app/data/test_files",
           "format": "tsv",
           "file_per_slice": true,
           "include_header": true

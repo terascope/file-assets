@@ -90,7 +90,7 @@ Determines whether or not to include column headers for the fields in output fil
 | ----------- | ------- | -------- |
 | Any positive integer | `10` | N |
 
-The concurrencty the slicer slicer will use to write to s3
+The concurrency the slicer slicer will use to write to s3
 
 ## `format`
 

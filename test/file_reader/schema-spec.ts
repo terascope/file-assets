@@ -74,7 +74,7 @@ describe('File Reader Schema', () => {
             await expect(makeTest(opConfig, apiConfig)).toResolve();
         });
 
-        it('should throw if opConig _dead_letter_action is not a default value while apiConfig _dead_letter_action is set', async () => {
+        it('should throw if opConfig _dead_letter_action is not a default value while apiConfig _dead_letter_action is set', async () => {
             const opConfig = {
                 _op: 'file_reader',
                 _dead_letter_action: 'none'
@@ -104,7 +104,7 @@ describe('File Reader Schema', () => {
             await expect(makeTest(opConfig, apiConfig)).toResolve();
         });
 
-        it('should throw if opConig _encoding is not a default value while apiConfig _encoding is set', async () => {
+        it('should throw if opConfig _encoding is not a default value while apiConfig _encoding is set', async () => {
             const opConfig = {
                 _op: 'file_reader',
                 _encoding: DataEncoding.RAW

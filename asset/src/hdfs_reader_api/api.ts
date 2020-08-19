@@ -21,9 +21,9 @@ export default class HDFSReaderFactoryAPI extends APIFactory<HDFSReader, HDFSRea
         }).client;
         const tryFn = this.tryRecord.bind(this);
         const rejectFn = this.rejectRecord.bind(this);
-        const chunckedConfig = Object.assign(config, { tryFn, rejectFn });
+        const chunkedConfig = Object.assign(config, { tryFn, rejectFn });
 
-        const client = new HDFSReader(s3Client, chunckedConfig, this.logger);
+        const client = new HDFSReader(s3Client, chunkedConfig, this.logger);
         return { client, config };
     }
 

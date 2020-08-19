@@ -19,7 +19,7 @@ describe('S3 exporter Schema', () => {
             return {
                 client: {
                     // eslint-disable-next-line @typescript-eslint/naming-convention
-                    createBucket_Asyn: async () => {},
+                    createBucket_Async: async () => {},
                     // eslint-disable-next-line @typescript-eslint/naming-convention
                     headBucket_Async: async () => {}
 
@@ -94,7 +94,7 @@ describe('S3 exporter Schema', () => {
             await expect(makeTest(opConfig, apiConfig)).toResolve();
         });
 
-        it('should throw if opConig _dead_letter_action is not a default value while apiConfig _dead_letter_action is set', async () => {
+        it('should throw if opConfig _dead_letter_action is not a default value while apiConfig _dead_letter_action is set', async () => {
             const opConfig = {
                 _op: 's3_exporter',
                 _dead_letter_action: 'none'
@@ -124,7 +124,7 @@ describe('S3 exporter Schema', () => {
             await expect(makeTest(opConfig, apiConfig)).toResolve();
         });
 
-        it('should throw if opConig _encoding is not a default value while apiConfig _encoding is set', async () => {
+        it('should throw if opConfig _encoding is not a default value while apiConfig _encoding is set', async () => {
             const opConfig = {
                 _op: 's3_exporter',
                 _encoding: DataEncoding.RAW

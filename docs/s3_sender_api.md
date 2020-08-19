@@ -9,7 +9,7 @@ This is a [Factory API](https://terascope.github.io/teraslice/docs/packages/job-
 
 ### size
 
-this will return how many seperate sender apis are in the cache
+this will return how many separate sender apis are in the cache
 
 ### get
 parameters
@@ -154,7 +154,7 @@ Determines whether or not to include column headers for the fields in output fil
 | ----------- | ------- | -------- |
 | Any positive integer | `10` | N |
 
-The concurrencty the slicer slicer will use to write to s3
+The concurrency the slicer slicer will use to write to s3
 
 ### format
 

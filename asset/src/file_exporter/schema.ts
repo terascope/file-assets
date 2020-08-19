@@ -15,7 +15,7 @@ import { DEFAULT_API_NAME } from '../file_sender_api/interfaces';
 const clonedSchema = cloneDeep(commonSchema) as AnyObject;
 
 clonedSchema.api_name = {
-    doc: 'name of api to be used by elasticearch reader',
+    doc: 'name of api to be used by file_exporter',
     default: DEFAULT_API_NAME,
     format: (val: unknown): void => {
         if (!isString(val)) throw new Error(`Invalid parameter api_name, it must be of type string, was given ${getTypeOf(val)}`);

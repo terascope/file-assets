@@ -62,7 +62,7 @@ const csvOpConfig = makeConfig({
 
 describe('The chunked file reader', () => {
     // Test with a check to see if `getMetadata()` works for a record
-    it('returna a DataEntity for JSON data.', async () => {
+    it('return a DataEntity for JSON data.', async () => {
         const slice = {
             offset: 100, length: 5, total: 30, path: '/test/file'
         };
@@ -81,7 +81,7 @@ describe('The chunked file reader', () => {
     });
 
     // // Test with a check to see if `getMetadata()` works for a record
-    it('returna a DataEntity for `raw` data.', async () => {
+    it('return a DataEntity for `raw` data.', async () => {
         const slice = {
             offset: 100, length: 5, total: 30, path: '/test/file'
         };
@@ -226,7 +226,7 @@ describe('The chunked file reader', () => {
         expect(results).toEqual(expected);
     });
 
-    it('handes an array of JSON records.', async () => {
+    it('handles an array of JSON records.', async () => {
         const slice = {
             offset: 0, length: 30, total: 30, path: '/test/file'
         };
@@ -242,7 +242,7 @@ describe('The chunked file reader', () => {
         expect(results).toEqual(expected);
     });
 
-    it('handes a JSON record.', async () => {
+    it('handles a JSON record.', async () => {
         const slice = {
             offset: 0, length: 30, total: 30, path: '/test/file'
         };
@@ -276,7 +276,7 @@ describe('The chunked file reader', () => {
         expect(results).toEqual(expected);
     });
 
-    it('handes CSV input and removes headers.', async () => {
+    it('handles CSV input and removes headers.', async () => {
         const slice = {
             offset: 0, length: 30, total: 30, path: '/test/file'
         };

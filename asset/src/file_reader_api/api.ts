@@ -16,9 +16,9 @@ export default class FileReaderApi extends APIFactory<FileReader, FileReaderAPIC
         const config = this.validateConfig(Object.assign({}, this.apiConfig, overrideConfigs));
         const tryFn = this.tryRecord.bind(this);
         const rejectFn = this.rejectRecord.bind(this);
-        const chunckedConfig = Object.assign(config, { tryFn, rejectFn });
+        const chunkedConfig = Object.assign(config, { tryFn, rejectFn });
 
-        const client = new FileReader(chunckedConfig, this.logger);
+        const client = new FileReader(chunkedConfig, this.logger);
         return { client, config };
     }
 

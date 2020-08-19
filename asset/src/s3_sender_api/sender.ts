@@ -83,6 +83,6 @@ export default class S3Sender extends ChunkedSender implements RouteSenderAPI {
     }
 
     // TODO: for now this will not be used as we are still unclear how
-    // routing to mutliple buckets will work
+    // routing to multiple buckets will work
     async verify(_route: string): Promise<void> {}
 }
