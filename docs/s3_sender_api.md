@@ -203,6 +203,10 @@ await api.send([
 
 ### `format`
 Format determines how the data is saved to file, please check the references below for further information on each behavior.
+
+#### json
+`json` output treats each slice as an array of JSON records. It will coerce the object_per_slice to true so that each output object will be a single array that consists of all the records included in the slice. Additionally, a line_delimiter is appended to the end of every file.
+
 #### ldjson
 
 `ldjson` (line-delimited JSON) format will convert each individual record into JSON and separate each one by whats configured by the `line_delimiter` parameter

@@ -149,6 +149,10 @@ results === firstSlice;
 
 ### `format`
 Format determines how the data is saved to file, please check the references below for further information on each behavior.
+
+#### json
+`json` output treats each slice as an array of JSON records. It will coerce the object_per_slice to true so that each output object will be a single array that consists of all the records included in the slice. Additionally, a line_delimiter is appended to the end of every file.
+
 #### ldjson
 
 `ldjson` (line-delimited JSON) format will convert each individual record into JSON and separate each one by whats configured by the `line_delimiter` parameter
@@ -169,7 +173,7 @@ Format determines how the data is saved to file, please check the references bel
 { "data": "some processed data string or buffer" }
 ```
 
-#### API usage in a job
+### API usage in a job
 In file_assets v1, many core components were made into teraslice apis. When you use a file processor it will automatically setup the api for you, but if you manually specify the api, then there are restrictions on what configurations you can put on the operation so that clashing of configurations are minimized. The api configs take precedence.
 
 If submitting the job in long form, here is a list of parameters that will throw an error if also specified on the opConfig, since these values should be placed on the api:

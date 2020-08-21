@@ -16,7 +16,7 @@ type FormatFn = (slice: any[], opConfig: CSVConfig, csvOptions: json2csv.Options
 function csvFunction(slice: any[], opConfig: CSVConfig, csvOptions: json2csv.Options<any>) {
     return `${parse(slice, csvOptions)}${opConfig.line_delimiter}`;
 }
-// TODO: filter fields on all types but raw
+
 const formatsFns = {
     csv: csvFunction,
     tsv: csvFunction,
@@ -27,7 +27,7 @@ const formatsFns = {
         return `${slice.map((record: any) => JSON.stringify(record, (opConfig.fields.length > 0) ? opConfig.fields : undefined)).join(opConfig.line_delimiter)}${opConfig.line_delimiter}`;
     },
     json(slice: any[], opConfig: CSVConfig) {
-        return `${JSON.stringify(slice)}${opConfig.line_delimiter}`;
+        return `${JSON.stringify(slice, (opConfig.fields.length > 0) ? opConfig.fields : undefined)}${opConfig.line_delimiter}`;
     }
 };
 
