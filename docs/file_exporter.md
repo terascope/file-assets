@@ -106,7 +106,6 @@ Example Job
 }
 ```
 
-
 Here is a representation of what the processor will do with the configuration listed in the job above
 
 ```javascript

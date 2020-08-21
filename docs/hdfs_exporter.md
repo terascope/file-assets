@@ -7,7 +7,6 @@ The `hdfs_exporter` will export slices to files in HDFS.
 If a functional processor is needed, use the old [HDFS asset bundle](https://github.com/terascope/hdfs-assets)
 
 
-
 ## Parameters
 | Configuration | Description | Type |  Notes |
 | --------- | -------- | ------ | ------ |
@@ -16,7 +15,7 @@ If a functional processor is needed, use the old [HDFS asset bundle](https://git
 | extension | Optional file extension to add to file names | String | optional, A `.` is not automatically prepended to this value when being added to the filename, if it is desired it must be specified on the extension |
 | compression | you may specify a compression algorithm to apply to the data before being written to file, it may be set to `none`, `lz4` or `gzip` | String | optional, defaults `none` |
 | fields | a list of allowed fields to output. This parameter will be ignored if `format` is set to `raw` | String[] | optional, by default all fields will be included in output |
-| api_name | Name of api used for hdfs_exporter | String | optional, defaults to `file_sender_api` |
+| api_name | Name of api used for hdfs_exporter | String | optional, defaults to `hdfs_sender_api` |
 | field_delimiter | A delimiter between field names. This is only used when `format` is set to `csv`  | String | optional, defaults to `,`  |
 | line_delimiter | A delimiter applied between each record or slice, please reference the [format](#format) section for more information how this deliminator is applied for each format. | String | optional, defaults to `\n` |
 | file_per_slice | This setting determines if the output for a worker will be in a single file (`false`), or if the worker will create a new file for every slice it processes  (`true`). If set to `true`, an integer, starting at 0, will be appended to the filename and incremented by 1 for each slice a worker processes | Boolean | optional, defaults to `true`. If using `json` format, this option will be overridden to `true` |

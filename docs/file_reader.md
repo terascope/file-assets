@@ -1,8 +1,6 @@
 # file_reader
 
-The `file_reader` can fetch any file that is local to the Teraslice workers.
-
-It works by slicing up the file into byte chunks that encompass complete records determined by the format parameter so that they can be independently read from the file.
+The `file_reader` can fetch any file that is local to the Teraslice workers. It works by slicing up the file into byte chunks that encompass complete records determined by the format parameter so that they can be independently read from the file.
 
 For this processor to run, a path is required in the configuration. All intermediate directories must pre-exist, and the workers will need to have adequate permissions to read from that directory.
 

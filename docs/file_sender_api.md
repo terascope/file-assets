@@ -43,21 +43,20 @@ Example Job
     ]
 }
 ```
+
 Here is a custom processor for the job described above
 
-```typescript
-export default class SomeSender extends BatchProcessor<SomeConfig> {
-    api!: FileSender;
-
-    async initialize(): Promise<void> {
+```javascript
+export default class SomeSender extends BatchProcessor {
+    async initialize() {
         await super.initialize();
         const apiName = this.opConfig.api_name;
-        const apiManager = this.getAPI<FileSenderFactoryAPI>(apiName);
+        const apiManager = this.getAPI(apiName);
         this.api = await apiManager.create(apiName);
         await this.api.verify();
     }
 
-    async onBatch(slice: DataEntity[]): Promise<DataEntity[]> {
+    async onBatch(slice) {
         await this.api.send(slice);
         // it is best practice to return the slice for any processors after this operation
         return slice;
@@ -172,14 +171,6 @@ This method makes sure the file directory structure exists, use the before sendi
 
 parameters:
 - route: a string representing the index to create
-
-
-### verify (async)
-```(route?: string) => Promise<void>```
-parameters
-- route: string, optional, is any dirPath past what is specified in the path config that is listed in the Options
-
-This method makes sure the file directory structure is present, use the before sending to make sure the dir exists.
 
 
 ### Usage of the file sender instance

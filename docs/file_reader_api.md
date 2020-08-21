@@ -4,9 +4,9 @@ This is a [teraslice api](https://terascope.github.io/teraslice/docs/jobs/config
 
 The `file_reader_api` will provide an [api factory](https://terascope.github.io/teraslice/docs/packages/job-components/api/classes/apifactory), which is a singleton that can create, cache and manage multiple file sender apis that can be accessed in any operation through the `getAPI` method on the operation.
 
-This is a [Factory API](https://terascope.github.io/teraslice/docs/packages/job-components/api/interfaces/apifactoryregistry), which can be used to fully manage api creation and configuration.
-
 ## Usage
+
+### Example Processor using a file reader api
 This is an example of a custom processor using the file_reader_api.
 
 Example Job
@@ -42,15 +42,13 @@ Example Job
 ```
 Here is a custom processor for the job described above
 
-### Example Processor using a file reader api
 ```javascript
 export default class SomeReader extends Fetcher {
-    api!: S3Reader
 
     async initialize() {
         await super.initialize();
         const apiName = this.opConfig.api_name;
-        const apiManager = this.getAPI<FileReaderFactoryAPI>(apiName);
+        const apiManager = this.getAPI(apiName);
         this.api = await apiManager.create(apiName);
     }
 
@@ -185,7 +183,7 @@ This method will send the records to file
 ## Parameters
 | Configuration | Description | Type |  Notes |
 | --------- | -------- | ------ | ------ |
-| \_op| Name of operation, it must reflect the exact name of the file | String | required || path | This is the directory where data will be saved. All intermediate directories must pre-exist, and the directory must be accessible by the TS workers. | String | required, Files will be named after the TS workers, so multiple workers can write data to the same directory concurrently. If there is no trailing `/`, one will be added. |
+| \_op| Name of operation, it must reflect the exact name of the file | String | required || path | This is the directory where data will be saved. All intermediate directories must pre-exist, and the directory must be accessible by the TS workers. | String | required |
 | extension | Optional file extension to add to file names | String | optional, A `.` is not automatically prepended to this value when being added to the filename, if it is desired it must be specified on the extension |
 | compression | you may specify a compression algorithm to apply to the data before being written to file, it may be set to `none`, `lz4` or `gzip` | String | optional, defaults `none` |
 | fields | a list of allowed fields to output. This parameter will be ignored if `format` is set to `raw` | String[] | optional, by default all fields will be included in output |
