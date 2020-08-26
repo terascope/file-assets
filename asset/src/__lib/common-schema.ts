@@ -5,12 +5,12 @@ import { Compression, Format } from './interfaces';
 
 const readerSchema = {
     size: {
-        doc: 'Determines slice size in bytes',
+        doc: 'Determines the size of the slice in bytes',
         default: 10000000,
         format: Number
     },
     remove_header: {
-        doc: 'Checks for the header row and removes it',
+        doc: 'Checks for the header row in csv or tsv files and removes it',
         default: true,
         format: 'Boolean'
     },
@@ -22,7 +22,7 @@ const readerSchema = {
         format: Boolean
     },
     extra_args: {
-        doc: 'An object used to pass in any extra csv parsing arguments',
+        doc: 'A configuration object used to pass in any extra csv parsing arguments',
         default: {},
         format: Object
     },
@@ -38,7 +38,7 @@ export const commonSchema = {
         doc: 'Path to the file where the data will be saved to. The filename will be '
             + 'appended to this, so if no trailing "/" is provided, the final part will '
             + 'be treated as a file prefix.\ni.e. "/data/export_" will result in files like'
-            + ' "/data/export_X7eLvcvd.1079.gz"',
+            + ' "/data/export_hs897f.1079.gz"',
         default: null,
         format: 'optional_String'
     },

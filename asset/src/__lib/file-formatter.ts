@@ -27,7 +27,7 @@ const formatsFns = {
         return `${slice.map((record: any) => JSON.stringify(record, (opConfig.fields.length > 0) ? opConfig.fields : undefined)).join(opConfig.line_delimiter)}${opConfig.line_delimiter}`;
     },
     json(slice: any[], opConfig: CSVConfig) {
-        return `${JSON.stringify(slice)}${opConfig.line_delimiter}`;
+        return `${JSON.stringify(slice, (opConfig.fields.length > 0) ? opConfig.fields : undefined)}${opConfig.line_delimiter}`;
     }
 };
 

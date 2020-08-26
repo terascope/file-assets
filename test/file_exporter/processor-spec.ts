@@ -418,7 +418,7 @@ describe('File exporter processor', () => {
         );
     });
 
-    it('ignores non-existant fields in ldjson', async () => {
+    it('ignores non-existent fields in ldjson', async () => {
         const config = {
             fields: ['field1', 'field2', 'field8'],
             field_delimiter: ',',
@@ -437,7 +437,7 @@ describe('File exporter processor', () => {
         );
     });
 
-    it('creates a single file wiht raw records on each line', async () => {
+    it('creates a single file with raw records on each line', async () => {
         const config = {
             fields: ['field1', 'field2', 'field8'],
             field_delimiter: ',',

@@ -13,10 +13,10 @@ describe('ChunkedSlicer', () => {
     const workerId = '1234';
 
     class Test extends ChunkedSlicer {
-        vefiyCalled = false;
+        verifyCalled = false;
 
         async verify() {
-            this.vefiyCalled = true;
+            this.verifyCalled = true;
         }
 
         testJoinPath(pathing?: string) {
@@ -118,7 +118,7 @@ describe('ChunkedSlicer', () => {
             const test = new Test(FileSenderType.file, makeConfig());
 
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}`);
-            expect(test.vefiyCalled).toEqual(true);
+            expect(test.verifyCalled).toEqual(true);
         });
 
         it('can make correct path', async () => {
@@ -126,7 +126,7 @@ describe('ChunkedSlicer', () => {
             const test = new Test(FileSenderType.file, makeConfig());
 
             expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}`);
-            expect(test.vefiyCalled).toEqual(true);
+            expect(test.verifyCalled).toEqual(true);
         });
 
         it('can add extensions', async () => {
@@ -150,7 +150,7 @@ describe('ChunkedSlicer', () => {
             const test = new Test(FileSenderType.hdfs, makeConfig());
 
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}`);
-            expect(test.vefiyCalled).toEqual(true);
+            expect(test.verifyCalled).toEqual(true);
         });
 
         it('can make correct path', async () => {
@@ -158,7 +158,7 @@ describe('ChunkedSlicer', () => {
             const test = new Test(FileSenderType.hdfs, makeConfig());
 
             expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}`);
-            expect(test.vefiyCalled).toEqual(true);
+            expect(test.verifyCalled).toEqual(true);
         });
 
         it('can add extensions', async () => {
@@ -183,7 +183,7 @@ describe('ChunkedSlicer', () => {
             test.incrementCount();
 
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0`);
-            expect(test.vefiyCalled).toEqual(false);
+            expect(test.verifyCalled).toEqual(false);
         });
 
         it('can make correct path', async () => {
@@ -192,7 +192,7 @@ describe('ChunkedSlicer', () => {
             test.incrementCount();
 
             expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}.0`);
-            expect(test.vefiyCalled).toEqual(false);
+            expect(test.verifyCalled).toEqual(false);
         });
 
         it('can add extensions', async () => {
@@ -203,7 +203,7 @@ describe('ChunkedSlicer', () => {
         });
     });
 
-    it('can prepare a segement for sending', async () => {
+    it('can prepare a segment for sending', async () => {
         const test = new Test(FileSenderType.s3, makeConfig());
         const records = [
             DataEntity.make({ some: 'data' }),

@@ -1,126 +1,185 @@
 # s3_exporter
 
-The `s3_exporter` will export slices to objects in S3. This exporter will ignore empty slices to prevent feeding empty objects into the S3 store.
+The `s3_exporter` is a processor that will export data to S3. This exporter will ignore empty slices to prevent feeding empty objects into the S3 store.
 
-# Options
+For this processor to run, a path is required in the configuration. The base bucket must of the path must already exists in S3.
 
-## `path`
+## Usage
 
-| Valid Options | Default | Required |
-| ----------- | ------- | -------- |
-| Any valid S3 bucket/prefix name | `null` | N |
+### Write ldjson to file and restrict fields
+This is an example of converting the input data into ldjson and sent to the worker's `/app/data/test_files` directory. Since fields is specified, only the fields listed will be allowed through. Since file_per_slice is set to true, each slice will create a new file, which is the workerId as well as the slice order number.
 
-The bucket and optional prefix for data. If there is no `/` in this parameter, it will just be treated as a bucket name, and if there is no trailing `/`, one will be added to separate anything after the bucket from the worker names. If path is not provided in the opConfig, it must be provided in the api configuration.
+Example Job
+```json
+{
+  "name": "s3_exporter",
+  "lifecycle": "once",
+  "workers": 1,
+  "max_retries": 0,
+  "assets": [
+    "file",
+    "standard"
+  ],
+  "operations": [
+    {
+      "_op": "test-reader"
+    },
+    {
+      "_op": "s3_exporter",
+      "path": "/app/data/test_files",
+      "format": "ldjson",
+      "line_delimiter": "\n",
+      "file_per_slice": true,
+      "fields": ["name"]
+    }
+  ]
+}
+```
 
-## `api_name`
+Here is a representation of what the processor will do with the configuration listed in the job above
 
-| Valid Options | Default | Required |
-| ----------- | ------- | -------- |
-| String | `file_reader_api` | N |
+```javascript
+const firstSlice = [
+    { name: 'chilly', age: 33 },
+    { name: 'willy', age: 31 },
+    { name: 'philly', age: 43 },
+];
 
-This parameter will determine which api file sender api to use. If one is not provided, the default file_sender_api will be instantiated and hooked up to this processor.
+const results = await process.run(firstSlice);
 
-## `extension`
+// the processor will always return the input records.
+results === firstSlice;
 
-| Valid Options | Default | Required |
-| ----------- | ------- | -------- |
-| String | `''` | N |
+// file made at bucket /app/data/test_files/{WORKER_ID}.0
+`
+"{"name":"chilly"}"\n
+"{"name":"willy"}"\n
+"{"name":"philly"}"\n
+`
 
-Optional file extension to add to file names. A `.` is not automatically prepended to this value when being added to the filename.
+const secondSlice = [
+    { name: 'fred', age: 33 },
+    { name: 'art', age: 31 },
+    { name: 'herbert', age: 43 },
+];
 
-## `connection`
+const results = await process.run(secondSlice);
 
-| Valid Options | Default | Required |
-| ----------- | ------- | -------- |
-| Any valid S3 connector | `'default'` | N |
+// the processor will always return the input records.
+results === secondSlice;
 
-This is the name of the S3 connector defined in Terafoundation.
+// file made at bucket /app/data/test_files/{WORKER_ID}.1
+`
+"{"name":"fred"}"\n
+"{"name":"art"}"\n
+"{"name":"herbert"}"\n
+`
+```
 
-## `compression`
+### Write csv to file
+This test job will send data to csv files that
+include column headers in the worker's `/app/data/test_files` directory.
 
-| Valid Options | Default | Required |
-| ----------- | ------- | -------- |
-| none, lz4, gzip | `none` | N |
-
-Compression type to use with objects.
-
-## `fields`
-
-| Valid Options | Default | Required |
-| ----------- | ------- | -------- |
-| Array containing record fields | `[]` | N |
-
-This is an optional setting that will filter and order the fields in the output. It will work with `csv`, `tsv`, and `ldjson` output formats, and if not specified, all fields will be included in the output.
-
-## `field_delimiter`
-
-| Valid Options | Default | Required |
-| ----------- | ------- | -------- |
-| Any string | `,` | N |
-
-Any string can be used as a delimiter for the exporter. This allows for multi-character or custom delimiters. **This option is only used with the `csv` output.** See the notes on the `format` option for more information.
-
-## `line_delimiter`
-
-| Valid Options | Default | Required |
-| ----------- | ------- | -------- |
-| Any string | `\n` | N |
-
-Any string can be used as a delimiter for the exporter. This allows for multi-character or custom delimiters. **This option is only used with the `csv` output.** See the notes on the `format` option for more information.
-
-## `file_per_slice`
-
-| Valid Options | Default | Required |
-| ----------- | ------- | -------- |
-| 'true' | `true` | N |
-
-This processor currently only supports creating a single object for each slice. A future improvement will be to utilize multi-part uploads to allow workers to write larger batches of data to objects.
-
-## `include_header`
-
-| Valid Options | Default | Required |
-| ----------- | ------- | -------- |
-| 'true', 'false' | `false` | N |
-
-Determines whether or not to include column headers for the fields in output files. If set to `true`, a header will be added as the first entry to every file created. This option is only used for `tsv` and `csv` formats.
-
-## `concurrency`
-
-| Valid Options | Default | Required |
-| ----------- | ------- | -------- |
-| Any positive integer | `10` | N |
-
-The concurrencty the slicer slicer will use to write to s3
-
-## `format`
-
-| Valid Options | Default | Required |
-| ----------- | ------- | -------- |
-| 'json', 'ldjson', 'raw', 'csv', 'tsv' | `ldjson` | N |
-
-### json
-
-`json` output treats each slice as an array of JSON records. It will coerce the `object_per_slice` to `true` so that each output object will be a single array that consists of all the records included in the slice. Additionally, a `line_delimiter` is appended to the end of every file.
-
-### ldjson
-
-`ldjson` (line-delimited JSON) output treats each slice as a set of  JSON records and will add them to objects delimited with `line_delimiter`
-
-### tsv
-
-`tsv` output will generate files where each line consists of tab-separated fields from each record. Providing this option is the same as providing the `csv` option with `\t` as the `field_delimiter`.
-
-### csv
-
-`csv` output will generate objects where each line consisting of fields from each record delimited by the delimiter specified by `delimiter`. `delimiter` defaults to `,`, but if multi-character or custom delimiters are needed, `csv` should be selected here and used in conjunction with the `delimiter` option
-
-### raw
-
-`raw` output will generate objects where each line is the value of the `data` attribute of a data entity in the slice. So, when using the `raw` format output, the records must be sent to the `s3_exporter` in the form of:
+Example Job
 
 ```json
-{ "data": "some processed data string" }
+{
+  "name": "s3_exporter",
+  "lifecycle": "once",
+  "workers": 1,
+  "max_retries": 0,
+  "assets": [
+    "file",
+    "standard"
+  ],
+  "operations": [
+     {
+      "_op": "test-reader"
+    },
+    {
+      "_op": "s3_exporter",
+      "path": "/app/data/test_files",
+      "format": "csv",
+      "include_header": true
+    }
+  ]
+}
 ```
+
+Here is a representation of what the processor will do with the configuration listed in the job above
+
+```javascript
+const firstSlice = [
+    { name: 'chilly', age: 33 },
+    { name: 'willy', age: 31 },
+    { name: 'philly', age: 43 },
+];
+
+const results = await process.run(firstSlice);
+
+// the processor will always return the input records.
+results === firstSlice;
+
+// file made at bucket /app/data/test_files/{WORKER_ID}.0
+`
+"name","age"\n
+"chilly", 33"\n
+"willy", 31"\n
+"philly", 43"\n
+`
+```
+
+## Parameters
+| Configuration | Description | Type |  Notes |
+| --------- | -------- | ------ | ------ |
+| \_op| Name of operation, it must reflect the exact name of the file | String | required |
+| path | The bucket and optional prefix for data. If there is no `/` in this parameter, it will just be treated as a bucket name, and if there is no trailing `/`, one will be added to separate anything after the bucket from the worker names. | String | optional, if path is not provided in the opConfig, it must be provided in the api configuration, files will be named after the TS workers, so multiple workers can write data to the same directory concurrently. |
+| extension | Optional file extension to add to file names | String | optional, A `.` is not automatically prepended to this value when being added to the filename, if it is desired it must be specified on the extension |
+| compression | you may specify a compression algorithm to apply to the data before being written to file, it may be set to `none`, `lz4` or `gzip` | String | optional, defaults `none` |
+| fields | a list of allowed fields to output. This parameter will be ignored if `format` is set to `raw` | String[] | optional, by default all fields will be included in output |
+| api_name | Name of api used for hdfs_exporter | String | optional, defaults to `s3_sender_api` |
+| field_delimiter | A delimiter between field names. This is only used when `format` is set to `csv`  | String | optional, defaults to `,`  |
+| line_delimiter | A delimiter applied between each record or slice, please reference the [format](#format) section for more information how this deliminator is applied for each format. | String | optional, defaults to `\n` |
+| file_per_slice | This setting determines if the output for a worker will be in a single file (`false`), or if the worker will create a new file for every slice it processes  (`true`). If set to `true`, an integer, starting at 0, will be appended to the filename and incremented by 1 for each slice a worker processes | Boolean | optional, defaults to `true`. If using `json` format, this option will be overridden to `true` |
+| include_header | Determines whether or not to include column headers for the fields in output files. If set to `true`, a header will be added as the first entry to every file created. This option is only used for `tsv` and `csv` formats | Boolean | optional, defaults to `false` |
+| concurrency | The represents the limit on how many parallel writes will occur at a given time | Number | optional, defaults to `10` |
+| format | Used to determine how the data should be written to file, options are: `json`, `ldjson`, `raw`, `csv`, `tsv` | String | optional, defaults to `ldjson`, please reference the [format](#format) section for more information |
+| connection | Name of the hdfs connection to use when sending data | String | optional, defaults to the `default` connection |
+
+
+## Advanced Configuration
+
+### `format`
+Format determines how the data is saved to file, please check the references below for further information on each behavior.
+
+### json
+`json` output treats each slice as an array of JSON records. It will coerce the object_per_slice to true so that each output object will be a single array that consists of all the records included in the slice. Additionally, a line_delimiter is appended to the end of every file.
+
+#### ldjson
+
+`ldjson` (line-delimited JSON) format will convert each individual record into JSON and separate each one by whats configured by the `line_delimiter` parameter
+
+#### tsv
+
+`tsv` format will generate files where each line consists of tab-separated fields from each record. Providing this option is the same as providing the `csv` option with `\t` as the `field_delimiter`.
+
+#### #csv
+
+`csv` format will generate files where each line consisting of fields from each record delimited by the delimiter specified by `field_delimiter`. `field_delimiter` defaults to `,`, but if multi-character or custom delimiters are needed, `csv` should be selected here and used in conjunction with the `field_delimiter` option
+
+#### raw
+
+`raw` format will generate files where each line is the value of the `data` attribute of a data entity in the slice. This is mainly used to process binary data or other data that are not strings, the records must be sent to the `hdfs_exporter` in the form of:
+
+```json
+{ "data": "some processed data string or buffer" }
+```
+
+### API usage in a job
+In file_assets v1, many core components were made into teraslice apis. When you use a file processor it will automatically setup the api for you, but if you manually specify the api, then there are restrictions on what configurations you can put on the operation so that clashing of configurations are minimized. The api configs take precedence.
+
+If submitting the job in long form, here is a list of parameters that will throw an error if also specified on the opConfig, since these values should be placed on the api:
+- `path`
 
 `SHORT FORM (no api specified)`
 
@@ -201,5 +260,3 @@ this configuration will be expanded out to the long form underneath the hood
     ]
 }
 ```
-
-If you specify the long form of the job (you create the api yourself and wire it up) then the "path" parameter must NOT be placed in opConfig as it is specified on the api.

@@ -229,7 +229,7 @@ export default abstract class ChunkedFileReader extends FileFormatter {
 }
 
 function _averageRecordSize(array: string[]): number {
-    return Math.floor(array.reduce((accum, str) => accum + str.length, 0) / array.length);
+    return Math.floor(array.reduce((allChars, str) => allChars + str.length, 0) / array.length);
 }
 
 // This function takes the raw data and breaks it into records, getting rid

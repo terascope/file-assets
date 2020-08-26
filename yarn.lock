@@ -560,10 +560,10 @@
     eslint-plugin-react "^7.20.5"
     eslint-plugin-react-hooks "^4.0.8"
 
-"@terascope/job-components@^0.38.2":
-  version "0.38.2"
-  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.38.2.tgz#633f98300f682e6eaabde2912e5377ad4d44ead0"
-  integrity sha512-yfovrTaPtZD0TEH9kviB3U/u6JUXUcFSePuHX8YC7nXC0Mimw7gNPnUvIDke4m7Ev3nSKlUwfUdHk0a06BRCyw==
+"@terascope/job-components@^0.39.1":
+  version "0.39.1"
+  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.39.1.tgz#c837f97561ff0af5990ad8bde2a3a9c64fb53f9d"
+  integrity sha512-GNMAhRt2Cak7x7twKQgqELYDOq0ion8APTMRxKgf8jnAZbOzkaiqCBlxGOmOIxeZZcUOho2AUiJko+3QlJImxA==
   dependencies:
     "@terascope/utils" "^0.29.2"
     convict "^4.4.1"
@@ -732,10 +732,15 @@
   dependencies:
     "@types/node" "*"
 
-"@types/node@*", "@types/node@^14.0.27":
+"@types/node@*":
   version "14.0.27"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.0.27.tgz#a151873af5a5e851b51b3b065c9e63390a9e0eb1"
   integrity sha512-kVrqXhbclHNHGu9ztnAwSncIgJv/FaxmzXJvGXNdcCpV1b8u1/Mi6z6m0vwy0LzKeXFTPLH0NzwmoJ3fNCIq0g==
+
+"@types/node@^14.6.0":
+  version "14.6.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.6.0.tgz#7d4411bf5157339337d7cff864d9ff45f177b499"
+  integrity sha512-mikldZQitV94akrc4sCcSjtJfsTKt4p+e/s0AGscVA6XArQ9kFclP+ZiYUMnq987rc6QlYxXv/EivqlfSLxpKA==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.0"
@@ -1071,10 +1076,10 @@ atob@^2.1.2:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-aws-sdk@^2.735.0:
-  version "2.735.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.735.0.tgz#56533efc29a68f9bb46ed9566bdc2669a35b7003"
-  integrity sha512-nu5Cz2YcjHv2kgqtxW/DO0lz4Yc8g+xSB0Lb7Dp5iBEfyWLGGnhn5u4ALeFO9UUxLuSieirT1BR18BWSWH/Hlg==
+aws-sdk@^2.736.0:
+  version "2.736.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.736.0.tgz#7b9373d1a338288c5caeca01a6226efbade2e086"
+  integrity sha512-rDrLgxkiFX+9EksDx4Lc6qLA07Pf0xfqqXnM3CpLBL81aVOdmmXAiBPtz/KSgbcrR5Mxz38ah8x5RZ17stJQjw==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -4810,10 +4815,10 @@ table@^5.2.3:
     slice-ansi "^2.1.0"
     string-width "^3.0.0"
 
-teraslice-test-harness@^0.24.2:
-  version "0.24.2"
-  resolved "https://registry.yarnpkg.com/teraslice-test-harness/-/teraslice-test-harness-0.24.2.tgz#3762f38da294f0a732b668a1491f3ffb0b04757f"
-  integrity sha512-+tD2iEdkBam4LRvL55dp+KwWZIJhWdRdijDjophg30rzh+QxElFy6hBG7Ly2ASqWHnfCFCswyUY99AF1QHwYZQ==
+teraslice-test-harness@^0.25.0:
+  version "0.25.0"
+  resolved "https://registry.yarnpkg.com/teraslice-test-harness/-/teraslice-test-harness-0.25.0.tgz#91f9acb90003c7130d18a4f3cda22aef358775d3"
+  integrity sha512-+NapvEKCY0yTpZZ5V9KLu1d/fkmN/TbBGQnebIZbnH/g7HTki2kEDiSzpI7/dn9eo8ApEBX2hJ+kxqVoSs6Haw==
   dependencies:
     "@terascope/teraslice-op-test-harness" "^1.22.1"
 

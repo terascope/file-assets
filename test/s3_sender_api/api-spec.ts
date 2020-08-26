@@ -238,7 +238,7 @@ describe('S3 sender api', () => {
         expect(fetchedData).toEqual(expectedResults);
     });
 
-    it('generates an ldjson object and exludes a field', async () => {
+    it('generates an ldjson object and excludes a field', async () => {
         // Exclude field5 for testing with the ldjson field filtering
         const fields = [
             'field0',

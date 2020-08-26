@@ -22,7 +22,7 @@ clonedSchema.user = {
 };
 
 clonedSchema.api_name = {
-    doc: 'name of api to be used by elasticearch reader',
+    doc: 'name of api to be used by hdfs_reader',
     default: DEFAULT_API_NAME,
     format: (val: unknown): void => {
         if (!isString(val)) throw new Error(`Invalid parameter api_name, it must be of type string, was given ${getTypeOf(val)}`);

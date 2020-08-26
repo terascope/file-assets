@@ -113,4 +113,70 @@ describe('FileFormatter', () => {
 
         expect(formatter.format(data)).toEqual(`${expectedData}\n`);
     });
+
+    describe('fields parameter', () => {
+        it('can restrict csv output', async () => {
+            const format = Format.csv;
+            const config: CSVConfig = {
+                format,
+                fields: ['some'],
+                line_delimiter: '\n',
+                include_header: false,
+                field_delimiter: ','
+            };
+            const data = [{ some: 'stuff', other: 'things' }, { some: 'person', key: 'field' }];
+
+            const formatter = new FileFormatter(format, config);
+
+            expect(formatter.format(data)).toEqual(`"stuff"${'\n'}"person"${'\n'}`);
+        });
+
+        it('can restrict tsv output', async () => {
+            const format = Format.tsv;
+            const config: CSVConfig = {
+                format,
+                fields: ['some'],
+                line_delimiter: '\n',
+                include_header: false,
+                field_delimiter: ','
+            };
+            const data = [{ some: 'stuff', other: 'things' }, { some: 'person', key: 'field' }];
+
+            const formatter = new FileFormatter(format, config);
+
+            expect(formatter.format(data)).toEqual(`"stuff"${'\n'}"person"${'\n'}`);
+        });
+
+        it('can restrict json output', async () => {
+            const format = Format.json;
+            const config: CSVConfig = {
+                format,
+                fields: ['some'],
+                line_delimiter: '\n',
+                include_header: false,
+                field_delimiter: ','
+            };
+            const data = [{ some: 'stuff', other: 'things' }, { some: 'person', key: 'field' }];
+
+            const formatter = new FileFormatter(format, config);
+
+            expect(formatter.format(data)).toEqual(`[{"some":"stuff"},{"some":"person"}]${'\n'}`);
+        });
+
+        it('can restrict ldjson output', async () => {
+            const format = Format.ldjson;
+            const config: CSVConfig = {
+                format,
+                fields: ['some'],
+                line_delimiter: '\n',
+                include_header: false,
+                field_delimiter: ','
+            };
+            const data = [{ some: 'stuff', other: 'things' }, { some: 'person', key: 'field' }];
+
+            const formatter = new FileFormatter(format, config);
+
+            expect(formatter.format(data)).toEqual(`{"some":"stuff"}${'\n'}{"some":"person"}${'\n'}`);
+        });
+    });
 });

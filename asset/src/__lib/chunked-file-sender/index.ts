@@ -64,7 +64,7 @@ export default abstract class ChunkedSender {
         if (!this.pathList.has(path)) {
             if (removeFilePath) {
                 const route = path.replace(this.nameOptions.filePath, '');
-                // we make sure file_path is not present becuase its added back in with verify call
+                // we make sure file_path is not present because its added back in with verify call
                 await this.verify(route);
             } else {
                 await this.verify(path);
@@ -105,7 +105,7 @@ export default abstract class ChunkedSender {
         return fileName;
     }
 
-    private async converFileChunk(slice: DataEntity[] | null | undefined): Promise<any|null> {
+    private async convertFileChunk(slice: DataEntity[] | null | undefined): Promise<any|null> {
         // null or empty slices get an empty output and will get filtered out below
         if (!slice || !slice.length) return null;
         // Build the output string to dump to the object
@@ -156,7 +156,7 @@ export default abstract class ChunkedSender {
         path: string, records: DataEntity[] | null | undefined,
     ): Promise<{ fileName: string, output: DataEntity[]| null | undefined | string | Buffer }> {
         const fileName = await this.createFileDestinationName(path);
-        const output = await this.converFileChunk(records);
+        const output = await this.convertFileChunk(records);
         return { fileName, output };
     }
 

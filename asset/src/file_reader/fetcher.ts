@@ -11,7 +11,7 @@ export default class FileFetcher extends Fetcher<FileReaderConfig> {
         await super.initialize();
         const apiName = this.opConfig.api_name;
         const apiManager = this.getAPI<FileReaderFactoryAPI>(apiName);
-        this.api = await apiManager.create(apiName, {} as any);
+        this.api = await apiManager.create(apiName, {});
     }
 
     async fetch(slice: SlicedFileResults): Promise<DataEntity[]> {
