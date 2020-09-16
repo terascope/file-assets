@@ -1,7 +1,7 @@
 import { Fetcher, DataEntity } from '@terascope/job-components';
 import { FileReaderConfig } from './interfaces';
 import { SlicedFileResults } from '../__lib/interfaces';
-import FileReader from '../file_reader_api/reader';
+import FileReader from '../file_reader_api/file-api';
 import { FileReaderFactoryAPI } from '../file_reader_api/interfaces';
 
 export default class FileFetcher extends Fetcher<FileReaderConfig> {

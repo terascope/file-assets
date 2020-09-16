@@ -1,7 +1,13 @@
 import { AnyObject, Logger } from '@terascope/job-components';
-import { SlicedFileResults, ChunkedConfig } from '../__lib/interfaces';
+import {
+    SlicedFileResults,
+    ChunkedConfig,
+    SliceConfig,
+    FileSliceConfig
+} from '../__lib/interfaces';
 import ChunkedReader from '../__lib/chunked-file-reader';
-import { parsePath } from '../s3_reader/helpers';
+import { segmentFile, canReadFile, parsePath } from '../__lib/slice';
+import S3Slicer from './s3-slicer';
 
 export default class S3Reader extends ChunkedReader {
     client: AnyObject
@@ -9,8 +15,8 @@ export default class S3Reader extends ChunkedReader {
 
     constructor(client: AnyObject, config: ChunkedConfig, logger: Logger) {
         super(config, logger);
-        this.client = client;
         const { bucket } = parsePath(this.config.path);
+        this.client = client;
         this.bucket = bucket;
     }
 
@@ -41,5 +47,20 @@ export default class S3Reader extends ChunkedReader {
          */
         const results = await this.client.getObject_Async(opts);
         return this.decompress(results.Body);
+    }
+
+    canReadFile(filePath: string): boolean {
+        return canReadFile(filePath);
+    }
+
+    segmentFile(file: {
+        path: string;
+        size: number;
+    }, config: SliceConfig): SlicedFileResults[] {
+        return segmentFile(file, config);
+    }
+
+    async makeS3Slicer(config: FileSliceConfig): Promise<S3Slicer> {
+        return new S3Slicer(this.client, config, this.logger);
     }
 }

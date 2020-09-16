@@ -9,7 +9,7 @@ import {
 import path from 'path';
 import { HDFSReaderConfig } from './interfaces';
 import { SliceConfig, SlicedFileResults } from '../__lib/interfaces';
-import { sliceFile } from '../__lib/slice';
+import { segmentFile } from '../__lib/slice';
 import { HDFSReaderFactoryAPI } from '../hdfs_reader_api/interfaces';
 import HDFSReader from '../hdfs_reader_api/reader';
 
@@ -48,7 +48,7 @@ export default class HDFSFileSlicer extends Slicer<HDFSReaderConfig> {
         const fullPath = path.join(filePath, metadata.pathSuffix);
 
         if (metadata.type === 'FILE') {
-            fileSlices = sliceFile({
+            fileSlices = segmentFile({
                 size: metadata.length,
                 path: fullPath
             }, this.opConfig);
