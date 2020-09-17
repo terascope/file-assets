@@ -170,14 +170,147 @@ parameters:
 This method will send the records to file
 
 ```js
-    // this will read the first 500 bytes of the file
-    const slice = {
-        path: 'some/data/path',
-        total: 10000,
-        length: 500,
-        offset: 0
-    }
-    const results = await api.read(docs)
+// this will read the first 500 bytes of the file
+const slice = {
+    path: 'some/data/path',
+    total: 10000,
+    length: 500,
+    offset: 0
+}
+const results = await api.read(docs)
+```
+
+### canReadFile
+```(filePath: String) => Boolean```
+parameters:
+- filePath: the path of the file
+
+This is a helper method will return true if the filepath is valid, it will return false if any part of the path or filename starts with a `.`
+
+```js
+const badPath1 = 'some/.other/path.txt';
+const badPath2 = 'some/other/.path.txt';
+const goodPath = 'some/other/path.txt';
+
+api.canReadFile(badPath1) === false;
+api.canReadFile(badPath2) === false;
+api.canReadFile(goodPath) === true;
+
+```
+
+### validatePath
+```(path: String) => void```
+parameters:
+- filePath: the originating directory to search for files
+
+This is a helper method will help validate that the top level directory is valid. It will throw if it does not exist, if the directory is a symbolic link, or if it is empty.
+
+```js
+const badPath1 = 'some/symbolLinkedDir/path.txt`\';
+const badPath2 = 'some/emptyDir';
+const badPath3 = 'asdfiuyoasd';
+
+const goodPath = 'some/path;
+
+api.validatePath(badPath1) === false;
+api.validatePath(badPath2) === false;
+api.validatePath(badPath3) === false;
+
+api.validatePath(goodPath) === true;
+
+```
+
+### segmentFile
+```(fileInfo, config: SliceConfig) => SlicedFileResults[]```
+parameters:
+- fileInfo: {
+    path: the path to the file
+    size: the size in bytes the file contains
+}
+- config: {
+    file_per_slice: please check [Parameters](#parameters),
+    format: used to determine how the data should be written to file,
+    size: how big each slice chunk should be,
+    line_delimiter: a delimiter applied between each record or slice
+}
+
+This is a helper method what will segment a given file and its byte size into chunks that the reader can process.
+
+```js
+const slice = { path: 'some/path', size: 1000 };
+const config = {
+    file_per_slice: false,
+    line_delimiter: '\n',
+    size: 300,
+    format: Format.ldjson
+};
+
+ const results = api.segmentFile(slice, config);
+
+results === [
+  {
+      offset: 0,
+      length: 300,
+      path: 'some/path',
+      total: 1000
+  },
+  {
+     length: 301,
+     offset: 299,
+     path: 'some/path',
+     total: 1000
+  },
+  {
+      length: 301,
+      offset: 599,
+      path: 'some/path',
+      total: 1000
+  },
+  {
+      offset: 899,
+      length: 101,
+      path: 'some/path',
+      total: 1000
+  }
+]
+
+```
+
+### makeFileSlicer (async)
+```(config: FileSliceConfig) => Promise<FileSlicer>```
+
+This function will generate a slicer which is the file_reader slicer core component. You can use this to generate slice chunks for your reader.
+
+parameters:
+- config: {
+    file_per_slice: please check [Parameters](#parameters) for more information,
+    format: used to determine how the data should be written to file,
+    size: how big each slice chunk should be,
+    line_delimiter: a delimiter applied between each record or slice,
+    path: the top level directory to search for files
+}
+
+
+```js
+
+const config = {
+    file_per_slice: false,
+    format: 'ldjson',
+    size: 1000,
+    line_delimiter: '\n',
+    path: 'some/path'
+};
+
+const slicer = await api.makeFileSlicer(config);
+
+const slice = await slicer.slice();
+
+slice ===  {
+      offset: 0,
+      length: 1000,
+      path: 'some/path',
+      total: 1000
+}
 ```
 
 ## Parameters
