@@ -1,6 +1,7 @@
 import { DataEntity } from '@terascope/job-components';
 import path from 'path';
 import { SliceConfig, SlicedFileResults, Offsets } from './interfaces';
+import { isString } from 'util';
 
 export function segmentFile(file: {
     path: string;
@@ -84,6 +85,8 @@ export function batchSlice(data: DataEntity[], defaultPath: string): Record<stri
 }
 
 export function canReadFile(fileName: string): boolean {
+    if (!isString(fileName)) return false;
+
     const args = fileName.split('/');
     const hasDot = args.some((segment) => segment.charAt(0) === '.');
 
