@@ -1,7 +1,6 @@
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity, isString } from '@terascope/job-components';
 import path from 'path';
 import { SliceConfig, SlicedFileResults, Offsets } from './interfaces';
-import { isString } from 'util';
 
 export function segmentFile(file: {
     path: string;
