@@ -98,6 +98,8 @@ export function parsePath(objPath: string): {
     bucket: string;
     prefix: string;
 } {
+    if (!isString(objPath)) throw new Error('Must provide path and it must be of type string');
+
     const pathInfo = {
         bucket: '',
         prefix: ''

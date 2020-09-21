@@ -32,6 +32,7 @@ export default class Schema extends ConvictSchema<FileReaderConfig> {
         if (isNil(opConfig)) throw new Error('Could not find opConfig for operation file_reader');
         const { api_name, ...apiConfig } = opConfig;
         if (!Array.isArray(job.apis)) job.apis = [];
+
         const FileReaderAPI = job.apis.find((jobApi) => jobApi._name === api_name);
 
         if (isNil(FileReaderAPI)) {
