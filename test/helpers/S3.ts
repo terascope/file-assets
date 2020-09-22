@@ -8,7 +8,7 @@ import {
 import S3 from 'aws-sdk/clients/s3';
 import { promisifyAll, defer } from 'bluebird';
 import * as s3Config from './config';
-import S3Fetcher from '../../asset/src/s3_reader_api/reader';
+import S3Fetcher from '../../asset/src/s3_reader_api/s3-api';
 import S3Sender from '../../asset/src/s3_sender_api/sender';
 import { SlicedFileResults, Format, Compression } from '../../asset/src/__lib/interfaces';
 

@@ -1,7 +1,7 @@
 import {
     APIFactory, AnyObject, isNil, isString, getTypeOf
 } from '@terascope/job-components';
-import S3Reader from './reader';
+import S3Reader from './s3-api';
 import { S3ReaderAPIConfig } from './interfaces';
 
 export default class S3ReaderAPI extends APIFactory<S3Reader, S3ReaderAPIConfig> {

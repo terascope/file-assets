@@ -1,8 +1,8 @@
 import 'jest-extended';
-import { getOffsets, sliceFile } from '../../asset/src/__lib/slice';
+import { getOffsets, segmentFile } from '../../asset/src/__lib/slice';
 import { Format } from '../../asset/src/__lib/interfaces';
 
-describe('offses', () => {
+describe('offsets', () => {
     it('can be computed', () => {
         expect(getOffsets(10, 0, '\n')).toEqual([]);
 
@@ -37,7 +37,7 @@ describe('offses', () => {
     });
 });
 
-describe('sliceFile', () => {
+describe('segmentFile', () => {
     it('if format is json, will return the entire file', () => {
         const slice = { path: 'some/path', size: 1000 };
         const config = {
@@ -54,7 +54,7 @@ describe('sliceFile', () => {
             offset: 0
         };
 
-        expect(sliceFile(slice, config)).toMatchObject([expectedResults]);
+        expect(segmentFile(slice, config)).toMatchObject([expectedResults]);
     });
 
     it('if file_per_slice is true, will return the entire file', () => {
@@ -73,7 +73,7 @@ describe('sliceFile', () => {
             offset: 0
         };
 
-        expect(sliceFile(slice, config)).toMatchObject([expectedResults]);
+        expect(segmentFile(slice, config)).toMatchObject([expectedResults]);
     });
 
     it('if chunk up a file', () => {
@@ -98,7 +98,7 @@ describe('sliceFile', () => {
             offset: 899, length: 101, path: 'some/path', total: 1000
         };
 
-        const results = sliceFile(slice, config);
+        const results = segmentFile(slice, config);
 
         expect(results).toBeArrayOfSize(4);
 

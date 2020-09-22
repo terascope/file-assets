@@ -6,7 +6,7 @@ import {
     TSError,
     pMap
 } from '@terascope/job-components';
-import { parsePath } from '../s3_reader/helpers';
+import { parsePath } from '../__lib/slice';
 import ChunkedSender from '../__lib/chunked-file-sender';
 import { FileSenderType } from '../__lib/interfaces';
 import { S3PutConfig, S3ExporterAPIConfig } from './interfaces';

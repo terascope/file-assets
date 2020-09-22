@@ -1,6 +1,9 @@
 import 'jest-extended';
 import {
-    DataEntity, AnyObject, isNil, toNumber
+    DataEntity,
+    AnyObject,
+    isNil,
+    toNumber,
 } from '@terascope/job-components';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
 import { Format, SlicedFileResults } from '../../asset/src/__lib/interfaces';

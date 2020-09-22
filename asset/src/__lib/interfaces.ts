@@ -84,4 +84,8 @@ export interface SliceConfig {
     line_delimiter: string;
 }
 
+export interface FileSliceConfig extends SliceConfig {
+    path: string;
+}
+
 export type FetcherFn = (slice: SlicedFileResults) => Promise<string>
