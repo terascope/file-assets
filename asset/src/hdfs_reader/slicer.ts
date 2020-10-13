@@ -1,7 +1,5 @@
 import {
     Slicer,
-    WorkerContext,
-    ExecutionConfig,
     TSError,
     flatten,
     SlicerRecoveryData
@@ -10,20 +8,14 @@ import path from 'path';
 import { HDFSReaderConfig } from './interfaces';
 import { SliceConfig, SlicedFileResults } from '../__lib/interfaces';
 import { segmentFile } from '../__lib/slice';
-import { HDFSReaderFactoryAPI } from '../hdfs_reader_api/interfaces';
+import { HDFSReaderFactoryAPI, HDFSReaderApiConfig } from '../hdfs_reader_api/interfaces';
 import HDFSReader from '../hdfs_reader_api/reader';
 
 export default class HDFSFileSlicer extends Slicer<HDFSReaderConfig> {
     api!: HDFSReader;
-    directories: string[];
+    directories!: string[];
+    sliceConfig!: SliceConfig;
     _doneSlicing = false;
-    sliceConfig: SliceConfig;
-
-    constructor(context: WorkerContext, opConfig: HDFSReaderConfig, exConfig: ExecutionConfig) {
-        super(context, opConfig, exConfig);
-        this.sliceConfig = Object.assign({}, opConfig);
-        this.directories = [opConfig.path];
-    }
 
     /**
      * Currently only enable autorecover jobs
@@ -39,7 +31,10 @@ export default class HDFSFileSlicer extends Slicer<HDFSReaderConfig> {
 
         const apiName = this.opConfig.api_name;
         const apiManager = this.getAPI<HDFSReaderFactoryAPI>(apiName);
+        const apiConfig = apiManager.getConfig(apiName) as HDFSReaderApiConfig;
 
+        this.sliceConfig = Object.assign({}, apiConfig);
+        this.directories = [apiConfig.path];
         this.api = await apiManager.create(apiName, {});
     }
 
@@ -51,7 +46,7 @@ export default class HDFSFileSlicer extends Slicer<HDFSReaderConfig> {
             fileSlices = segmentFile({
                 size: metadata.length,
                 path: fullPath
-            }, this.opConfig);
+            }, this.sliceConfig);
         } else if (metadata.type === 'DIRECTORY') {
             this.directories.push(fullPath);
         }

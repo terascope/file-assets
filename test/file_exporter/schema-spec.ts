@@ -34,7 +34,7 @@ describe('File exporter Schema', () => {
         });
 
         it('should not throw an error if path is specified in apiConfig', async () => {
-            const opConfig = { _op: 'file_exporter' };
+            const opConfig = { _op: 'file_exporter', api_name: 'file_sender_api' };
             const apiConfig = { _name: 'file_sender_api', path: '/chillywilly' };
 
             await expect(makeTest(opConfig, apiConfig)).toResolve();
@@ -52,7 +52,8 @@ describe('File exporter Schema', () => {
         it('should not throw if _dead_letter_action are the same', async () => {
             const opConfig = {
                 _op: 'file_exporter',
-                _dead_letter_action: 'throw'
+                _dead_letter_action: 'throw',
+                api_name: 'file_sender_api'
             };
 
             const apiConfig = {
@@ -67,7 +68,8 @@ describe('File exporter Schema', () => {
         it('should throw if opConfig _dead_letter_action is not a default value while apiConfig _dead_letter_action is set', async () => {
             const opConfig = {
                 _op: 'file_exporter',
-                _dead_letter_action: 'none'
+                _dead_letter_action: 'none',
+                api_name: 'file_sender_api'
             };
 
             const apiConfig = {
@@ -82,7 +84,8 @@ describe('File exporter Schema', () => {
         it('should not throw if _encoding are the same', async () => {
             const opConfig = {
                 _op: 'file_exporter',
-                _encoding: DataEncoding.JSON
+                _encoding: DataEncoding.JSON,
+                api_name: 'file_sender_api'
             };
 
             const apiConfig = {
@@ -97,7 +100,8 @@ describe('File exporter Schema', () => {
         it('should throw if opConfig _encoding is not a default value while apiConfig _encoding is set', async () => {
             const opConfig = {
                 _op: 'file_exporter',
-                _encoding: DataEncoding.RAW
+                _encoding: DataEncoding.RAW,
+                api_name: 'file_sender_api'
             };
 
             const apiConfig = {

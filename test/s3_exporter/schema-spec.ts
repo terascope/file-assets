@@ -72,8 +72,8 @@ describe('S3 exporter Schema', () => {
             await expect(makeTest(opConfig)).toResolve();
         });
 
-        it('should not throw path is given in api', async () => {
-            const opConfig = {};
+        it('should not throw if path is given in api', async () => {
+            const opConfig = { api_name: 's3_sender_api' };
             const apiConfig = { _name: 's3_sender_api', path: 'chillywilly' };
 
             await expect(makeTest(opConfig, apiConfig)).toResolve();
@@ -82,7 +82,8 @@ describe('S3 exporter Schema', () => {
         it('should not throw if _dead_letter_action are the same', async () => {
             const opConfig = {
                 _op: 's3_exporter',
-                _dead_letter_action: 'throw'
+                _dead_letter_action: 'throw',
+                api_name: 's3_sender_api'
             };
 
             const apiConfig = {
@@ -97,7 +98,8 @@ describe('S3 exporter Schema', () => {
         it('should throw if opConfig _dead_letter_action is not a default value while apiConfig _dead_letter_action is set', async () => {
             const opConfig = {
                 _op: 's3_exporter',
-                _dead_letter_action: 'none'
+                _dead_letter_action: 'none',
+                api_name: 's3_sender_api'
             };
 
             const apiConfig = {
@@ -112,7 +114,8 @@ describe('S3 exporter Schema', () => {
         it('should not throw if _encoding are the same', async () => {
             const opConfig = {
                 _op: 's3_exporter',
-                _encoding: DataEncoding.JSON
+                _encoding: DataEncoding.JSON,
+                api_name: 's3_sender_api'
             };
 
             const apiConfig = {
@@ -127,7 +130,8 @@ describe('S3 exporter Schema', () => {
         it('should throw if opConfig _encoding is not a default value while apiConfig _encoding is set', async () => {
             const opConfig = {
                 _op: 's3_exporter',
-                _encoding: DataEncoding.RAW
+                _encoding: DataEncoding.RAW,
+                api_name: 's3_sender_api'
             };
 
             const apiConfig = {

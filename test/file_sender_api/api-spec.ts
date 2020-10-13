@@ -21,7 +21,7 @@ describe('File Sender API', () => {
 
         workerId = harness.context.cluster.worker.id;
 
-        return harness.getAPI<FileSenderFactoryAPI>('file_sender_api');
+        return harness.getAPI<FileSenderFactoryAPI>('file_sender_api:file_exporter-1');
     }
 
     beforeEach(() => {

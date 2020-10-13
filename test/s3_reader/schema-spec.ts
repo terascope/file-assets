@@ -65,7 +65,7 @@ describe('S3 Reader Schema', () => {
         });
 
         it('should not throw path is given in api', async () => {
-            const opConfig = {};
+            const opConfig = { api_name: 's3_reader_api' };
             const apiConfig = { _name: 's3_reader_api', path: 'chillywilly' };
 
             await expect(makeTest(opConfig, apiConfig)).toResolve();
@@ -74,7 +74,8 @@ describe('S3 Reader Schema', () => {
         it('should not throw if _dead_letter_action are the same', async () => {
             const opConfig = {
                 _op: 's3_reader',
-                _dead_letter_action: 'throw'
+                _dead_letter_action: 'throw',
+                api_name: 's3_reader_api'
             };
 
             const apiConfig = {
@@ -89,7 +90,8 @@ describe('S3 Reader Schema', () => {
         it('should throw if opConfig _dead_letter_action is not a default value while apiConfig _dead_letter_action is set', async () => {
             const opConfig = {
                 _op: 's3_reader',
-                _dead_letter_action: 'none'
+                _dead_letter_action: 'none',
+                api_name: 's3_reader_api'
             };
 
             const apiConfig = {
@@ -104,7 +106,8 @@ describe('S3 Reader Schema', () => {
         it('should not throw if _encoding are the same', async () => {
             const opConfig = {
                 _op: 's3_reader',
-                _encoding: DataEncoding.JSON
+                _encoding: DataEncoding.JSON,
+                api_name: 's3_reader_api'
             };
 
             const apiConfig = {
@@ -119,7 +122,8 @@ describe('S3 Reader Schema', () => {
         it('should throw if opConfig _encoding is not a default value while apiConfig _encoding is set', async () => {
             const opConfig = {
                 _op: 's3_reader',
-                _encoding: DataEncoding.RAW
+                _encoding: DataEncoding.RAW,
+                api_name: 's3_reader_api'
             };
 
             const apiConfig = {

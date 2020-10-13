@@ -29,7 +29,7 @@ describe('File Reader API', () => {
 
         await harness.initialize();
 
-        return harness.getAPI<FileReaderFactoryAPI>('file_reader_api');
+        return harness.getAPI<FileReaderFactoryAPI>('file_reader_api:file_reader-0');
     }
 
     afterEach(async () => {

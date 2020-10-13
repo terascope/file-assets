@@ -1,6 +1,4 @@
-import {
-    isNumber, AnyObject, isNotNil, DataEncoding
-} from '@terascope/job-components';
+import { isNumber } from '@terascope/job-components';
 import { Compression, Format } from './interfaces';
 
 const readerSchema = {
@@ -40,7 +38,7 @@ export const commonSchema = {
             + 'be treated as a file prefix.\ni.e. "/data/export_" will result in files like'
             + ' "/data/export_hs897f.1079.gz"',
         default: null,
-        format: 'optional_String'
+        format: 'required_String'
     },
     extension: {
         doc: 'A file extension to add to the object name.',
@@ -91,21 +89,12 @@ export const commonSchema = {
     }
 };
 
-export function compareConfig(opConfig: AnyObject, apiConfig: AnyObject): void {
-    if (isNotNil(opConfig.path)) throw new Error('If api is specified on this operation, the parameter path must not be specified in the opConfig');
-    if (
-        isNotNil(apiConfig._dead_letter_action)
-        && isNotNil(opConfig._dead_letter_action)
-        && opConfig._dead_letter_action !== 'throw') {
-        throw new Error(`Cannot have conflicting _dead_letter_action parameters, apiConfig is set to ${apiConfig._dead_letter_action} while opConfig is set to non-default value ${opConfig._dead_letter_action}, it should be set in the api`);
-    }
-
-    if (
-        isNotNil(apiConfig._encoding)
-        && isNotNil(opConfig._encoding)
-        && opConfig._encoding !== DataEncoding.JSON) {
-        throw new Error(`Cannot have conflicting _encoding parameters, apiConfig is set to ${apiConfig._encoding} while opConfig is set to non-default value ${opConfig._encoding}, it should be set in the api`);
-    }
-}
-
 export const fileReaderSchema = Object.assign({}, commonSchema, readerSchema);
+
+export const opSchema = {
+    api_name: {
+        doc: 'name of api to be used by operation',
+        default: null,
+        format: 'optional_String'
+    }
+};
