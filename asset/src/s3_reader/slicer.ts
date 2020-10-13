@@ -38,7 +38,7 @@ export default class S3Slicer extends Slicer<S3ReaderConfig> {
             path
         };
 
-        if (this.opConfig.compression !== 'none') config.file_per_slice = true;
+        if (apiConfig.compression !== 'none') config.file_per_slice = true;
 
         this.slicer = await api.makeS3Slicer(config);
     }

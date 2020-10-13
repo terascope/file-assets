@@ -57,7 +57,7 @@ describe('S3 sender api', () => {
 
         workerId = harness.context.cluster.worker.id;
 
-        return harness.getAPI<S3SenderFactoryAPI>('s3_sender_api');
+        return harness.getAPI<S3SenderFactoryAPI>('s3_sender_api:s3_exporter-1');
     }
 
     beforeAll(async () => {

@@ -73,7 +73,7 @@ describe('S3 API Reader', () => {
 
         await harness.initialize();
 
-        return harness.getAPI<S3ReaderFactoryAPI>('s3_reader_api');
+        return harness.getAPI<S3ReaderFactoryAPI>('s3_reader_api:s3_reader-0');
     }
 
     afterEach(async () => {

@@ -39,22 +39,22 @@ describe('File Reader Schema', () => {
         });
 
         it('should not throw an error if no path is specified if apiConfig is set', async () => {
-            const opConfig = { _op: 'file_reader' };
+            const opConfig = { _op: 'file_reader', api_name: 'file_reader_api' };
             const apiConfig = { _name: 'file_reader_api', path: 'some/path' };
 
             await expect(makeTest(opConfig, apiConfig)).toResolve();
         });
 
-        it('should throw is path is specified and api is specified', async () => {
-            const opConfig = { _op: 'file_reader', path: 'some/path' };
+        it('should throw is path is specified and different than', async () => {
+            const opConfig = { _op: 'file_reader', path: 'some/other', api_name: 'file_reader_api' };
             const apiConfig = { _name: 'file_reader_api', path: 'some/path' };
 
             await expect(makeTest(opConfig, apiConfig)).toReject();
         });
 
-        it('should throw is extra_args is specified and api is specified', async () => {
-            const opConfig = { _op: 'file_reader', extra_args: { some: 'stuff' } };
-            const apiConfig = { _name: 'file_reader_api', path: 'some/path' };
+        it('should throw is extra_args is specified and different from', async () => {
+            const opConfig = { _op: 'file_reader', extra_args: { some: 'stuff' }, api_name: 'file_reader_api' };
+            const apiConfig = { _name: 'file_reader_api', path: 'some/path', extra_args: { some: 'other' } };
 
             await expect(makeTest(opConfig, apiConfig)).toReject();
         });
@@ -62,7 +62,8 @@ describe('File Reader Schema', () => {
         it('should not throw if _dead_letter_action are the same', async () => {
             const opConfig = {
                 _op: 'file_reader',
-                _dead_letter_action: 'throw'
+                _dead_letter_action: 'throw',
+                api_name: 'file_reader_api'
             };
 
             const apiConfig = {
@@ -77,7 +78,8 @@ describe('File Reader Schema', () => {
         it('should throw if opConfig _dead_letter_action is not a default value while apiConfig _dead_letter_action is set', async () => {
             const opConfig = {
                 _op: 'file_reader',
-                _dead_letter_action: 'none'
+                _dead_letter_action: 'none',
+                api_name: 'file_reader_api'
             };
 
             const apiConfig = {
@@ -92,7 +94,8 @@ describe('File Reader Schema', () => {
         it('should not throw if _encoding are the same', async () => {
             const opConfig = {
                 _op: 'file_reader',
-                _encoding: DataEncoding.JSON
+                _encoding: DataEncoding.JSON,
+                api_name: 'file_reader_api'
             };
 
             const apiConfig = {
@@ -107,7 +110,8 @@ describe('File Reader Schema', () => {
         it('should throw if opConfig _encoding is not a default value while apiConfig _encoding is set', async () => {
             const opConfig = {
                 _op: 'file_reader',
-                _encoding: DataEncoding.RAW
+                _encoding: DataEncoding.RAW,
+                api_name: 'file_reader_api'
             };
 
             const apiConfig = {
