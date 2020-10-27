@@ -25,7 +25,7 @@
         "@terascope/job-components": "^0.42.2",
         "@types/bluebird": "^3.5.32",
         "@types/fs-extra": "^9.0.2",
-        "@types/jest": "^26.0.14",
+        "@types/jest": "^26.0.15",
         "@types/json2csv": "^5.0.1",
         "@types/node": "^14.11.8",
         "@types/node-gzip": "^1.1.0",
