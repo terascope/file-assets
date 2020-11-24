@@ -58,7 +58,7 @@ export default abstract class ChunkedSender {
         this.isRouter = isNotNil(config._key) && isString(config._key);
     }
 
-    async abstract verify(path: string): Promise<void>
+    abstract verify(path: string): Promise<void>
 
     async ensurePathing(path: string, removeFilePath = false): Promise<void> {
         if (!this.pathList.has(path)) {

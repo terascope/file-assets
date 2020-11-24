@@ -52,7 +52,7 @@ export default abstract class ChunkedFileReader extends FileFormatter {
         return null;
     }
 
-    abstract async fetch(msg: AnyObject): Promise<string>
+    abstract fetch(msg: AnyObject): Promise<string>
 
     // This method will grab the chunk of data specified by the slice plus an
     // extra margin if the slice does not end with the delimiter.
