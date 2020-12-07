@@ -3963,10 +3963,10 @@ lowercase-keys@^2.0.0:
   resolved "https://registry.yarnpkg.com/lowercase-keys/-/lowercase-keys-2.0.0.tgz#2603e78b7b4b0006cbca2fbcc8a3202558ac9479"
   integrity sha512-tqNXrS78oMOE73NMxK4EMLQsQowWf8jKooH9g7xPavRT706R6bkQJ6DY2Te7QukaZsulxa30wQ7bk0pm4XiHmA==
 
-lz4@^0.6.3:
-  version "0.6.3"
-  resolved "https://registry.yarnpkg.com/lz4/-/lz4-0.6.3.tgz#78df6bb69a36d7db6c2e849494876ba6e38e66d6"
-  integrity sha512-NEs7p58fnU69P6mGl1slL5I+FVhYIUXXfZRXNBIFvmTkEsHh+TMpO1BPcQREwFpThHNC5wa61d7vQdZ0zz9aUg==
+lz4@^0.6.4:
+  version "0.6.4"
+  resolved "https://registry.yarnpkg.com/lz4/-/lz4-0.6.4.tgz#1931a4c08bc0e6e63afc249b818d0aabb4f7fad1"
+  integrity sha512-thEiecYYdcjHbhowJqhwKOQ15NOrHaG8KZrBGeW8S5SN3DJPstWSGM7Q4+hoO6LaD8bCipXNNs8UnJulpYr0CA==
   dependencies:
     buffer "^5.2.1"
     cuint "^0.2.2"
