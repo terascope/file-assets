@@ -39,7 +39,7 @@
         "lz4": "^0.6.5",
         "node-gzip": "^1.1.2",
         "teraslice-test-harness": "^0.27.0",
-        "ts-jest": "^26.4.4",
+        "ts-jest": "^26.5.0",
         "ts-node": "^9.1.1",
         "typescript": "~4.1.3"
     },
