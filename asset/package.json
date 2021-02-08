@@ -12,7 +12,7 @@
         "@terascope/job-components": "^0.42.3",
         "csvtojson": "^2.0.10",
         "fs-extra": "^9.1.0",
-        "json2csv": "5.0.5",
+        "json2csv": "5.0.6",
         "lz4": "^0.6.5",
         "node-gzip": "^1.1.2"
     },
