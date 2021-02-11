@@ -8,15 +8,14 @@ import {
 } from '@terascope/job-components';
 import path from 'path';
 import ChunkedSender from '../__lib/chunked-file-sender';
-import { FileSenderType } from '../__lib/interfaces';
-import { HDFSExporterAPIConfig } from './interfaces';
+import { FileSenderType, HDFSExportConfig } from '../interfaces';
 
 export default class HDFSSender extends ChunkedSender implements RouteSenderAPI {
     logger: Logger;
     concurrency: number;
     client: AnyObject;
 
-    constructor(client: AnyObject, config: HDFSExporterAPIConfig, logger: Logger) {
+    constructor(client: AnyObject, config: HDFSExportConfig, logger: Logger) {
         super(FileSenderType.hdfs, config as any);
         this.logger = logger;
         const { concurrency } = config;

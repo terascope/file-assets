@@ -13,7 +13,7 @@ import {
     FileSenderType,
     Format,
     ChunkedSenderConfig
-} from '../interfaces';
+} from '../../interfaces';
 
 export default abstract class ChunkedSender {
     readonly workerId: string;

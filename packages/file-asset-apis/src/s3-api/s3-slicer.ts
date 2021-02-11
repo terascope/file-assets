@@ -1,8 +1,8 @@
 import { flatten, AnyObject, Logger } from '@terascope/job-components';
 import { segmentFile, parsePath, canReadFile } from '../__lib/slice';
-import { SliceConfig, SlicedFileResults, FileSliceConfig } from '../__lib/interfaces';
+import { SliceConfig, SlicedFileResults, FileSliceConfig } from '../interfaces';
 
-export default class S3Slicer {
+export class S3Slicer {
     readonly sliceConfig: SliceConfig;
     logger: Logger;
     client: AnyObject;

@@ -7,7 +7,7 @@ import {
 } from '@terascope/job-components';
 import csvToJson from 'csvtojson';
 import { CSVParseParam } from 'csvtojson/v2/Parameters';
-import { SlicedFileResults, ChunkedConfig } from '../interfaces';
+import { SlicedFileResults, ChunkedConfig } from '../../interfaces';
 import FileFormatter from '../compression';
 
 type FN = (input: any) => any;

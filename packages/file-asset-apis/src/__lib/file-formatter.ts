@@ -9,7 +9,7 @@ import {
     Format,
     CSVConfig,
     CSVOptions,
-} from './interfaces';
+} from '../interfaces';
 
 type FormatFn = (slice: any[], opConfig: CSVConfig, csvOptions: json2csv.Options<any>) => string
 

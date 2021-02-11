@@ -1,6 +1,20 @@
 import json2csv from 'json2csv';
 import { OpConfig, DataEntity } from '@terascope/job-components';
 
+export interface S3ExporterConfig extends ReaderFileConfig {
+    workerId: string;
+}
+
+export interface S3PutConfig {
+    Bucket: string;
+    Key: string;
+    Body: string;
+}
+
+export interface HDFSExportConfig extends ReaderFileConfig, OpConfig {
+    workerId: string;
+}
+
 export interface FileConfig {
     path: string;
     extension: string;
@@ -11,6 +25,7 @@ export interface FileConfig {
     file_per_slice: boolean;
     include_header: boolean;
     format: Format;
+    concurrency: number;
 }
 
 export interface ReaderFileConfig extends FileConfig {

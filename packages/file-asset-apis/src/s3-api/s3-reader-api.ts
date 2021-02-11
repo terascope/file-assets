@@ -4,10 +4,10 @@ import {
     ChunkedConfig,
     SliceConfig,
     FileSliceConfig
-} from '../__lib/interfaces';
+} from '../interfaces';
 import ChunkedReader from '../__lib/chunked-file-reader';
 import { segmentFile, canReadFile, parsePath } from '../__lib/slice';
-import S3Slicer from './s3-slicer';
+import { S3Slicer } from './s3-slicer';
 
 export default class S3Reader extends ChunkedReader {
     client: AnyObject

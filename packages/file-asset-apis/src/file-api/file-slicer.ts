@@ -6,9 +6,9 @@ import {
 import fse from 'fs-extra';
 import path from 'path';
 import { segmentFile, canReadFile } from '../__lib/slice';
-import { SliceConfig, SlicedFileResults, FileSliceConfig } from '../__lib/interfaces';
+import { SliceConfig, SlicedFileResults, FileSliceConfig } from '../interfaces';
 
-export default class FileSlicer {
+export class FileSlicer {
     readonly directories: string[];
     readonly sliceConfig: SliceConfig;
     logger: Logger;

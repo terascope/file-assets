@@ -1,11 +1,11 @@
 import { TSError } from '@terascope/job-components';
 import fse from 'fs-extra';
-import FileSlicer from './file-slicer';
-import { SlicedFileResults, FileSliceConfig, SliceConfig } from '../__lib/interfaces';
+import { FileSlicer } from './file-slicer';
+import { SlicedFileResults, FileSliceConfig, SliceConfig } from '../interfaces';
 import { segmentFile, canReadFile } from '../__lib/slice';
 import ChunkedReader from '../__lib/chunked-file-reader';
 
-export default class FileAPI extends ChunkedReader {
+export class FileReaderAPI extends ChunkedReader {
     client = fse;
 
     async fetch(slice: SlicedFileResults): Promise<string> {
@@ -51,7 +51,7 @@ export default class FileAPI extends ChunkedReader {
         return segmentFile(file, config);
     }
 
-    async makeFileSlicer(config: FileSliceConfig): Promise<FileSlicer> {
+    async makeSlicer(config: FileSliceConfig): Promise<FileSlicer> {
         return new FileSlicer(config, this.logger);
     }
 }
