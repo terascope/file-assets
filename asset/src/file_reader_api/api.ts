@@ -1,7 +1,7 @@
 import {
     APIFactory, AnyObject, isNil, isString, getTypeOf
 } from '@terascope/job-components';
-import FileReader from './file-api';
+import { FileReader } from '@terascope/file-asset-apis';
 import { FileReaderAPIConfig } from './interfaces';
 
 export default class FileReaderApi extends APIFactory<FileReader, FileReaderAPIConfig> {

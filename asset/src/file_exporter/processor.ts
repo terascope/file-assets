@@ -1,6 +1,6 @@
 import { BatchProcessor, DataEntity } from '@terascope/job-components';
+import { FileSender } from '@terascope/file-asset-apis';
 import { FileExporterConfig } from './interfaces';
-import FileSender from '../file_sender_api/sender';
 import { FileSenderFactoryAPI } from '../file_sender_api/interfaces';
 
 export default class FileBatcher extends BatchProcessor<FileExporterConfig> {

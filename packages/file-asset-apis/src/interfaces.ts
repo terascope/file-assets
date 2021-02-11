@@ -11,7 +11,10 @@ export interface S3PutConfig {
     Body: string;
 }
 
-export interface HDFSExportConfig extends ReaderFileConfig, OpConfig {
+export interface HDFSExportConfig extends ReaderFileConfig {
+    workerId: string;
+}
+export interface FileSenderConfig extends ReaderFileConfig {
     workerId: string;
 }
 

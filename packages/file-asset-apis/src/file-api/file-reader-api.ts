@@ -5,7 +5,7 @@ import { SlicedFileResults, FileSliceConfig, SliceConfig } from '../interfaces';
 import { segmentFile, canReadFile } from '../__lib/slice';
 import ChunkedReader from '../__lib/chunked-file-reader';
 
-export class FileReaderAPI extends ChunkedReader {
+export class FileReader extends ChunkedReader {
     client = fse;
 
     async fetch(slice: SlicedFileResults): Promise<string> {

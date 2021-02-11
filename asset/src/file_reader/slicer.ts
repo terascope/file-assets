@@ -1,6 +1,6 @@
 import { Slicer, SlicerRecoveryData } from '@terascope/job-components';
+import { FileSlicer } from '@terascope/file-asset-apis';
 import { FileReaderFactoryAPI, FileReaderAPIConfig } from '../file_reader_api/interfaces';
-import FileSlicer from '../file_reader_api/file-slicer';
 
 export default class FileSlicerOperation extends Slicer {
     slicer!: FileSlicer;
@@ -40,7 +40,7 @@ export default class FileSlicerOperation extends Slicer {
             path
         };
 
-        this.slicer = await api.makeFileSlicer(config);
+        this.slicer = await api.makeSlicer(config);
     }
 
     async slice(): Promise<any[]|null> {
