@@ -1,7 +1,7 @@
 import { gzip, ungzip } from 'node-gzip';
 // @ts-expect-error
 import { encode, decode } from 'lz4';
-import { Compression } from './interfaces';
+import { Compression } from '../interfaces';
 
 const allowedKey = Object.values(Compression);
 
