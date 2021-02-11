@@ -1,18 +1,18 @@
 import 'jest-extended';
 import { DataEntity } from '@terascope/job-components';
-import ChunkedSlicer from '../../asset/src/__lib/chunked-file-sender';
 import {
     FileSenderType,
     ChunkedSenderConfig,
     Compression,
-    Format
-} from '../../asset/src/__lib/interfaces';
+    Format,
+    ChunkedFileSender
+} from '../../src';
 
 describe('ChunkedSlicer', () => {
     const path = 'some/path';
     const workerId = '1234';
 
-    class Test extends ChunkedSlicer {
+    class Test extends ChunkedFileSender {
         verifyCalled = false;
 
         async verify() {

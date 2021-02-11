@@ -1,12 +1,13 @@
 import 'jest-extended';
 import { debugLogger, DataEntity } from '@terascope/job-components';
-import { Format, ChunkedConfig, Compression } from '../../asset/src/__lib/interfaces';
-import ChunkedReader from '../../asset/src/__lib/chunked-file-reader';
+import {
+    ChunkedFileReader, Format, ChunkedConfig, Compression
+} from '../../src';
 
 // Mock logger
 const logger = debugLogger('chunked-file-reader');
 
-class Test extends ChunkedReader {
+class Test extends ChunkedFileReader {
     data: string[];
 
     constructor(config: ChunkedConfig, data: string[]) {

@@ -6,8 +6,8 @@ import {
     isNotNil
 } from '@terascope/job-components';
 import * as nodePathModule from 'path';
-import CompressionFormatter from '../compression';
-import FileFormatter from '../file-formatter';
+import { CompressionFormatter } from '../compression';
+import { FileFormatter } from '../file-formatter';
 import {
     NameOptions,
     FileSenderType,
@@ -15,7 +15,7 @@ import {
     ChunkedSenderConfig
 } from '../../interfaces';
 
-export default abstract class ChunkedSender {
+export abstract class ChunkedFileSender {
     readonly workerId: string;
     readonly nameOptions: NameOptions;
     protected sliceCount = -1;

@@ -2,10 +2,9 @@ import { TSError } from '@terascope/job-components';
 import fse from 'fs-extra';
 import { FileSlicer } from './file-slicer';
 import { SlicedFileResults, FileSliceConfig, SliceConfig } from '../interfaces';
-import { segmentFile, canReadFile } from '../lib/slice';
-import ChunkedReader from '../lib/chunked-file-reader';
+import { ChunkedFileReader, segmentFile, canReadFile } from '../lib';
 
-export class FileReader extends ChunkedReader {
+export class FileReader extends ChunkedFileReader {
     client = fse;
 
     async fetch(slice: SlicedFileResults): Promise<string> {

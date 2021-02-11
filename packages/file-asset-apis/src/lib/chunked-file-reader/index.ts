@@ -8,11 +8,11 @@ import {
 import csvToJson from 'csvtojson';
 import { CSVParseParam } from 'csvtojson/v2/Parameters';
 import { SlicedFileResults, ChunkedConfig } from '../../interfaces';
-import FileFormatter from '../compression';
+import { CompressionFormatter } from '../compression';
 
 type FN = (input: any) => any;
 
-export default abstract class ChunkedFileReader extends FileFormatter {
+export abstract class ChunkedFileReader extends CompressionFormatter {
     config: ChunkedConfig;
     logger: Logger;
     private tryFn: (fn:(msg: any) => DataEntity) => (input: any) => DataEntity | null;

@@ -1,6 +1,5 @@
 import 'jest-extended';
-import { getOffsets, segmentFile } from '../../asset/src/__lib/slice';
-import { Format } from '../../asset/src/__lib/interfaces';
+import { getOffsets, segmentFile, Format } from '../../src';
 
 describe('offsets', () => {
     it('can be computed', () => {

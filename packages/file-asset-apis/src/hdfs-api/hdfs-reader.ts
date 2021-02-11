@@ -1,8 +1,8 @@
 import { AnyObject, Logger } from '@terascope/job-components';
-import ChunkedReader from '../lib/chunked-file-reader';
+import { ChunkedFileReader } from '../lib';
 import { SlicedFileResults, ChunkedConfig } from '../interfaces';
 
-export class HDFSReader extends ChunkedReader {
+export class HDFSReader extends ChunkedFileReader {
     client: AnyObject
 
     constructor(client: AnyObject, config: ChunkedConfig, logger: Logger) {

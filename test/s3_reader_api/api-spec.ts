@@ -4,7 +4,7 @@ import {
 } from '@terascope/job-components';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
 import { S3ReaderFactoryAPI } from '../../asset/src/s3_reader_api/interfaces';
-import { Format, SlicedFileResults } from '../../asset/src/__lib/interfaces';
+import { Format, SlicedFileResults } from '../../packages/file-asset-apis';
 import {
     makeClient, cleanupBucket, upload, testWorkerId
 } from '../helpers';

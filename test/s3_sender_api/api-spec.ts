@@ -7,8 +7,7 @@ import lz4 from 'lz4';
 import { ungzip } from 'node-gzip';
 import { makeClient, cleanupBucket } from '../helpers';
 import { S3SenderFactoryAPI } from '../../asset/src/s3_sender_api/interfaces';
-import { Format, Compression } from '../../asset/src/__lib/interfaces';
-import CompressionFormatter from '../../asset/src/__lib/compression';
+import { Format, Compression, CompressionFormatter } from '../../packages/file-asset-apis';
 
 describe('S3 sender api', () => {
     const bucket = 's3-api-sender';

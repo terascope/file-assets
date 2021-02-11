@@ -5,11 +5,12 @@ import {
     SliceConfig,
     FileSliceConfig
 } from '../interfaces';
-import ChunkedReader from '../lib/chunked-file-reader';
-import { segmentFile, canReadFile, parsePath } from '../lib/slice';
+import {
+    ChunkedFileReader, segmentFile, canReadFile, parsePath
+} from '../lib';
 import { S3Slicer } from './s3-slicer';
 
-export class S3Reader extends ChunkedReader {
+export class S3Reader extends ChunkedFileReader {
     client: AnyObject
     bucket: string;
 

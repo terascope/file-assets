@@ -1,4 +1,4 @@
-import { parsePath } from '../../asset/src/__lib/slice';
+import { parsePath } from '../../packages/file-asset-apis';
 
 describe('s3 reader helpers', () => {
     it('properly identifies buckets and object prefixes in a filepath', () => {

@@ -1,5 +1,4 @@
-import FileFormatter from '../../asset/src/__lib/file-formatter';
-import { Format, CSVConfig } from '../../asset/src/__lib/interfaces';
+import { Format, CSVConfig, FileFormatter } from '../../src';
 
 describe('FileFormatter', () => {
     it('incorrect format will throw', () => {

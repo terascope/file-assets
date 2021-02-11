@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { DataEntity, AnyObject, toNumber } from '@terascope/job-components';
 import { JobTestHarness, newTestJobConfig } from 'teraslice-test-harness';
-import { Format } from '../../asset/src/__lib/interfaces';
+import { Format } from '../../packages/file-asset-apis';
 import { makeClient, cleanupBucket, upload } from '../helpers';
 
 describe('S3Reader job', () => {

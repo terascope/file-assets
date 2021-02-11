@@ -6,7 +6,7 @@ import {
     toNumber,
 } from '@terascope/job-components';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
-import { Format, SlicedFileResults } from '../../asset/src/__lib/interfaces';
+import { Format, SlicedFileResults } from '../../packages/file-asset-apis';
 import {
     makeClient, cleanupBucket, upload, testWorkerId
 } from '../helpers';

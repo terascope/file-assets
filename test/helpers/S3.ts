@@ -8,9 +8,9 @@ import {
 import S3 from 'aws-sdk/clients/s3';
 import { promisifyAll, defer } from 'bluebird';
 import * as s3Config from './config';
-import S3Fetcher from '../../asset/src/s3_reader_api/s3-api';
-import S3Sender from '../../asset/src/s3_sender_api/sender';
-import { SlicedFileResults, Format, Compression } from '../../asset/src/__lib/interfaces';
+import {
+    S3Reader, S3Sender, SlicedFileResults, Format, Compression
+} from '../../packages/file-asset-apis';
 
 const logger = debugLogger('s3_tests');
 
@@ -54,7 +54,7 @@ export async function fetch(
     if (isNil(config.bucket) || !isString(config.bucket)) throw new Error('config must include parameter bucket');
     // TODO: fix this
     const fetchConfig = Object.assign({}, defaultConfigs, config) as any;
-    const api = new S3Fetcher(client, fetchConfig, logger);
+    const api = new S3Reader(client, fetchConfig, logger);
 
     return api.fetch(slice);
 }

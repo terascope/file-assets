@@ -30,15 +30,8 @@
         "lz4": "^0.6.5",
         "node-gzip": "^1.1.2"
     },
-    "peerDependencies": {
-        "@terascope/data-mate": "^0.23.0",
-        "@terascope/data-types": "^0.27.2"
-    },
-    "devDependencies": {
-        "@terascope/data-mate": "^0.23.0",
-        "@types/elasticsearch": "^5.0.36",
-        "elasticsearch": "^15.4.1"
-    },
+    "peerDependencies": {},
+    "devDependencies": {},
     "engines": {
         "node": ">=10.16.0"
     }

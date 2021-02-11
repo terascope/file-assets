@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { AnyObject, isNil, DataEntity } from '@terascope/job-components';
 import { newTestJobConfig, SlicerTestHarness } from 'teraslice-test-harness';
-import { Format } from '../../asset/src/__lib/interfaces';
+import { Format } from '../../packages/file-asset-apis';
 import { makeClient, cleanupBucket, upload } from '../helpers';
 
 describe('S3 slicer', () => {

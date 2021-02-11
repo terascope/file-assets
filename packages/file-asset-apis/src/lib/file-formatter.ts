@@ -39,7 +39,7 @@ function getFormatFn(format: Format): FormatFn {
 
 const formatValues = Object.values(Format);
 
-export default class FileFormatter {
+export class FileFormatter {
     csvOptions: json2csv.Options<any>;
     private config: CSVConfig;
     private fn: FormatFn;

@@ -7,10 +7,10 @@ import {
     pMap
 } from '@terascope/job-components';
 import path from 'path';
-import ChunkedSender from '../lib/chunked-file-sender';
+import { ChunkedFileSender } from '../lib';
 import { FileSenderType, HDFSExportConfig } from '../interfaces';
 
-export class HDFSSender extends ChunkedSender implements RouteSenderAPI {
+export class HDFSSender extends ChunkedFileSender implements RouteSenderAPI {
     logger: Logger;
     concurrency: number;
     client: AnyObject;
