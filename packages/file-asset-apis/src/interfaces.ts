@@ -107,3 +107,7 @@ export interface FileSliceConfig extends SliceConfig {
 }
 
 export type FetcherFn = (slice: SlicedFileResults) => Promise<string>
+
+export interface HDFSReaderConfig extends ReaderFileConfig {
+    user: string;
+}

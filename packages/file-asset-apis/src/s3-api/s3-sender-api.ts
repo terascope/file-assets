@@ -6,11 +6,11 @@ import {
     TSError,
     pMap
 } from '@terascope/job-components';
-import { parsePath } from '../__lib/slice';
-import ChunkedSender from '../__lib/chunked-file-sender';
+import { parsePath } from '../lib/slice';
+import ChunkedSender from '../lib/chunked-file-sender';
 import { FileSenderType, S3PutConfig, S3ExporterConfig } from '../interfaces';
 
-export default class S3Sender extends ChunkedSender implements RouteSenderAPI {
+export class S3Sender extends ChunkedSender implements RouteSenderAPI {
     logger: Logger;
     concurrency: number;
     client: AnyObject;

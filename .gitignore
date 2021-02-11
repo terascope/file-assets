@@ -71,6 +71,12 @@ asset/dist
 
 # Build artifacts
 asset.zip
-build/
 
 test/test_output
+
+packages/**/dist
+asset/dist
+
+dist/
+
+tsconfig.tsbuildinfo

@@ -1,6 +1,5 @@
 import { APIConfig, APIFactoryRegistry } from '@terascope/job-components';
-import { HDFSExportConfig } from '../hdfs_append/interfaces';
-import HDFSSender from './sender';
+import { HDFSExportConfig, HDFSSender } from '@terascope/file-asset-apis';
 
 export const DEFAULT_API_NAME = 'hdfs_sender_api';
 

@@ -1,8 +1,7 @@
 import { Fetcher, DataEntity } from '@terascope/job-components';
+import { SlicedFileResults, S3Reader } from '@terascope/file-asset-apis';
 import { S3ReaderConfig } from './interfaces';
-import { SlicedFileResults } from '../__lib/interfaces';
 import { S3ReaderFactoryAPI } from '../s3_reader_api/interfaces';
-import S3Reader from '../s3_reader_api/s3-api';
 
 export default class S3Fetcher extends Fetcher<S3ReaderConfig> {
     api!: S3Reader

@@ -1,7 +1,7 @@
 import {
     APIFactory, AnyObject, isNil, isString, getTypeOf
 } from '@terascope/job-components';
-import HDFSSender from './sender';
+import { HDFSSender } from '@terascope/file-asset-apis';
 import { HDFSExporterAPIConfig } from './interfaces';
 
 export default class HDFSSenderFactoryApi extends APIFactory<HDFSSender, HDFSExporterAPIConfig> {

@@ -1,8 +1,8 @@
 import {
     APIFactory, isNil, isString, AnyObject, getTypeOf
 } from '@terascope/job-components';
+import { HDFSReader } from '@terascope/file-asset-apis';
 import { HDFSReaderApiConfig } from './interfaces';
-import HDFSReader from './reader';
 
 export default class HDFSReaderFactoryAPI extends APIFactory<HDFSReader, HDFSReaderApiConfig> {
     validateConfig(input: AnyObject): HDFSReaderApiConfig {
@@ -21,7 +21,7 @@ export default class HDFSReaderFactoryAPI extends APIFactory<HDFSReader, HDFSRea
         }).client;
         const tryFn = this.tryRecord.bind(this);
         const rejectFn = this.rejectRecord.bind(this);
-        const chunkedConfig = Object.assign(config, { tryFn, rejectFn });
+        const chunkedConfig = Object.assign({}, config, { tryFn, rejectFn });
 
         const client = new HDFSReader(s3Client, chunkedConfig, this.logger);
         return { client, config };

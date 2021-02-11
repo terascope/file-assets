@@ -2,8 +2,8 @@ import { TSError } from '@terascope/job-components';
 import fse from 'fs-extra';
 import { FileSlicer } from './file-slicer';
 import { SlicedFileResults, FileSliceConfig, SliceConfig } from '../interfaces';
-import { segmentFile, canReadFile } from '../__lib/slice';
-import ChunkedReader from '../__lib/chunked-file-reader';
+import { segmentFile, canReadFile } from '../lib/slice';
+import ChunkedReader from '../lib/chunked-file-reader';
 
 export class FileReader extends ChunkedReader {
     client = fse;

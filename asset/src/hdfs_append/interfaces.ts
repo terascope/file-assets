@@ -1,4 +1,4 @@
 import { OpConfig } from '@terascope/job-components';
-import { ReaderFileConfig } from '../__lib/interfaces';
+import { HDFSExportConfig } from '@terascope/file-asset-apis';
 
-export interface HDFSExportConfig extends ReaderFileConfig, OpConfig {}
+export interface HDFSExportOpConfig extends HDFSExportConfig, OpConfig {}

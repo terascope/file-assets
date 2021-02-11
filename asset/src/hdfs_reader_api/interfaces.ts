@@ -1,6 +1,5 @@
 import { APIConfig, APIFactoryRegistry } from '@terascope/job-components';
-import HDFSReader from './reader';
-import { HDFSReaderConfig } from '../hdfs_reader/interfaces';
+import { HDFSReader, HDFSReaderConfig } from '@terascope/file-asset-apis';
 
 export const DEFAULT_API_NAME = 'hdfs_reader_api';
 

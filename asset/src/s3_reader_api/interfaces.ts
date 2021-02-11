@@ -1,6 +1,5 @@
 import { APIConfig, APIFactoryRegistry } from '@terascope/job-components';
-import S3Reader from './s3-api';
-import { ReaderFileConfig } from '../__lib/interfaces';
+import { S3Reader, ReaderFileConfig } from '@terascope/file-asset-apis';
 
 export const DEFAULT_API_NAME = 's3_reader_api';
 

@@ -1,10 +1,9 @@
 import { Fetcher, DataEntity } from '@terascope/job-components';
-import { HDFSReaderConfig } from './interfaces';
-import HDFSReader from '../hdfs_reader_api/reader';
+import { HDFSReader, SlicedFileResults } from '@terascope/file-asset-apis';
+import { HDFSReaderOpConfig } from './interfaces';
 import { HDFSReaderFactoryAPI } from '../hdfs_reader_api/interfaces';
-import { SlicedFileResults } from '../__lib/interfaces';
 
-export default class HDFSFetcher extends Fetcher<HDFSReaderConfig> {
+export default class HDFSFetcher extends Fetcher<HDFSReaderOpConfig> {
     api!: HDFSReader
 
     async initialize(): Promise<void> {

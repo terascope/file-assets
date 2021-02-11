@@ -1,5 +1,5 @@
 import { flatten, AnyObject, Logger } from '@terascope/job-components';
-import { segmentFile, parsePath, canReadFile } from '../__lib/slice';
+import { segmentFile, parsePath, canReadFile } from '../lib/slice';
 import { SliceConfig, SlicedFileResults, FileSliceConfig } from '../interfaces';
 
 export class S3Slicer {

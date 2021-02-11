@@ -1,6 +1,6 @@
 import { BatchProcessor, DataEntity } from '@terascope/job-components';
+import { S3Sender } from '@terascope/file-asset-apis';
 import { S3ExportConfig } from './interfaces';
-import S3Sender from '../s3_sender_api/sender';
 import { S3SenderFactoryAPI } from '../s3_sender_api/interfaces';
 
 export default class S3Batcher extends BatchProcessor<S3ExportConfig> {

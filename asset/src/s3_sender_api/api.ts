@@ -1,7 +1,7 @@
 import {
     APIFactory, AnyObject, isNil, isString, getTypeOf
 } from '@terascope/job-components';
-import S3Sender from './sender';
+import { S3Sender } from '@terascope/file-asset-apis';
 import { S3ExporterAPIConfig } from './interfaces';
 
 export default class FileReaderApi extends APIFactory<S3Sender, S3ExporterAPIConfig> {

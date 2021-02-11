@@ -6,7 +6,7 @@ import {
     pMap
 } from '@terascope/job-components';
 import fse from 'fs-extra';
-import ChunkedSender from '../__lib/chunked-file-sender';
+import ChunkedSender from '../lib/chunked-file-sender';
 import { ReaderFileConfig, FileSenderType } from '../interfaces';
 
 export class FileSender extends ChunkedSender implements RouteSenderAPI {

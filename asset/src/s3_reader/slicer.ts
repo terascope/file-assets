@@ -1,10 +1,10 @@
 import { Slicer, SlicerRecoveryData } from '@terascope/job-components';
+import { S3Slicer as S3SlicerAPI } from '@terascope/file-asset-apis';
 import { S3ReaderConfig } from './interfaces';
 import { S3ReaderFactoryAPI, S3ReaderAPIConfig } from '../s3_reader_api/interfaces';
-import S3Reader from '../s3_reader_api/s3-slicer';
 
 export default class S3Slicer extends Slicer<S3ReaderConfig> {
-    slicer!: S3Reader
+    slicer!: S3SlicerAPI
     /**
      * Currently only enable autorecover jobs
      *
