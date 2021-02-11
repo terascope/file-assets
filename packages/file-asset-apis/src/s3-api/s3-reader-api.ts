@@ -61,7 +61,7 @@ export class S3Reader extends ChunkedFileReader {
         return segmentFile(file, config);
     }
 
-    async makeS3Slicer(config: FileSliceConfig): Promise<S3Slicer> {
+    async makeSlicer(config: FileSliceConfig): Promise<S3Slicer> {
         return new S3Slicer(this.client, config, this.logger);
     }
 }

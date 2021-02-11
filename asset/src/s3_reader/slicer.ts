@@ -40,7 +40,7 @@ export default class S3Slicer extends Slicer<S3ReaderConfig> {
 
         if (apiConfig.compression !== 'none') config.file_per_slice = true;
 
-        this.slicer = await api.makeS3Slicer(config);
+        this.slicer = await api.makeSlicer(config);
     }
 
     async slice(): Promise<any|null> {
