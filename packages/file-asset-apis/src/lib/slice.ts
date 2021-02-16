@@ -60,29 +60,6 @@ export function getOffsets(size: number, total: number, delimiter: string): Offs
     return chunks;
 }
 
-// Batches records in a slice into groups based on the `routingPath` override (if present)
-export function batchSlice(data: DataEntity[], defaultPath: string): Record<string, DataEntity[]> {
-    const batches: Record<string, DataEntity[]> = {};
-    batches[defaultPath] = [];
-
-    data.forEach((record: any) => {
-        const override = record.getMetadata('standard:route');
-
-        if (override) {
-            const routePath = path.join(defaultPath, '/', override);
-
-            if (!batches[routePath]) {
-                batches[routePath] = [];
-            }
-            batches[routePath].push(record);
-        } else {
-            batches[defaultPath].push(record);
-        }
-    });
-
-    return batches;
-}
-
 export function canReadFile(fileName: string): boolean {
     if (!isString(fileName)) return false;
 

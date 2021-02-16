@@ -4,7 +4,7 @@ import { DataEntity } from '@terascope/job-components';
 import path from 'path';
 import fs from 'fs';
 import { remove, ensureDir, readJson } from 'fs-extra';
-import { Format } from '../../packages/file-asset-apis';
+import { Format } from '@terascope/file-asset-apis';
 
 function getTestFilePath(filename?: string) {
     if (filename) return path.join(__dirname, 'test_output/test', filename);

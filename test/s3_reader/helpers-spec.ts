@@ -1,4 +1,4 @@
-import { parsePath } from '../../packages/file-asset-apis';
+import { parsePath } from '@terascope/file-asset-apis';
 
 describe('s3 reader helpers', () => {
     it('properly identifies buckets and object prefixes in a filepath', () => {

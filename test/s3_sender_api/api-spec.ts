@@ -5,9 +5,9 @@ import { DataEntity, AnyObject } from '@terascope/job-components';
 // @ts-ignore
 import lz4 from 'lz4';
 import { ungzip } from 'node-gzip';
+import { Format, Compression, CompressionFormatter } from '@terascope/file-asset-apis';
 import { makeClient, cleanupBucket } from '../helpers';
 import { S3SenderFactoryAPI } from '../../asset/src/s3_sender_api/interfaces';
-import { Format, Compression, CompressionFormatter } from '../../packages/file-asset-apis';
 
 describe('S3 sender api', () => {
     const bucket = 's3-api-sender';

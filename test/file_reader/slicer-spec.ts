@@ -2,7 +2,7 @@ import 'jest-extended';
 import path from 'path';
 import { newTestJobConfig, SlicerTestHarness } from 'teraslice-test-harness';
 import { flatten, SliceRequest } from '@terascope/job-components';
-import { Format } from '../../packages/file-asset-apis';
+import { Format } from '@terascope/file-asset-apis';
 
 const fixtures = require('jest-fixtures');
 

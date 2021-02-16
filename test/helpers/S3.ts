@@ -7,10 +7,10 @@ import {
 } from '@terascope/job-components';
 import S3 from 'aws-sdk/clients/s3';
 import { promisifyAll, defer } from 'bluebird';
-import * as s3Config from './config';
 import {
     S3Reader, S3Sender, SlicedFileResults, Format, Compression
-} from '../../packages/file-asset-apis';
+} from '@terascope/file-asset-apis';
+import * as s3Config from './config';
 
 const logger = debugLogger('s3_tests');
 
