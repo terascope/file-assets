@@ -13,11 +13,16 @@ export default class FileReaderApi extends APIFactory<FileSender, FileSenderAPIC
     }
 
     async create(
-        _name: string, overrideConfigs: Partial<FileSenderAPIConfig>
+        _name: string, overrideConfigs: Partial<FileSenderAPIConfig> = {}
     ):Promise<{ client: FileSender, config: FileSenderAPIConfig }> {
         const config = this.validateConfig(
             Object.assign({}, this.apiConfig, overrideConfigs)
         );
+        // this is deprecated, used by routed-sender, please use dynamic_routing instead
+        if (config._key) {
+            config.dynamic_routing = true;
+        }
+
         const client = new FileSender(config, this.logger);
         return { client, config };
     }

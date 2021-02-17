@@ -18,6 +18,12 @@ export default class HDFSSenderFactoryApi extends APIFactory<HDFSSender, HDFSExp
         const config = this.validateConfig(
             Object.assign({}, this.apiConfig, overrideConfigs)
         );
+
+        // this is deprecated, used by routed-sender, please use dynamic_routing instead
+        if (config._key) {
+            config.dynamic_routing = true;
+        }
+
         const hdfsClient = this.context.foundation.getConnection({
             endpoint: config.connection,
             type: 'hdfs_ha',

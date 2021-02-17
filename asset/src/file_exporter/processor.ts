@@ -10,7 +10,8 @@ export default class FileBatcher extends BatchProcessor<FileExporterConfig> {
         await super.initialize();
         const apiName = this.opConfig.api_name;
         const apiManager = this.getAPI<FileSenderFactoryAPI>(apiName);
-        this.api = await apiManager.create(apiName, {} as any);
+        // this processor does not allow dynamic routing, use routed-sender operation instead
+        this.api = await apiManager.create(apiName, { dynamic_routing: false });
     }
 
     async onBatch(slice: DataEntity[]): Promise<DataEntity[]> {

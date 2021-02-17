@@ -18,6 +18,12 @@ export default class FileReaderApi extends APIFactory<S3Sender, S3ExporterAPICon
         const config = this.validateConfig(
             Object.assign({}, this.apiConfig, overrideConfigs)
         );
+
+        // this is deprecated, used by routed-sender, please use dynamic_routing instead
+        if (config._key) {
+            config.dynamic_routing = true;
+        }
+
         const s3Client = this.context.foundation.getConnection({
             endpoint: config.connection,
             type: 's3',

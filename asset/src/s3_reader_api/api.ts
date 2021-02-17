@@ -7,6 +7,8 @@ import { S3ReaderAPIConfig } from './interfaces';
 export default class S3ReaderAPI extends APIFactory<S3Reader, S3ReaderAPIConfig> {
     validateConfig(input: AnyObject): S3ReaderAPIConfig {
         if (isNil(input.path) || !isString(input.path)) throw new Error(`Invalid parameter path: it must be of type string, was given ${getTypeOf(input.path)}`);
+        // add in default here
+        if (input.compression !== 'none') input.file_per_slice = true;
         return input as S3ReaderAPIConfig;
     }
 

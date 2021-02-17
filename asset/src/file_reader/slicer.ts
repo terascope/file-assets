@@ -24,23 +24,7 @@ export default class FileSlicerOperation extends Slicer {
 
         api.validatePath(apiConfig.path);
 
-        const {
-            file_per_slice,
-            format,
-            size,
-            line_delimiter,
-            path
-        } = apiConfig;
-
-        const config = {
-            file_per_slice,
-            format,
-            size,
-            line_delimiter,
-            path
-        };
-
-        this.slicer = await api.makeSlicer(config);
+        this.slicer = await api.makeSlicer();
     }
 
     async slice(): Promise<any[]|null> {
