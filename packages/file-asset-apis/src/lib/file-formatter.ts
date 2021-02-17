@@ -62,6 +62,21 @@ export class FileFormatter {
         }
     }
 
+    /**
+     * Formats data based on configuration
+     *
+     * json => will stringify the whole array
+     *
+     * ldjson => will stringify each individual record and separate them by a new line
+     *
+     * csv/tsv => will convert data to csv/tsv format
+     *
+     * raw => EXPECTS RECORDS WITH KEY "data", whose value will be used as is
+
+     * @param {any[]} slice
+     * @returns {string}
+     * @memberof FileFormatter
+     */
     format(slice: any[]): string {
         return this.fn(slice, this.config, this.csvOptions);
     }

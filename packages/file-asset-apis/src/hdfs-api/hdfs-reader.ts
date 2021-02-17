@@ -9,7 +9,15 @@ export class HDFSReader extends ChunkedFileReader {
         super(config, logger);
         this.client = client;
     }
-    // TODO: this might not be right
+
+    /**
+     * low level api that fetches the unprocessed contents of the file from HDFS,
+     * please use the "read" method for correct file and data parsing
+     * @example
+     * const slice = { offset: 0, length: 1000, path: 'some/file.txt', total: 1000 };
+     * const results = await hdfsReader.fetch(slice);
+     * results === 'the unprocessed contents of the file here'
+    */
     async fetch(slice: SlicedFileResults): Promise<string> {
         const { offset, length, path } = slice;
         return this.client.openAsync(path, { offset, length });

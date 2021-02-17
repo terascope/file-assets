@@ -1,10 +1,5 @@
 import { AnyObject, Logger } from '@terascope/job-components';
-import {
-    SlicedFileResults,
-    ChunkedConfig,
-    SliceConfig,
-    FileSliceConfig
-} from '../interfaces';
+import { SlicedFileResults, ChunkedConfig } from '../interfaces';
 import {
     ChunkedFileReader, segmentFile, canReadFile, parsePath
 } from '../lib';
@@ -21,6 +16,14 @@ export class S3Reader extends ChunkedFileReader {
         this.bucket = bucket;
     }
 
+    /**
+     * low level api that fetches the unprocessed contents of the file, please use the "read" method
+     * for correct file and data parsing
+     * @example
+     * const slice = { offset: 0, length: 1000, path: 'some/file.txt', total: 1000 };
+     * const results = await s3Reader.fetch(slice);
+     * results === 'the unprocessed contents of the file here'
+    */
     async fetch(slice: SlicedFileResults): Promise<string> {
         const { offset, length } = slice;
         const opts = {
@@ -50,18 +53,76 @@ export class S3Reader extends ChunkedFileReader {
         return this.decompress(results.Body);
     }
 
+    /**
+     * Determines if a file name or file path can be processed, it will return false
+     * if the name of path includes a "."
+     *
+     * @example
+     * s3Reader.canReadFile('file.txt')  => true
+     * s3Reader.canReadFile('some/path/file.txt')  => true
+     * s3Reader.canReadFile('some/.private_path/file.txt')  => false
+    */
     canReadFile(filePath: string): boolean {
         return canReadFile(filePath);
     }
 
+    /**
+ *  Used to slice up a file based on the configuration provided
+ *
+ * The returned results can be used directly with any "read" method of a reader API
+ *
+ * @example
+ *  const slice = { path: 'some/path', size: 1000 };
+    const config = {
+        file_per_slice: false,
+        line_delimiter: '\n',
+        size: 300,
+        format: Format.ldjson
+    };
+
+    const results = s3Reader.segmentFile(slice, config);
+
+    results === [
+        {
+            offset: 0, length: 300, path: 'some/path', total: 1000
+        },
+            offset: 299, length: 301, path: 'some/path', total: 1000
+        },
+            offset: 599, length: 301, path: 'some/path', total: 1000
+        },
+        {
+            offset: 899, length: 101, path: 'some/path', total: 1000
+        }
+    ]
+ */
     segmentFile(file: {
         path: string;
         size: number;
-    }, config: SliceConfig): SlicedFileResults[] {
-        return segmentFile(file, config);
+    }): SlicedFileResults[] {
+        return segmentFile(file, this.config);
     }
 
-    async makeSlicer(config: FileSliceConfig): Promise<S3Slicer> {
-        return new S3Slicer(this.client, config, this.logger);
+    /**
+     * Generates a slicer based off the configs
+     *
+     * @example
+     * const config = {
+     *      size: 1000,
+     *      file_per_slice: false,
+     *      line_delimiter: '\n',
+     *      size: 300,
+     *      format: "ldjson"
+     *      path: 'some/dir'
+     * }
+     * const s3Reader = new S3Reader(config);
+     * const slicer = await s3Reader.newSlicer();
+     *
+     * const results = await slicer.slice();
+     * results === [
+     *      { offset: 0, length: 1000, path: 'some/dir/file.txt', total: 1000 }
+     * ]
+    */
+    async makeSlicer(): Promise<S3Slicer> {
+        return new S3Slicer(this.client, this.config, this.logger);
     }
 }

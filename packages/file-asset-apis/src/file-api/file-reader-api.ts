@@ -1,12 +1,20 @@
 import { TSError } from '@terascope/job-components';
 import fse from 'fs-extra';
 import { FileSlicer } from './file-slicer';
-import { SlicedFileResults, FileSliceConfig, SliceConfig } from '../interfaces';
+import { SlicedFileResults } from '../interfaces';
 import { ChunkedFileReader, segmentFile, canReadFile } from '../lib';
 
 export class FileReader extends ChunkedFileReader {
     client = fse;
 
+    /**
+     * low level api that fetches the unprocessed contents of the file, please use the "read" method
+     * for correct file and data parsing
+     * @example
+     * const slice = { offset: 0, length: 1000, path: 'some/file.txt', total: 1000 };
+     * const results = await fileReader.fetch(slice);
+     * results === 'the unprocessed contents of the file here'
+    */
     async fetch(slice: SlicedFileResults): Promise<string> {
         const { path, length, offset } = slice;
         const fd = await fse.open(path, 'r');
@@ -19,11 +27,29 @@ export class FileReader extends ChunkedFileReader {
             fse.close(fd);
         }
     }
-
+    /**
+     * Determines if a file name or file path can be processed, it will return false
+     * if the name of path includes a "."
+     *
+     * @example
+     * fileReader.canReadFile('file.txt')  => true
+     * fileReader.canReadFile('some/path/file.txt')  => true
+     * fileReader.canReadFile('some/.private_path/file.txt')  => false
+    */
     canReadFile(fileName: string): boolean {
         return canReadFile(fileName);
     }
 
+    /**
+     * Determines if a directory can be processed, will throw if it is a symlink
+     * or if the directory is empty
+     *
+     * @example
+     *
+     * fileReader.validatePath('some/emptyDir') => Error
+     * fileReader.canReadFile('some/symlinkedDir')  => Error
+     * fileReader.canReadFile('some/dir') => void
+    */
     validatePath(path: string): void {
         try {
             const dirStats = fse.lstatSync(path);
@@ -43,14 +69,56 @@ export class FileReader extends ChunkedFileReader {
         }
     }
 
+    /**
+     * Can be used to manually chunk a file into segments that can be used to fetched
+     *
+     * @example
+     * const config = {
+     *      size: 1000,
+     *      file_per_slice: false,
+     *      line_delimiter: '\n',
+     *      size: 300,
+     *      format: "ldjson"
+     * }
+     * const fileReader = new FileReader(config);
+     * const results = fileReader.segmentFile({ path: 'some/file.txt', size: 2000});
+     * results === [
+     *      { offset: 0, length: 1000, path: 'some/file.txt', total: 1000},
+     *      { offset: 1001, length: 1000, path: 'some/file.txt', total: 1000},
+
+     * ]
+    */
     segmentFile(file: {
         path: string;
         size: number;
-    }, config: SliceConfig): SlicedFileResults[] {
-        return segmentFile(file, config);
+    }): SlicedFileResults[] {
+        return segmentFile(file, this.config);
     }
 
-    async makeSlicer(config: FileSliceConfig): Promise<FileSlicer> {
+    /**
+     * Generates a slicer based off the configs
+     *
+     * @example
+     * const config = {
+     *      size: 1000,
+     *      file_per_slice: false,
+     *      line_delimiter: '\n',
+     *      size: 300,
+     *      format: "ldjson"
+     *      path: 'some/dir'
+     * }
+     * const fileReader = new FileReader(config);
+     * const slicer = await fileReader.newSlicer();
+     *
+     * const results = await slicer.slice();
+     * results === [
+     *      { offset: 0, length: 1000, path: 'some/dir/file.txt', total: 1000 }
+     * ]
+    */
+    async makeSlicer(): Promise<FileSlicer> {
+        const config = {
+            ...this.config
+        };
         return new FileSlicer(config, this.logger);
     }
 }

@@ -8,14 +8,14 @@ import {
 } from '@terascope/job-components';
 import path from 'path';
 import { ChunkedFileSender } from '../lib';
-import { FileSenderType, HDFSExportConfig } from '../interfaces';
+import { FileSenderType, ChunkedSenderConfig } from '../interfaces';
 
 export class HDFSSender extends ChunkedFileSender implements RouteSenderAPI {
     logger: Logger;
     concurrency: number;
     client: AnyObject;
 
-    constructor(client: AnyObject, config: HDFSExportConfig, logger: Logger) {
+    constructor(client: AnyObject, config: ChunkedSenderConfig, logger: Logger) {
         super(FileSenderType.hdfs, config as any);
         this.logger = logger;
         const { concurrency } = config;
@@ -23,7 +23,9 @@ export class HDFSSender extends ChunkedFileSender implements RouteSenderAPI {
         this.client = client;
     }
 
-    async sendToHdfs(filename: string, list: DataEntity[]): Promise<any[]> {
+    async sendToHdfs(
+        filename: string, list: (DataEntity | Record<string, unknown>)[]
+    ): Promise<any[]> {
         const { fileName, output } = await this.prepareSegment(filename, list);
 
         // This will prevent empty objects from being added to the S3 store, which can cause
@@ -43,7 +45,7 @@ export class HDFSSender extends ChunkedFileSender implements RouteSenderAPI {
             });
         }
     }
-    async send(records: DataEntity[]):Promise<void> {
+    async send(records: (DataEntity | Record<string, unknown>)[]):Promise<void> {
         const { concurrency } = this;
         this.sliceCount += 1;
 
@@ -53,7 +55,7 @@ export class HDFSSender extends ChunkedFileSender implements RouteSenderAPI {
 
         const dispatch = this.prepareDispatch(records);
 
-        const actions: [string, DataEntity[]][] = [];
+        const actions: [string, (DataEntity | Record<string, unknown>)[]][] = [];
 
         for (const [filename, list] of Object.entries(dispatch)) {
             actions.push([filename, list]);

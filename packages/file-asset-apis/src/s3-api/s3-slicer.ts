@@ -63,6 +63,9 @@ export class S3Slicer {
         return flatten(results);
     }
 
+    /**
+    * This method will return an array of file slices, or null if the slicer is done
+    */
     async slice(): Promise<any|null> {
         // First check to see if there are more objects in S3
         if (this._doneSlicing) return null;

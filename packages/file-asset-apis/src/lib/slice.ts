@@ -1,6 +1,37 @@
-import { DataEntity, isString } from '@terascope/job-components';
+import { isString } from '@terascope/job-components';
 import path from 'path';
 import { SliceConfig, SlicedFileResults, Offsets } from '../interfaces';
+
+/**
+ *  Used to slice up a file based on the configuration provided, this is a
+ * higher level API, prefer this over getOffsets as that is a lower level API
+ *
+ * The returned results can be used directly with any "read" method of a reader API
+ *
+ * @example
+ *  const slice = { path: 'some/path', size: 1000 };
+    const config = {
+        file_per_slice: false,
+        line_delimiter: '\n',
+        size: 300,
+        format: Format.ldjson
+    };
+
+    const results = segmentFile(slice, config);
+
+    results === [
+        {
+            offset: 0, length: 300, path: 'some/path', total: 1000
+        },
+            offset: 299, length: 301, path: 'some/path', total: 1000
+        },
+            offset: 599, length: 301, path: 'some/path', total: 1000
+        },
+        {
+            offset: 899, length: 101, path: 'some/path', total: 1000
+        }
+    ]
+ */
 
 export function segmentFile(file: {
     path: string;
@@ -29,7 +60,10 @@ export function segmentFile(file: {
     return slices;
 }
 
-// [{offset, length}] of chunks `size` assuming `delimiter` for a file with `total` size.
+/**
+ *  Used to calculate the offsets of a file, this is a lower level API,
+ * prefer to use segmentFile over this as it is a higher level API
+ */
 export function getOffsets(size: number, total: number, delimiter: string): Offsets[] {
     if (total === 0) {
         return [];
@@ -60,6 +94,15 @@ export function getOffsets(size: number, total: number, delimiter: string): Offs
     return chunks;
 }
 
+/**
+     * Determines if a file name or file path can be processed, it will return false
+     * if the name of path includes a "."
+     *
+     * @example
+     * canReadFile('file.txt')  => true
+     * canReadFile('some/path/file.txt')  => true
+     * canReadFile('some/.private_path/file.txt')  => false
+    */
 export function canReadFile(fileName: string): boolean {
     if (!isString(fileName)) return false;
 
@@ -70,7 +113,11 @@ export function canReadFile(fileName: string): boolean {
     return true;
 }
 
-// Parses the provided path and translates it to a bucket/prefix combo
+/**
+ * Parses the provided path and translates it to a bucket/prefix combo
+ *
+ * Primarily a helper for s3 operations
+ *  */
 export function parsePath(objPath: string): {
     bucket: string;
     prefix: string;

@@ -36,7 +36,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
         };
     }
 
-    reject(input: unknown, err: Error): never | null {
+    private reject(input: unknown, err: Error): never | null {
         const action = this.config._dead_letter_action;
         if (action === 'throw' || !action) {
             throw err;
@@ -119,7 +119,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
     }
 
     // No parsing, leaving to reader or a downstream op.
-    async raw(
+    private async raw(
         incomingData: string, slice: SlicedFileResults
     ): Promise<(DataEntity | null)[]> {
         const data = splitChunks(incomingData, this.config.line_delimiter, slice);
@@ -128,7 +128,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
         );
     }
 
-    async csv(
+    private async csv(
         incomingData: string, slice: SlicedFileResults, runAsTSV = false
     ): Promise<(DataEntity | null)[]> {
         const csvParams = Object.assign({
@@ -177,13 +177,13 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
     }
 
     // tsv is just a specific case of csv
-    async tsv(
+    private async tsv(
         incomingData: string, slice: SlicedFileResults
     ): Promise<(DataEntity | null)[]> {
         return this.csv(incomingData, slice, true);
     }
 
-    async json(
+    private async json(
         incomingData: string, slice: SlicedFileResults
     ): Promise<(DataEntity | null)[]> {
         const data = JSON.parse(incomingData);
@@ -209,7 +209,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
         }
     }
 
-    async ldjson(
+    private async ldjson(
         incomingData: string, slice: SlicedFileResults
     ): Promise<(DataEntity | null)[]> {
         const data = splitChunks(incomingData, this.config.line_delimiter, slice);

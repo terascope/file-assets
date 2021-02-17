@@ -1,23 +1,11 @@
 import json2csv from 'json2csv';
 import { OpConfig, DataEntity } from '@terascope/job-components';
 
-export interface S3ExporterConfig extends ReaderFileConfig {
-    workerId: string;
-}
-
 export interface S3PutConfig {
     Bucket: string;
     Key: string;
     Body: string;
 }
-
-export interface HDFSExportConfig extends ReaderFileConfig {
-    workerId: string;
-}
-export interface FileSenderConfig extends ReaderFileConfig {
-    workerId: string;
-}
-
 export interface FileConfig {
     path: string;
     extension: string;
@@ -42,12 +30,14 @@ export interface ReaderFileConfig extends FileConfig {
 export type CSVOptions = json2csv.Options<any>;
 
 export interface ChunkedConfig extends ReaderFileConfig, Pick<OpConfig, '_encoding' | '_dead_letter_action'> {
-    tryFn: (fn:(msg: any) => DataEntity) => (input: any) => DataEntity | null;
-    rejectFn: (input: unknown, err: Error) => never | null;
+    tryFn?: (fn:(msg: any) => DataEntity) => (input: any) => DataEntity | null;
+    rejectFn?: (input: unknown, err: Error) => never | null;
 }
 
 export interface ChunkedSenderConfig extends ChunkedConfig {
     workerId: string;
+    dynamic_routing: boolean;
+    // this is deprecated, please use dynamic_routing instead
     _key?: string;
 }
 

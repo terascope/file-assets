@@ -7,14 +7,14 @@ import {
     pMap
 } from '@terascope/job-components';
 import { parsePath, ChunkedFileSender } from '../lib';
-import { FileSenderType, S3PutConfig, S3ExporterConfig } from '../interfaces';
+import { FileSenderType, S3PutConfig, ChunkedSenderConfig } from '../interfaces';
 
 export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
     logger: Logger;
     concurrency: number;
     client: AnyObject;
 
-    constructor(client: AnyObject, config: S3ExporterConfig, logger: Logger) {
+    constructor(client: AnyObject, config: ChunkedSenderConfig, logger: Logger) {
         super(FileSenderType.s3, config as any);
         this.logger = logger;
         const { concurrency } = config;
@@ -22,7 +22,9 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
         this.client = client;
     }
 
-    private async sendToS3(file: string, list: DataEntity[]): Promise<any> {
+    private async sendToS3(
+        file: string, list: (DataEntity | Record<string, unknown>)[]
+    ): Promise<any> {
         const objPath = parsePath(file);
 
         const { fileName, output } = await this.prepareSegment(objPath.prefix, list);
@@ -42,7 +44,14 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
         return this.client.putObject_Async(params);
     }
 
-    async send(records: DataEntity[]):Promise<void> {
+    /**
+     * Write data to file
+     *
+     * @example
+     * s3Sender.send([{ some: 'data' }]) => Promise<void>
+     * s3Sender.send([DataEntity.make({ some: 'data' })]) => Promise<void>
+    */
+    async send(records: (DataEntity | Record<string, unknown>)[]):Promise<void> {
         const { concurrency } = this;
         this.sliceCount += 1;
 
@@ -52,7 +61,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
 
         const dispatch = this.prepareDispatch(records);
 
-        const actions: [string, DataEntity[]][] = [];
+        const actions: [string, (DataEntity | Record<string, unknown>)[]][] = [];
 
         for (const [filename, list] of Object.entries(dispatch)) {
             actions.push([filename, list]);
@@ -65,6 +74,9 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
         );
     }
 
+    /**
+     * Used to verify that the bucket exists, will throw if it does not exist
+     */
     async ensureBucket(route: string): Promise<void> {
         const { bucket } = parsePath(route);
         const query = { Bucket: bucket };
@@ -82,5 +94,8 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
 
     // TODO: for now this will not be used as we are still unclear how
     // routing to multiple buckets will work
+    /**
+     * This is currently a noop, may change in future and work to ensure dynamic bucket exists
+     */
     async verify(_route: string): Promise<void> {}
 }

@@ -1,10 +1,4 @@
-import {
-    isEmpty,
-    DataEntity,
-    AnyObject,
-    isString,
-    isNotNil
-} from '@terascope/job-components';
+import { isEmpty, DataEntity, AnyObject } from '@terascope/job-components';
 import * as nodePathModule from 'path';
 import { CompressionFormatter } from '../compression';
 import { FileFormatter } from '../file-formatter';
@@ -55,12 +49,12 @@ export abstract class ChunkedFileSender {
         this.compressionFormatter = new CompressionFormatter(compression);
         this.fileFormatter = new FileFormatter(format, config);
         this.config = config;
-        this.isRouter = isNotNil(config._key) && isString(config._key);
+        this.isRouter = config.dynamic_routing;
     }
 
     abstract verify(path: string): Promise<void>
 
-    async ensurePathing(path: string, removeFilePath = false): Promise<void> {
+    private async ensurePathing(path: string, removeFilePath = false): Promise<void> {
         if (!this.pathList.has(path)) {
             if (removeFilePath) {
                 const route = path.replace(this.nameOptions.filePath, '');
@@ -73,7 +67,7 @@ export abstract class ChunkedFileSender {
         }
     }
 
-    async createFileDestinationName(pathing: string): Promise<string> {
+    private async createFileDestinationName(pathing: string): Promise<string> {
         // Can't use path.join() here since the path might include a filename prefix
         const { filePerSlice = false, extension, filePath } = this.nameOptions;
         let fileName: string;
@@ -105,7 +99,13 @@ export abstract class ChunkedFileSender {
         return fileName;
     }
 
-    private async convertFileChunk(slice: DataEntity[] | null | undefined): Promise<any|null> {
+    private async convertFileChunk(slice: DataEntity[] | null | undefined): Promise<any|null>
+    private async convertFileChunk(
+        slice: Record<string, unknown>[] | null | undefined
+    ): Promise<any|null>
+    private async convertFileChunk(
+        slice: (Record<string, unknown> | DataEntity)[] | null | undefined
+    ): Promise<any|null> {
         // null or empty slices get an empty output and will get filtered out below
         if (!slice || !slice.length) return null;
         // Build the output string to dump to the object
@@ -119,6 +119,10 @@ export abstract class ChunkedFileSender {
         return this.compressionFormatter.compress(outStr);
     }
 
+    /**
+     *  Method to help create proper file paths, mainly used in the abstract "verify" method
+     * @param path: string | undefined
+     */
     protected joinPath(path?: string): string {
         const { filePath } = this.nameOptions;
         if (path && path !== filePath) {
@@ -126,16 +130,29 @@ export abstract class ChunkedFileSender {
         }
         return filePath;
     }
-
-    // Batches records in a slice into groups based on the `routingPath` override (if present)
-    prepareDispatch(data: DataEntity[]): Record<string, DataEntity[]> {
-        const batches: Record<string, DataEntity[]> = {};
+    /**
+     * Batches records in a slice into groups based on the "path" config
+     * or by the DataEntity metadata 'standard:route' override if
+     * dynamic routing is being used
+     *
+     */
+    protected prepareDispatch(
+        data: DataEntity[]
+    ): Record<string, DataEntity[]>
+    protected prepareDispatch(
+        data: Record<string, unknown>[]
+    ): Record<string, Record<string, unknown>[]>
+    protected prepareDispatch(
+        data: (DataEntity | Record<string, unknown>)[]
+    ): Record<string, DataEntity | Record<string, unknown>[]> {
+        const batches: Record<string, DataEntity | Record<string, unknown>[]> = {};
         const { filePath } = this.nameOptions;
 
         batches[filePath] = [];
+        const isDataEntityArray = DataEntity.isDataEntityArray(data);
 
-        data.forEach((record: any) => {
-            const override = record.getMetadata('standard:route');
+        for (const record of data) {
+            const override = isDataEntityArray ? (record as DataEntity).getMetadata('standard:route') : false;
 
             if (this.isRouter && override) {
                 const routePath = nodePathModule.join(filePath, '/', override);
@@ -147,20 +164,30 @@ export abstract class ChunkedFileSender {
             } else {
                 batches[filePath].push(record);
             }
-        });
+        }
 
         return batches;
     }
 
+    /**
+     * Creates final filename destination as well as converts and compresses data
+     * based on configuration
+     */
     async prepareSegment(
         path: string, records: DataEntity[] | null | undefined,
+    ): Promise<{ fileName: string, output: DataEntity[]| null | undefined | string | Buffer }>
+    async prepareSegment(
+        path: string, records: Record<string, unknown>[] | null | undefined,
+    ): Promise<{ fileName: string, output: DataEntity[]| null | undefined | string | Buffer }>
+    async prepareSegment(
+        path: string, records: (DataEntity |Record<string, unknown>)[] | null | undefined,
     ): Promise<{ fileName: string, output: DataEntity[]| null | undefined | string | Buffer }> {
         const fileName = await this.createFileDestinationName(path);
         const output = await this.convertFileChunk(records);
         return { fileName, output };
     }
 
-    incrementCount(): void {
+    protected incrementCount(): void {
         this.sliceCount += 1;
     }
 }

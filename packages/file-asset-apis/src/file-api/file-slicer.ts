@@ -38,7 +38,7 @@ export class FileSlicer {
         return fileSlices;
     }
 
-    async getFilePaths(filePath: string): Promise<SlicedFileResults[]> {
+    private async getFilePaths(filePath: string): Promise<SlicedFileResults[]> {
         const dirContents = await fse.readdir(filePath);
         let slices: SlicedFileResults[] = [];
 
@@ -68,7 +68,10 @@ export class FileSlicer {
         return slices;
     }
 
-    async slice(): Promise<any[]|null> {
+    /**
+    * This method will return an array of file slices, or null if the slicer is done
+    */
+    async slice(): Promise<SlicedFileResults[]|null> {
         if (this.directories.length > 0) {
             return this.getFilePaths(this.directories.shift() as string);
         }
