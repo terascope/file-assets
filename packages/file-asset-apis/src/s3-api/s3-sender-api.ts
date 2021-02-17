@@ -3,26 +3,31 @@ import {
     DataEntity,
     AnyObject,
     Logger,
-    TSError,
-    pMap
+    TSError
 } from '@terascope/job-components';
 import { parsePath, ChunkedFileSender } from '../lib';
 import { FileSenderType, S3PutConfig, ChunkedSenderConfig } from '../interfaces';
 
 export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
     logger: Logger;
-    concurrency: number;
     client: AnyObject;
 
     constructor(client: AnyObject, config: ChunkedSenderConfig, logger: Logger) {
         super(FileSenderType.s3, config as any);
         this.logger = logger;
-        const { concurrency } = config;
-        this.concurrency = concurrency;
         this.client = client;
     }
 
-    private async sendToS3(
+    /**
+     * This is a low level API, it is not meant to be used externally,
+     * please use the "send" method instead
+     *
+     * @param {string} file
+     * @param {((DataEntity | Record<string, unknown>)[])} list
+     * @returns {Promise<any>}
+     * @memberof S3Sender
+     */
+    protected async sendToDestination(
         file: string, list: (DataEntity | Record<string, unknown>)[]
     ): Promise<any> {
         const objPath = parsePath(file);
@@ -42,36 +47,6 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
         };
 
         return this.client.putObject_Async(params);
-    }
-
-    /**
-     * Write data to file
-     *
-     * @example
-     * s3Sender.send([{ some: 'data' }]) => Promise<void>
-     * s3Sender.send([DataEntity.make({ some: 'data' })]) => Promise<void>
-    */
-    async send(records: (DataEntity | Record<string, unknown>)[]):Promise<void> {
-        const { concurrency } = this;
-        this.sliceCount += 1;
-
-        if (!this.config.file_per_slice) {
-            if (this.sliceCount > 0) this.fileFormatter.csvOptions.header = false;
-        }
-
-        const dispatch = this.prepareDispatch(records);
-
-        const actions: [string, (DataEntity | Record<string, unknown>)[]][] = [];
-
-        for (const [filename, list] of Object.entries(dispatch)) {
-            actions.push([filename, list]);
-        }
-
-        await pMap(
-            actions,
-            ([fileName, list]) => this.sendToS3(fileName, list),
-            { concurrency }
-        );
     }
 
     /**

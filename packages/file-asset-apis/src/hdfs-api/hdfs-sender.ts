@@ -3,8 +3,7 @@ import {
     DataEntity,
     AnyObject,
     Logger,
-    TSError,
-    pMap
+    TSError
 } from '@terascope/job-components';
 import path from 'path';
 import { ChunkedFileSender } from '../lib';
@@ -23,7 +22,16 @@ export class HDFSSender extends ChunkedFileSender implements RouteSenderAPI {
         this.client = client;
     }
 
-    async sendToHdfs(
+    /**
+     * This is a low level API, it is not meant to be used externally,
+     * please use the "send" method instead
+     *
+     * @param {string} file
+     * @param {((DataEntity | Record<string, unknown>)[])} list
+     * @returns {Promise<any>}
+     * @memberof HDFSSender
+     */
+    protected async sendToDestination(
         filename: string, list: (DataEntity | Record<string, unknown>)[]
     ): Promise<any[]> {
         const { fileName, output } = await this.prepareSegment(filename, list);
@@ -44,28 +52,6 @@ export class HDFSSender extends ChunkedFileSender implements RouteSenderAPI {
                 }
             });
         }
-    }
-    async send(records: (DataEntity | Record<string, unknown>)[]):Promise<void> {
-        const { concurrency } = this;
-        this.sliceCount += 1;
-
-        if (!this.config.file_per_slice) {
-            if (this.sliceCount > 0) this.fileFormatter.csvOptions.header = false;
-        }
-
-        const dispatch = this.prepareDispatch(records);
-
-        const actions: [string, (DataEntity | Record<string, unknown>)[]][] = [];
-
-        for (const [filename, list] of Object.entries(dispatch)) {
-            actions.push([filename, list]);
-        }
-
-        await pMap(
-            actions,
-            ([fileName, list]) => this.sendToHdfs(fileName, list),
-            { concurrency }
-        );
     }
 
     async verify(route: string): Promise<void> {

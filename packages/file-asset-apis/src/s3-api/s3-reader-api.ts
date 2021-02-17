@@ -24,7 +24,7 @@ export class S3Reader extends ChunkedFileReader {
      * const results = await s3Reader.fetch(slice);
      * results === 'the unprocessed contents of the file here'
     */
-    async fetch(slice: SlicedFileResults): Promise<string> {
+    protected async fetch(slice: SlicedFileResults): Promise<string> {
         const { offset, length } = slice;
         const opts = {
             Bucket: this.bucket,

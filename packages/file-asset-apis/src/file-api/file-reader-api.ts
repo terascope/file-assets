@@ -15,7 +15,7 @@ export class FileReader extends ChunkedFileReader {
      * const results = await fileReader.fetch(slice);
      * results === 'the unprocessed contents of the file here'
     */
-    async fetch(slice: SlicedFileResults): Promise<string> {
+    protected async fetch(slice: SlicedFileResults): Promise<string> {
         const { path, length, offset } = slice;
         const fd = await fse.open(path, 'r');
 

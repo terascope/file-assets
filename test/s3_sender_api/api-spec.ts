@@ -403,12 +403,58 @@ describe('S3 sender api', () => {
         expect(fetchedData).toEqual(expectedResults);
     });
 
-    it('can respect metadata routing is used by a router', async () => {
+    it('can respect metadata routing is used by a router with deprecated settings', async () => {
         const expectedResults1 = '[{"field1":"first"}]\n';
         const expectedResults2 = '[{"field1":"second"}]\n';
 
         const format = Format.json;
         const apiManager = await makeApiTest({ format, _key: 'a' });
+        const api = await apiManager.create(format, {});
+
+        const mockedSend = jest.fn(api.client.putObject_Async);
+        api.client.putObject_Async = mockedSend;
+
+        await api.send(routeSlice);
+
+        await Promise.all(mockedSend.mock.results.map((obj: AnyObject) => obj.value));
+
+        const query1 = mockedSend.mock.calls[0][0];
+        const query2 = mockedSend.mock.calls[1][0];
+
+        const key1 = `testing/${metaRoute1}/${workerId}.0`;
+        const key2 = `testing/${metaRoute2}/${workerId}.0`;
+
+        expect(query1.Body).toEqual(expectedResults1);
+        expect(query1.Key).toEqual(key1);
+        expect(query1.Bucket).toEqual(bucket);
+
+        expect(query2.Body).toEqual(expectedResults2);
+        expect(query2.Key).toEqual(key2);
+        expect(query2.Bucket).toEqual(bucket);
+
+        const dbData1 = await client.getObject_Async({
+            Bucket: bucket,
+            Key: key1,
+        });
+
+        const dbData2 = await client.getObject_Async({
+            Bucket: bucket,
+            Key: key2,
+        });
+
+        const fetchedData1 = await compressor.decompress(dbData1.Body);
+        expect(fetchedData1).toEqual(expectedResults1);
+
+        const fetchedData2 = await compressor.decompress(dbData2.Body);
+        expect(fetchedData2).toEqual(expectedResults2);
+    });
+
+    it('can respect metadata routing is used by a router with correct settings', async () => {
+        const expectedResults1 = '[{"field1":"first"}]\n';
+        const expectedResults2 = '[{"field1":"second"}]\n';
+
+        const format = Format.json;
+        const apiManager = await makeApiTest({ format, dynamic_routing: true });
         const api = await apiManager.create(format, {});
 
         const mockedSend = jest.fn(api.client.putObject_Async);

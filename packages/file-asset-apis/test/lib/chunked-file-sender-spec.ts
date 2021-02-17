@@ -13,6 +13,7 @@ describe('ChunkedSlicer', () => {
     const workerId = '1234';
 
     class Test extends ChunkedFileSender {
+        sentData = new Map();
         verifyCalled = false;
 
         async verify() {
@@ -21,6 +22,12 @@ describe('ChunkedSlicer', () => {
 
         testJoinPath(pathing?: string) {
             return this.joinPath(pathing);
+        }
+
+        async sendToDestination(
+            fileName: string, list: (DataEntity | Record<string, unknown>)[]
+        ) {
+            this.sentData.set(fileName, list);
         }
     }
 

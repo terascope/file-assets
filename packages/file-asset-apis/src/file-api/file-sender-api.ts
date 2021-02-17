@@ -2,8 +2,7 @@ import {
     RouteSenderAPI,
     DataEntity,
     Logger,
-    TSError,
-    pMap
+    TSError
 } from '@terascope/job-components';
 import fse from 'fs-extra';
 import { ChunkedFileSender } from '../lib';
@@ -19,8 +18,16 @@ export class FileSender extends ChunkedFileSender implements RouteSenderAPI {
         const { concurrency } = config;
         this.concurrency = concurrency;
     }
-
-    private async sendToFile(
+    /**
+     * This is a low level API, it is not meant to be used externally,
+     * please use the "send" method instead
+     * @protected
+     * @param {string} path
+     * @param {((DataEntity | Record<string, unknown>)[])} records
+     * @returns {Promise<any>}
+     * @memberof FileSender
+     */
+    protected async sendToDestination(
         path: string, records: (DataEntity | Record<string, unknown>)[]
     ): Promise<any> {
         const { fileName, output } = await this.prepareSegment(path, records);
@@ -37,36 +44,6 @@ export class FileSender extends ChunkedFileSender implements RouteSenderAPI {
                 reason: `Failure to append to file ${fileName}`
             });
         }
-    }
-
-    /**
-     * Write data to file
-     *
-     * @example
-     * fileSender.send([{ some: 'data' }]) => Promise<void>
-     * fileSender.send([DataEntity.make({ some: 'data' })]) => Promise<void>
-    */
-    async send(records: (DataEntity | Record<string, unknown>)[]): Promise<void> {
-        const { concurrency } = this;
-        this.sliceCount += 1;
-
-        if (!this.config.file_per_slice) {
-            if (this.sliceCount > 0) this.fileFormatter.csvOptions.header = false;
-        }
-
-        const dispatch = this.prepareDispatch(records);
-
-        const actions: [string, (DataEntity | Record<string, unknown>)[]][] = [];
-
-        for (const [filename, list] of Object.entries(dispatch)) {
-            actions.push([filename, list]);
-        }
-
-        await pMap(
-            actions,
-            ([fileName, list]) => this.sendToFile(fileName, list),
-            { concurrency }
-        );
     }
 
     /**

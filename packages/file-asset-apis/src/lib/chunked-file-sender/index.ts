@@ -1,4 +1,6 @@
-import { isEmpty, DataEntity, AnyObject } from '@terascope/job-components';
+import {
+    isEmpty, DataEntity, AnyObject, pMap
+} from '@terascope/job-components';
 import * as nodePathModule from 'path';
 import { CompressionFormatter } from '../compression';
 import { FileFormatter } from '../file-formatter';
@@ -187,7 +189,41 @@ export abstract class ChunkedFileSender {
         return { fileName, output };
     }
 
-    protected incrementCount(): void {
+    private incrementCount(): void {
         this.sliceCount += 1;
+    }
+
+    protected abstract sendToDestination(
+        fileName: string, list: (DataEntity | Record<string, unknown>)[]
+    ): Promise<any>
+
+    /**
+     * Write data to file, uses parent "sendToDestination" method to determine location
+     *
+     * @example
+     * s3Sender.send([{ some: 'data' }]) => Promise<void>
+     * s3Sender.send([DataEntity.make({ some: 'data' })]) => Promise<void>
+    */
+    async send(records: (DataEntity | Record<string, unknown>)[]):Promise<void> {
+        const { concurrency } = this.config;
+        this.incrementCount();
+
+        if (!this.config.file_per_slice) {
+            if (this.sliceCount > 0) this.fileFormatter.csvOptions.header = false;
+        }
+
+        const dispatch = this.prepareDispatch(records);
+
+        const actions: [string, (DataEntity | Record<string, unknown>)[]][] = [];
+
+        for (const [filename, list] of Object.entries(dispatch)) {
+            actions.push([filename, list]);
+        }
+
+        await pMap(
+            actions,
+            ([fileName, list]) => this.sendToDestination(fileName, list),
+            { concurrency }
+        );
     }
 }

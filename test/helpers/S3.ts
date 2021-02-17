@@ -55,7 +55,7 @@ export async function fetch(
     // TODO: fix this
     const fetchConfig = Object.assign({}, defaultConfigs, config) as any;
     const api = new S3Reader(client, fetchConfig, logger);
-
+    // @ts-expect-error
     return api.fetch(slice);
 }
 

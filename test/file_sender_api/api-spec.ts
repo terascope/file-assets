@@ -65,7 +65,7 @@ describe('File Sender API', () => {
 
         const senderApi = await makeTest({ path: testDataDir });
 
-        const sender = await senderApi.create('test', {} as any);
+        const sender = await senderApi.create('test', {});
 
         await sender.verify(otherPath);
 
