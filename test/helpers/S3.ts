@@ -7,10 +7,10 @@ import {
 } from '@terascope/job-components';
 import S3 from 'aws-sdk/clients/s3';
 import { promisifyAll, defer } from 'bluebird';
+import {
+    S3Reader, S3Sender, SlicedFileResults, Format, Compression
+} from '@terascope/file-asset-apis';
 import * as s3Config from './config';
-import S3Fetcher from '../../asset/src/s3_reader_api/s3-api';
-import S3Sender from '../../asset/src/s3_sender_api/sender';
-import { SlicedFileResults, Format, Compression } from '../../asset/src/__lib/interfaces';
 
 const logger = debugLogger('s3_tests');
 
@@ -45,7 +45,7 @@ const defaultConfigs = {
     size: 10000000,
     fields: [],
     _dead_letter_action: 'throw',
-    workerId: testWorkerId
+    worker_id: testWorkerId
 };
 
 export async function fetch(
@@ -54,8 +54,8 @@ export async function fetch(
     if (isNil(config.bucket) || !isString(config.bucket)) throw new Error('config must include parameter bucket');
     // TODO: fix this
     const fetchConfig = Object.assign({}, defaultConfigs, config) as any;
-    const api = new S3Fetcher(client, fetchConfig, logger);
-
+    const api = new S3Reader(client, fetchConfig, logger);
+    // @ts-expect-error
     return api.fetch(slice);
 }
 

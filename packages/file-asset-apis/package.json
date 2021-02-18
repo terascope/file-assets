@@ -1,0 +1,43 @@
+{
+    "name": "@terascope/file-asset-apis",
+    "version": "0.1.0",
+    "description": "file reader and sender apis",
+    "publishConfig": {
+        "access": "public"
+    },
+    "srcMain": "src/index.ts",
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
+    "files": [
+        "dist/src/**/*"
+    ],
+    "scripts": {
+        "build": "tsc --project tsconfig.json",
+        "build:watch": "yarn build --watch",
+        "test": "jest",
+        "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
+        "test:debug": "env DEBUG='*teraslice*' jest --detectOpenHandles --coverage=false --runInBand"
+    },
+    "homepage": "https://github.com/terascope/file-assets",
+    "repository": "git@github.com:terascope/file-assets.git",
+    "author": "Terascope, LLC <info@terascope.io>",
+    "license": "MIT",
+    "dependencies": {
+        "@terascope/job-components": "^0.46.2",
+        "csvtojson": "^2.0.10",
+        "fs-extra": "^9.1.0",
+        "json2csv": "5.0.6",
+        "lz4": "^0.6.5",
+        "node-gzip": "^1.1.2"
+    },
+    "peerDependencies": {},
+    "devDependencies": {
+        "jest": "^26.6.3",
+        "jest-extended": "^0.11.5",
+        "ts-jest": "^26.5.0",
+        "@types/jest": "^26.0.20"
+    },
+    "engines": {
+        "node": ">=10.16.0"
+    }
+}

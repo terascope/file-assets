@@ -1,9 +1,9 @@
 import { ConvictSchema, ValidatedJobConfig } from '@terascope/job-components';
-import { HDFSReaderConfig } from './interfaces';
+import { HDFSReaderOpConfig } from './interfaces';
 import { opSchema } from '../__lib/common-schema';
 import { DEFAULT_API_NAME } from '../hdfs_reader_api/interfaces';
 
-export default class Schema extends ConvictSchema<HDFSReaderConfig> {
+export default class Schema extends ConvictSchema<HDFSReaderOpConfig> {
     validateJob(job: ValidatedJobConfig): void {
         let opIndex = 0;
 

@@ -1,9 +1,8 @@
 import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
 import { DataEntity } from '@terascope/job-components';
+import { Format, CompressionFormatter } from '@terascope/file-asset-apis';
 import { makeClient, cleanupBucket } from '../helpers';
-import { Format } from '../../asset/src/__lib/interfaces';
-import CompressionFormatter from '../../asset/src/__lib/compression';
 
 describe('S3 sender api', () => {
     const bucket = 's3-exporter';

@@ -1,6 +1,5 @@
 import { APIConfig, APIFactoryRegistry } from '@terascope/job-components';
-import FileReader from './file-api';
-import { ReaderFileConfig } from '../__lib/interfaces';
+import { FileReader, ReaderFileConfig } from '@terascope/file-asset-apis';
 
 export const DEFAULT_API_NAME = 'file_reader_api';
 

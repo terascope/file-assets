@@ -1,17 +1,6 @@
 import { APIConfig, APIFactoryRegistry } from '@terascope/job-components';
-import { ReaderFileConfig } from '../__lib/interfaces';
-import FileSender from './sender';
+import { ChunkedSenderConfig, S3Sender } from '@terascope/file-asset-apis';
 
 export const DEFAULT_API_NAME = 's3_sender_api';
-
-export interface S3ExporterAPIConfig extends ReaderFileConfig, APIConfig {
-    workerId: string;
-}
-
-export interface S3PutConfig {
-    Bucket: string;
-    Key: string;
-    Body: string;
-}
-
-export type S3SenderFactoryAPI = APIFactoryRegistry<FileSender, S3ExporterAPIConfig>
+export interface S3ExporterAPIConfig extends ChunkedSenderConfig, APIConfig {}
+export type S3SenderFactoryAPI = APIFactoryRegistry<S3Sender, S3ExporterAPIConfig>

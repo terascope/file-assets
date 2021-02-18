@@ -5,13 +5,13 @@ import {
     SlicerRecoveryData
 } from '@terascope/job-components';
 import path from 'path';
-import { HDFSReaderConfig } from './interfaces';
-import { SliceConfig, SlicedFileResults } from '../__lib/interfaces';
-import { segmentFile } from '../__lib/slice';
+import {
+    SliceConfig, SlicedFileResults, segmentFile, HDFSReader
+} from '@terascope/file-asset-apis';
+import { HDFSReaderOpConfig } from './interfaces';
 import { HDFSReaderFactoryAPI, HDFSReaderApiConfig } from '../hdfs_reader_api/interfaces';
-import HDFSReader from '../hdfs_reader_api/reader';
 
-export default class HDFSFileSlicer extends Slicer<HDFSReaderConfig> {
+export default class HDFSFileSlicer extends Slicer<HDFSReaderOpConfig> {
     api!: HDFSReader;
     directories!: string[];
     sliceConfig!: SliceConfig;

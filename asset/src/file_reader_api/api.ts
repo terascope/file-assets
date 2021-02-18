@@ -1,12 +1,16 @@
 import {
     APIFactory, AnyObject, isNil, isString, getTypeOf
 } from '@terascope/job-components';
-import FileReader from './file-api';
+import { FileReader } from '@terascope/file-asset-apis';
 import { FileReaderAPIConfig } from './interfaces';
 
-export default class FileReaderApi extends APIFactory<FileReader, FileReaderAPIConfig> {
+export default class FileReaderAPI extends APIFactory<FileReader, FileReaderAPIConfig> {
     validateConfig(input: AnyObject): FileReaderAPIConfig {
         if (isNil(input.path) || !isString(input.path)) throw new Error(`Invalid parameter path: it must be of type string, was given ${getTypeOf(input.path)}`);
+        // file_per_slice must be set to true if compression is set to anything besides "none"
+        if (input.compression !== 'none' && input.file_per_slice !== true) {
+            throw new Error('Invalid parameter "file_per_slice", it must be set to true if compression is set to anything other than "none" as we cannot properly divide up a compressed file');
+        }
         return input as FileReaderAPIConfig;
     }
 

@@ -3,8 +3,8 @@ import {
     DataEntity, toString, AnyObject, isNil, toNumber
 } from '@terascope/job-components';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
+import { Format, SlicedFileResults } from '@terascope/file-asset-apis';
 import { S3ReaderFactoryAPI } from '../../asset/src/s3_reader_api/interfaces';
-import { Format, SlicedFileResults } from '../../asset/src/__lib/interfaces';
 import {
     makeClient, cleanupBucket, upload, testWorkerId
 } from '../helpers';

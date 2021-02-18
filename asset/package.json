@@ -8,8 +8,14 @@
             "**"
         ]
     },
+    "scripts": {
+        "test": "yarn --cwd ../ test",
+        "build": "tsc --project tsconfig.json",
+        "build:watch": "yarn build --watch"
+    },
     "dependencies": {
-        "@terascope/job-components": "^0.42.3",
+        "@terascope/file-asset-apis": "^0.1.0",
+        "@terascope/job-components": "^0.46.2",
         "csvtojson": "^2.0.10",
         "fs-extra": "^9.1.0",
         "json2csv": "5.0.6",

@@ -1,5 +1,5 @@
 import { isNumber } from '@terascope/job-components';
-import { Compression, Format } from './interfaces';
+import { Compression, Format } from '@terascope/file-asset-apis';
 
 const readerSchema = {
     size: {
