@@ -35,7 +35,7 @@ export interface ChunkedConfig extends ReaderFileConfig, Pick<OpConfig, '_encodi
 }
 
 export interface ChunkedSenderConfig extends ChunkedConfig {
-    workerId: string;
+    worker_id: string;
     dynamic_routing: boolean;
     // this is deprecated, please use dynamic_routing instead
     _key?: string;

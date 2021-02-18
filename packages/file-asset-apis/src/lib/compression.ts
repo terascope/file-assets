@@ -32,17 +32,7 @@ async function noneDecompress(data: unknown) {
 
 export class CompressionFormatter {
     readonly compression: Compression;
-    /**
-     * Compresses data based on format provided
-     *
-     * @memberof CompressionFormatter
-     */
     compress!: (data:unknown) => Promise<Buffer| any>;
-    /**
-     * Decompresses data based on format provided
-     *
-     * @memberof CompressionFormatter
-     */
     decompress!: (data:unknown)=> Promise<string>;
 
     constructor(format: Compression) {

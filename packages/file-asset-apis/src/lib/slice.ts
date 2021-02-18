@@ -19,7 +19,7 @@ import { SliceConfig, SlicedFileResults, Offsets } from '../interfaces';
 
     const results = segmentFile(slice, config);
 
-    results === [
+    // outputs => [
         {
             offset: 0, length: 300, path: 'some/path', total: 1000
         },
@@ -96,12 +96,12 @@ export function getOffsets(size: number, total: number, delimiter: string): Offs
 
 /**
      * Determines if a file name or file path can be processed, it will return false
-     * if the name of path includes a "."
+     * if the path includes a segment that starts with a "."
      *
      * @example
-     * canReadFile('file.txt')  => true
-     * canReadFile('some/path/file.txt')  => true
-     * canReadFile('some/.private_path/file.txt')  => false
+     *  canReadFile('file.txt')  => true
+     *  canReadFile('some/path/file.txt')  => true
+     *  canReadFile('some/.private_path/file.txt')  => false
     */
 export function canReadFile(fileName: string): boolean {
     if (!isString(fileName)) return false;

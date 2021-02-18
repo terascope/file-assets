@@ -20,7 +20,7 @@ describe('File Asset Sender API', () => {
     it('can send data and respect slice', async () => {
         const testDataDir = await fixtures.createTempDir();
         const config: ChunkedSenderConfig = {
-            workerId,
+            worker_id: workerId,
             dynamic_routing: false,
             size: 2000,
             connection: 'default',

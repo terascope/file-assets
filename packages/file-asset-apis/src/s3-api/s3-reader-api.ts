@@ -20,9 +20,9 @@ export class S3Reader extends ChunkedFileReader {
      * low level api that fetches the unprocessed contents of the file, please use the "read" method
      * for correct file and data parsing
      * @example
-     * const slice = { offset: 0, length: 1000, path: 'some/file.txt', total: 1000 };
-     * const results = await s3Reader.fetch(slice);
-     * results === 'the unprocessed contents of the file here'
+     *  const slice = { offset: 0, length: 1000, path: 'some/file.txt', total: 1000 };
+     *  const results = await s3Reader.fetch(slice);
+     *  results === 'the unprocessed contents of the file here'
     */
     protected async fetch(slice: SlicedFileResults): Promise<string> {
         const { offset, length } = slice;
@@ -55,12 +55,8 @@ export class S3Reader extends ChunkedFileReader {
 
     /**
      * Determines if a file name or file path can be processed, it will return false
-     * if the name of path includes a "."
+     * if the name of path contains a segment that starts with "."
      *
-     * @example
-     * s3Reader.canReadFile('file.txt')  => true
-     * s3Reader.canReadFile('some/path/file.txt')  => true
-     * s3Reader.canReadFile('some/.private_path/file.txt')  => false
     */
     canReadFile(filePath: string): boolean {
         return canReadFile(filePath);
@@ -106,21 +102,21 @@ export class S3Reader extends ChunkedFileReader {
      * Generates a slicer based off the configs
      *
      * @example
-     * const config = {
+     *  const config = {
      *      size: 1000,
      *      file_per_slice: false,
      *      line_delimiter: '\n',
      *      size: 300,
      *      format: "ldjson"
      *      path: 'some/dir'
-     * }
-     * const s3Reader = new S3Reader(config);
-     * const slicer = await s3Reader.newSlicer();
+     *  }
+     *  const s3Reader = new S3Reader(config);
+     *  const slicer = await s3Reader.newSlicer();
      *
-     * const results = await slicer.slice();
-     * results === [
+     *  const results = await slicer.slice();
+     *  results === [
      *      { offset: 0, length: 1000, path: 'some/dir/file.txt', total: 1000 }
-     * ]
+     *  ]
     */
     async makeSlicer(): Promise<S3Slicer> {
         return new S3Slicer(this.client, this.config, this.logger);

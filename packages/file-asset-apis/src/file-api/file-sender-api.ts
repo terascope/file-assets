@@ -21,11 +21,6 @@ export class FileSender extends ChunkedFileSender implements RouteSenderAPI {
     /**
      * This is a low level API, it is not meant to be used externally,
      * please use the "send" method instead
-     * @protected
-     * @param {string} path
-     * @param {((DataEntity | Record<string, unknown>)[])} records
-     * @returns {Promise<any>}
-     * @memberof FileSender
      */
     protected async sendToDestination(
         path: string, records: (DataEntity | Record<string, unknown>)[]
@@ -50,8 +45,8 @@ export class FileSender extends ChunkedFileSender implements RouteSenderAPI {
      * This method makes sure a directory exists, will throw if it does not exist
      *
      * @example
-     * fileSender.verify('some/path') => Promise<void>
-     * fileSender.verify('some/path/that/does/not/exist) => Error
+     *  fileSender.verify('some/path') => Promise<void>
+     *  fileSender.verify('some/path/that/does/not/exist) => Error
     */
     async verify(route?: string): Promise<void> {
         const newPath = this.joinPath(route);

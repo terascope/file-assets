@@ -22,10 +22,6 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
      * This is a low level API, it is not meant to be used externally,
      * please use the "send" method instead
      *
-     * @param {string} file
-     * @param {((DataEntity | Record<string, unknown>)[])} list
-     * @returns {Promise<any>}
-     * @memberof S3Sender
      */
     protected async sendToDestination(
         file: string, list: (DataEntity | Record<string, unknown>)[]

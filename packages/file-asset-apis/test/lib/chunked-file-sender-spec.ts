@@ -32,7 +32,7 @@ describe('ChunkedSlicer', () => {
     }
 
     const defaults: Partial<ChunkedSenderConfig> = {
-        workerId,
+        worker_id: workerId,
         size: 1000,
         connection: 'default',
         remove_header: true,
@@ -92,8 +92,7 @@ describe('ChunkedSlicer', () => {
             DataEntity.make({ name: 'willy' }, { 'standard:route': 'a' }),
             DataEntity.make({ name: 'billy' }, { 'standard:route': 'b' }),
         ];
-            // @ts-expect-error
-
+        // @ts-expect-error
         const results = test.prepareDispatch(data);
 
         expect(results[path]).toBeArrayOfSize(3);
@@ -106,8 +105,7 @@ describe('ChunkedSlicer', () => {
             DataEntity.make({ name: 'willy' }, { 'standard:route': 'a' }),
             DataEntity.make({ name: 'billy' }, { 'standard:route': 'b' }),
         ];
-            // @ts-expect-error
-
+        // @ts-expect-error
         const results = test.prepareDispatch(data);
 
         expect(results[path]).toBeArrayOfSize(1);
@@ -148,12 +146,10 @@ describe('ChunkedSlicer', () => {
         it('can add slice count', async () => {
             const test = new Test(FileSenderType.file, makeConfig({ file_per_slice: true }));
             // @ts-expect-error
-
             test.incrementCount();
             // @ts-expect-error
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0`);
             // @ts-expect-error
-
             test.incrementCount();
             // @ts-expect-error
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.1`);
@@ -201,7 +197,6 @@ describe('ChunkedSlicer', () => {
         it('can make correct base paths', async () => {
             const test = new Test(FileSenderType.s3, makeConfig());
             // @ts-expect-error
-
             test.incrementCount();
             // @ts-expect-error
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0`);
@@ -212,7 +207,6 @@ describe('ChunkedSlicer', () => {
             const newPath = `${path}/final/dir`;
             const test = new Test(FileSenderType.s3, makeConfig());
             // @ts-expect-error
-
             test.incrementCount();
             // @ts-expect-error
             expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}.0`);
@@ -222,7 +216,6 @@ describe('ChunkedSlicer', () => {
         it('can add extensions', async () => {
             const test = new Test(FileSenderType.s3, makeConfig({ extension: 'stuff' }));
             // @ts-expect-error
-
             test.incrementCount();
             // @ts-expect-error
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0stuff`);
@@ -235,8 +228,7 @@ describe('ChunkedSlicer', () => {
             DataEntity.make({ some: 'data' }),
             DataEntity.make({ other: 'stuff' }),
         ];
-            // @ts-expect-error
-
+        // @ts-expect-error
         test.incrementCount();
 
         const results = await test.prepareSegment(path, records);

@@ -25,10 +25,10 @@ export abstract class ChunkedFileSender {
 
     constructor(type: FileSenderType, config: ChunkedSenderConfig) {
         const {
-            path, workerId, format, compression
+            path, worker_id, format, compression
         } = config;
         this.type = type;
-        this.workerId = workerId;
+        this.workerId = worker_id;
         this.format = format;
         const extension = isEmpty(config.extension) ? undefined : config.extension;
 

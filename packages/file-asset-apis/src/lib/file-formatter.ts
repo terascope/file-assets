@@ -69,13 +69,9 @@ export class FileFormatter {
      *
      * ldjson => will stringify each individual record and separate them by a new line
      *
-     * csv/tsv => will convert data to csv/tsv format
+     * csv/tsv => will convert data to comma or tab separated columns format
      *
-     * raw => EXPECTS RECORDS WITH KEY "data", whose value will be used as is
-
-     * @param {any[]} slice
-     * @returns {string}
-     * @memberof FileFormatter
+     * raw => writes raw data as is, requires the use of DataEntity raw data.
      */
     format(slice: any[]): string {
         return this.fn(slice, this.config, this.csvOptions);
