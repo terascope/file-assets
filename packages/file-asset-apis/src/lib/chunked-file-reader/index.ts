@@ -7,7 +7,7 @@ import {
 } from '@terascope/job-components';
 import csvToJson from 'csvtojson';
 import { CSVParseParam } from 'csvtojson/v2/Parameters';
-import { SlicedFileResults, ChunkedConfig } from '../../interfaces';
+import { SlicedFileResults, ChunkedConfig, Compression } from '../../interfaces';
 import { CompressionFormatter } from '../compression';
 
 type FN = (input: any) => any;
@@ -24,6 +24,11 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
         this.logger = logger;
         this.tryFn = config.tryFn || this.tryCatch;
         this.rejectRecord = config.rejectFn || this.reject;
+
+        // file_per_slice must be set to true if compression is set to anything besides "none"
+        if (config.compression !== Compression.none && config.file_per_slice !== true) {
+            throw new Error('Invalid parameter "file_per_slice", it must be set to true if compression is set to anything other than "none" as we cannot properly divide up a compressed file');
+        }
     }
 
     private tryCatch(fn: FN) {

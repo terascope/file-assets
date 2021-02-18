@@ -8,7 +8,8 @@ import {
     NameOptions,
     FileSenderType,
     Format,
-    ChunkedSenderConfig
+    ChunkedSenderConfig,
+    Compression
 } from '../../interfaces';
 
 export abstract class ChunkedFileSender {
@@ -52,6 +53,10 @@ export abstract class ChunkedFileSender {
         this.fileFormatter = new FileFormatter(format, config);
         this.config = config;
         this.isRouter = config.dynamic_routing;
+        // file_per_slice must be set to true if compression is set to anything besides "none"
+        if (config.compression !== Compression.none && config.file_per_slice !== true) {
+            throw new Error('Invalid parameter "file_per_slice", it must be set to true if compression is set to anything other than "none" as we cannot properly divide up a compressed file');
+        }
     }
 
     abstract verify(path: string): Promise<void>

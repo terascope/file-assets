@@ -61,12 +61,15 @@ describe('ChunkedSlicer', () => {
         expect(test2.nameOptions.filePerSlice).toBeFalse();
     });
 
-    it('will set file filePerSlice to true if its a file type and compression is anything but none', () => {
-        const test1 = new Test(FileSenderType.file, makeConfig({ compression: Compression.gzip }));
-        expect(test1.nameOptions.filePerSlice).toBeTrue();
+    it('will throw if file_per_slice is false and compression is anything but none', () => {
+        const errMsg = 'Invalid parameter "file_per_slice", it must be set to true if compression is set to anything other than "none" as we cannot properly divide up a compressed file';
+        expect(
+            () => new Test(FileSenderType.file, makeConfig({ compression: Compression.gzip }))
+        ).toThrowError(errMsg);
 
-        const test2 = new Test(FileSenderType.file, makeConfig({ compression: Compression.lz4 }));
-        expect(test2.nameOptions.filePerSlice).toBeTrue();
+        expect(
+            () => new Test(FileSenderType.file, makeConfig({ compression: Compression.lz4 }))
+        ).toThrowError(errMsg);
 
         const test3 = new Test(FileSenderType.file, makeConfig({ compression: Compression.none }));
         expect(test3.nameOptions.filePerSlice).toBeFalse();

@@ -9,6 +9,10 @@ export default class S3SenderAPI extends APIFactory<S3Sender, S3ExporterAPIConfi
         if (isNil(input.path) || !isString(input.path)) throw new Error(`Invalid parameter path: it must be of type string, was given ${getTypeOf(input.path)}`);
         const workerId = this.context.cluster.worker.id;
         input.worker_id = workerId;
+        // file_per_slice must be set to true if compression is set to anything besides "none"
+        if (input.compression !== 'none' && input.file_per_slice !== true) {
+            throw new Error('Invalid parameter "file_per_slice", it must be set to true if compression is set to anything other than "none" as we cannot properly divide up a compressed file');
+        }
         return input as S3ExporterAPIConfig;
     }
 
