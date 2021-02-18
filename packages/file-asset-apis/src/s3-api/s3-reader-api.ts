@@ -20,9 +20,9 @@ export class S3Reader extends ChunkedFileReader {
      * low level api that fetches the unprocessed contents of the file, please use the "read" method
      * for correct file and data parsing
      * @example
-     *  const slice = { offset: 0, length: 1000, path: 'some/file.txt', total: 1000 };
-     *  const results = await s3Reader.fetch(slice);
-     *  results === 'the unprocessed contents of the file here'
+     *   const slice = { offset: 0, length: 1000, path: 'some/file.txt', total: 1000 };
+     *   const results = await s3Reader.fetch(slice);
+     *   results === 'the unprocessed contents of the file here'
     */
     protected async fetch(slice: SlicedFileResults): Promise<string> {
         const { offset, length } = slice;
@@ -68,17 +68,17 @@ export class S3Reader extends ChunkedFileReader {
  * The returned results can be used directly with any "read" method of a reader API
  *
  * @example
- *  const slice = { path: 'some/path', size: 1000 };
-    const config = {
+ *   const slice = { path: 'some/path', size: 1000 };
+     const config = {
         file_per_slice: false,
         line_delimiter: '\n',
         size: 300,
         format: Format.ldjson
-    };
+     };
 
-    const results = s3Reader.segmentFile(slice, config);
+     const results = s3Reader.segmentFile(slice, config);
 
-    results === [
+     results === [
         {
             offset: 0, length: 300, path: 'some/path', total: 1000
         },
@@ -89,7 +89,7 @@ export class S3Reader extends ChunkedFileReader {
         {
             offset: 899, length: 101, path: 'some/path', total: 1000
         }
-    ]
+     ]
  */
     segmentFile(file: {
         path: string;
@@ -102,21 +102,21 @@ export class S3Reader extends ChunkedFileReader {
      * Generates a slicer based off the configs
      *
      * @example
-     *  const config = {
+     *   const config = {
      *      size: 1000,
      *      file_per_slice: false,
      *      line_delimiter: '\n',
      *      size: 300,
      *      format: "ldjson"
      *      path: 'some/dir'
-     *  }
-     *  const s3Reader = new S3Reader(config);
-     *  const slicer = await s3Reader.newSlicer();
+     *   }
+     *   const s3Reader = new S3Reader(config);
+     *   const slicer = await s3Reader.newSlicer();
      *
-     *  const results = await slicer.slice();
-     *  results === [
+     *   const results = await slicer.slice();
+     *   results === [
      *      { offset: 0, length: 1000, path: 'some/dir/file.txt', total: 1000 }
-     *  ]
+     *   ]
     */
     async makeSlicer(): Promise<S3Slicer> {
         return new S3Slicer(this.client, this.config, this.logger);

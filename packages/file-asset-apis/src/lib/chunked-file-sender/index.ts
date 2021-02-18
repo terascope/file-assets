@@ -201,8 +201,8 @@ export abstract class ChunkedFileSender {
      * Write data to file, uses parent "sendToDestination" method to determine location
      *
      * @example
-     * s3Sender.send([{ some: 'data' }]) => Promise<void>
-     * s3Sender.send([DataEntity.make({ some: 'data' })]) => Promise<void>
+     *   s3Sender.send([{ some: 'data' }]) => Promise<void>
+     *   s3Sender.send([DataEntity.make({ some: 'data' })]) => Promise<void>
     */
     async send(records: (DataEntity | Record<string, unknown>)[]):Promise<void> {
         const { concurrency } = this.config;

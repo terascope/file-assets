@@ -46,9 +46,9 @@ export class FileReader extends ChunkedFileReader {
      *
      * @example
      *
-     * fileReader.validatePath('some/emptyDir') => Error
-     * fileReader.validatePath('some/symlinkedDir')  => Error
-     * fileReader.validatePath('some/dir') => void
+     *   fileReader.validatePath('some/emptyDir') => Error
+     *   fileReader.validatePath('some/symlinkedDir')  => Error
+     *   fileReader.validatePath('some/dir') => void
     */
     validatePath(path: string): void {
         try {
@@ -72,19 +72,19 @@ export class FileReader extends ChunkedFileReader {
      * Create file segments from input, these will can be used to fetch specific chunks of a file
      *
      * @example
-     *  const config = {
+     *   const config = {
      *      size: 1000,
      *      file_per_slice: false,
      *      line_delimiter: '\n',
      *      size: 300,
      *      format: "ldjson"
-     *  }
-     *  const fileReader = new FileReader(config);
-     *  const results = fileReader.segmentFile({
+     *   }
+     *   const fileReader = new FileReader(config);
+     *   const results = fileReader.segmentFile({
      *      path: 'some/file.txt',
      *      size: 2000
-     *  });
-     *  results === [
+     *   });
+     *   results === [
      *      {
      *          offset: 0,
      *          length: 1000,
@@ -97,7 +97,7 @@ export class FileReader extends ChunkedFileReader {
      *          path: 'some/file.txt',
      *          total: 1000
      *      },
-     *  ]
+     *   ]
     */
     segmentFile(file: {
         path: string;
@@ -110,26 +110,26 @@ export class FileReader extends ChunkedFileReader {
      * Generates a slicer based off the configs
      *
      * @example
-     *  const config = {
+     *   const config = {
      *      size: 1000,
      *      file_per_slice: false,
      *      line_delimiter: '\n',
      *      size: 300,
      *      format: "ldjson"
      *      path: 'some/dir'
-     *  }
-     *  const fileReader = new FileReader(config);
-     *  const slicer = await fileReader.newSlicer();
+     *   }
+     *   const fileReader = new FileReader(config);
+     *   const slicer = await fileReader.newSlicer();
      *
-     *  const results = await slicer.slice();
-     *  results === [
+     *   const results = await slicer.slice();
+     *   results === [
      *      {
      *          offset: 0,
      *          length: 1000,
      *          path: 'some/dir/file.txt',
      *          total: 1000
      *      }
-     *  ]
+     *   ]
     */
     async makeSlicer(): Promise<FileSlicer> {
         const config = {

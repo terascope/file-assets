@@ -45,8 +45,8 @@ export class FileSender extends ChunkedFileSender implements RouteSenderAPI {
      * This method makes sure a directory exists, will throw if it does not exist
      *
      * @example
-     *  fileSender.verify('some/path') => Promise<void>
-     *  fileSender.verify('some/path/that/does/not/exist) => Error
+     *   fileSender.verify('some/path') => Promise<void>
+     *   fileSender.verify('some/path/that/does/not/exist) => Error
     */
     async verify(route?: string): Promise<void> {
         const newPath = this.joinPath(route);

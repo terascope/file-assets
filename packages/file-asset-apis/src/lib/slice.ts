@@ -9,17 +9,17 @@ import { SliceConfig, SlicedFileResults, Offsets } from '../interfaces';
  * The returned results can be used directly with any "read" method of a reader API
  *
  * @example
- *  const slice = { path: 'some/path', size: 1000 };
-    const config = {
+ *   const slice = { path: 'some/path', size: 1000 };
+     const config = {
         file_per_slice: false,
         line_delimiter: '\n',
         size: 300,
         format: Format.ldjson
-    };
+     };
 
-    const results = segmentFile(slice, config);
+     const results = segmentFile(slice, config);
 
-    // outputs => [
+     // outputs => [
         {
             offset: 0, length: 300, path: 'some/path', total: 1000
         },
@@ -30,7 +30,7 @@ import { SliceConfig, SlicedFileResults, Offsets } from '../interfaces';
         {
             offset: 899, length: 101, path: 'some/path', total: 1000
         }
-    ]
+     ]
  */
 
 export function segmentFile(file: {
@@ -99,9 +99,9 @@ export function getOffsets(size: number, total: number, delimiter: string): Offs
      * if the path includes a segment that starts with a "."
      *
      * @example
-     *  canReadFile('file.txt')  => true
-     *  canReadFile('some/path/file.txt')  => true
-     *  canReadFile('some/.private_path/file.txt')  => false
+     *   canReadFile('file.txt')  => true
+     *   canReadFile('some/path/file.txt')  => true
+     *   canReadFile('some/.private_path/file.txt')  => false
     */
 export function canReadFile(fileName: string): boolean {
     if (!isString(fileName)) return false;
