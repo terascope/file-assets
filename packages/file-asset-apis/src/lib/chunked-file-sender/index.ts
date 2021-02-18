@@ -69,7 +69,7 @@ export abstract class ChunkedFileSender {
         }
     }
 
-    private async createFileDestinationName(pathing: string): Promise<string> {
+    async createFileDestinationName(pathing: string): Promise<string> {
         // Can't use path.join() here since the path might include a filename prefix
         const { filePerSlice = false, extension, filePath } = this.nameOptions;
         let fileName: string;
@@ -101,11 +101,11 @@ export abstract class ChunkedFileSender {
         return fileName;
     }
 
-    private async convertFileChunk(slice: DataEntity[] | null | undefined): Promise<any|null>
-    private async convertFileChunk(
+    async convertFileChunk(slice: DataEntity[] | null | undefined): Promise<any|null>
+    async convertFileChunk(
         slice: Record<string, unknown>[] | null | undefined
     ): Promise<any|null>
-    private async convertFileChunk(
+    async convertFileChunk(
         slice: (Record<string, unknown> | DataEntity)[] | null | undefined
     ): Promise<any|null> {
         // null or empty slices get an empty output and will get filtered out below
@@ -135,7 +135,7 @@ export abstract class ChunkedFileSender {
     /**
      * Batches records in a slice into groups based on the "path" config
      * or by the DataEntity metadata 'standard:route' override if
-     * dynamic routing is being used
+     * dynamic routing is being used, this is called in the "send" method
      *
      */
     protected prepareDispatch(
@@ -189,7 +189,11 @@ export abstract class ChunkedFileSender {
         return { fileName, output };
     }
 
-    private incrementCount(): void {
+    /**
+     * Increases the internal sliceCount used to create filenames, this is already executed
+     * in the "send" method, do not use unless you are implementing your own send logic
+     */
+    protected incrementCount(): void {
         this.sliceCount += 1;
     }
 

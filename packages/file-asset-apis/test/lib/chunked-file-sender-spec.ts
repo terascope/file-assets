@@ -124,7 +124,7 @@ describe('ChunkedSlicer', () => {
     describe('file destination names', () => {
         it('can make correct base paths', async () => {
             const test = new Test(FileSenderType.file, makeConfig());
-            // @ts-expect-error
+
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}`);
             expect(test.verifyCalled).toEqual(true);
         });
@@ -132,14 +132,13 @@ describe('ChunkedSlicer', () => {
         it('can make correct path', async () => {
             const newPath = `${path}/final/dir`;
             const test = new Test(FileSenderType.file, makeConfig());
-            // @ts-expect-error
+
             expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}`);
             expect(test.verifyCalled).toEqual(true);
         });
 
         it('can add extensions', async () => {
             const test = new Test(FileSenderType.file, makeConfig({ extension: 'stuff' }));
-            // @ts-expect-error
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}stuff`);
         });
 
@@ -147,11 +146,11 @@ describe('ChunkedSlicer', () => {
             const test = new Test(FileSenderType.file, makeConfig({ file_per_slice: true }));
             // @ts-expect-error
             test.incrementCount();
-            // @ts-expect-error
+
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0`);
             // @ts-expect-error
             test.incrementCount();
-            // @ts-expect-error
+
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.1`);
         });
     });
@@ -159,7 +158,7 @@ describe('ChunkedSlicer', () => {
     describe('hdfs destination names', () => {
         it('can make correct base paths', async () => {
             const test = new Test(FileSenderType.hdfs, makeConfig());
-            // @ts-expect-error
+
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}`);
             expect(test.verifyCalled).toEqual(true);
         });
@@ -167,14 +166,14 @@ describe('ChunkedSlicer', () => {
         it('can make correct path', async () => {
             const newPath = `${path}/final/dir`;
             const test = new Test(FileSenderType.hdfs, makeConfig());
-            // @ts-expect-error
+
             expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}`);
             expect(test.verifyCalled).toEqual(true);
         });
 
         it('can add extensions', async () => {
             const test = new Test(FileSenderType.hdfs, makeConfig({ extension: 'stuff' }));
-            // @ts-expect-error
+
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}stuff`);
         });
 
@@ -183,12 +182,11 @@ describe('ChunkedSlicer', () => {
             // @ts-expect-error
 
             test.incrementCount();
-            // @ts-expect-error
+
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0`);
             // @ts-expect-error
-
             test.incrementCount();
-            // @ts-expect-error
+
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.1`);
         });
     });
@@ -198,7 +196,7 @@ describe('ChunkedSlicer', () => {
             const test = new Test(FileSenderType.s3, makeConfig());
             // @ts-expect-error
             test.incrementCount();
-            // @ts-expect-error
+
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0`);
             expect(test.verifyCalled).toEqual(false);
         });
@@ -208,7 +206,7 @@ describe('ChunkedSlicer', () => {
             const test = new Test(FileSenderType.s3, makeConfig());
             // @ts-expect-error
             test.incrementCount();
-            // @ts-expect-error
+
             expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}.0`);
             expect(test.verifyCalled).toEqual(false);
         });
@@ -217,7 +215,7 @@ describe('ChunkedSlicer', () => {
             const test = new Test(FileSenderType.s3, makeConfig({ extension: 'stuff' }));
             // @ts-expect-error
             test.incrementCount();
-            // @ts-expect-error
+
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0stuff`);
         });
     });
