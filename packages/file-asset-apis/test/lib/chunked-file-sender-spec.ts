@@ -95,7 +95,7 @@ describe('ChunkedSlicer', () => {
             DataEntity.make({ name: 'willy' }, { 'standard:route': 'a' }),
             DataEntity.make({ name: 'billy' }, { 'standard:route': 'b' }),
         ];
-        // @ts-expect-error
+
         const results = test.prepareDispatch(data);
 
         expect(results[path]).toBeArrayOfSize(3);
@@ -108,7 +108,7 @@ describe('ChunkedSlicer', () => {
             DataEntity.make({ name: 'willy' }, { 'standard:route': 'a' }),
             DataEntity.make({ name: 'billy' }, { 'standard:route': 'b' }),
         ];
-        // @ts-expect-error
+
         const results = test.prepareDispatch(data);
 
         expect(results[path]).toBeArrayOfSize(1);

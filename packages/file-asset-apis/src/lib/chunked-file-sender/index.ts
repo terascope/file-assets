@@ -143,13 +143,13 @@ export abstract class ChunkedFileSender {
      * dynamic routing is being used, this is called in the "send" method
      *
      */
-    protected prepareDispatch(
+    prepareDispatch(
         data: DataEntity[]
     ): Record<string, DataEntity[]>
-    protected prepareDispatch(
+    prepareDispatch(
         data: Record<string, unknown>[]
     ): Record<string, Record<string, unknown>[]>
-    protected prepareDispatch(
+    prepareDispatch(
         data: (DataEntity | Record<string, unknown>)[]
     ): Record<string, DataEntity | Record<string, unknown>[]> {
         const batches: Record<string, DataEntity | Record<string, unknown>[]> = {};
