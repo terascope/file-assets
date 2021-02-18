@@ -4,7 +4,7 @@ import {
 import { FileReader } from '@terascope/file-asset-apis';
 import { FileReaderAPIConfig } from './interfaces';
 
-export default class FileReaderApi extends APIFactory<FileReader, FileReaderAPIConfig> {
+export default class FileReaderAPI extends APIFactory<FileReader, FileReaderAPIConfig> {
     validateConfig(input: AnyObject): FileReaderAPIConfig {
         if (isNil(input.path) || !isString(input.path)) throw new Error(`Invalid parameter path: it must be of type string, was given ${getTypeOf(input.path)}`);
         return input as FileReaderAPIConfig;

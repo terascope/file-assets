@@ -4,7 +4,7 @@ import {
 import { FileSender } from '@terascope/file-asset-apis';
 import { FileSenderAPIConfig } from './interfaces';
 
-export default class FileReaderApi extends APIFactory<FileSender, FileSenderAPIConfig> {
+export default class FileSenderAPI extends APIFactory<FileSender, FileSenderAPIConfig> {
     validateConfig(input: AnyObject): FileSenderAPIConfig {
         if (isNil(input.path) || !isString(input.path)) throw new Error(`Invalid parameter path: it must be of type string, was given ${getTypeOf(input.path)}`);
         const workerId = this.context.cluster.worker.id;

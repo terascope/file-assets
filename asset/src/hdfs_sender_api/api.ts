@@ -4,7 +4,7 @@ import {
 import { HDFSSender } from '@terascope/file-asset-apis';
 import { HDFSExporterAPIConfig } from './interfaces';
 
-export default class HDFSSenderFactoryApi extends APIFactory<HDFSSender, HDFSExporterAPIConfig> {
+export default class HDFSSenderFactoryAPI extends APIFactory<HDFSSender, HDFSExporterAPIConfig> {
     validateConfig(input: AnyObject): HDFSExporterAPIConfig {
         if (isNil(input.path) || !isString(input.path)) throw new Error(`Invalid parameter path: it must be of type string, was given ${getTypeOf(input.path)}`);
         const workerId = this.context.cluster.worker.id;

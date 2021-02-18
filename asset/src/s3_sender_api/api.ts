@@ -4,7 +4,7 @@ import {
 import { S3Sender } from '@terascope/file-asset-apis';
 import { S3ExporterAPIConfig } from './interfaces';
 
-export default class FileReaderApi extends APIFactory<S3Sender, S3ExporterAPIConfig> {
+export default class S3SenderAPI extends APIFactory<S3Sender, S3ExporterAPIConfig> {
     validateConfig(input: AnyObject): S3ExporterAPIConfig {
         if (isNil(input.path) || !isString(input.path)) throw new Error(`Invalid parameter path: it must be of type string, was given ${getTypeOf(input.path)}`);
         const workerId = this.context.cluster.worker.id;

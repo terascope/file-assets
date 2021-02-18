@@ -45,7 +45,7 @@ const defaultConfigs = {
     size: 10000000,
     fields: [],
     _dead_letter_action: 'throw',
-    workerId: testWorkerId
+    worker_id: testWorkerId
 };
 
 export async function fetch(
