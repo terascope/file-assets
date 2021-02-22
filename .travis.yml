@@ -25,7 +25,7 @@ before_script:
   - yarn build
   - yarn global add teraslice-cli
 script:
-  - yarn test
+  - yarn test:all
   - yarn lint
   - teraslice-cli assets build
 after_success:
