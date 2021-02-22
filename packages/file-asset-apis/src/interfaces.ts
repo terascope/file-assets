@@ -1,5 +1,5 @@
-import json2csv from 'json2csv';
-import { DataEntity } from '@terascope/utils';
+import type json2csv from 'json2csv';
+import type { DataEntity } from '@terascope/utils';
 import type { OpConfig } from '@terascope/job-components';
 
 export interface S3PutConfig {
@@ -7,6 +7,7 @@ export interface S3PutConfig {
     Key: string;
     Body: string;
 }
+
 export interface FileConfig {
     path: string;
     extension: string;
