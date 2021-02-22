@@ -1,0 +1,20 @@
+{
+    "name": "s3_reader",
+    "lifecycle": "once",
+    "workers": 1,
+    "max_retries": 0,
+    "assets": [
+        "file"
+    ],
+    "operations": [
+        {
+            "_op": "s3_reader",
+            "path": "/app/data/test_files",
+            "size": 100,
+            "format": "ldjson"
+        },
+        {
+            "_op": "noop"
+        }
+    ]
+}

@@ -15,7 +15,7 @@ import * as s3Config from './config';
 const logger = debugLogger('s3_tests');
 
 export function makeClient(): S3 {
-    const config = {
+    return new S3({
         endpoint: s3Config.ENDPOINT,
         accessKeyId: s3Config.ACCESS_KEY,
         secretAccessKey: s3Config.SECRET_KEY,
@@ -24,8 +24,7 @@ export function makeClient(): S3 {
         s3ForcePathStyle: true,
         sslEnabled: false,
         region: 'us-east-1'
-    };
-    return new S3(config);
+    });
 }
 
 export const testWorkerId = 'test-id';
