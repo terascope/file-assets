@@ -36,7 +36,14 @@ export class S3Reader extends ChunkedFileReader {
             //   request would be for `bytes=0-0`
             Range: `bytes=${offset}-${offset + length - 1}`
         });
-        return this.decompress(results.Body);
+        if (!results.Body) {
+            throw new Error('Missing body from s3 get object request');
+        }
+        return this.decompress(
+            Buffer.isBuffer(results.Body)
+                ? results.Body
+                : Buffer.from(results.Body as any)
+        );
     }
 
     /**

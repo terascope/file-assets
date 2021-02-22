@@ -4,7 +4,7 @@ import { DataEntity } from '@terascope/job-components';
 import {
     Format, CompressionFormatter, getS3Object
 } from '@terascope/file-asset-apis';
-import { makeClient, cleanupBucket } from '../helpers';
+import { makeClient, cleanupBucket, getBodyFromResults } from '../helpers';
 
 describe('S3 sender api', () => {
     const bucket = 's3-exporter';
@@ -91,7 +91,9 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
-        const fetchedData = await compressor.decompress(dbData.Body);
+        const fetchedData = await compressor.decompress(
+            getBodyFromResults(dbData)
+        );
         expect(fetchedData).toEqual(expectedResults);
     });
 });

@@ -239,6 +239,6 @@ describe('ChunkedSlicer', () => {
         expect(results.output).toBeDefined();
 
         expect(results.fileName).toEqual(`${path}/${workerId}.0`);
-        expect(results.output).toEqual('{"some":"data"}\n{"other":"stuff"}\n');
+        expect((results.output as Buffer).toString()).toEqual('{"some":"data"}\n{"other":"stuff"}\n');
     });
 });

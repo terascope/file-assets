@@ -1,9 +1,8 @@
 import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
 import { DataEntity } from '@terascope/job-components';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import lz4 from 'lz4';
+// @ts-expect-error
+import lz4init from 'lz4-asm';
 import { ungzip } from 'node-gzip';
 import {
     Format, Compression, CompressionFormatter,
@@ -11,8 +10,11 @@ import {
     getS3Object
 } from '@terascope/file-asset-apis';
 import S3 from 'aws-sdk/clients/s3';
-import { makeClient, cleanupBucket } from '../helpers';
+import { makeClient, cleanupBucket, getBodyFromResults } from '../helpers';
 import { S3SenderFactoryAPI } from '../../asset/src/s3_sender_api/interfaces';
+
+const lz4Module = {};
+const lz4Ready = lz4init(lz4Module);
 
 describe('S3 sender api', () => {
     const bucket = 's3-api-sender';
@@ -138,7 +140,9 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
-        const fetchedData = await compressor.decompress(dbData.Body);
+        const fetchedData = await compressor.decompress(
+            getBodyFromResults(dbData)
+        );
         expect(fetchedData).toEqual(expectedResults);
     });
 
@@ -157,7 +161,9 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
-        const fetchedData = await compressor.decompress(dbData.Body);
+        const fetchedData = await compressor.decompress(
+            getBodyFromResults(dbData)
+        );
         expect(fetchedData).toEqual(expectedResults);
     });
 
@@ -176,7 +182,9 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
-        const fetchedData = await compressor.decompress(dbData.Body);
+        const fetchedData = await compressor.decompress(
+            getBodyFromResults(dbData)
+        );
         expect(fetchedData).toEqual(expectedResults);
     });
 
@@ -195,7 +203,9 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
-        const fetchedData = await compressor.decompress(dbData.Body);
+        const fetchedData = await compressor.decompress(
+            getBodyFromResults(dbData)
+        );
         expect(fetchedData).toEqual(expectedResults);
     });
 
@@ -222,7 +232,9 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
-        const fetchedData = await compressor.decompress(dbData.Body);
+        const fetchedData = await compressor.decompress(
+            getBodyFromResults(dbData)
+        );
         expect(fetchedData).toEqual(expectedResults);
     });
 
@@ -241,7 +253,9 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
-        const fetchedData = await compressor.decompress(dbData.Body);
+        const fetchedData = await compressor.decompress(
+            getBodyFromResults(dbData)
+        );
         expect(fetchedData).toEqual(expectedResults);
     });
 
@@ -260,9 +274,13 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
-        const fetchedData = await compressor.decompress(dbData.Body);
+        const buf = getBodyFromResults(dbData);
+        const fetchedData = await compressor.decompress(
+            buf
+        );
+        const { lz4js } = await lz4Ready;
         expect(fetchedData).toEqual(
-            lz4.decode(dbData.Body!).toString()
+            lz4js.decompress(buf).toString()
         );
     });
 
@@ -281,7 +299,9 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
-        const fetchedData = await compressor.decompress(dbData.Body);
+        const fetchedData = await compressor.decompress(
+            getBodyFromResults(dbData)
+        );
         expect(fetchedData).toEqual(
             (await ungzip(dbData.Body as Buffer)).toString()
         );
@@ -302,7 +322,9 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
-        const fetchedData = await compressor.decompress(dbData.Body);
+        const fetchedData = await compressor.decompress(
+            getBodyFromResults(dbData)
+        );
         expect(fetchedData).toEqual(expectedResults);
     });
 
@@ -329,10 +351,14 @@ describe('S3 sender api', () => {
             Key: key2,
         });
 
-        const fetchedData1 = await compressor.decompress(dbData1.Body);
+        const fetchedData1 = await compressor.decompress(
+            getBodyFromResults(dbData1)
+        );
         expect(fetchedData1).toEqual(expectedResults1);
 
-        const fetchedData2 = await compressor.decompress(dbData2.Body);
+        const fetchedData2 = await compressor.decompress(
+            getBodyFromResults(dbData2)
+        );
         expect(fetchedData2).toEqual(expectedResults2);
     });
 
@@ -359,10 +385,14 @@ describe('S3 sender api', () => {
             Key: key2,
         });
 
-        const fetchedData1 = await compressor.decompress(dbData1.Body);
+        const fetchedData1 = await compressor.decompress(
+            getBodyFromResults(dbData1)
+        );
         expect(fetchedData1).toEqual(expectedResults1);
 
-        const fetchedData2 = await compressor.decompress(dbData2.Body);
+        const fetchedData2 = await compressor.decompress(
+            getBodyFromResults(dbData2)
+        );
         expect(fetchedData2).toEqual(expectedResults2);
     });
 });

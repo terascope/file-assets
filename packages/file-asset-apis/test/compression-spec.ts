@@ -23,11 +23,11 @@ describe('CompressionFormatter', () => {
 
         const compressResults = await formatter.compress(data);
 
-        expect(compressResults).toEqual(data);
+        expect(compressResults.toString()).toEqual(data);
 
         const results = await formatter.decompress(compressResults);
 
-        expect(results).toEqual(data);
+        expect(results.toString()).toEqual(data);
     });
 
     it('can work with lz4', async () => {

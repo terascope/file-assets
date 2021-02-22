@@ -91,3 +91,12 @@ export async function cleanupBucket(
 
     await deleteS3Bucket(client, { Bucket: bucket });
 }
+
+export function getBodyFromResults(results: S3.GetObjectOutput): Buffer {
+    if (!results.Body) {
+        throw new Error('Missing body from s3 results');
+    }
+    return Buffer.isBuffer(results.Body)
+        ? results.Body
+        : Buffer.from(results.Body as string);
+}
