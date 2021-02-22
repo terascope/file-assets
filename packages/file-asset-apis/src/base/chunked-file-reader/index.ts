@@ -7,7 +7,7 @@ import {
 } from '@terascope/job-components';
 import csvToJson from 'csvtojson';
 import { CSVParseParam } from 'csvtojson/v2/Parameters';
-import { SlicedFileResults, ChunkedConfig, Compression } from '../../interfaces';
+import { FileSlice, ChunkedConfig, Compression } from '../../interfaces';
 import { CompressionFormatter } from '../compression';
 
 type FN = (input: any) => any;
@@ -62,7 +62,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
     // This method will grab the chunk of data specified by the slice plus an
     // extra margin if the slice does not end with the delimiter.
     private async getChunk(
-        slice: SlicedFileResults,
+        slice: FileSlice,
     ): Promise<(DataEntity<any, any>)[]> {
         const delimiter = this.config.line_delimiter;
 
@@ -100,7 +100,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
         return results;
     }
 
-    protected async getMargin(slice: SlicedFileResults, delimiter: string): Promise<string> {
+    protected async getMargin(slice: FileSlice, delimiter: string): Promise<string> {
         const { offset, length } = slice;
         let margin = '';
         let currentOffset = offset;
@@ -125,7 +125,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
 
     // No parsing, leaving to reader or a downstream op.
     protected async raw(
-        incomingData: string, slice: SlicedFileResults
+        incomingData: string, slice: FileSlice
     ): Promise<(DataEntity | null)[]> {
         const data = splitChunks(incomingData, this.config.line_delimiter, slice);
         return data.map(
@@ -134,7 +134,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
     }
 
     protected async csv(
-        incomingData: string, slice: SlicedFileResults, runAsTSV = false
+        incomingData: string, slice: FileSlice, runAsTSV = false
     ): Promise<(DataEntity | null)[]> {
         const csvParams = Object.assign({
             delimiter: runAsTSV ? '\t' : this.config.field_delimiter,
@@ -183,13 +183,13 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
 
     // tsv is just a specific case of csv
     protected async tsv(
-        incomingData: string, slice: SlicedFileResults
+        incomingData: string, slice: FileSlice
     ): Promise<(DataEntity | null)[]> {
         return this.csv(incomingData, slice, true);
     }
 
     protected async json(
-        incomingData: string, slice: SlicedFileResults
+        incomingData: string, slice: FileSlice
     ): Promise<(DataEntity | null)[]> {
         const data = JSON.parse(incomingData);
 
@@ -215,7 +215,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
     }
 
     protected async ldjson(
-        incomingData: string, slice: SlicedFileResults
+        incomingData: string, slice: FileSlice
     ): Promise<(DataEntity | null)[]> {
         const data = splitChunks(incomingData, this.config.line_delimiter, slice);
 
@@ -228,7 +228,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
         );
     }
 
-    async read(slice: SlicedFileResults): Promise<DataEntity[]> {
+    async read(slice: FileSlice): Promise<DataEntity[]> {
         return this.getChunk(slice);
     }
 }
@@ -240,7 +240,7 @@ function _averageRecordSize(array: string[]): number {
 // This function takes the raw data and breaks it into records, getting rid
 // of anything preceding the first complete record if the data does not
 // start with a complete record.
-function splitChunks(rawData: string, delimiter: string, slice: SlicedFileResults) {
+function splitChunks(rawData: string, delimiter: string, slice: FileSlice) {
     // Since slices with a non-zero chunk offset grab the character
     // immediately preceding the main chunk, if one of those chunks has a
     // delimiter as the first or second character, it means the chunk starts

@@ -80,7 +80,10 @@ export interface NameOptions {
     extension?: string;
 }
 
-export interface SlicedFileResults extends Offsets {
+/**
+ * The File Slice
+*/
+export interface FileSlice extends Offsets {
     path: string;
     total: number;
 }
@@ -96,7 +99,7 @@ export interface FileSliceConfig extends SliceConfig {
     path: string;
 }
 
-export type FetcherFn = (slice: SlicedFileResults) => Promise<string>
+export type FetcherFn = (slice: FileSlice) => Promise<string>
 
 export interface HDFSReaderConfig extends ReaderFileConfig {
     user: string;

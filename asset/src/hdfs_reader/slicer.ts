@@ -6,7 +6,7 @@ import {
 } from '@terascope/job-components';
 import path from 'path';
 import {
-    SliceConfig, SlicedFileResults, segmentFile, HDFSReader
+    SliceConfig, FileSlice, segmentFile, HDFSReader
 } from '@terascope/file-asset-apis';
 import { HDFSReaderOpConfig } from './interfaces';
 import { HDFSReaderFactoryAPI, HDFSReaderApiConfig } from '../hdfs_reader_api/interfaces';
@@ -38,8 +38,8 @@ export default class HDFSFileSlicer extends Slicer<HDFSReaderOpConfig> {
         this.api = await apiManager.create(apiName, {});
     }
 
-    searchFiles(metadata: Record<string, any>, filePath: string): SlicedFileResults[] {
-        let fileSlices: SlicedFileResults[] = [];
+    searchFiles(metadata: Record<string, any>, filePath: string): FileSlice[] {
+        let fileSlices: FileSlice[] = [];
         const fullPath = path.join(filePath, metadata.pathSuffix);
 
         if (metadata.type === 'FILE') {
@@ -54,8 +54,8 @@ export default class HDFSFileSlicer extends Slicer<HDFSReaderOpConfig> {
         return fileSlices;
     }
 
-    async getFilePaths(filePath: string): Promise<SlicedFileResults[]> {
-        let slices: SlicedFileResults[] = [];
+    async getFilePaths(filePath: string): Promise<FileSlice[]> {
+        let slices: FileSlice[] = [];
 
         try {
             const dirContents: any[] = await this.api.client.listStatusAsync(filePath);

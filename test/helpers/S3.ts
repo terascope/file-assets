@@ -6,17 +6,16 @@ import {
     DataEntity
 } from '@terascope/job-components';
 import S3 from 'aws-sdk/clients/s3';
-import { promisifyAll, defer } from 'bluebird';
 import {
-    S3Reader, S3Sender, SlicedFileResults, Format, Compression
+    S3Reader, S3Sender, FileSlice, Format, Compression,
+    deleteS3Object, listS3Objects, deleteS3Bucket
 } from '@terascope/file-asset-apis';
 import * as s3Config from './config';
 
 const logger = debugLogger('s3_tests');
 
-export function makeClient(): AnyObject {
+export function makeClient(): S3 {
     const config = {
-        defer: () => defer,
         endpoint: s3Config.ENDPOINT,
         accessKeyId: s3Config.ACCESS_KEY,
         secretAccessKey: s3Config.SECRET_KEY,
@@ -26,10 +25,7 @@ export function makeClient(): AnyObject {
         sslEnabled: false,
         region: 'us-east-1'
     };
-    const s3Client = new S3(config);
-    const client = promisifyAll(s3Client, { suffix: '_Async' });
-
-    return client;
+    return new S3(config);
 }
 
 export const testWorkerId = 'test-id';
@@ -49,7 +45,7 @@ const defaultConfigs = {
 };
 
 export async function fetch(
-    client: AnyObject, config: AnyObject, slice: SlicedFileResults
+    client: S3, config: AnyObject, slice: FileSlice
 ): Promise<string> {
     if (isNil(config.bucket) || !isString(config.bucket)) throw new Error('config must include parameter bucket');
     // TODO: fix this
@@ -60,10 +56,11 @@ export async function fetch(
 }
 
 export async function upload(
-    client: AnyObject, config: AnyObject, data: DataEntity[]
+    client: S3, config: AnyObject, data: DataEntity[]
 ): Promise<void> {
     if (isNil(config.bucket) || !isString(config.bucket)) throw new Error('config must include parameter bucket');
     if (isNil(config.path) || !isString(config.path)) throw new Error('config must include parameter path');
+
     // TODO: fix this
     const senderConfig = Object.assign({}, defaultConfigs, config) as any;
     const api = new S3Sender(client, senderConfig, logger);
@@ -74,22 +71,23 @@ export async function upload(
 }
 
 export async function cleanupBucket(
-    client: AnyObject, bucket: string
+    client: S3, bucket: string
 ): Promise<void> {
-    let request: AnyObject;
+    let request: S3.ListObjectsOutput;
     try {
-        request = await client.listObjects_Async({ Bucket: bucket });
+        request = await listS3Objects(client, {
+            Bucket: bucket,
+        });
     } catch (err) {
         if (err.code === 'NoSuchBucket') return;
         throw err;
     }
 
-    const promises = request!.Contents.map((obj: AnyObject) => {
-        const params = { Bucket: bucket, Key: obj.Key };
-        return client.deleteObject_Async(params);
-    });
+    const promises = request.Contents?.map((obj) => deleteS3Object(client, {
+        Bucket: bucket, Key: obj.Key!
+    }));
 
-    await Promise.all(promises);
+    await Promise.all(promises ?? []);
 
-    await client.deleteBucket_Async({ Bucket: bucket });
+    await deleteS3Bucket(client, { Bucket: bucket });
 }

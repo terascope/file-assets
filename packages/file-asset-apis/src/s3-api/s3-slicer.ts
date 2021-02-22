@@ -1,17 +1,19 @@
-import { flatten, AnyObject, Logger } from '@terascope/job-components';
+import type S3 from 'aws-sdk/clients/s3';
+import { flatten, Logger } from '@terascope/job-components';
 import { segmentFile, parsePath, canReadFile } from '../base';
-import { SliceConfig, SlicedFileResults, FileSliceConfig } from '../interfaces';
+import { SliceConfig, FileSlice, FileSliceConfig } from '../interfaces';
+import { listS3Objects } from './helpers';
 
 export class S3Slicer {
     readonly sliceConfig: SliceConfig;
     logger: Logger;
-    client: AnyObject;
+    client: S3;
     readonly bucket: string;
     readonly prefix: string;
     _lastKey: string | undefined;
     protected _doneSlicing = false;
 
-    constructor(client: AnyObject, config: FileSliceConfig, logger: Logger) {
+    constructor(client: S3, config: FileSliceConfig, logger: Logger) {
         const { path, ...sliceConfig } = config;
         const { bucket, prefix } = parsePath(path);
         this.sliceConfig = sliceConfig;
@@ -21,14 +23,14 @@ export class S3Slicer {
         this.prefix = prefix;
     }
 
-    private async getObjects(): Promise<SlicedFileResults[]> {
-        const data = await this.client.listObjects_Async({
+    private async getObjects(): Promise<FileSlice[]> {
+        const data = await listS3Objects(this.client, {
             Bucket: this.bucket,
             Prefix: this.prefix,
             Marker: this._lastKey,
         });
 
-        if (data.Contents.length === 0) {
+        if (!data.Contents?.length) {
             // Returning an empty array will signal to the slicer that it is done
             // TODO: log a message to let the user know there weren't any slices
             return [];
@@ -47,12 +49,15 @@ export class S3Slicer {
 
         // Slice whatever objects are returned from the query
         for (const content of data.Contents) {
-            if (canReadFile(content.Key)) {
-                const file = {
+            if (content.Key == null) {
+                this.logger.warn('Missing content.Key from S3 List Object Request');
+            } else if (content.Size == null) {
+                this.logger.warn('Missing context.Size from S3 List Object Request');
+            } else if (canReadFile(content.Key)) {
+                actions.push(segmentFile({
                     path: content.Key,
                     size: content.Size
-                };
-                actions.push(segmentFile(file, this.sliceConfig));
+                }, this.sliceConfig));
             } else {
                 this.logger.warn(`Invalid path ${content.Key}, cannot start with a dot in directory of file name, skipping path`);
             }
@@ -66,7 +71,7 @@ export class S3Slicer {
     /**
     * This method will return an array of file slices, or null if the slicer is done
     */
-    async slice(): Promise<any|null> {
+    async slice(): Promise<FileSlice[]|null> {
         // First check to see if there are more objects in S3
         if (this._doneSlicing) return null;
 

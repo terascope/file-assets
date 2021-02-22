@@ -3,7 +3,7 @@ import {
     DataEntity, toString, AnyObject, isNil, toNumber
 } from '@terascope/job-components';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
-import { Format, SlicedFileResults } from '@terascope/file-asset-apis';
+import { Format, FileSlice } from '@terascope/file-asset-apis';
 import { S3ReaderFactoryAPI } from '../../asset/src/s3_reader_api/interfaces';
 import {
     makeClient, cleanupBucket, upload, testWorkerId
@@ -96,7 +96,7 @@ describe('S3 API Reader', () => {
             await cleanupBucket(client, bucket);
         });
 
-        const slice: SlicedFileResults = {
+        const slice: FileSlice = {
             length: 10000,
             offset: 0,
             path: slicePath,
@@ -140,7 +140,7 @@ describe('S3 API Reader', () => {
             await cleanupBucket(client, bucket);
         });
 
-        const slice: SlicedFileResults = {
+        const slice: FileSlice = {
             length: 10000,
             offset: 0,
             path: slicePath,
@@ -184,7 +184,7 @@ describe('S3 API Reader', () => {
             await cleanupBucket(client, bucket);
         });
 
-        const slice: SlicedFileResults = {
+        const slice: FileSlice = {
             length: 10000,
             offset: 0,
             path: slicePath,
@@ -225,7 +225,7 @@ describe('S3 API Reader', () => {
             await cleanupBucket(client, bucket);
         });
 
-        const slice: SlicedFileResults = {
+        const slice: FileSlice = {
             length: 10000,
             offset: 0,
             path: slicePath,
@@ -268,7 +268,7 @@ describe('S3 API Reader', () => {
             await cleanupBucket(client, bucket);
         });
 
-        const slice: SlicedFileResults = {
+        const slice: FileSlice = {
             length: 10000,
             offset: 0,
             path: slicePath,

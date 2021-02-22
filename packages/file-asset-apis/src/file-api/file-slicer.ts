@@ -6,7 +6,7 @@ import {
 import fse from 'fs-extra';
 import path from 'path';
 import { segmentFile, canReadFile } from '../base/slice';
-import { SliceConfig, SlicedFileResults, FileSliceConfig } from '../interfaces';
+import { SliceConfig, FileSlice, FileSliceConfig } from '../interfaces';
 
 export class FileSlicer {
     readonly directories: string[];
@@ -19,11 +19,11 @@ export class FileSlicer {
         this.logger = logger;
     }
 
-    private async getPath(filePath: string, file: string): Promise<SlicedFileResults[]> {
+    private async getPath(filePath: string, file: string): Promise<FileSlice[]> {
         const fullPath = path.join(filePath, file);
         const stats = await fse.lstat(fullPath);
 
-        let fileSlices: SlicedFileResults[] = [];
+        let fileSlices: FileSlice[] = [];
 
         if (stats.isFile()) {
             const fileInfo = await fse.stat(fullPath);
@@ -38,9 +38,9 @@ export class FileSlicer {
         return fileSlices;
     }
 
-    private async getFilePaths(filePath: string): Promise<SlicedFileResults[]> {
+    private async getFilePaths(filePath: string): Promise<FileSlice[]> {
         const dirContents = await fse.readdir(filePath);
-        let slices: SlicedFileResults[] = [];
+        let slices: FileSlice[] = [];
 
         try {
             const actions = [];
@@ -71,7 +71,7 @@ export class FileSlicer {
     /**
     * This method will return an array of file slices, or null if the slicer is done
     */
-    async slice(): Promise<SlicedFileResults[]|null> {
+    async slice(): Promise<FileSlice[]|null> {
         if (this.directories.length > 0) {
             return this.getFilePaths(this.directories.shift() as string);
         }

@@ -1,7 +1,9 @@
 import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
 import { DataEntity } from '@terascope/job-components';
-import { Format, CompressionFormatter } from '@terascope/file-asset-apis';
+import {
+    Format, CompressionFormatter, getS3Object
+} from '@terascope/file-asset-apis';
 import { makeClient, cleanupBucket } from '../helpers';
 
 describe('S3 sender api', () => {
@@ -84,7 +86,7 @@ describe('S3 sender api', () => {
 
         const key = `testing/${workerId}.0`;
 
-        const dbData = await client.getObject_Async({
+        const dbData = await getS3Object(client, {
             Bucket: bucket,
             Key: key,
         });

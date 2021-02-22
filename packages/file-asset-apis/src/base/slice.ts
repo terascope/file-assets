@@ -1,6 +1,6 @@
 import { isString } from '@terascope/job-components';
 import path from 'path';
-import { SliceConfig, SlicedFileResults, Offsets } from '../interfaces';
+import { SliceConfig, FileSlice, Offsets } from '../interfaces';
 
 /**
  *  Used to slice up a file based on the configuration provided, this is a
@@ -36,8 +36,8 @@ import { SliceConfig, SlicedFileResults, Offsets } from '../interfaces';
 export function segmentFile(file: {
     path: string;
     size: number;
-}, config: SliceConfig): SlicedFileResults[] {
-    const slices: SlicedFileResults[] = [];
+}, config: SliceConfig): FileSlice[] {
+    const slices: FileSlice[] = [];
     if (config.format === 'json' || config.file_per_slice) {
         slices.push({
             path: file.path,
