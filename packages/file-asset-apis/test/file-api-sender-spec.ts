@@ -1,4 +1,4 @@
-import 'packages/file-asset-apis/test/bas/node_modules/jest-extended';
+import 'jest-extended';
 import fs from 'fs';
 import { debugLogger, toNumber } from '@terascope/job-components';
 import {
