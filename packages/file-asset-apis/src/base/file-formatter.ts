@@ -3,7 +3,7 @@ import {
     isNil,
     isString,
     getTypeOf
-} from '@terascope/job-components';
+} from '@terascope/utils';
 import json2csv, { parse } from 'json2csv';
 import {
     Format,

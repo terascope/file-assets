@@ -1,4 +1,4 @@
-import { AnyObject, Logger } from '@terascope/job-components';
+import { AnyObject, Logger } from '@terascope/utils';
 import { ChunkedFileReader } from '../base';
 import { FileSlice, ChunkedConfig } from '../interfaces';
 

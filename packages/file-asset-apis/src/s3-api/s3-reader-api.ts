@@ -1,4 +1,4 @@
-import { Logger } from '@terascope/job-components';
+import { Logger } from '@terascope/utils';
 import type S3 from 'aws-sdk/clients/s3';
 import { FileSlice, ChunkedConfig } from '../interfaces';
 import {

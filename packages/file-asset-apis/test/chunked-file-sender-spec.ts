@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
 import {
     FileSenderType,
     ChunkedSenderConfig,

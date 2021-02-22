@@ -1,10 +1,10 @@
+import type { RouteSenderAPI } from '@terascope/job-components';
 import type S3 from 'aws-sdk/clients/s3';
 import {
-    RouteSenderAPI,
     DataEntity,
     Logger,
     TSError
-} from '@terascope/job-components';
+} from '@terascope/utils';
 import { parsePath, ChunkedFileSender } from '../base';
 import { FileSenderType, S3PutConfig, ChunkedSenderConfig } from '../interfaces';
 import { createS3Bucket, headS3Bucket, putS3Object } from './helpers';

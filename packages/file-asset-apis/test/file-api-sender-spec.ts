@@ -1,6 +1,6 @@
 import 'jest-extended';
 import fs from 'fs';
-import { debugLogger, toNumber } from '@terascope/job-components';
+import { debugLogger, toNumber } from '@terascope/utils';
 import {
     FileSender, ChunkedSenderConfig, Format, Compression
 } from '../src';

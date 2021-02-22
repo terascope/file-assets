@@ -2,7 +2,7 @@ import {
     Logger,
     TSError,
     flatten,
-} from '@terascope/job-components';
+} from '@terascope/utils';
 import fse from 'fs-extra';
 import path from 'path';
 import { segmentFile, canReadFile } from '../base/slice';

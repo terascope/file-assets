@@ -4,7 +4,7 @@ import {
     DataEntity,
     isNotNil,
     AnyObject
-} from '@terascope/job-components';
+} from '@terascope/utils';
 import csvToJson from 'csvtojson';
 import { CSVParseParam } from 'csvtojson/v2/Parameters';
 import { FileSlice, ChunkedConfig, Compression } from '../../interfaces';

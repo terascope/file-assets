@@ -1,5 +1,5 @@
 import type S3 from 'aws-sdk/clients/s3';
-import { flatten, Logger } from '@terascope/job-components';
+import { flatten, Logger } from '@terascope/utils';
 import { segmentFile, parsePath, canReadFile } from '../base';
 import { SliceConfig, FileSlice, FileSliceConfig } from '../interfaces';
 import { listS3Objects } from './helpers';
@@ -52,7 +52,7 @@ export class S3Slicer {
             if (content.Key == null) {
                 this.logger.warn('Missing content.Key from S3 List Object Request');
             } else if (content.Size == null) {
-                this.logger.warn('Missing context.Size from S3 List Object Request');
+                this.logger.warn('Missing content.Size from S3 List Object Request');
             } else if (canReadFile(content.Key)) {
                 actions.push(segmentFile({
                     path: content.Key,

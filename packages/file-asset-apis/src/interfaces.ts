@@ -1,5 +1,6 @@
 import json2csv from 'json2csv';
-import { OpConfig, DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/utils';
+import type { OpConfig } from '@terascope/job-components';
 
 export interface S3PutConfig {
     Bucket: string;

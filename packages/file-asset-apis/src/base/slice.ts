@@ -1,4 +1,4 @@
-import { isString } from '@terascope/job-components';
+import { isString } from '@terascope/utils';
 import path from 'path';
 import { SliceConfig, FileSlice, Offsets } from '../interfaces';
 

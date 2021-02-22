@@ -23,7 +23,7 @@
     "author": "Terascope, LLC <info@terascope.io>",
     "license": "MIT",
     "dependencies": {
-        "@terascope/job-components": "^0.46.2",
+        "@terascope/utils": "^0.36.2",
         "csvtojson": "^2.0.10",
         "fs-extra": "^9.1.0",
         "json2csv": "5.0.6",
@@ -32,6 +32,7 @@
     },
     "peerDependencies": {},
     "devDependencies": {
+        "@terascope/job-components": "^0.46.2",
         "@types/jest": "^26.0.20",
         "aws-sdk": "^2.843.0",
         "jest": "^26.6.3",

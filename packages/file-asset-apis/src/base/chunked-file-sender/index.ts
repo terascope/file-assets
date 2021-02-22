@@ -1,6 +1,6 @@
 import {
     isEmpty, DataEntity, AnyObject, pMap
-} from '@terascope/job-components';
+} from '@terascope/utils';
 import * as nodePathModule from 'path';
 import { CompressionFormatter } from '../compression';
 import { FileFormatter } from '../file-formatter';
