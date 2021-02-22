@@ -1,7 +1,7 @@
 import 'jest-extended';
 import {
     getOffsets, segmentFile, Format, parsePath
-} from '../../src';
+} from '../src';
 
 describe('parsePath', () => {
     it('properly identifies buckets and object prefixes in a filepath', () => {

@@ -5,7 +5,7 @@ import {
     Logger,
     TSError
 } from '@terascope/job-components';
-import { parsePath, ChunkedFileSender } from '../lib';
+import { parsePath, ChunkedFileSender } from '../base';
 import { FileSenderType, S3PutConfig, ChunkedSenderConfig } from '../interfaces';
 
 export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {

@@ -6,7 +6,7 @@ import {
     TSError
 } from '@terascope/job-components';
 import path from 'path';
-import { ChunkedFileSender } from '../lib';
+import { ChunkedFileSender } from '../base';
 import { FileSenderType, ChunkedSenderConfig } from '../interfaces';
 
 export class HDFSSender extends ChunkedFileSender implements RouteSenderAPI {

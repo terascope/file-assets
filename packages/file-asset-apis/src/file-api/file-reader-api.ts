@@ -1,7 +1,7 @@
 import fse from 'fs-extra';
 import { FileSlicer } from './file-slicer';
 import { SlicedFileResults } from '../interfaces';
-import { ChunkedFileReader, segmentFile, canReadFile } from '../lib';
+import { ChunkedFileReader, segmentFile, canReadFile } from '../base';
 
 export class FileReader extends ChunkedFileReader {
     client = fse;

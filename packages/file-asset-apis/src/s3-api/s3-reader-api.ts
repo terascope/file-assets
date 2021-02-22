@@ -2,7 +2,7 @@ import { AnyObject, Logger } from '@terascope/job-components';
 import { SlicedFileResults, ChunkedConfig } from '../interfaces';
 import {
     ChunkedFileReader, segmentFile, canReadFile, parsePath
-} from '../lib';
+} from '../base';
 import { S3Slicer } from './s3-slicer';
 
 export class S3Reader extends ChunkedFileReader {

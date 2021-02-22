@@ -2,15 +2,15 @@
 dist: bionic
 language: node_js
 node_js:
-  - '10.19'
-  - '12.20'
+  - "10.19"
+  - "12.20"
 os:
   - linux
   - osx
 branches:
   only:
-  - master
-  - /^v\d+\.\d+\.\d+/
+    - master
+    - /^v\d+\.\d+\.\d+/
 cache:
   npm: false
   yarn: false
@@ -30,11 +30,20 @@ script:
   - teraslice-cli assets build
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+before_deploy:
+  - teraslice-cli assets build
+  - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
 deploy:
-  provider: releases
-  api_key: $GITHUB_TOKEN
-  file_glob: true
-  file: build/*.zip
-  skip_cleanup: true
-  on:
-    tags: true
+  - provider: script
+    skip_cleanup: true
+    script: yarn publish:changed
+    on:
+      tags: true
+      condition: $TRAVIS_OS_NAME = linux
+  - provider: releases
+    api_key: $GITHUB_TOKEN
+    file_glob: true
+    file: build/*.zip
+    skip_cleanup: true
+    on:
+      tags: true

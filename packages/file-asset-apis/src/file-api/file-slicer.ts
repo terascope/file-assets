@@ -5,7 +5,7 @@ import {
 } from '@terascope/job-components';
 import fse from 'fs-extra';
 import path from 'path';
-import { segmentFile, canReadFile } from '../lib/slice';
+import { segmentFile, canReadFile } from '../base/slice';
 import { SliceConfig, SlicedFileResults, FileSliceConfig } from '../interfaces';
 
 export class FileSlicer {
