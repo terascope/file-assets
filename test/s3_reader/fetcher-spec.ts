@@ -6,7 +6,7 @@ import {
     toNumber,
 } from '@terascope/job-components';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
-import { Format, SlicedFileResults } from '@terascope/file-asset-apis';
+import { Format, FileSlice } from '@terascope/file-asset-apis';
 import {
     makeClient, cleanupBucket, upload, testWorkerId
 } from '../helpers';
@@ -98,7 +98,7 @@ describe('S3Reader fetcher', () => {
             await cleanupBucket(client, bucket);
         });
 
-        const slice: SlicedFileResults = {
+        const slice: FileSlice = {
             length: 10000,
             offset: 0,
             path: slicePath,

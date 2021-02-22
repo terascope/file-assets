@@ -1,6 +1,6 @@
 import fse from 'fs-extra';
 import { FileSlicer } from './file-slicer';
-import { SlicedFileResults } from '../interfaces';
+import { FileSlice } from '../interfaces';
 import { ChunkedFileReader, segmentFile, canReadFile } from '../base';
 
 export class FileReader extends ChunkedFileReader {
@@ -19,7 +19,7 @@ export class FileReader extends ChunkedFileReader {
      *      const results = await fileReader.fetch(slice);
      *      results === 'the unprocessed contents of the file here'
     */
-    protected async fetch(slice: SlicedFileResults): Promise<string> {
+    protected async fetch(slice: FileSlice): Promise<string> {
         const { path, length, offset } = slice;
         const fd = await fse.open(path, 'r');
 
@@ -102,7 +102,7 @@ export class FileReader extends ChunkedFileReader {
     segmentFile(file: {
         path: string;
         size: number;
-    }): SlicedFileResults[] {
+    }): FileSlice[] {
         return segmentFile(file, this.config);
     }
 

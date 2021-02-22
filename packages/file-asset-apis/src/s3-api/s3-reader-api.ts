@@ -1,15 +1,17 @@
-import { AnyObject, Logger } from '@terascope/job-components';
-import { SlicedFileResults, ChunkedConfig } from '../interfaces';
+import { Logger } from '@terascope/utils';
+import type S3 from 'aws-sdk/clients/s3';
+import { FileSlice, ChunkedConfig } from '../interfaces';
 import {
     ChunkedFileReader, segmentFile, canReadFile, parsePath
 } from '../base';
 import { S3Slicer } from './s3-slicer';
+import { getS3Object } from './helpers';
 
 export class S3Reader extends ChunkedFileReader {
-    client: AnyObject
+    client: S3;
     bucket: string;
 
-    constructor(client: AnyObject, config: ChunkedConfig, logger: Logger) {
+    constructor(client: S3, config: ChunkedConfig, logger: Logger) {
         super(config, logger);
         const { bucket } = parsePath(this.config.path);
         this.client = client;
@@ -24,33 +26,24 @@ export class S3Reader extends ChunkedFileReader {
      *   const results = await s3Reader.fetch(slice);
      *   results === 'the unprocessed contents of the file here'
     */
-    protected async fetch(slice: SlicedFileResults): Promise<string> {
+    protected async fetch(slice: FileSlice): Promise<string> {
         const { offset, length } = slice;
-        const opts = {
+        const results = await getS3Object(this.client, {
             Bucket: this.bucket,
             Key: slice.path,
             // We need to subtract 1 from the range in order to avoid collecting an extra byte.
             // i.e. Requesting only the first byte of a file has a `length` of `1`, but the
             //   request would be for `bytes=0-0`
             Range: `bytes=${offset}-${offset + length - 1}`
-        };
-
-        /* The object returned looks something like this:
-         * {
-         *   AcceptRanges: 'bytes',
-         *   LastModified: 2019-07-19T22:27:11.000Z,
-         *   ContentLength: 51,
-         *   ETag: '"xxxx"',
-         *   ContentRange: 'bytes 44-94/98',
-         *   ContentType: 'text/csv',
-         *   Metadata: {
-         *     's3cmd-attrs': '...'
-         *   },
-         *   Body: <Buffer FF FF ... >
-         * }
-         */
-        const results = await this.client.getObject_Async(opts);
-        return this.decompress(results.Body);
+        });
+        if (!results.Body) {
+            throw new Error('Missing body from s3 get object request');
+        }
+        return this.decompress(
+            Buffer.isBuffer(results.Body)
+                ? results.Body
+                : Buffer.from(results.Body as any)
+        );
     }
 
     /**
@@ -94,7 +87,7 @@ export class S3Reader extends ChunkedFileReader {
     segmentFile(file: {
         path: string;
         size: number;
-    }): SlicedFileResults[] {
+    }): FileSlice[] {
         return segmentFile(file, this.config);
     }
 

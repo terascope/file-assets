@@ -158,7 +158,7 @@ apiManager.get('normalClient') === undefined
 This is the reader class that is returned from the create method of the APIFactory
 
 ### fetch (async)
-```(slice: SlicedFileResults) => Promise<string>```
+```(slice: FileSlice) => Promise<string>```
 parameters:
 - slice: {
     path: string,
@@ -221,7 +221,7 @@ api.validatePath(goodPath) === true;
 ```
 
 ### segmentFile
-```(fileInfo, config: SliceConfig) => SlicedFileResults[]```
+```(fileInfo, config: SliceConfig) => FileSlice[]```
 parameters:
 - fileInfo: {
     path: the path to the file
@@ -314,18 +314,18 @@ slice ===  {
 ```
 
 ## Parameters
-| Configuration | Description | Type |  Notes |
-| --------- | -------- | ------ | ------ |
-| \_op| Name of operation, it must reflect the exact name of the file | String | required || path | This is the directory where data will be saved. All intermediate directories must pre-exist, and the directory must be accessible by the TS workers. | String | required |
-| extension | Optional file extension to add to file names | String | optional, A `.` is not automatically prepended to this value when being added to the filename, if it is desired it must be specified on the extension |
-| compression | you may specify a compression algorithm to apply to the data before being written to file, it may be set to `none`, `lz4` or `gzip` | String | optional, defaults `none` |
-| fields | a list of all field names present in the file **in the order that they are found**, this essentially acts as the headers. This option is only used for `tsv` and `csv` formats | String[] | optional |
-| field_delimiter | A delimiter between field names. This is only used when `format` is set to `csv`  | String | optional, defaults to `,`  |
-| line_delimiter | A delimiter applied between each record or slice, please reference the [format](#format) section for more information how this deliminator is applied for each format. | String | optional, defaults to `\n` |
-| file_per_slice | This setting determines if the output for a worker will be in a single file (`false`), or if the worker will create a new file for every slice it processes  (`true`). If set to `true`, an integer, starting at 0, will be appended to the filename and incremented by 1 for each slice a worker processes | Boolean | optional, defaults to `true`. If using `json` format, this option will be overridden to `true` |
-| include_header | Determines whether or not to include column headers for the fields in output files. If set to `true`, a header will be added as the first entry to every file created. This option is only used for `tsv` and `csv` formats | Boolean | optional, defaults to `false` |
-| concurrency | The represents the limit on how many parallel writes will occur at a given time | Number | optional, defaults to `10` |
-| format | Used to determine how the data should be written to file, options are: `json`, `ldjson`, `raw`, `csv`, `tsv` | String | optional, defaults to `ldjson`, please reference the [format](#format) section for more information |
+| Configuration   | Description                                                                                                                                                                                                                                                                                                 | Type     | Notes                                                                                                                                                 |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| \_op            | Name of operation, it must reflect the exact name of the file                                                                                                                                                                                                                                               | String   | required                                                                                                                                              |  | path | This is the directory where data will be saved. All intermediate directories must pre-exist, and the directory must be accessible by the TS workers. | String | required |
+| extension       | Optional file extension to add to file names                                                                                                                                                                                                                                                                | String   | optional, A `.` is not automatically prepended to this value when being added to the filename, if it is desired it must be specified on the extension |
+| compression     | you may specify a compression algorithm to apply to the data before being written to file, it may be set to `none`, `lz4` or `gzip`                                                                                                                                                                         | String   | optional, defaults `none`                                                                                                                             |
+| fields          | a list of all field names present in the file **in the order that they are found**, this essentially acts as the headers. This option is only used for `tsv` and `csv` formats                                                                                                                              | String[] | optional                                                                                                                                              |
+| field_delimiter | A delimiter between field names. This is only used when `format` is set to `csv`                                                                                                                                                                                                                            | String   | optional, defaults to `,`                                                                                                                             |
+| line_delimiter  | A delimiter applied between each record or slice, please reference the [format](#format) section for more information how this deliminator is applied for each format.                                                                                                                                      | String   | optional, defaults to `\n`                                                                                                                            |
+| file_per_slice  | This setting determines if the output for a worker will be in a single file (`false`), or if the worker will create a new file for every slice it processes  (`true`). If set to `true`, an integer, starting at 0, will be appended to the filename and incremented by 1 for each slice a worker processes | Boolean  | optional, defaults to `true`. If using `json` format, this option will be overridden to `true`                                                        |
+| include_header  | Determines whether or not to include column headers for the fields in output files. If set to `true`, a header will be added as the first entry to every file created. This option is only used for `tsv` and `csv` formats                                                                                 | Boolean  | optional, defaults to `false`                                                                                                                         |
+| concurrency     | The represents the limit on how many parallel writes will occur at a given time                                                                                                                                                                                                                             | Number   | optional, defaults to `10`                                                                                                                            |
+| format          | Used to determine how the data should be written to file, options are: `json`, `ldjson`, `raw`, `csv`, `tsv`                                                                                                                                                                                                | String   | optional, defaults to `ldjson`, please reference the [format](#format) section for more information                                                   |
 
 
 ## Advanced Configuration

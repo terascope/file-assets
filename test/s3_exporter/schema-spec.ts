@@ -18,11 +18,12 @@ describe('S3 exporter Schema', () => {
         create(_config: any, _logger: Logger, _settings: any) {
             return {
                 client: {
-                    // eslint-disable-next-line @typescript-eslint/naming-convention
-                    createBucket_Async: async () => {},
-                    // eslint-disable-next-line @typescript-eslint/naming-convention
-                    headBucket_Async: async () => {}
-
+                    createBucket(_params: any, cb: () => void) {
+                        cb();
+                    },
+                    headBucket(_params: any, cb: () => void) {
+                        cb();
+                    }
                 }
             };
         },

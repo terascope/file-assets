@@ -1,5 +1,5 @@
 import { Fetcher, DataEntity } from '@terascope/job-components';
-import { HDFSReader, SlicedFileResults } from '@terascope/file-asset-apis';
+import { HDFSReader, FileSlice } from '@terascope/file-asset-apis';
 import { HDFSReaderOpConfig } from './interfaces';
 import { HDFSReaderFactoryAPI } from '../hdfs_reader_api/interfaces';
 
@@ -13,7 +13,7 @@ export default class HDFSFetcher extends Fetcher<HDFSReaderOpConfig> {
         this.api = await apiManager.create(apiName, {} as any);
     }
 
-    async fetch(slice: SlicedFileResults): Promise<DataEntity[]> {
+    async fetch(slice: FileSlice): Promise<DataEntity[]> {
         return this.api.read(slice);
     }
 }

@@ -1,18 +1,19 @@
+import type { RouteSenderAPI } from '@terascope/job-components';
+import type S3 from 'aws-sdk/clients/s3';
 import {
-    RouteSenderAPI,
     DataEntity,
-    AnyObject,
     Logger,
     TSError
-} from '@terascope/job-components';
+} from '@terascope/utils';
 import { parsePath, ChunkedFileSender } from '../base';
 import { FileSenderType, S3PutConfig, ChunkedSenderConfig } from '../interfaces';
+import { createS3Bucket, headS3Bucket, putS3Object } from './helpers';
 
 export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
     logger: Logger;
-    client: AnyObject;
+    client: S3;
 
-    constructor(client: AnyObject, config: ChunkedSenderConfig, logger: Logger) {
+    constructor(client: S3, config: ChunkedSenderConfig, logger: Logger) {
         super(FileSenderType.s3, config as any);
         this.logger = logger;
         this.client = client;
@@ -35,6 +36,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
         if (!output || output.length === 0) {
             return [];
         }
+
         // TODO: may need to verify bucket first
         const params: S3PutConfig = {
             Bucket: objPath.bucket,
@@ -42,7 +44,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
             Body: output as string
         };
 
-        return this.client.putObject_Async(params);
+        return putS3Object(this.client, params);
     }
 
     /**
@@ -50,15 +52,17 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
      */
     async ensureBucket(route: string): Promise<void> {
         const { bucket } = parsePath(route);
-        const query = { Bucket: bucket };
+        const params = { Bucket: bucket };
 
         try {
-            await this.client.headBucket_Async(query);
+            await headS3Bucket(this.client, params);
         } catch (_err) {
             try {
-                await this.client.createBucket_Async(query);
+                await createS3Bucket(this.client, params);
             } catch (err) {
-                throw new TSError(err, { reason: `Could not setup bucket ${route}}` });
+                throw new TSError(err, {
+                    reason: `Could not setup bucket ${route}`
+                });
             }
         }
     }

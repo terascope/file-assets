@@ -1,6 +1,6 @@
 {
     "name": "file",
-    "version": "1.4.1",
+    "version": "1.4.2",
     "description": "A set of processors for working with files",
     "private": true,
     "workspaces": {
@@ -14,12 +14,12 @@
         "build:watch": "yarn build --watch"
     },
     "dependencies": {
-        "@terascope/file-asset-apis": "^0.1.0",
+        "@terascope/file-asset-apis": "^0.2.0",
         "@terascope/job-components": "^0.46.2",
         "csvtojson": "^2.0.10",
         "fs-extra": "^9.1.0",
         "json2csv": "5.0.6",
-        "lz4": "^0.6.5",
+        "lz4-asm": "^0.4.2",
         "node-gzip": "^1.1.2"
     },
     "devDependencies": {},

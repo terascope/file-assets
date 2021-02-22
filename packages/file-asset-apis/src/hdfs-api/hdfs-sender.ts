@@ -1,10 +1,10 @@
+import type { RouteSenderAPI } from '@terascope/job-components';
 import {
-    RouteSenderAPI,
     DataEntity,
     AnyObject,
     Logger,
     TSError
-} from '@terascope/job-components';
+} from '@terascope/utils';
 import path from 'path';
 import { ChunkedFileSender } from '../base';
 import { FileSenderType, ChunkedSenderConfig } from '../interfaces';

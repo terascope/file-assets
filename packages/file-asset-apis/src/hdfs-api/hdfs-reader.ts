@@ -1,6 +1,6 @@
-import { AnyObject, Logger } from '@terascope/job-components';
+import { AnyObject, Logger } from '@terascope/utils';
 import { ChunkedFileReader } from '../base';
-import { SlicedFileResults, ChunkedConfig } from '../interfaces';
+import { FileSlice, ChunkedConfig } from '../interfaces';
 
 export class HDFSReader extends ChunkedFileReader {
     client: AnyObject
@@ -18,7 +18,7 @@ export class HDFSReader extends ChunkedFileReader {
      *   const results = await hdfsReader.fetch(slice);
      *   results === 'the unprocessed contents of the file here'
     */
-    protected async fetch(slice: SlicedFileResults): Promise<string> {
+    protected async fetch(slice: FileSlice): Promise<string> {
         const { offset, length, path } = slice;
         return this.client.openAsync(path, { offset, length });
     }

@@ -1,0 +1,21 @@
+{
+    "name": "s3_exporter",
+    "lifecycle": "once",
+    "workers": 1,
+    "max_retries": 0,
+    "assets": [
+        "standard",
+        "file"
+    ],
+    "operations": [
+        {
+            "_op": "data_generator",
+            "size": 1000
+        },
+        {
+            "_op": "s3_exporter",
+            "path": "/app/data/test_files",
+            "format": "ldjson"
+        }
+    ]
+}

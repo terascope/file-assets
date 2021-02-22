@@ -1,5 +1,5 @@
 import { Fetcher, DataEntity } from '@terascope/job-components';
-import { FileReader, SlicedFileResults } from '@terascope/file-asset-apis';
+import { FileReader, FileSlice } from '@terascope/file-asset-apis';
 import { FileReaderConfig } from './interfaces';
 import { FileReaderFactoryAPI } from '../file_reader_api/interfaces';
 
@@ -13,7 +13,7 @@ export default class FileFetcher extends Fetcher<FileReaderConfig> {
         this.api = await apiManager.create(apiName, {});
     }
 
-    async fetch(slice: SlicedFileResults): Promise<DataEntity[]> {
+    async fetch(slice: FileSlice): Promise<DataEntity[]> {
         return this.api.read(slice);
     }
 }
