@@ -1,9 +1,26 @@
-import { ConvictSchema } from '@terascope/job-components';
+import { ConvictSchema, cloneDeep, ValidatedJobConfig } from '@terascope/job-components';
 import { fileReaderSchema } from '../__lib/common-schema';
-import { S3ReaderAPIConfig } from './interfaces';
+import { S3ReaderAPIConfig, DEFAULT_API_NAME } from './interfaces';
+
+const apiSchema = cloneDeep(fileReaderSchema);
+// S3 Objects cannot be appended so it must be a new object each slice
+apiSchema.file_per_slice.default = true;
 
 export default class Schema extends ConvictSchema<S3ReaderAPIConfig> {
+    validateJob(job: ValidatedJobConfig): void {
+        const apiConfigs = job.apis.filter((config) => {
+            const apiName = config._name;
+            return apiName === DEFAULT_API_NAME || apiName.startsWith(`${DEFAULT_API_NAME}:`);
+        });
+
+        apiConfigs.forEach((config) => {
+            if (config.file_per_slice == null || config.file_per_slice === false) {
+                throw new Error('Invalid parameter "file_per_slice", it must be set to true, cannot be append data to S3 objects');
+            }
+        });
+    }
+
     build(): Record<string, any> {
-        return fileReaderSchema;
+        return apiSchema;
     }
 }

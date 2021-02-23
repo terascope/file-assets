@@ -1,4 +1,4 @@
-import { Format, CSVConfig, FileFormatter } from '../src';
+import { Format, CSVConfig, FileFormatter } from '../../src';
 
 describe('FileFormatter', () => {
     it('incorrect format will throw', () => {

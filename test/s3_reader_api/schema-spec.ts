@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
 import { ValidatedJobConfig, TestClientConfig, Logger } from '@terascope/job-components';
-import { S3ReaderFactoryAPI } from '../../asset/src/s3_reader_api/interfaces';
+import { S3ReaderAPIConfig } from '../../asset/src/s3_reader_api/interfaces';
 
 describe('S3 Reader API Schema', () => {
     let harness: WorkerTestHarness;
@@ -17,7 +17,7 @@ describe('S3 Reader API Schema', () => {
 
     const clients = [clientConfig];
 
-    async function makeTest(apiConfig: Partial<S3ReaderFactoryAPI> = {}) {
+    async function makeTest(apiConfig: Partial<S3ReaderAPIConfig> = {}) {
         const apiName = 's3_reader_api';
 
         const config = Object.assign(
@@ -47,6 +47,11 @@ describe('S3 Reader API Schema', () => {
     describe('when validating the schema', () => {
         it('should throw an error if no path is specified', async () => {
             await expect(makeTest({})).toReject();
+        });
+
+        it('should throw an error if file_per_slice is set to false/undefined', async () => {
+            await expect(makeTest({ path: 'some/path', file_per_slice: false })).toReject();
+            await expect(makeTest({ path: 'some/path', file_per_slice: undefined })).toReject();
         });
     });
 });

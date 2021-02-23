@@ -2,7 +2,7 @@ import 'jest-extended';
 import { debugLogger, DataEntity } from '@terascope/utils';
 import {
     ChunkedFileReader, Format, ChunkedConfig, Compression
-} from '../src';
+} from '../../src';
 
 // Mock logger
 const logger = debugLogger('chunked-file-reader');

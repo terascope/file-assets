@@ -5,13 +5,23 @@ import {
     ChunkedFileReader, segmentFile, canReadFile, parsePath
 } from '../base';
 import { S3Slicer } from './s3-slicer';
-import { getS3Object } from './helpers';
+import { getS3Object } from './s3-helpers';
+import { isObject } from '../helpers';
+
+function validateConfig(input: unknown) {
+    if (!isObject(input)) throw new Error('Invalid config parameter, ut must be an object');
+    (input as Record<string, unknown>);
+    if (input.file_per_slice == null || input.file_per_slice === false) {
+        throw new Error('Invalid parameter "file_per_slice", it must be set to true, cannot be append data to S3 objects');
+    }
+}
 
 export class S3Reader extends ChunkedFileReader {
     client: S3;
     bucket: string;
 
     constructor(client: S3, config: ChunkedConfig, logger: Logger) {
+        validateConfig(config);
         super(config, logger);
         const { bucket } = parsePath(this.config.path);
         this.client = client;

@@ -6,7 +6,7 @@ import {
     Compression,
     Format,
     ChunkedFileSender
-} from '../src';
+} from '../../src';
 
 describe('ChunkedSlicer', () => {
     const path = 'some/path';

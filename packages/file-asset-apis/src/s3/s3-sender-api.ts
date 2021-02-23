@@ -7,14 +7,24 @@ import {
 } from '@terascope/utils';
 import { parsePath, ChunkedFileSender } from '../base';
 import { FileSenderType, S3PutConfig, ChunkedSenderConfig } from '../interfaces';
-import { createS3Bucket, headS3Bucket, putS3Object } from './helpers';
+import { createS3Bucket, headS3Bucket, putS3Object } from './s3-helpers';
+import { isObject } from '../helpers';
+
+function validateConfig(input: unknown) {
+    if (!isObject(input)) throw new Error('Invalid config parameter, ut must be an object');
+    (input as Record<string, unknown>);
+    if (input.file_per_slice == null || input.file_per_slice === false) {
+        throw new Error('Invalid parameter "file_per_slice", it must be set to true, cannot be append data to S3 objects');
+    }
+}
 
 export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
     logger: Logger;
     client: S3;
 
     constructor(client: S3, config: ChunkedSenderConfig, logger: Logger) {
-        super(FileSenderType.s3, config as any);
+        validateConfig(config);
+        super(FileSenderType.s3, config);
         this.logger = logger;
         this.client = client;
     }

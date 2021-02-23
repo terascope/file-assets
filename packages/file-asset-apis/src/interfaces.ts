@@ -29,11 +29,25 @@ export interface ReaderFileConfig extends FileConfig {
     extra_args: CSVOptions;
 }
 
+export interface S3ReaderConfig extends ChunkedAPIMethods, FileSliceConfig {}
+
 export type CSVOptions = json2csv.Options<any>;
 
 export interface ChunkedConfig extends ReaderFileConfig, Pick<OpConfig, '_encoding' | '_dead_letter_action'> {
     tryFn?: (fn:(msg: any) => DataEntity) => (input: any) => DataEntity | null;
     rejectFn?: (input: unknown, err: Error) => never | null;
+}
+
+export interface ChunkedAPIMethods {
+    tryFn?: (fn:(msg: any) => DataEntity) => (input: any) => DataEntity | null;
+    rejectFn?: (input: unknown, err: Error) => never | null;
+}
+
+export interface ChunkedFileReaderConfig extends ChunkedAPIMethods {
+    compression: Compression;
+    // TODO: this should default to \n
+    line_delimiter: string;
+    format: Format;
 }
 
 export interface ChunkedSenderConfig extends ChunkedConfig {
