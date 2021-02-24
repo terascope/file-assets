@@ -15,7 +15,7 @@ function validateConfig(input: unknown) {
 
 export class S3Fetcher extends ChunkedFileReader {
     protected client: S3;
-    protected bucket: string;
+    protected readonly bucket: string;
 
     constructor(client: S3, config: S3FetcherConfig, logger: Logger) {
         validateConfig(config);
