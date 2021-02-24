@@ -3,12 +3,11 @@ import type S3 from 'aws-sdk/clients/s3';
 import {
     FileSlice, ReaderConfig, SliceConfig, FileSliceConfig
 } from '../interfaces';
-import {
-    ChunkedFileReader, segmentFile, canReadFile, parsePath
-} from '../base';
+import { segmentFile, canReadFile } from '../base';
 import { S3Slicer } from './s3-slicer';
 import { getS3Object } from './s3-helpers';
 import { isObject } from '../helpers';
+import { S3Fetcher } from './s3-fetcher';
 
 function validateConfig(input: unknown) {
     if (!isObject(input)) throw new Error('Invalid config parameter, ut must be an object');
@@ -18,21 +17,16 @@ function validateConfig(input: unknown) {
     }
 }
 
-export class S3Reader extends ChunkedFileReader {
-    private client: S3;
-    private bucket: string;
+export class S3TerasliceAPI extends S3Fetcher {
     readonly segmentFileConfig: SliceConfig
     readonly slicerConfig: FileSliceConfig;
 
     constructor(client: S3, config: ReaderConfig, logger: Logger) {
         validateConfig(config);
-        super(config, logger);
+        super(client, config, logger);
         const {
             path, format, size, file_per_slice
         } = config;
-        const { bucket } = parsePath(path);
-        this.client = client;
-        this.bucket = bucket;
         const { lineDelimiter } = this;
 
         this.segmentFileConfig = {
