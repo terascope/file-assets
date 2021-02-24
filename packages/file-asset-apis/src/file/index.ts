@@ -1,3 +1,4 @@
-export * from './file-reader-api';
-export * from './file-sender-api';
+export * from './file-fetcher';
+export * from './file-sender';
 export * from './file-slicer';
+export * from './file-teraslice-api';
