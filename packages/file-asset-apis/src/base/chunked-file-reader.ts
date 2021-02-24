@@ -3,30 +3,132 @@ import {
     cloneDeep,
     DataEntity,
     isNotNil,
-    AnyObject
+    AnyObject,
+    DataEncoding,
+    isSimpleObject,
+    isString,
+    isBoolean
 } from '@terascope/utils';
 import csvToJson from 'csvtojson';
 import { CSVParseParam } from 'csvtojson/v2/Parameters';
-import { FileSlice, ChunkedConfig, Compression } from '../interfaces';
+import {
+    FileSlice,
+    ChunkedFileReaderConfig,
+    Compression,
+    Format,
+    CSVParams,
+    ChunkedCSVConfig
+} from '../interfaces';
 import { CompressionFormatter } from './compression';
 
 type FN = (input: any) => any;
 
+function validateCSVConfig(inputConfig: ChunkedFileReaderConfig) {
+    const csvOptions: CSVParams = {
+        extra_args: {},
+        fields: [],
+        ignore_empty: true,
+        remove_header: true,
+        field_delimiter: ','
+    };
+
+    const {
+        extra_args,
+        fields,
+        ignore_empty,
+        remove_header,
+        field_delimiter,
+        format
+    } = inputConfig as ChunkedCSVConfig;
+
+    if (extra_args) {
+        if (!isSimpleObject(extra_args)) throw new Error('Invalid parameter extra_args, it must be an object');
+        if (Object.keys(extra_args).length > 0) {
+            csvOptions.extra_args = extra_args;
+        }
+    }
+
+    if (fields) {
+        if (!Array.isArray(fields)) throw new Error('Invalid parameter fields, it must be an empty array or an array containing strings');
+        if (!fields.every(isString)) throw new Error('Invalid parameter fields, it must be an array containing strings');
+        csvOptions.fields = fields;
+    }
+
+    if (isNotNil(ignore_empty)) {
+        if (!isBoolean(ignore_empty)) throw new Error('Invalid paramter ignore_empty, it must be a boolean');
+        csvOptions.ignore_empty = ignore_empty;
+    }
+
+    if (isNotNil(remove_header)) {
+        if (!isBoolean(remove_header)) throw new Error('Invalid paramter remove_header, it must be a boolean');
+        csvOptions.remove_header = remove_header;
+    }
+
+    if (isNotNil(field_delimiter)) {
+        if (!isString(fields)) throw new Error('Invalid paramter field_delimiter, it must be a string');
+        // if field_delimiter is given and format is tsv, it must be set to \t
+        if (format === Format.tsv && field_delimiter !== '\t') {
+            throw new Error(`Invalid parameter field_delimiter, if format is set to ${Format.tsv} and field_delimiter is provided, it must be set to "\\t"`);
+        }
+        csvOptions.field_delimiter = field_delimiter;
+    } else if (format === Format.tsv) {
+        // if field_delimiter is not set but format is tsv, default to \t
+        csvOptions.field_delimiter = '\t';
+    }
+
+    return csvOptions;
+}
+
 export abstract class ChunkedFileReader extends CompressionFormatter {
-    config: ChunkedConfig;
     logger: Logger;
+    private format: Format
+    protected lineDelimiter: string
+    private csvOptions: CSVParams
+    private actionOnError: string;
     private tryFn: (fn:(msg: any) => DataEntity) => (input: any) => DataEntity | null;
     private rejectRecord: (input: unknown, err: Error) => never | null;
+    private encodingConfig: {
+        _encoding: DataEncoding
+    }
 
-    constructor(config: ChunkedConfig, logger: Logger) {
-        super(config.compression);
-        this.config = config;
+    constructor(inputConfig: ChunkedFileReaderConfig, logger: Logger) {
+        super(inputConfig.compression);
+
+        const {
+            _encoding = DataEncoding.JSON,
+            on_error = 'throw',
+            rejectFn = this.reject,
+            tryFn = this.tryCatch,
+            compression,
+            file_per_slice,
+            line_delimiter,
+            format,
+        } = inputConfig;
+
+        // if format is tsv and line_delimiter is defined, it must be set to "\t"
+        if (format === Format.tsv && line_delimiter && line_delimiter !== '\t') {
+            throw new Error(`Invalid parameter line_delimiter, if format is set to ${Format.tsv} and line_delimiter is given, it must be set to "\\t"`);
+        }
+
+        let lineDelimiter = line_delimiter ?? '\n';
+
+        if (format === Format.tsv) {
+            lineDelimiter = '\t';
+        }
+
+        this.lineDelimiter = lineDelimiter;
+        this.csvOptions = validateCSVConfig(inputConfig);
         this.logger = logger;
-        this.tryFn = config.tryFn || this.tryCatch;
-        this.rejectRecord = config.rejectFn || this.reject;
+        this.tryFn = tryFn;
+        this.rejectRecord = rejectFn;
+        this.actionOnError = on_error;
+        this.encodingConfig = {
+            _encoding
+        };
+        this.format = format;
 
         // file_per_slice must be set to true if compression is set to anything besides "none"
-        if (config.compression !== Compression.none && config.file_per_slice !== true) {
+        if (compression !== Compression.none && file_per_slice !== true) {
             throw new Error('Invalid parameter "file_per_slice", it must be set to true if compression is set to anything other than "none" as we cannot properly divide up a compressed file');
         }
     }
@@ -42,7 +144,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
     }
 
     private reject(input: unknown, err: Error): never | null {
-        const action = this.config._dead_letter_action;
+        const action = this.actionOnError;
         if (action === 'throw' || !action) {
             throw err;
         }
@@ -64,7 +166,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
     private async getChunk(
         slice: FileSlice,
     ): Promise<(DataEntity<any, any>)[]> {
-        const delimiter = this.config.line_delimiter;
+        const delimiter = this.lineDelimiter;
 
         let needMargin = false;
         if (slice.length) {
@@ -94,7 +196,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
             collectedData += await this.getMargin(newSlice, delimiter);
         }
 
-        const results = await this[this.config.format](collectedData, slice);
+        const results = await this[this.format](collectedData, slice);
 
         if (results) return results.filter(isNotNil) as DataEntity<any, any>[];
         return results;
@@ -127,26 +229,26 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
     protected async raw(
         incomingData: string, slice: FileSlice
     ): Promise<(DataEntity | null)[]> {
-        const data = splitChunks(incomingData, this.config.line_delimiter, slice);
+        const data = splitChunks(incomingData, this.lineDelimiter, slice);
         return data.map(
             this.tryFn((record: any) => DataEntity.make({ data: record }, slice))
         );
     }
 
     protected async csv(
-        incomingData: string, slice: FileSlice, runAsTSV = false
+        incomingData: string, slice: FileSlice
     ): Promise<(DataEntity | null)[]> {
         const csvParams = Object.assign({
-            delimiter: runAsTSV ? '\t' : this.config.field_delimiter,
-            headers: this.config.fields,
+            delimiter: this.csvOptions.field_delimiter,
+            headers: this.csvOptions.fields,
             trim: true,
             noheader: true,
-            ignoreEmpty: this.config.ignore_empty || false,
+            ignoreEmpty: this.csvOptions.ignore_empty,
             output: 'json'
-        } as Partial<CSVParseParam>, this.config.extra_args);
+        } as Partial<CSVParseParam>, this.csvOptions.extra_args);
 
         let foundHeader = false;
-        const data = splitChunks(incomingData, this.config.line_delimiter, slice);
+        const data = splitChunks(incomingData, this.lineDelimiter, slice);
 
         const processChunk = async (record: string) => {
             try {
@@ -158,7 +260,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
                     parsedLine[key] = parsedLine[key].trim();
                 });
                 // Check for header row. Assumes there would only be one header row in a slice
-                if (this.config.remove_header && !foundHeader
+                if (this.csvOptions.remove_header && !foundHeader
                     && Object.keys(parsedLine)
                         .sort().join() === Object.values(parsedLine).sort().join()) {
                     foundHeader = true;
@@ -167,7 +269,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
                 if (parsedLine) {
                     return DataEntity.fromBuffer(
                         JSON.stringify(parsedLine),
-                        this.config,
+                        this.encodingConfig,
                         slice
                     );
                 }
@@ -185,7 +287,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
     protected async tsv(
         incomingData: string, slice: FileSlice
     ): Promise<(DataEntity | null)[]> {
-        return this.csv(incomingData, slice, true);
+        return this.csv(incomingData, slice);
     }
 
     protected async json(
@@ -197,7 +299,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
             return data.map(
                 this.tryFn((record: any) => DataEntity.fromBuffer(
                     JSON.stringify(record),
-                    this.config,
+                    this.encodingConfig,
                     slice
                 ))
             );
@@ -206,7 +308,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
         try {
             return [DataEntity.fromBuffer(
                 JSON.stringify(data),
-                this.config,
+                this.encodingConfig,
                 slice
             )];
         } catch (err) {
@@ -217,12 +319,12 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
     protected async ldjson(
         incomingData: string, slice: FileSlice
     ): Promise<(DataEntity | null)[]> {
-        const data = splitChunks(incomingData, this.config.line_delimiter, slice);
+        const data = splitChunks(incomingData, this.lineDelimiter, slice);
 
         return data.map(
             this.tryFn((record: any) => DataEntity.fromBuffer(
                 record,
-                this.config,
+                this.encodingConfig,
                 slice
             ))
         );

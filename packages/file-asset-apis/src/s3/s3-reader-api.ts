@@ -1,6 +1,8 @@
 import { Logger } from '@terascope/utils';
 import type S3 from 'aws-sdk/clients/s3';
-import { FileSlice, ChunkedConfig } from '../interfaces';
+import {
+    FileSlice, ReaderConfig, SliceConfig, FileSliceConfig
+} from '../interfaces';
 import {
     ChunkedFileReader, segmentFile, canReadFile, parsePath
 } from '../base';
@@ -17,15 +19,33 @@ function validateConfig(input: unknown) {
 }
 
 export class S3Reader extends ChunkedFileReader {
-    client: S3;
-    bucket: string;
+    private client: S3;
+    private bucket: string;
+    readonly segmentFileConfig: SliceConfig
+    readonly slicerConfig: FileSliceConfig;
 
-    constructor(client: S3, config: ChunkedConfig, logger: Logger) {
+    constructor(client: S3, config: ReaderConfig, logger: Logger) {
         validateConfig(config);
         super(config, logger);
-        const { bucket } = parsePath(this.config.path);
+        const {
+            path, format, size, file_per_slice
+        } = config;
+        const { bucket } = parsePath(path);
         this.client = client;
         this.bucket = bucket;
+        const { lineDelimiter } = this;
+
+        this.segmentFileConfig = {
+            line_delimiter: lineDelimiter,
+            format,
+            size,
+            file_per_slice
+        };
+
+        this.slicerConfig = {
+            path,
+            ...this.segmentFileConfig
+        };
     }
 
     /**
@@ -46,9 +66,11 @@ export class S3Reader extends ChunkedFileReader {
             //   request would be for `bytes=0-0`
             Range: `bytes=${offset}-${offset + length - 1}`
         });
+
         if (!results.Body) {
             throw new Error('Missing body from s3 get object request');
         }
+
         return this.decompress(
             Buffer.isBuffer(results.Body)
                 ? results.Body
@@ -98,7 +120,7 @@ export class S3Reader extends ChunkedFileReader {
         path: string;
         size: number;
     }): FileSlice[] {
-        return segmentFile(file, this.config);
+        return segmentFile(file, this.segmentFileConfig);
     }
 
     /**
@@ -122,6 +144,6 @@ export class S3Reader extends ChunkedFileReader {
      *   ]
     */
     async makeSlicer(): Promise<S3Slicer> {
-        return new S3Slicer(this.client, this.config, this.logger);
+        return new S3Slicer(this.client, this.slicerConfig, this.logger);
     }
 }
