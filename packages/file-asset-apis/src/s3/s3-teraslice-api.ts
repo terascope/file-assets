@@ -23,16 +23,14 @@ export class S3TerasliceAPI extends S3Fetcher {
     constructor(client: S3, config: ReaderConfig, logger: Logger) {
         validateConfig(config);
         super(client, config, logger);
-        const {
-            path, format, size, file_per_slice
-        } = config;
-        const { lineDelimiter } = this;
+        const { path, size } = config;
+        const { lineDelimiter, format, filePerSlice } = this;
 
         this.segmentFileConfig = {
             line_delimiter: lineDelimiter,
             format,
             size,
-            file_per_slice
+            file_per_slice: filePerSlice
         };
 
         this.slicerConfig = {

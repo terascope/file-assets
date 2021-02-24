@@ -17,7 +17,6 @@ import {
     Compression,
     Format,
     CSVParams,
-    ChunkedCSVConfig
 } from '../interfaces';
 import { CompressionFormatter } from './compression';
 
@@ -39,7 +38,7 @@ function validateCSVConfig(inputConfig: ChunkedFileReaderConfig) {
         remove_header,
         field_delimiter,
         format
-    } = inputConfig as ChunkedCSVConfig;
+    } = inputConfig;
 
     if (extra_args) {
         if (!isSimpleObject(extra_args)) throw new Error('Invalid parameter extra_args, it must be an object');
@@ -81,7 +80,7 @@ function validateCSVConfig(inputConfig: ChunkedFileReaderConfig) {
 
 export abstract class ChunkedFileReader extends CompressionFormatter {
     logger: Logger;
-    private format: Format
+    protected format: Format
     protected lineDelimiter: string
     private csvOptions: CSVParams
     private actionOnError: string;
@@ -90,21 +89,21 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
     private encodingConfig: {
         _encoding: DataEncoding
     }
+    protected filePerSlice: boolean;
 
     constructor(inputConfig: ChunkedFileReaderConfig, logger: Logger) {
-        super(inputConfig.compression);
+        super(inputConfig.compression ?? Compression.none);
 
         const {
             _encoding = DataEncoding.JSON,
             on_error = 'throw',
             rejectFn = this.reject,
             tryFn = this.tryCatch,
-            compression,
-            file_per_slice,
-            line_delimiter,
-            format,
+            compression = Compression.none,
+            file_per_slice = false,
+            line_delimiter = '\n',
+            format = Format.ldjson,
         } = inputConfig;
-
         // if format is tsv and line_delimiter is defined, it must be set to "\t"
         if (format === Format.tsv && line_delimiter && line_delimiter !== '\t') {
             throw new Error(`Invalid parameter line_delimiter, if format is set to ${Format.tsv} and line_delimiter is given, it must be set to "\\t"`);
@@ -131,6 +130,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
         if (compression !== Compression.none && file_per_slice !== true) {
             throw new Error('Invalid parameter "file_per_slice", it must be set to true if compression is set to anything other than "none" as we cannot properly divide up a compressed file');
         }
+        this.filePerSlice = file_per_slice;
     }
 
     private tryCatch(fn: FN) {

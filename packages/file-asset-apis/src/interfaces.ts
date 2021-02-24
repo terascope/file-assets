@@ -1,11 +1,11 @@
 import type json2csv from 'json2csv';
-import type { DataEntity } from '@terascope/utils';
+import type { DataEncoding, DataEntity } from '@terascope/utils';
 import type { OpConfig } from '@terascope/job-components';
 
 export interface S3PutConfig {
     Bucket: string;
     Key: string;
-    Body: string;
+    Body: Buffer;
 }
 
 export interface FileConfig {
@@ -29,8 +29,6 @@ export interface ReaderFileConfig extends FileConfig {
     extra_args: CSVOptions;
 }
 
-export interface S3ReaderConfig extends ChunkedAPIMethods, FileSliceConfig {}
-
 export type CSVOptions = json2csv.Options<any>;
 
 export interface ChunkedConfig extends ReaderFileConfig, Pick<OpConfig, '_encoding' | '_dead_letter_action'> {
@@ -43,11 +41,60 @@ export interface ChunkedAPIMethods {
     rejectFn?: (input: unknown, err: Error) => never | null;
 }
 
-export interface ChunkedFileReaderConfig extends ChunkedAPIMethods {
-    compression: Compression;
+interface BaseFileReaderConfig extends ChunkedAPIMethods {
+    compression?: Compression;
     // TODO: this should default to \n
-    line_delimiter: string;
-    format: Format;
+    line_delimiter?: string;
+    format?: Format;
+    file_per_slice?: boolean
+    on_error?: string;
+    _encoding?: DataEncoding
+}
+
+// TODO: change name to delineate between this and CSVConfig
+export interface CSVParams {
+    extra_args?: CSVOptions;
+    ignore_empty?: boolean;
+    remove_header?: boolean;
+    field_delimiter?: string;
+    fields?: string[];
+}
+
+export interface ChunkedFileReaderConfig extends BaseFileReaderConfig, CSVParams{}
+
+export interface ReaderConfig extends BaseFileReaderConfig, CSVParams {
+    size: number,
+    path: string;
+}
+
+export interface S3FetcherConfig extends BaseFileReaderConfig, CSVParams {
+    path: string;
+}
+
+export interface FileFetcherConfig extends BaseFileReaderConfig, CSVParams {
+    path: string;
+    size: number;
+}
+
+export interface BaseSenderConfig extends Partial<CSVConfig> {
+    /** A unique value that is used to help create the filename
+     * to prevent clobbering from other senders
+    */
+    id: string;
+    /** Indicator to allow sending to multiple files, used in conjunction with
+     * data-entities with the 'standard:route' metadata property */
+    dynamic_routing?: boolean;
+    /** this is deprecated, only here for backwards compatibility,
+     * please use dynamic_routing instead */
+    _key?: string;
+    path: string;
+    format?: Format;
+    compression?: Compression,
+    /** Set this to override the default extension of a file, will default to the
+     * modifiers from format and compression */
+    extension?: string;
+    file_per_slice?: boolean;
+    concurrency?: number
 }
 
 export interface ChunkedSenderConfig extends ChunkedConfig {
@@ -80,7 +127,7 @@ export interface CSVConfig {
     fields: string[];
     include_header: boolean;
     line_delimiter: string;
-    field_delimiter: string;
+    field_delimiter?: string;
     format: Format;
 }
 
