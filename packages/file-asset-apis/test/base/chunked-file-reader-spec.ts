@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { debugLogger, DataEntity } from '@terascope/utils';
 import {
-    ChunkedFileReader, Format, ChunkedConfig, Compression
+    ChunkedFileReader, Format, Compression, ReaderConfig
 } from '../../src';
 
 // Mock logger
@@ -10,7 +10,7 @@ const logger = debugLogger('chunked-file-reader');
 class Test extends ChunkedFileReader {
     data: string[];
 
-    constructor(config: ChunkedConfig, data: string[]) {
+    constructor(config: ReaderConfig, data: string[]) {
         super(config, logger);
         this.data = data;
     }
@@ -25,10 +25,10 @@ function makeConfig(config: any) {
     const defaults = {
         line_delimiter: '\n',
         format: Format.ldjson,
-        _dead_letter_action: 'none',
+        on_error: 'none',
         compression: Compression.none
     };
-    return Object.assign({}, defaults, config) as ChunkedConfig;
+    return Object.assign({}, defaults, config) as ReaderConfig;
 }
 
 const ldjsonOpConfig = makeConfig({

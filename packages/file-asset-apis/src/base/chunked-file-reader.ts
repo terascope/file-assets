@@ -7,7 +7,8 @@ import {
     DataEncoding,
     isSimpleObject,
     isString,
-    isBoolean
+    isBoolean,
+    isNil
 } from '@terascope/utils';
 import csvToJson from 'csvtojson';
 import { CSVParseParam } from 'csvtojson/v2/Parameters';
@@ -22,15 +23,11 @@ import { CompressionFormatter } from './compression';
 
 type FN = (input: any) => any;
 
-function validateCSVConfig(inputConfig: ChunkedFileReaderConfig) {
-    const csvOptions: CSVParams = {
-        extra_args: {},
-        fields: [],
-        ignore_empty: true,
-        remove_header: true,
-        field_delimiter: ','
-    };
+interface CSVConfigInput extends CSVParams {
+    format: Format
+}
 
+function validateCSVConfig(inputConfig: CSVConfigInput) {
     const {
         extra_args,
         fields,
@@ -40,42 +37,20 @@ function validateCSVConfig(inputConfig: ChunkedFileReaderConfig) {
         format
     } = inputConfig;
 
-    if (extra_args) {
-        if (!isSimpleObject(extra_args)) throw new Error('Invalid parameter extra_args, it must be an object');
-        if (Object.keys(extra_args).length > 0) {
-            csvOptions.extra_args = extra_args;
-        }
+    if (!isSimpleObject(extra_args)) throw new Error('Invalid parameter extra_args, it must be an object');
+
+    if (!Array.isArray(fields)) throw new Error('Invalid parameter fields, it must be an empty array or an array containing strings');
+    if (!fields.every(isString)) throw new Error('Invalid parameter fields, it must be an array containing strings');
+    if (!isBoolean(ignore_empty)) throw new Error('Invalid paramter ignore_empty, it must be a boolean');
+    if (!isBoolean(remove_header)) throw new Error('Invalid paramter remove_header, it must be a boolean');
+
+    if (!isString(field_delimiter)) throw new Error('Invalid paramter field_delimiter, it must be a string');
+    // if field_delimiter is given and format is tsv, it must be set to \t
+    if (format === Format.tsv && field_delimiter !== '\t') {
+        throw new Error(`Invalid parameter field_delimiter, if format is set to ${Format.tsv} and field_delimiter is provided, it must be set to "\\t"`);
     }
 
-    if (fields) {
-        if (!Array.isArray(fields)) throw new Error('Invalid parameter fields, it must be an empty array or an array containing strings');
-        if (!fields.every(isString)) throw new Error('Invalid parameter fields, it must be an array containing strings');
-        csvOptions.fields = fields;
-    }
-
-    if (isNotNil(ignore_empty)) {
-        if (!isBoolean(ignore_empty)) throw new Error('Invalid paramter ignore_empty, it must be a boolean');
-        csvOptions.ignore_empty = ignore_empty;
-    }
-
-    if (isNotNil(remove_header)) {
-        if (!isBoolean(remove_header)) throw new Error('Invalid paramter remove_header, it must be a boolean');
-        csvOptions.remove_header = remove_header;
-    }
-
-    if (isNotNil(field_delimiter)) {
-        if (!isString(fields)) throw new Error('Invalid paramter field_delimiter, it must be a string');
-        // if field_delimiter is given and format is tsv, it must be set to \t
-        if (format === Format.tsv && field_delimiter !== '\t') {
-            throw new Error(`Invalid parameter field_delimiter, if format is set to ${Format.tsv} and field_delimiter is provided, it must be set to "\\t"`);
-        }
-        csvOptions.field_delimiter = field_delimiter;
-    } else if (format === Format.tsv) {
-        // if field_delimiter is not set but format is tsv, default to \t
-        csvOptions.field_delimiter = '\t';
-    }
-
-    return csvOptions;
+    return inputConfig;
 }
 
 export abstract class ChunkedFileReader extends CompressionFormatter {
@@ -102,21 +77,42 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
             compression = Compression.none,
             file_per_slice = false,
             line_delimiter = '\n',
+            field_delimiter,
             format = Format.ldjson,
+            extra_args = {},
+            ignore_empty = true,
+            remove_header = true,
+            fields = []
         } = inputConfig;
+
+        let fieldDelimiter = field_delimiter;
         // if format is tsv and line_delimiter is defined, it must be set to "\t"
-        if (format === Format.tsv && line_delimiter && line_delimiter !== '\t') {
-            throw new Error(`Invalid parameter line_delimiter, if format is set to ${Format.tsv} and line_delimiter is given, it must be set to "\\t"`);
+        if (format === Format.tsv && fieldDelimiter && fieldDelimiter !== '\t') {
+            throw new Error(`Invalid parameter field_delimiter, if format is set to ${Format.tsv} and field_delimiter is given, it must be set to "\\t"`);
         }
 
-        let lineDelimiter = line_delimiter ?? '\n';
+        const lineDelimiter = line_delimiter ?? '\n';
 
-        if (format === Format.tsv) {
-            lineDelimiter = '\t';
+        // set defaults for field_delimiter
+        if (isNil(fieldDelimiter)) {
+            if (format === Format.tsv) {
+                fieldDelimiter = '\t';
+            } else {
+                fieldDelimiter = ',';
+            }
         }
+
+        const csvInput: CSVConfigInput = {
+            field_delimiter: fieldDelimiter,
+            extra_args,
+            ignore_empty,
+            remove_header,
+            fields,
+            format
+        };
 
         this.lineDelimiter = lineDelimiter;
-        this.csvOptions = validateCSVConfig(inputConfig);
+        this.csvOptions = validateCSVConfig(csvInput);
         this.logger = logger;
         this.tryFn = tryFn;
         this.rejectRecord = rejectFn;

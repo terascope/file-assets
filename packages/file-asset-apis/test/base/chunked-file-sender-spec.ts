@@ -2,7 +2,7 @@ import 'jest-extended';
 import { DataEntity } from '@terascope/utils';
 import {
     FileSenderType,
-    ChunkedSenderConfig,
+    BaseSenderConfig,
     Compression,
     Format,
     ChunkedFileSender
@@ -31,13 +31,8 @@ describe('ChunkedSlicer', () => {
         }
     }
 
-    const defaults: Partial<ChunkedSenderConfig> = {
-        worker_id: workerId,
-        size: 1000,
-        connection: 'default',
-        remove_header: true,
-        ignore_empty: true,
-        extra_args: {},
+    const defaults: Partial<BaseSenderConfig> = {
+        id: workerId,
         compression: Compression.none,
         field_delimiter: ',',
         line_delimiter: '\n',
@@ -49,8 +44,8 @@ describe('ChunkedSlicer', () => {
         dynamic_routing: false
     };
 
-    function makeConfig(config: Partial<ChunkedSenderConfig> = {}): ChunkedSenderConfig {
-        return Object.assign({}, defaults, config) as ChunkedSenderConfig;
+    function makeConfig(config: Partial<BaseSenderConfig> = {}): BaseSenderConfig {
+        return Object.assign({}, defaults, config) as BaseSenderConfig;
     }
 
     it('will set file filePerSlice to true if its a file type and format is JSON', () => {

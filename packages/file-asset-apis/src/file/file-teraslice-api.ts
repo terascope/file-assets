@@ -7,7 +7,7 @@ import {
 import { segmentFile, canReadFile } from '../base';
 import { FileFetcher } from './file-fetcher';
 
-export class FileReader extends FileFetcher {
+export class FileTerasliceAPI extends FileFetcher {
     readonly segmentFileConfig: SliceConfig
     readonly slicerConfig: FileSliceConfig;
 
