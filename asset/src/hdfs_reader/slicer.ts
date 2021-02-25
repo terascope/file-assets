@@ -33,7 +33,7 @@ export default class HDFSFileSlicer extends Slicer<HDFSReaderOpConfig> {
         const apiManager = this.getAPI<HDFSReaderFactoryAPI>(apiName);
         const apiConfig = apiManager.getConfig(apiName) as HDFSReaderApiConfig;
 
-        this.sliceConfig = Object.assign({}, apiConfig);
+        this.sliceConfig = Object.assign({}, apiConfig) as SliceConfig;
         this.directories = [apiConfig.path];
         this.api = await apiManager.create(apiName, {});
     }

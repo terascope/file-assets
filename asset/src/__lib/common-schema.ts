@@ -41,9 +41,9 @@ export const commonSchema = {
         format: 'required_String'
     },
     extension: {
-        doc: 'A file extension to add to the object name.',
-        default: '',
-        format: String
+        doc: 'A file extension override, by default an extension will be added to the file based on the format and compression settings',
+        default: null,
+        format: 'optional_String'
     },
     compression: {
         doc: 'Compression to use on the object. Supports lz4 and gzip.',
