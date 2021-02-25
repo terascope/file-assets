@@ -16,6 +16,5 @@ describe('S3TerasliceAPI Asset APIs', () => {
         // expect(
         //     () => new S3TerasliceAPI(client, { file_per_slice: undefined }, logger)
         // ).toThrowError(errMsg);
-        return true;
     });
 });

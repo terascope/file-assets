@@ -2,10 +2,15 @@ import fse from 'fs-extra';
 import { Logger } from '@terascope/utils';
 import { FileSlicer } from './file-slicer';
 import {
-    FileSlice, ReaderConfig, FileSliceConfig, SliceConfig
+    FileSlice,
+    ReaderConfig,
+    FileSliceConfig,
+    SliceConfig,
+    BaseSenderConfig
 } from '../interfaces';
 import { segmentFile, canReadFile } from '../base';
 import { FileFetcher } from './file-fetcher';
+import { FileSender } from './file-sender';
 
 export class FileTerasliceAPI extends FileFetcher {
     readonly segmentFileConfig: SliceConfig
@@ -131,5 +136,14 @@ export class FileTerasliceAPI extends FileFetcher {
     */
     async makeSlicer(): Promise<FileSlicer> {
         return new FileSlicer(this.slicerConfig, this.logger);
+    }
+
+    /**
+     *
+     * Constructs a file sender api
+     */
+    async makeSender(senderConfig: BaseSenderConfig): Promise<FileSender> {
+        const config = Object.assign({}, this.slicerConfig, senderConfig);
+        return new FileSender(config, this.logger);
     }
 }

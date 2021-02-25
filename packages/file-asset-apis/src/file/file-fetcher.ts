@@ -1,13 +1,13 @@
 import fse from 'fs-extra';
 import { Logger } from '@terascope/utils';
-import { FileSlice, FileFetcherConfig } from '../interfaces';
+import { FileSlice, ReaderConfig } from '../interfaces';
 import { ChunkedFileReader } from '../base';
 
 export class FileFetcher extends ChunkedFileReader {
     client = fse;
     protected readonly size: number;
 
-    constructor(config: FileFetcherConfig, logger: Logger) {
+    constructor(config: ReaderConfig, logger: Logger) {
         super(config, logger);
         const { size } = config;
         this.size = size;

@@ -3,15 +3,6 @@ import { flatten, Logger } from '@terascope/utils';
 import { segmentFile, parsePath, canReadFile } from '../base';
 import { SliceConfig, FileSlice, FileSliceConfig } from '../interfaces';
 import { listS3Objects } from './s3-helpers';
-import { isObject } from '../helpers';
-
-function validateConfig(input: unknown) {
-    if (!isObject(input)) throw new Error('Invalid config parameter, ut must be an object');
-    (input as Record<string, unknown>);
-    if (input.file_per_slice == null || input.file_per_slice === false) {
-        throw new Error('Invalid parameter "file_per_slice", it must be set to true, cannot be append data to S3 objects');
-    }
-}
 
 export class S3Slicer {
     readonly sliceConfig: SliceConfig;
@@ -23,7 +14,6 @@ export class S3Slicer {
     protected _doneSlicing = false;
 
     constructor(client: S3, config: FileSliceConfig, logger: Logger) {
-        validateConfig(config);
         const { path, ...sliceConfig } = config;
         const { bucket, prefix } = parsePath(path);
         this.sliceConfig = sliceConfig;

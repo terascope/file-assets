@@ -1,14 +1,19 @@
 import { Logger } from '@terascope/utils';
 import type S3 from 'aws-sdk/clients/s3';
 import {
-    FileSlice, ReaderConfig, SliceConfig, FileSliceConfig
+    FileSlice,
+    ReaderConfig,
+    SliceConfig,
+    FileSliceConfig,
+    BaseSenderConfig
 } from '../interfaces';
 import { segmentFile, canReadFile } from '../base';
 import { S3Slicer } from './s3-slicer';
 import { isObject } from '../helpers';
 import { S3Fetcher } from './s3-fetcher';
+import { S3Sender } from './s3-sender';
 
-function validateConfig(input: unknown) {
+function validateSenderConfig(input: Record<string, any>) {
     if (!isObject(input)) throw new Error('Invalid config parameter, ut must be an object');
     (input as Record<string, unknown>);
     if (input.file_per_slice == null || input.file_per_slice === false) {
@@ -21,7 +26,6 @@ export class S3TerasliceAPI extends S3Fetcher {
     readonly slicerConfig: FileSliceConfig;
 
     constructor(client: S3, config: ReaderConfig, logger: Logger) {
-        validateConfig(config);
         super(client, config, logger);
         const { path, size } = config;
         const { lineDelimiter, format, filePerSlice } = this;
@@ -106,5 +110,11 @@ export class S3TerasliceAPI extends S3Fetcher {
     */
     async makeSlicer(): Promise<S3Slicer> {
         return new S3Slicer(this.client, this.slicerConfig, this.logger);
+    }
+
+    async makeSender(senderConfig: BaseSenderConfig): Promise<S3Sender> {
+        const config = Object.assign({}, this.slicerConfig, senderConfig);
+        validateSenderConfig(config);
+        return new S3Sender(this.client, config, this.logger);
     }
 }

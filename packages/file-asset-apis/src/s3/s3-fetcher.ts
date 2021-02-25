@@ -1,24 +1,14 @@
 import { Logger } from '@terascope/utils';
 import type S3 from 'aws-sdk/clients/s3';
-import { FileSlice, S3FetcherConfig } from '../interfaces';
+import { FileSlice, ReaderConfig } from '../interfaces';
 import { ChunkedFileReader, parsePath } from '../base';
 import { getS3Object } from './s3-helpers';
-import { isObject } from '../helpers';
-
-function validateConfig(input: unknown) {
-    if (!isObject(input)) throw new Error('Invalid config parameter, ut must be an object');
-    (input as Record<string, unknown>);
-    if (input.file_per_slice == null || input.file_per_slice === false) {
-        throw new Error('Invalid parameter "file_per_slice", it must be set to true, cannot be append data to S3 objects');
-    }
-}
 
 export class S3Fetcher extends ChunkedFileReader {
     protected client: S3;
     protected readonly bucket: string;
 
-    constructor(client: S3, config: S3FetcherConfig, logger: Logger) {
-        validateConfig(config);
+    constructor(client: S3, config: ReaderConfig, logger: Logger) {
         super(config, logger);
         const { path } = config;
         const { bucket } = parsePath(path);

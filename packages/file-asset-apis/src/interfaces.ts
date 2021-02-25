@@ -86,15 +86,6 @@ export interface ReaderConfig extends BaseFileReaderConfig, CSVReaderParams {
     path: string;
 }
 
-export interface S3FetcherConfig extends BaseFileReaderConfig, CSVReaderParams {
-    path: string;
-}
-
-export interface FileFetcherConfig extends BaseFileReaderConfig, CSVReaderParams {
-    path: string;
-    size: number;
-}
-
 export interface BaseSenderConfig extends Partial<CSVSenderConfig> {
     /** A unique value that is used to help create the filename
      * to prevent clobbering from other senders
@@ -169,4 +160,5 @@ export type FetcherFn = (slice: FileSlice) => Promise<string>
 
 export interface HDFSReaderConfig extends BaseFileReaderConfig {
     user: string;
+    size: number
 }
