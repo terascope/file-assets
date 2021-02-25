@@ -23,9 +23,8 @@ function addFileExtensionModifiers(
 
     let newExtension = '';
 
-    if (format === Format.raw) {
-        newExtension += '.txt';
-    } else {
+    // if it is raw, we don't know what extension as it could be anything
+    if (format !== Format.raw) {
         newExtension += `.${format}`;
     }
 
