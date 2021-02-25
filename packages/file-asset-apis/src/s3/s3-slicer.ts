@@ -19,7 +19,7 @@ export class S3Slicer {
     client: S3;
     readonly bucket: string;
     readonly prefix: string;
-    _lastKey: string | undefined;
+    private _lastKey: string | undefined;
     protected _doneSlicing = false;
 
     constructor(client: S3, config: FileSliceConfig, logger: Logger) {

@@ -140,7 +140,6 @@ export enum Compression {
 export interface NameOptions {
     filePath: string;
     filePerSlice?: boolean;
-    extension?: string;
 }
 
 /**

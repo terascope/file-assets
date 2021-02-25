@@ -1,5 +1,5 @@
 import {
-    isEmpty, DataEntity, pMap, isNil, isString
+    DataEntity, pMap, isNil, isString
 } from '@terascope/utils';
 import * as nodePathModule from 'path';
 import { CompressionFormatter } from './compression';
@@ -12,6 +12,31 @@ import {
     BaseSenderConfig,
     CSVConfig
 } from '../interfaces';
+
+function addFileExtensionModifiers(
+    format: Format, compression: Compression, extension?: string
+): string {
+    if (extension && isString(extension)) {
+        const override = extension.startsWith('.') ? `${extension}` : `.${extension}`;
+        return override;
+    }
+
+    let newExtension = '';
+
+    if (format === Format.raw) {
+        newExtension += '.txt';
+    } else {
+        newExtension += `.${format}`;
+    }
+
+    if (compression === Compression.lz4) {
+        newExtension += `.${compression}`;
+    } else if (compression === Compression.gzip) {
+        newExtension += '.gz';
+    }
+
+    return newExtension;
+}
 
 export abstract class ChunkedFileSender {
     readonly workerId: string;
@@ -26,13 +51,14 @@ export abstract class ChunkedFileSender {
     readonly concurrency: number;
     readonly filePerSlice: boolean;
     readonly lineDelimiter: string;
+    readonly fileExtension: string;
 
     constructor(type: FileSenderType, config: BaseSenderConfig) {
         const {
             path, id, format = Format.ldjson, compression = Compression.none,
             file_per_slice = false, dynamic_routing = false,
             fields = [], include_header = false, line_delimiter = '\n',
-            field_delimiter = ',', concurrency = 10
+            field_delimiter = ',', concurrency = 10, extension
         } = config;
 
         if (isNil(path) || !isString(path)) {
@@ -43,14 +69,31 @@ export abstract class ChunkedFileSender {
             throw new Error('Invalid parameter id, it must be set to a unique string value');
         }
 
+        // TODO: review this to see if this can be simplified
+        // Enforce `file_per_slice` for JSON format or compressed output for file type
+        if (
+            type === FileSenderType.file
+            && format === Format.json
+            && config.file_per_slice !== true
+        ) {
+            throw new Error('Invalid parameter "file_per_slice", it must be set to true if format is set to json');
+        }
+
+        // file_per_slice must be set to true if compression is set to anything besides "none"
+        if (config.compression !== Compression.none && config.file_per_slice !== true) {
+            throw new Error('Invalid parameter "file_per_slice", it must be set to true if compression is set to anything other than "none" as we cannot properly divide up a compressed file');
+        }
+
+        if (type === FileSenderType.s3 && file_per_slice === false) {
+            throw new Error('Invalid parameter file_per_slice, it must be set to true is using with S3');
+        }
+
         this.type = type;
         this.workerId = id;
         this.format = format;
-        const extension = isEmpty(config.extension) ? undefined : config.extension;
 
         this.nameOptions = {
             filePath: path,
-            extension,
             filePerSlice: file_per_slice
         };
 
@@ -62,29 +105,13 @@ export abstract class ChunkedFileSender {
             format,
         };
 
-        // Coerce `file_per_slice` for JSON format or compressed output for file type
-        if (
-            type === FileSenderType.file
-            && (format === Format.json || compression !== Compression.none)
-        ) {
-            this.nameOptions.filePerSlice = true;
-        }
-
-        // `filePerSlice` needs to be ignored since you cannot append to S3 objects
-        if (type === FileSenderType.s3) {
-            this.nameOptions.filePerSlice = true;
-        }
-
         this.compressionFormatter = new CompressionFormatter(compression);
         this.fileFormatter = new FileFormatter(format, csvOptions);
         this.isRouter = dynamic_routing;
         this.filePerSlice = file_per_slice;
-        // file_per_slice must be set to true if compression is set to anything besides "none"
-        if (config.compression !== Compression.none && config.file_per_slice !== true) {
-            throw new Error('Invalid parameter "file_per_slice", it must be set to true if compression is set to anything other than "none" as we cannot properly divide up a compressed file');
-        }
         this.lineDelimiter = line_delimiter;
         this.concurrency = concurrency;
+        this.fileExtension = addFileExtensionModifiers(format, compression, extension);
     }
 
     abstract verify(path: string): Promise<void>
@@ -104,7 +131,7 @@ export abstract class ChunkedFileSender {
 
     async createFileDestinationName(pathing: string): Promise<string> {
         // Can't use path.join() here since the path might include a filename prefix
-        const { filePerSlice = false, extension, filePath } = this.nameOptions;
+        const { filePerSlice, filePath } = this.nameOptions;
         let fileName: string;
 
         if (this.type === FileSenderType.file || this.type === FileSenderType.hdfs) {
@@ -127,9 +154,7 @@ export abstract class ChunkedFileSender {
             fileName += `.${this.sliceCount}`;
         }
 
-        if (extension) {
-            fileName += `${extension}`;
-        }
+        fileName += this.fileExtension;
 
         return fileName;
     }
