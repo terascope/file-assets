@@ -84,7 +84,7 @@ describe('S3 sender api', () => {
         expect(results).toBeArrayOfSize(1);
         expect(results[0]).toMatchObject(data[0]);
 
-        const key = `testing/${workerId}.0`;
+        const key = `testing/${workerId}.0.csv`;
 
         const dbData = await getS3Object(client, {
             Bucket: bucket,

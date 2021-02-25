@@ -48,10 +48,5 @@ describe('S3 Reader API Schema', () => {
         it('should throw an error if no path is specified', async () => {
             await expect(makeTest({})).toReject();
         });
-
-        it('should throw an error if file_per_slice is set to false/undefined', async () => {
-            await expect(makeTest({ path: 'some/path', file_per_slice: false })).toReject();
-            await expect(makeTest({ path: 'some/path', file_per_slice: undefined })).toReject();
-        });
     });
 });

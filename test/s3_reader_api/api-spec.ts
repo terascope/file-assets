@@ -84,8 +84,8 @@ describe('S3 API Reader', () => {
         const bucket = 'api-reader-test-tsv';
         const dirPath = '/my/test/';
         const path = `${bucket}${dirPath}`;
-        const slicePath = `${dirPath}${testWorkerId}.0`;
         const format = Format.tsv;
+        const slicePath = `${dirPath}${testWorkerId}.0.${format}`;
 
         beforeAll(async () => {
             await cleanupBucket(client, bucket);
@@ -104,13 +104,13 @@ describe('S3 API Reader', () => {
         };
 
         it('can be fetched', async () => {
-            const opConfig = { path, format };
+            const opConfig = { path, format, field_delimiter: '\t' };
 
             const apiManager = await makeApiTest(opConfig);
             const api = await apiManager.create('tsv', {});
             const results = await api.read(slice);
 
-            expect(results).toBeArrayOfSize(4);
+            expect(results).toBeArrayOfSize(3);
 
             const cars = results.map((obj) => obj.field1);
             const price = results.map((obj) => obj.field2);
@@ -128,8 +128,8 @@ describe('S3 API Reader', () => {
         const bucket = 'api-reader-test-csv';
         const dirPath = '/my/test/';
         const path = `${bucket}${dirPath}`;
-        const slicePath = `${dirPath}${testWorkerId}.0`;
         const format = Format.csv;
+        const slicePath = `${dirPath}${testWorkerId}.0.${format}`;
 
         beforeAll(async () => {
             await cleanupBucket(client, bucket);
@@ -154,7 +154,7 @@ describe('S3 API Reader', () => {
             const api = await apiManager.create('csv', {});
             const results = await api.read(slice);
 
-            expect(results).toBeArrayOfSize(4);
+            expect(results).toBeArrayOfSize(3);
 
             const cars = results.map((obj) => obj.field1);
             const price = results.map((obj) => obj.field2);
@@ -172,8 +172,8 @@ describe('S3 API Reader', () => {
         const bucket = 'api-reader-test-json';
         const dirPath = '/my/test/';
         const path = `${bucket}${dirPath}`;
-        const slicePath = `${dirPath}${testWorkerId}.0`;
         const format = Format.json;
+        const slicePath = `${dirPath}${testWorkerId}.0.${format}`;
 
         beforeAll(async () => {
             await cleanupBucket(client, bucket);
@@ -213,8 +213,8 @@ describe('S3 API Reader', () => {
         const bucket = 'api-reader-test-ldjson';
         const dirPath = '/my/test/';
         const path = `${bucket}${dirPath}`;
-        const slicePath = `${dirPath}${testWorkerId}.0`;
         const format = Format.ldjson;
+        const slicePath = `${dirPath}${testWorkerId}.0.${format}`;
 
         beforeAll(async () => {
             await cleanupBucket(client, bucket);

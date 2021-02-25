@@ -37,7 +37,8 @@ const defaultSenderConfigs: Partial<BaseSenderConfig> = {
     field_delimiter: ',',
     compression: Compression.none,
     fields: [],
-    id: testWorkerId
+    id: testWorkerId,
+    file_per_slice: true
 };
 
 const defaultReaderConfig: Partial<ReaderConfig> = {

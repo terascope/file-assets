@@ -20,14 +20,16 @@ export default class S3ReaderAPI extends APIFactory<S3TerasliceAPI, S3ReaderAPIC
         const config = this.validateConfig(Object.assign({}, this.apiConfig, overrideConfigs));
         const s3Client = this.context.foundation.getConnection({
             endpoint: config.connection,
-            type: 'identifier',
+            type: 's3',
             cached: true
         }).client;
+
         const tryFn = this.tryRecord.bind(this);
         const rejectFn = this.rejectRecord.bind(this);
-        const chunkedConfig = Object.assign(config, { tryFn, rejectFn });
 
+        const chunkedConfig = Object.assign(config, { tryFn, rejectFn });
         const client = new S3TerasliceAPI(s3Client, chunkedConfig, this.logger);
+
         return { client, config };
     }
 

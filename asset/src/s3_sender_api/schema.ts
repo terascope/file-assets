@@ -21,6 +21,6 @@ export default class Schema extends ConvictSchema<S3ExporterAPIConfig> {
     }
 
     build(): Record<string, any> {
-        return fileReaderSchema;
+        return apiSchema;
     }
 }

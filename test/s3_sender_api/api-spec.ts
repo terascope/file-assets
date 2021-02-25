@@ -133,7 +133,7 @@ describe('S3 sender api', () => {
 
         await api.send(data);
 
-        const key = `testing/${workerId}.0`;
+        const key = `testing/${workerId}.0.${format}`;
 
         const dbData = await getS3Object(client, {
             Bucket: bucket,
@@ -154,7 +154,7 @@ describe('S3 sender api', () => {
 
         await api.send(data);
 
-        const key = `testing/${workerId}.0`;
+        const key = `testing/${workerId}.0.${format}`;
 
         const dbData = await getS3Object(client, {
             Bucket: bucket,
@@ -196,7 +196,7 @@ describe('S3 sender api', () => {
 
         await api.send(data);
 
-        const key = `testing/${workerId}.0`;
+        const key = `testing/${workerId}.0.${format}`;
 
         const dbData = await getS3Object(client, {
             Bucket: bucket,
@@ -225,7 +225,7 @@ describe('S3 sender api', () => {
 
         await api.send(data);
 
-        const key = `testing/${workerId}.0`;
+        const key = `testing/${workerId}.0.${format}`;
 
         const dbData = await getS3Object(client, {
             Bucket: bucket,
@@ -246,7 +246,7 @@ describe('S3 sender api', () => {
 
         await api.send(data);
 
-        const key = `testing/${workerId}.0`;
+        const key = `testing/${workerId}.0.${format}`;
 
         const dbData = await getS3Object(client, {
             Bucket: bucket,
@@ -267,7 +267,7 @@ describe('S3 sender api', () => {
 
         await api.send(data);
 
-        const key = `testing/${workerId}.0`;
+        const key = `testing/${workerId}.0.${format}.lz4`;
 
         const dbData = await getS3Object(client, {
             Bucket: bucket,
@@ -292,7 +292,7 @@ describe('S3 sender api', () => {
 
         await api.send(data);
 
-        const key = `testing/${workerId}.0`;
+        const key = `testing/${workerId}.0.${format}.gz`;
 
         const dbData = await getS3Object(client, {
             Bucket: bucket,
@@ -315,7 +315,7 @@ describe('S3 sender api', () => {
 
         await api.send(routeSlice);
 
-        const key = `testing/${workerId}.0`;
+        const key = `testing/${workerId}.0.${format}`;
 
         const dbData = await getS3Object(client, {
             Bucket: bucket,
@@ -338,8 +338,8 @@ describe('S3 sender api', () => {
 
         await api.send(routeSlice);
 
-        const key1 = `testing/${metaRoute1}/${workerId}.0`;
-        const key2 = `testing/${metaRoute2}/${workerId}.0`;
+        const key1 = `testing/${metaRoute1}/${workerId}.0.json`;
+        const key2 = `testing/${metaRoute2}/${workerId}.0.json`;
 
         const dbData1 = await getS3Object(client, {
             Bucket: bucket,
@@ -372,8 +372,8 @@ describe('S3 sender api', () => {
 
         await api.send(routeSlice);
 
-        const key1 = `testing/${metaRoute1}/${workerId}.0`;
-        const key2 = `testing/${metaRoute2}/${workerId}.0`;
+        const key1 = `testing/${metaRoute1}/${workerId}.0.json`;
+        const key2 = `testing/${metaRoute2}/${workerId}.0.json`;
 
         const dbData1 = await getS3Object(client, {
             Bucket: bucket,
