@@ -7,26 +7,28 @@ import {
 import json2csv, { parse } from 'json2csv';
 import {
     Format,
-    CSVConfig,
+    CSVSenderConfig,
     CSVOptions,
 } from '../interfaces';
 
-type FormatFn = (slice: any[], opConfig: CSVConfig, csvOptions: json2csv.Options<any>) => string
+type FormatFn = (
+    slice: any[], opConfig: CSVSenderConfig, csvOptions: json2csv.Options<any>
+) => string
 
-function csvFunction(slice: any[], opConfig: CSVConfig, csvOptions: json2csv.Options<any>) {
+function csvFunction(slice: any[], opConfig: CSVSenderConfig, csvOptions: json2csv.Options<any>) {
     return `${parse(slice, csvOptions)}${opConfig.line_delimiter}`;
 }
 
 const formatsFns = {
     csv: csvFunction,
     tsv: csvFunction,
-    raw(slice: any[], opConfig: CSVConfig) {
+    raw(slice: any[], opConfig: CSVSenderConfig) {
         return `${slice.map((record: any) => record.data).join(opConfig.line_delimiter)}${opConfig.line_delimiter}`;
     },
-    ldjson(slice: any[], opConfig: CSVConfig) {
+    ldjson(slice: any[], opConfig: CSVSenderConfig) {
         return `${slice.map((record: any) => JSON.stringify(record, (opConfig.fields.length > 0) ? opConfig.fields : undefined)).join(opConfig.line_delimiter)}${opConfig.line_delimiter}`;
     },
-    json(slice: any[], opConfig: CSVConfig) {
+    json(slice: any[], opConfig: CSVSenderConfig) {
         return `${JSON.stringify(slice, (opConfig.fields.length > 0) ? opConfig.fields : undefined)}${opConfig.line_delimiter}`;
     }
 };
@@ -41,17 +43,17 @@ const formatValues = Object.values(Format);
 
 export class FileFormatter {
     csvOptions: json2csv.Options<any>;
-    private config: CSVConfig;
+    private config: CSVSenderConfig;
     private fn: FormatFn;
 
-    constructor(format: Format, config: CSVConfig) {
+    constructor(format: Format, config: CSVSenderConfig) {
         this.validateConfig(format, config);
         this.config = config;
         this.csvOptions = makeCsvOptions(config);
         this.fn = getFormatFn(format);
     }
 
-    private validateConfig(format: Format, config: CSVConfig) {
+    private validateConfig(format: Format, config: CSVSenderConfig) {
         const { fields, line_delimiter } = config;
         if (!formatValues.includes(format)) throw new TSError(`Unsupported output format "${format}"`);
         if (isNil(line_delimiter) || !isString(line_delimiter)) throw new TSError(`Invalid parameter line_delimiter, it must be provided and be of type string, was given ${getTypeOf(config.line_delimiter)}`);
@@ -78,7 +80,7 @@ export class FileFormatter {
     }
 }
 
-function makeCsvOptions(config: CSVConfig): CSVOptions {
+function makeCsvOptions(config: CSVSenderConfig): CSVOptions {
     const csvOptions: CSVOptions = {};
 
     if (config.fields.length !== 0) {

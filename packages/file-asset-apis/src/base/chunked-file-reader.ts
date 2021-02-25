@@ -17,13 +17,13 @@ import {
     ChunkedFileReaderConfig,
     Compression,
     Format,
-    CSVParams,
+    CSVReaderParams,
 } from '../interfaces';
 import { CompressionFormatter } from './compression';
 
 type FN = (input: any) => any;
 
-interface CSVConfigInput extends CSVParams {
+interface CSVConfigInput extends CSVReaderParams {
     format: Format
 }
 
@@ -57,7 +57,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
     logger: Logger;
     protected format: Format
     protected lineDelimiter: string
-    private csvOptions: CSVParams
+    private csvOptions: CSVReaderParams
     private actionOnError: string;
     private tryFn: (fn:(msg: any) => DataEntity) => (input: any) => DataEntity | null;
     private rejectRecord: (input: unknown, err: Error) => never | null;
@@ -70,7 +70,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
         super(inputConfig.compression ?? Compression.none);
 
         const {
-            _encoding = DataEncoding.JSON,
+            encoding = DataEncoding.JSON,
             on_error = 'throw',
             rejectFn = this.reject,
             tryFn = this.tryCatch,
@@ -118,7 +118,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
         this.rejectRecord = rejectFn;
         this.actionOnError = on_error;
         this.encodingConfig = {
-            _encoding
+            _encoding: encoding
         };
         this.format = format;
 

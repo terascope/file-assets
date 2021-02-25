@@ -25,9 +25,10 @@ describe('ChunkedSlicer', () => {
         }
 
         async sendToDestination(
-            fileName: string, list: (DataEntity | Record<string, unknown>)[]
+            file: string, list: (DataEntity | Record<string, unknown>)[]
         ) {
-            this.sentData.set(fileName, list);
+            const { fileName, output } = await this.prepareSegment(file, list);
+            this.sentData.set(fileName, output.toString());
         }
     }
 
@@ -269,5 +270,36 @@ describe('ChunkedSlicer', () => {
 
         expect(results.fileName).toEqual(`${path}/${workerId}.0.ldjson`);
         expect((results.output as Buffer).toString()).toEqual('{"some":"data"}\n{"other":"stuff"}\n');
+    });
+
+    it('can respect file destination using send and field_per_slice false', async () => {
+        const test = new Test(
+            FileSenderType.s3,
+            makeConfig({
+                file_per_slice: true,
+                format: Format.ldjson,
+                compression: Compression.none,
+                extension: '.ldjson'
+            })
+        );
+
+        const data = [{ some: 'data' }, { other: 'data' }];
+        const expectedTransforms = '{"some":"data"}\n{"other":"data"}\n';
+
+        await test.send(data);
+        await test.send(data);
+
+        const results = Array.from(test.sentData);
+
+        expect(results).toBeArrayOfSize(2);
+
+        const [firstPath, firstRecords] = results[0];
+        const [secondPath, secondRecords] = results[1];
+
+        expect(firstPath).toEqual('some/path/1234.0.ldjson');
+        expect(firstRecords).toEqual(expectedTransforms);
+
+        expect(secondPath).toEqual('some/path/1234.1.ldjson');
+        expect(secondRecords).toEqual(expectedTransforms);
     });
 });

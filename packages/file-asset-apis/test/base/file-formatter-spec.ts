@@ -1,4 +1,4 @@
-import { Format, CSVConfig, FileFormatter } from '../../src';
+import { Format, CSVSenderConfig, FileFormatter } from '../../src';
 
 describe('FileFormatter', () => {
     it('incorrect format will throw', () => {
@@ -34,7 +34,7 @@ describe('FileFormatter', () => {
 
     it('can format json data', () => {
         const format = Format.json;
-        const config: CSVConfig = {
+        const config: CSVSenderConfig = {
             format,
             fields: [],
             line_delimiter: '\n',
@@ -50,7 +50,7 @@ describe('FileFormatter', () => {
 
     it('can format raw data', () => {
         const format = Format.raw;
-        const config: CSVConfig = {
+        const config: CSVSenderConfig = {
             format,
             fields: [],
             line_delimiter: '\t',
@@ -66,7 +66,7 @@ describe('FileFormatter', () => {
 
     it('can format tsv data', () => {
         const format = Format.tsv;
-        const config: CSVConfig = {
+        const config: CSVSenderConfig = {
             format,
             fields: [],
             line_delimiter: '\t',
@@ -82,7 +82,7 @@ describe('FileFormatter', () => {
 
     it('can format csv data', () => {
         const format = Format.csv;
-        const config: CSVConfig = {
+        const config: CSVSenderConfig = {
             format,
             fields: [],
             line_delimiter: '\n',
@@ -98,7 +98,7 @@ describe('FileFormatter', () => {
 
     it('can format ldjson data', () => {
         const format = Format.ldjson;
-        const config: CSVConfig = {
+        const config: CSVSenderConfig = {
             format,
             fields: [],
             line_delimiter: '\n',
@@ -116,7 +116,7 @@ describe('FileFormatter', () => {
     describe('fields parameter', () => {
         it('can restrict csv output', async () => {
             const format = Format.csv;
-            const config: CSVConfig = {
+            const config: CSVSenderConfig = {
                 format,
                 fields: ['some'],
                 line_delimiter: '\n',
@@ -132,7 +132,7 @@ describe('FileFormatter', () => {
 
         it('can restrict tsv output', async () => {
             const format = Format.tsv;
-            const config: CSVConfig = {
+            const config: CSVSenderConfig = {
                 format,
                 fields: ['some'],
                 line_delimiter: '\n',
@@ -148,7 +148,7 @@ describe('FileFormatter', () => {
 
         it('can restrict json output', async () => {
             const format = Format.json;
-            const config: CSVConfig = {
+            const config: CSVSenderConfig = {
                 format,
                 fields: ['some'],
                 line_delimiter: '\n',
@@ -164,7 +164,7 @@ describe('FileFormatter', () => {
 
         it('can restrict ldjson output', async () => {
             const format = Format.ldjson;
-            const config: CSVConfig = {
+            const config: CSVSenderConfig = {
                 format,
                 fields: ['some'],
                 line_delimiter: '\n',

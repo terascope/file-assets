@@ -1,6 +1,5 @@
 import type json2csv from 'json2csv';
 import type { DataEncoding, DataEntity } from '@terascope/utils';
-import type { OpConfig } from '@terascope/job-components';
 
 export interface S3PutConfig {
     Bucket: string;
@@ -8,36 +7,15 @@ export interface S3PutConfig {
     Body: Buffer;
 }
 
-export interface FileConfig {
-    path: string;
-    extension: string;
-    compression: Compression;
-    field_delimiter: string;
-    line_delimiter: string;
-    fields: string[];
-    file_per_slice: boolean;
-    include_header: boolean;
-    format: Format;
-    concurrency: number;
-}
-
-export interface ReaderFileConfig extends FileConfig {
-    size: number;
-    connection: string;
-    remove_header: boolean;
-    ignore_empty: boolean;
-    extra_args: CSVOptions;
-}
-
 export type CSVOptions = json2csv.Options<any>;
 
-export interface ChunkedConfig extends ReaderFileConfig, Pick<OpConfig, '_encoding' | '_dead_letter_action'> {
-    tryFn?: (fn:(msg: any) => DataEntity) => (input: any) => DataEntity | null;
-    rejectFn?: (input: unknown, err: Error) => never | null;
-}
-
 export interface ChunkedAPIMethods {
+    /** can pass in your own custom try/catch logic or use the default */
     tryFn?: (fn:(msg: any) => DataEntity) => (input: any) => DataEntity | null;
+    /** Can pass in your own custom error handler, if you do so it
+     * will ignore the "on_error" configuration which only works for the default
+     * error handler
+     */
     rejectFn?: (input: unknown, err: Error) => never | null;
 }
 
@@ -47,36 +25,77 @@ interface BaseFileReaderConfig extends ChunkedAPIMethods {
     line_delimiter?: string;
     format?: Format;
     file_per_slice?: boolean
+    /** Parameter to determine how the default rejectFn works,
+     * may be set to "throw", "log", or "none"
+     * @default  "throw"
+     */
     on_error?: string;
-    _encoding?: DataEncoding
+    /** Determines how to parse record from Buffer, could be set to "json" or "raw"
+    * @default  "json"
+    */
+    encoding?: DataEncoding
 }
 
 // TODO: change name to delineate between this and CSVConfig
-export interface CSVParams {
+export interface CSVReaderParams {
     extra_args?: CSVOptions;
+    /** Ignore the empty value in tsv/csv columns.
+     * @default true
+     */
     ignore_empty?: boolean;
+    /** Determines if header row should be excluded from tsv/csv files
+     * @default true
+     */
     remove_header?: boolean;
+    /**
+     * delimiter used for separating columns
+     * @default ','
+     */
     field_delimiter?: string;
+    /**
+     * An array of field names to specify the headers of tsv/csv data
+     *
+     * @default []
+     */
     fields?: string[];
 }
 
-export interface ChunkedFileReaderConfig extends BaseFileReaderConfig, CSVParams{}
+export interface CSVSenderConfig {
+    /**
+     * List of fields to process, will default to all of them
+     * @default []
+     */
+    fields: string[];
+    /** determines whether or not csv/tsv file will contain a title column.
+     * @default false
+     */
+    include_header: boolean;
+    line_delimiter: string;
+    /**
+     * delimiter used for separating columns
+     * @default ','
+     */
+    field_delimiter?: string;
+    format: Format;
+}
 
-export interface ReaderConfig extends BaseFileReaderConfig, CSVParams {
+export interface ChunkedFileReaderConfig extends BaseFileReaderConfig, CSVReaderParams{}
+
+export interface ReaderConfig extends BaseFileReaderConfig, CSVReaderParams {
     size: number,
     path: string;
 }
 
-export interface S3FetcherConfig extends BaseFileReaderConfig, CSVParams {
+export interface S3FetcherConfig extends BaseFileReaderConfig, CSVReaderParams {
     path: string;
 }
 
-export interface FileFetcherConfig extends BaseFileReaderConfig, CSVParams {
+export interface FileFetcherConfig extends BaseFileReaderConfig, CSVReaderParams {
     path: string;
     size: number;
 }
 
-export interface BaseSenderConfig extends Partial<CSVConfig> {
+export interface BaseSenderConfig extends Partial<CSVSenderConfig> {
     /** A unique value that is used to help create the filename
      * to prevent clobbering from other senders
     */
@@ -97,13 +116,6 @@ export interface BaseSenderConfig extends Partial<CSVConfig> {
     concurrency?: number
 }
 
-export interface ChunkedSenderConfig extends ChunkedConfig {
-    worker_id: string;
-    dynamic_routing: boolean;
-    // this is deprecated, please use dynamic_routing instead
-    _key?: string;
-}
-
 export enum Format {
     json = 'json',
     ldjson = 'ldjson',
@@ -121,14 +133,6 @@ export enum FileSenderType {
 export interface Offsets {
     length: number;
     offset: number;
-}
-
-export interface CSVConfig {
-    fields: string[];
-    include_header: boolean;
-    line_delimiter: string;
-    field_delimiter?: string;
-    format: Format;
 }
 
 export enum Compression {
@@ -163,6 +167,6 @@ export interface FileSliceConfig extends SliceConfig {
 
 export type FetcherFn = (slice: FileSlice) => Promise<string>
 
-export interface HDFSReaderConfig extends ReaderFileConfig {
+export interface HDFSReaderConfig extends BaseFileReaderConfig {
     user: string;
 }

@@ -10,7 +10,7 @@ import {
     Format,
     Compression,
     BaseSenderConfig,
-    CSVConfig
+    CSVSenderConfig
 } from '../interfaces';
 
 function addFileExtensionModifiers(
@@ -97,7 +97,7 @@ export abstract class ChunkedFileSender {
             filePerSlice: file_per_slice
         };
 
-        const csvOptions: CSVConfig = {
+        const csvOptions: CSVSenderConfig = {
             fields,
             include_header,
             line_delimiter,
