@@ -78,7 +78,8 @@ export class S3TerasliceAPI extends S3Fetcher {
     }
 
     /**
-     * Generates a slicer function based off the configs
+     * Generates a function that will resolve one or more slices each time it is called.
+     * These slices will can be used to "fetch" chunks of data. Returns `null` when complete
      *
      * @example
      *   const config = {

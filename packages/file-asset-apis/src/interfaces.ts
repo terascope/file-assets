@@ -13,7 +13,7 @@ export interface ChunkedAPIMethods {
     /** can pass in your own custom try/catch logic or use the default */
     tryFn?: (fn:(msg: any) => DataEntity) => (input: any) => DataEntity | null;
     /** Can pass in your own custom error handler, if you do so it
-     * will ignore the "on_error" configuration which only works for the default
+     * will ignore the "on_reject_action" configuration which only works for the default
      * error handler
      */
     rejectFn?: (input: unknown, err: Error) => never | null;
@@ -21,22 +21,20 @@ export interface ChunkedAPIMethods {
 
 interface BaseFileReaderConfig extends ChunkedAPIMethods {
     compression?: Compression;
-    // TODO: this should default to \n
     line_delimiter?: string;
-    format?: Format;
+    format: Format;
     file_per_slice?: boolean
     /** Parameter to determine how the default rejectFn works,
      * may be set to "throw", "log", or "none"
      * @default  "throw"
      */
-    on_error?: string;
+    on_reject_action?: string;
     /** Determines how to parse record from Buffer, could be set to "json" or "raw"
     * @default  "json"
     */
     encoding?: DataEncoding
 }
 
-// TODO: change name to delineate between this and CSVConfig
 export interface CSVReaderParams {
     extra_args?: CSVOptions;
     /** Ignore the empty value in tsv/csv columns.
@@ -98,7 +96,7 @@ export interface BaseSenderConfig extends Partial<CSVSenderConfig> {
      * please use dynamic_routing instead */
     _key?: string;
     path: string;
-    format?: Format;
+    format: Format;
     compression?: Compression,
     /** Set this to override the default extension of a file, will default to the
      * modifiers from format and compression */
@@ -121,11 +119,6 @@ export enum FileSenderType {
     hdfs = 'hdfs'
 }
 
-export interface Offsets {
-    length: number;
-    offset: number;
-}
-
 export enum Compression {
     none = 'none',
     lz4 = 'lz4',
@@ -137,11 +130,22 @@ export interface NameOptions {
     filePerSlice?: boolean;
 }
 
+export interface Offsets {
+    /**
+     * The amount of bytes being read in the slice
+     */
+    length: number;
+    offset: number;
+}
+
 /**
  * The File Slice
 */
 export interface FileSlice extends Offsets {
     path: string;
+    /**
+     * How many bytes are in the file
+     */
     total: number;
 }
 

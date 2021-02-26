@@ -37,8 +37,10 @@ function addFileExtensionModifiers(
     return newExtension;
 }
 
+const formatValues = Object.values(Format);
+
 export abstract class ChunkedFileSender {
-    readonly workerId: string;
+    readonly id: string;
     readonly nameOptions: NameOptions;
     protected sliceCount = -1;
     readonly format: Format;
@@ -54,11 +56,15 @@ export abstract class ChunkedFileSender {
 
     constructor(type: FileSenderType, config: BaseSenderConfig) {
         const {
-            path, id, format = Format.ldjson, compression = Compression.none,
+            path, id, format, compression = Compression.none,
             file_per_slice = false, dynamic_routing = false,
             fields = [], include_header = false, line_delimiter = '\n',
             field_delimiter = ',', concurrency = 10, extension
         } = config;
+
+        if (format == null || formatValues.includes(format)) {
+            throw new Error(`Invalid paramter format, is must be provided and be set to any of these: ${formatValues.join(', ')}`);
+        }
 
         if (isNil(path) || !isString(path)) {
             throw new Error('Invalid parameter path, it must be provided and be of type string');
@@ -68,13 +74,8 @@ export abstract class ChunkedFileSender {
             throw new Error('Invalid parameter id, it must be set to a unique string value');
         }
 
-        // TODO: review this to see if this can be simplified
-        // Enforce `file_per_slice` for JSON format or compressed output for file type
-        if (
-            type === FileSenderType.file
-            && format === Format.json
-            && config.file_per_slice !== true
-        ) {
+        // Enforce `file_per_slice` for JSON format or compressed output
+        if (format === Format.json && config.file_per_slice !== true) {
             throw new Error('Invalid parameter "file_per_slice", it must be set to true if format is set to json');
         }
 
@@ -83,12 +84,8 @@ export abstract class ChunkedFileSender {
             throw new Error('Invalid parameter "file_per_slice", it must be set to true if compression is set to anything other than "none" as we cannot properly divide up a compressed file');
         }
 
-        if (type === FileSenderType.s3 && file_per_slice === false) {
-            throw new Error('Invalid parameter file_per_slice, it must be set to true is using with S3');
-        }
-
         this.type = type;
-        this.workerId = id;
+        this.id = id;
         this.format = format;
 
         this.nameOptions = {
@@ -140,10 +137,10 @@ export abstract class ChunkedFileSender {
                 await this.ensurePathing(pathing, true);
             }
 
-            fileName = nodePathModule.join(pathing, this.workerId);
+            fileName = nodePathModule.join(pathing, this.id);
         } else if (this.type === FileSenderType.s3) {
             // we treat this different because of working with a single bucket
-            fileName = nodePathModule.join(pathing, this.workerId);
+            fileName = nodePathModule.join(pathing, this.id);
         } else {
             fileName = '';
         }

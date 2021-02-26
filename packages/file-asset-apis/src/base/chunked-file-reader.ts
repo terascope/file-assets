@@ -53,12 +53,13 @@ function validateCSVConfig(inputConfig: CSVConfigInput) {
     return inputConfig;
 }
 
+const formatValues = Object.values(Format);
 export abstract class ChunkedFileReader extends CompressionFormatter {
     logger: Logger;
     protected format: Format
     protected lineDelimiter: string
     private csvOptions: CSVReaderParams
-    private actionOnError: string;
+    private onRejectAction: string;
     private tryFn: (fn:(msg: any) => DataEntity) => (input: any) => DataEntity | null;
     private rejectRecord: (input: unknown, err: Error) => never | null;
     private encodingConfig: {
@@ -71,19 +72,23 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
 
         const {
             encoding = DataEncoding.JSON,
-            on_error = 'throw',
+            on_reject_action = 'throw',
             rejectFn = this.reject,
             tryFn = this.tryCatch,
             compression = Compression.none,
             file_per_slice = false,
             line_delimiter = '\n',
             field_delimiter,
-            format = Format.ldjson,
+            format,
             extra_args = {},
             ignore_empty = true,
             remove_header = true,
             fields = []
         } = inputConfig;
+
+        if (format == null || formatValues.includes(format)) {
+            throw new Error(`Invalid paramter format, is must be provided and be set to any of these: ${formatValues.join(', ')}`);
+        }
 
         let fieldDelimiter = field_delimiter;
         // if format is tsv and line_delimiter is defined, it must be set to "\t"
@@ -116,7 +121,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
         this.logger = logger;
         this.tryFn = tryFn;
         this.rejectRecord = rejectFn;
-        this.actionOnError = on_error;
+        this.onRejectAction = on_reject_action;
         this.encodingConfig = {
             _encoding: encoding
         };
@@ -140,7 +145,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
     }
 
     private reject(input: unknown, err: Error): never | null {
-        const action = this.actionOnError;
+        const action = this.onRejectAction;
         if (action === 'throw' || !action) {
             throw err;
         }
