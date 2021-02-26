@@ -5,21 +5,10 @@ import {
     ReaderConfig,
     SliceConfig,
     FileSliceConfig,
-    BaseSenderConfig
 } from '../interfaces';
 import { segmentFile, canReadFile } from '../base';
 import { S3Slicer } from './s3-slicer';
-import { isObject } from '../helpers';
 import { S3Fetcher } from './s3-fetcher';
-import { S3Sender } from './s3-sender';
-
-function validateSenderConfig(input: Record<string, any>) {
-    if (!isObject(input)) throw new Error('Invalid config parameter, ut must be an object');
-    (input as Record<string, unknown>);
-    if (input.file_per_slice == null || input.file_per_slice === false) {
-        throw new Error('Invalid parameter "file_per_slice", it must be set to true, cannot be append data to S3 objects');
-    }
-}
 
 export class S3TerasliceAPI extends S3Fetcher {
     readonly segmentFileConfig: SliceConfig
@@ -89,7 +78,7 @@ export class S3TerasliceAPI extends S3Fetcher {
     }
 
     /**
-     * Generates a slicer based off the configs
+     * Generates a slicer function based off the configs
      *
      * @example
      *   const config = {
@@ -103,18 +92,15 @@ export class S3TerasliceAPI extends S3Fetcher {
      *   const s3Reader = new S3Reader(config);
      *   const slicer = await s3Reader.newSlicer();
      *
-     *   const results = await slicer.slice();
+     *   const results = await slicer();
      *   results === [
      *      { offset: 0, length: 1000, path: 'some/dir/file.txt', total: 1000 }
      *   ]
     */
-    async makeSlicer(): Promise<S3Slicer> {
-        return new S3Slicer(this.client, this.slicerConfig, this.logger);
-    }
-
-    async makeSender(senderConfig: BaseSenderConfig): Promise<S3Sender> {
-        const config = Object.assign({}, this.slicerConfig, senderConfig);
-        validateSenderConfig(config);
-        return new S3Sender(this.client, config, this.logger);
+    async makeSlicer(): Promise<() => Promise<FileSlice[]|null>> {
+        const slicer = new S3Slicer(this.client, this.slicerConfig, this.logger);
+        return async function _slice() {
+            return slicer.slice();
+        };
     }
 }
