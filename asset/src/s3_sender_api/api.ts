@@ -36,7 +36,7 @@ export default class S3SenderAPI extends APIFactory<S3Sender, S3ExporterAPIConfi
 
         const client = new S3Sender(s3Client, config, this.logger);
 
-        await client.ensureBucket(config.path);
+        await client.ensureBucket();
 
         return { client, config };
     }

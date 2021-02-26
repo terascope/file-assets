@@ -66,7 +66,7 @@ export async function upload(
     const senderConfig = Object.assign({}, defaultSenderConfigs, config) as BaseSenderConfig;
     const api = new S3Sender(client, senderConfig, logger);
 
-    await api.ensureBucket(config.bucket);
+    await api.ensureBucket();
 
     return api.send(data);
 }

@@ -74,7 +74,7 @@ describe('S3 sender api', () => {
         if (harness) await harness.shutdown();
     });
 
-    it('can read data', async () => {
+    it('can send data', async () => {
         const expectedResults = '0,1,2,3,4,5\n';
         const format = Format.csv;
         const test = await makeTest({ format });
