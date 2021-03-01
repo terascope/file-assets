@@ -46,7 +46,7 @@ describe('file-fetcher', () => {
         expect(record.bytes).toEqual(59696);
     });
 
-    it('car read a json file with a single record', async () => {
+    it('can read a json file with a single record', async () => {
         const path = await fixtures.copyFixtureIntoTempDir(__dirname, 'file_reader/json/single');
         const slicePath = makePath(path, 'single.json');
 
@@ -70,7 +70,7 @@ describe('file-fetcher', () => {
         expect(results[0].name).toEqual('file_reader');
     });
 
-    it('car read a json file with an array of records', async () => {
+    it('can read a json file with an array of records', async () => {
         const path = await fixtures.copyFixtureIntoTempDir(__dirname, 'file_reader/json/array');
         const slicePath = makePath(path, 'array.json');
 

@@ -41,10 +41,10 @@ function validateCSVConfig(inputConfig: CSVConfigInput) {
 
     if (!Array.isArray(fields)) throw new Error('Invalid parameter fields, it must be an empty array or an array containing strings');
     if (!fields.every(isString)) throw new Error('Invalid parameter fields, it must be an array containing strings');
-    if (!isBoolean(ignore_empty)) throw new Error('Invalid paramter ignore_empty, it must be a boolean');
-    if (!isBoolean(remove_header)) throw new Error('Invalid paramter remove_header, it must be a boolean');
+    if (!isBoolean(ignore_empty)) throw new Error('Invalid parameter ignore_empty, it must be a boolean');
+    if (!isBoolean(remove_header)) throw new Error('Invalid parameter remove_header, it must be a boolean');
 
-    if (!isString(field_delimiter)) throw new Error('Invalid paramter field_delimiter, it must be a string');
+    if (!isString(field_delimiter)) throw new Error('Invalid parameter field_delimiter, it must be a string');
     // if field_delimiter is given and format is tsv, it must be set to \t
     if (format === Format.tsv && field_delimiter !== '\t') {
         throw new Error(`Invalid parameter field_delimiter, if format is set to ${Format.tsv} and field_delimiter is provided, it must be set to "\\t"`);

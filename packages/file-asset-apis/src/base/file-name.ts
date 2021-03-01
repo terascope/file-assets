@@ -62,7 +62,6 @@ export function createFileName(filePath: string, nameOptions: NameOptions): stri
 
     // The slice count is only added for `file_per_slice`
     if (filePerSlice) {
-        if (sliceCount == null || !isNumber(sliceCount)) throw new Error('Invalid parameter sliceCount, it must be provided when filePerSlice is set to true, and must be a number');
         fileName += `.${sliceCount}`;
     }
 

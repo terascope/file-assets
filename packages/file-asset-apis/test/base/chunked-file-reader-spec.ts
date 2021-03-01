@@ -71,7 +71,7 @@ describe('The chunked file reader', () => {
             '\n{"test4": "data"}\n',
         ];
 
-        const test = new Test(ldjsonOpConfig, incData);
+        const test = new Test(jsonOpConfig, incData);
 
         const results = await test.read(slice);
         expect(results).toBeArray();

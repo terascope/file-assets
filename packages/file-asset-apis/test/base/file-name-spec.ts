@@ -81,25 +81,12 @@ describe('can create formatted filename', () => {
             id
         };
 
-        // @ts-expect-error
-        expect(() => createFileName(1234, config)).toThrowError();
-
-        // @ts-expect-error
-        expect(() => createFileName('test', { ...config, format: 'something else' })).toThrowError();
-
-        // @ts-expect-error
-        expect(() => createFileName('test', { ...config, compression: 'something else' })).toThrowError();
-
-        // @ts-expect-error
-        expect(() => createFileName('test', { ...config, id: null })).toThrowError();
-
-        // @ts-expect-error
-        expect(() => createFileName('test', { ...config, filePerSlice: 1234 })).toThrowError();
-
-        // @ts-expect-error
-        expect(() => createFileName('test', { ...config, filePerSlice: true, sliceCount: null })).toThrowError();
-
-        // @ts-expect-error
-        expect(() => createFileName('test', { ...config, extension: 6782 })).toThrowError();
+        expect(() => createFileName(1234 as unknown as string, config)).toThrowError('Invalid parameter filePath, it must be a string value');
+        expect(() => createFileName('test', { ...config, format: 'something else' as unknown as Format })).toThrowError('Invalid parameter format, it must be of type Format');
+        expect(() => createFileName('test', { ...config, compression: 'something else' as unknown as Compression })).toThrowError('Invalid parameter format, it must be of type Compression');
+        expect(() => createFileName('test', { ...config, id: null as unknown as string })).toThrowError('Invalid parameter id, it must be a string value');
+        expect(() => createFileName('test', { ...config, filePerSlice: 1234 as unknown as boolean })).toThrowError('Invalid parameter filePerSlice, it must be a boolean value');
+        expect(() => createFileName('test', { ...config, filePerSlice: true, sliceCount: null as unknown as number })).toThrowError('Invalid parameter sliceCount, it must be provided when filePerSlice is set to true, and must be a number');
+        expect(() => createFileName('test', { ...config, extension: 6782 as unknown as string })).toThrowError('Invalid parameter extension, it must be a string value');
     });
 });
