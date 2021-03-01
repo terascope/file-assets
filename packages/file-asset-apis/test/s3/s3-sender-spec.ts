@@ -12,7 +12,7 @@ import {
     listS3Buckets
 } from '../../src';
 
-describe('S3 sender api', () => {
+describe('S3 Sender API', () => {
     const logger = debugLogger('s3-sender');
     const id = 'some-id';
     const bucket = 's3-sender-api';
@@ -31,10 +31,10 @@ describe('S3 sender api', () => {
     });
 
     afterAll(async () => {
-        // await Promise.all([
-        //     cleanupBucket(client, bucket),
-        //     cleanupBucket(client, ensureBucket)
-        // ]);
+        await Promise.all([
+            cleanupBucket(client, bucket),
+            cleanupBucket(client, ensureBucket)
+        ]);
     });
 
     async function getBucketListNames(): Promise<string[]> {

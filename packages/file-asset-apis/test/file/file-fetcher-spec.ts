@@ -13,7 +13,8 @@ describe('file-fetcher', () => {
 
     function makeFetcher(testConfig: Partial<ReaderConfig> = {}) {
         const config = Object.assign({}, { path: testPath, size: 1000 }, testConfig);
-        return new FileFetcher(config, logger);
+        if (config.format == null) throw new Error('Must provide a format');
+        return new FileFetcher(config as ReaderConfig, logger);
     }
 
     function makePath(pathDir: string, testFile: string) {

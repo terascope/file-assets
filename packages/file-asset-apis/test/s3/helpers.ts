@@ -1,5 +1,17 @@
 import S3 from 'aws-sdk/clients/s3';
-import { listS3Objects, deleteS3Object, deleteS3Bucket } from '../../src';
+import {
+    listS3Objects,
+    deleteS3Object,
+    deleteS3Bucket,
+    BaseSenderConfig,
+    Compression,
+    CSVSenderConfig,
+    FileFormatter,
+    CompressionFormatter,
+    createFileName,
+    S3PutConfig,
+    putS3Object
+} from '../../src';
 
 const {
     ENDPOINT = 'http://127.0.0.1:9000',
@@ -49,6 +61,58 @@ export function getBodyFromResults(results: S3.GetObjectOutput): Buffer {
     return Buffer.isBuffer(results.Body)
         ? results.Body
         : Buffer.from(results.Body as string);
+}
+
+export interface UploadConfig extends Partial<BaseSenderConfig>{
+    sliceCount: number,
+    bucket: string,
+}
+
+export async function upload(
+    client: S3, config: UploadConfig, data: Record<string, any>[]
+): Promise<string> {
+    const {
+        format, compression = Compression.none,
+        fields = [], line_delimiter = '\n',
+        field_delimiter = ',', include_header = false,
+        extension, sliceCount, path, bucket, id
+    } = config;
+
+    if (format == null) throw new Error('format must be provided');
+    if (path == null) throw new Error('path must be provided');
+    if (id == null) throw new Error('id must be provided');
+
+    const csvOptions: CSVSenderConfig = {
+        fields,
+        include_header,
+        line_delimiter,
+        field_delimiter,
+        format,
+    };
+    const formatter = new FileFormatter(format, csvOptions);
+    const compressionFormatter = new CompressionFormatter(compression);
+
+    const formattedData = formatter.format(data);
+    const finalData = await compressionFormatter.compress(formattedData);
+
+    const fileName = createFileName({
+        filePerSlice: true,
+        filePath: path,
+        id,
+        extension,
+        format,
+        sliceCount
+    });
+
+    const params: S3PutConfig = {
+        Bucket: bucket,
+        Key: fileName,
+        Body: finalData
+    };
+
+    await putS3Object(client, params);
+
+    return fileName;
 }
 
 export { ENDPOINT, ACCESS_KEY, SECRET_KEY };
