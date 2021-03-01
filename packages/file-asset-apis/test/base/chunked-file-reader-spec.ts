@@ -1,8 +1,8 @@
 import 'jest-extended';
 import { debugLogger, DataEntity } from '@terascope/utils';
 import {
-    ChunkedFileReader, Format, ChunkedConfig, Compression
-} from '../src';
+    ChunkedFileReader, Format, Compression, ReaderConfig
+} from '../../src';
 
 // Mock logger
 const logger = debugLogger('chunked-file-reader');
@@ -10,7 +10,7 @@ const logger = debugLogger('chunked-file-reader');
 class Test extends ChunkedFileReader {
     data: string[];
 
-    constructor(config: ChunkedConfig, data: string[]) {
+    constructor(config: ReaderConfig, data: string[]) {
         super(config, logger);
         this.data = data;
     }
@@ -25,10 +25,10 @@ function makeConfig(config: any) {
     const defaults = {
         line_delimiter: '\n',
         format: Format.ldjson,
-        _dead_letter_action: 'none',
+        on_reject_action: 'none',
         compression: Compression.none
     };
-    return Object.assign({}, defaults, config) as ChunkedConfig;
+    return Object.assign({}, defaults, config) as ReaderConfig;
 }
 
 const ldjsonOpConfig = makeConfig({
@@ -68,10 +68,10 @@ describe('The chunked file reader', () => {
             offset: 100, length: 5, total: 30, path: '/test/file'
         };
         const incData = [
-            '\n{"test4": "data"}\n{"test5": data}\n{"test6": "data"}\n',
+            '\n{"test4": "data"}\n',
         ];
 
-        const test = new Test(ldjsonOpConfig, incData);
+        const test = new Test(jsonOpConfig, incData);
 
         const results = await test.read(slice);
         expect(results).toBeArray();

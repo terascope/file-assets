@@ -91,7 +91,7 @@ describe('S3 slicer', () => {
         it('should generate whole-object slices.', async () => {
             const opConfig = { format, path };
             const expectedSlice = {
-                path: 'my/test/test-id.0',
+                path: 'my/test/test-id.0.json',
                 offset: 0,
                 total: 138,
                 length: 138
@@ -127,10 +127,10 @@ describe('S3 slicer', () => {
             const opConfig = { format, path };
 
             const expectedSlice1 = {
-                offset: 0, length: 70, path: 'my/test/test-id.0', total: 136
+                offset: 0, length: 70, path: 'my/test/test-id.0.ldjson', total: 136
             };
             const expectedSlice2 = {
-                offset: 69, length: 67, path: 'my/test/test-id.0', total: 136
+                offset: 69, length: 67, path: 'my/test/test-id.0.ldjson', total: 136
             };
 
             const test = await makeTest(opConfig);

@@ -2,8 +2,8 @@ import 'jest-extended';
 import fs from 'fs';
 import { debugLogger, toNumber } from '@terascope/utils';
 import {
-    FileSender, ChunkedSenderConfig, Format, Compression
-} from '../src';
+    FileSender, BaseSenderConfig, Format, Compression
+} from '../../src';
 
 const fixtures = require('jest-fixtures');
 
@@ -19,14 +19,9 @@ describe('File Asset Sender API', () => {
 
     it('can send data and respect slice', async () => {
         const testDataDir = await fixtures.createTempDir();
-        const config: ChunkedSenderConfig = {
-            worker_id: workerId,
+        const config: BaseSenderConfig = {
+            id: workerId,
             dynamic_routing: false,
-            size: 2000,
-            connection: 'default',
-            remove_header: false,
-            ignore_empty: true,
-            extra_args: {},
             path: testDataDir,
             fields: [],
             concurrency: 4,
@@ -50,8 +45,7 @@ describe('File Asset Sender API', () => {
         await fileSender.send(data);
 
         const dirs = fs.readdirSync(testDataDir);
-
-        const fileNumbers = dirs.map((name) => toNumber(name[name.length - 1]));
+        const fileNumbers = dirs.map((name) => toNumber(name.split('.')[1]));
 
         expect(fileNumbers).toEqual([0, 1, 2]);
     });

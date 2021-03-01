@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { Compression, CompressionFormatter } from '../src';
+import { Compression, CompressionFormatter } from '../../src';
 
 describe('CompressionFormatter', () => {
     it('can work with gzip', async () => {

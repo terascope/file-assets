@@ -6,15 +6,25 @@ import {
     TSError
 } from '@terascope/utils';
 import { parsePath, ChunkedFileSender } from '../base';
-import { FileSenderType, S3PutConfig, ChunkedSenderConfig } from '../interfaces';
-import { createS3Bucket, headS3Bucket, putS3Object } from './helpers';
+import { FileSenderType, S3PutConfig, BaseSenderConfig } from '../interfaces';
+import { createS3Bucket, headS3Bucket, putS3Object } from './s3-helpers';
+import { isObject } from '../helpers';
+
+function validateConfig(input: unknown) {
+    if (!isObject(input)) throw new Error('Invalid config parameter, ut must be an object');
+    (input as Record<string, unknown>);
+    if (input.file_per_slice == null || input.file_per_slice === false) {
+        throw new Error('Invalid parameter "file_per_slice", it must be set to true, cannot be append data to S3 objects');
+    }
+}
 
 export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
     logger: Logger;
     client: S3;
 
-    constructor(client: S3, config: ChunkedSenderConfig, logger: Logger) {
-        super(FileSenderType.s3, config as any);
+    constructor(client: S3, config: BaseSenderConfig, logger: Logger) {
+        validateConfig(config);
+        super(FileSenderType.s3, config);
         this.logger = logger;
         this.client = client;
     }
@@ -37,21 +47,21 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
             return [];
         }
 
-        // TODO: may need to verify bucket first
         const params: S3PutConfig = {
             Bucket: objPath.bucket,
             Key: fileName,
-            Body: output as string
+            Body: output
         };
 
         return putS3Object(this.client, params);
     }
 
     /**
-     * Used to verify that the bucket exists, will throw if it does not exist
+     * Used to verify that the bucket exists, will attempt to create one
+     * if it does not exist
      */
-    async ensureBucket(route: string): Promise<void> {
-        const { bucket } = parsePath(route);
+    async ensureBucket(): Promise<void> {
+        const { bucket } = parsePath(this.path);
         const params = { Bucket: bucket };
 
         try {
@@ -61,7 +71,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                 await createS3Bucket(this.client, params);
             } catch (err) {
                 throw new TSError(err, {
-                    reason: `Could not setup bucket ${route}`
+                    reason: `Could not setup bucket ${this.path}`
                 });
             }
         }

@@ -2,7 +2,7 @@ import type S3 from 'aws-sdk/clients/s3';
 import { flatten, Logger } from '@terascope/utils';
 import { segmentFile, parsePath, canReadFile } from '../base';
 import { SliceConfig, FileSlice, FileSliceConfig } from '../interfaces';
-import { listS3Objects } from './helpers';
+import { listS3Objects } from './s3-helpers';
 
 export class S3Slicer {
     readonly sliceConfig: SliceConfig;
@@ -10,7 +10,7 @@ export class S3Slicer {
     client: S3;
     readonly bucket: string;
     readonly prefix: string;
-    _lastKey: string | undefined;
+    private _lastKey: string | undefined;
     protected _doneSlicing = false;
 
     constructor(client: S3, config: FileSliceConfig, logger: Logger) {

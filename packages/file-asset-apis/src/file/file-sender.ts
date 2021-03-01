@@ -6,17 +6,14 @@ import {
 } from '@terascope/utils';
 import fse from 'fs-extra';
 import { ChunkedFileSender } from '../base';
-import { ChunkedSenderConfig, FileSenderType } from '../interfaces';
+import { BaseSenderConfig, FileSenderType } from '../interfaces';
 
 export class FileSender extends ChunkedFileSender implements RouteSenderAPI {
     logger: Logger;
-    concurrency: number;
 
-    constructor(config: ChunkedSenderConfig, logger: Logger) {
+    constructor(config: BaseSenderConfig, logger: Logger) {
         super(FileSenderType.file, config);
         this.logger = logger;
-        const { concurrency } = config;
-        this.concurrency = concurrency;
     }
     /**
      * This is a low level API, it is not meant to be used externally,

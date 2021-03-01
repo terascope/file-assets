@@ -1,36 +1,37 @@
 import fse from 'fs-extra';
+import { Logger } from '@terascope/utils';
 import { FileSlicer } from './file-slicer';
-import { FileSlice } from '../interfaces';
-import { ChunkedFileReader, segmentFile, canReadFile } from '../base';
+import {
+    FileSlice,
+    ReaderConfig,
+    FileSliceConfig,
+    SliceConfig,
+} from '../interfaces';
+import { segmentFile, canReadFile } from '../base';
+import { FileFetcher } from './file-fetcher';
 
-export class FileReader extends ChunkedFileReader {
-    client = fse;
+export class FileTerasliceAPI extends FileFetcher {
+    readonly segmentFileConfig: SliceConfig
+    readonly slicerConfig: FileSliceConfig;
 
-    /**
-     * low level api that fetches the unprocessed contents of the file, please use the "read" method
-     * for correct file and data parsing
-     * @example
-     *      const slice = {
-     *          offset: 0,
-     *          length: 1000,
-     *          path: 'some/file.txt',
-     *          total: 1000
-     *      };
-     *      const results = await fileReader.fetch(slice);
-     *      results === 'the unprocessed contents of the file here'
-    */
-    protected async fetch(slice: FileSlice): Promise<string> {
-        const { path, length, offset } = slice;
-        const fd = await fse.open(path, 'r');
+    constructor(config: ReaderConfig, logger: Logger) {
+        super(config, logger);
+        const { path, size } = config;
+        const { lineDelimiter, format, filePerSlice } = this;
 
-        try {
-            const buf = Buffer.alloc(2 * this.config.size);
-            const { bytesRead } = await fse.read(fd, buf, 0, length, offset);
-            return this.decompress(buf.slice(0, bytesRead));
-        } finally {
-            fse.close(fd);
-        }
+        this.segmentFileConfig = {
+            line_delimiter: lineDelimiter,
+            format,
+            size,
+            file_per_slice: filePerSlice
+        };
+
+        this.slicerConfig = {
+            path,
+            ...this.segmentFileConfig
+        };
     }
+
     /**
      * Determines if a file name or file path can be processed, it will return false
      * if the name of path contains a segment that starts with "."
@@ -103,11 +104,12 @@ export class FileReader extends ChunkedFileReader {
         path: string;
         size: number;
     }): FileSlice[] {
-        return segmentFile(file, this.config);
+        return segmentFile(file, this.segmentFileConfig);
     }
 
     /**
-     * Generates a slicer based off the configs
+     * Generates a function that will resolve one or more slices each time it is called.
+     * These slices will can be used to "fetch" chunks of data. Returns `null` when complete
      *
      * @example
      *   const config = {
@@ -121,7 +123,7 @@ export class FileReader extends ChunkedFileReader {
      *   const fileReader = new FileReader(config);
      *   const slicer = await fileReader.newSlicer();
      *
-     *   const results = await slicer.slice();
+     *   const results = await slicer();
      *   results === [
      *      {
      *          offset: 0,
@@ -131,10 +133,11 @@ export class FileReader extends ChunkedFileReader {
      *      }
      *   ]
     */
-    async makeSlicer(): Promise<FileSlicer> {
-        const config = {
-            ...this.config
+
+    async makeSlicer(): Promise<() => Promise<FileSlice[]|null>> {
+        const slicer = new FileSlicer(this.slicerConfig, this.logger);
+        return async function _slice() {
+            return slicer.slice();
         };
-        return new FileSlicer(config, this.logger);
     }
 }

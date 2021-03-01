@@ -7,8 +7,9 @@ import {
 } from '@terascope/job-components';
 import S3 from 'aws-sdk/clients/s3';
 import {
-    S3Reader, S3Sender, FileSlice, Format, Compression,
-    deleteS3Object, listS3Objects, deleteS3Bucket
+    S3Fetcher, S3Sender, FileSlice, Format, Compression,
+    deleteS3Object, listS3Objects, deleteS3Bucket,
+    BaseSenderConfig, ReaderConfig
 } from '@terascope/file-asset-apis';
 import * as s3Config from './config';
 
@@ -29,27 +30,29 @@ export function makeClient(): S3 {
 
 export const testWorkerId = 'test-id';
 
-const defaultConfigs = {
+const defaultSenderConfigs: Partial<BaseSenderConfig> = {
     concurrency: 10,
     format: Format.ldjson,
     line_delimiter: '\n',
     field_delimiter: ',',
     compression: Compression.none,
-    remove_header: true,
-    ignore_empty: true,
-    size: 10000000,
     fields: [],
-    _dead_letter_action: 'throw',
-    worker_id: testWorkerId
+    id: testWorkerId,
+    file_per_slice: true
+};
+
+const defaultReaderConfig: Partial<ReaderConfig> = {
+    size: 10000
 };
 
 export async function fetch(
-    client: S3, config: AnyObject, slice: FileSlice
+    client: S3, config: Partial<ReaderConfig>, slice: FileSlice
 ): Promise<string> {
-    if (isNil(config.bucket) || !isString(config.bucket)) throw new Error('config must include parameter bucket');
-    // TODO: fix this
-    const fetchConfig = Object.assign({}, defaultConfigs, config) as any;
-    const api = new S3Reader(client, fetchConfig, logger);
+    if (isNil(config.path) || !isString(config.path)) throw new Error('config must include parameter path');
+
+    const fetchConfig = Object.assign({}, defaultReaderConfig, config) as ReaderConfig;
+    const api = new S3Fetcher(client, fetchConfig, logger);
+
     // @ts-expect-error
     return api.fetch(slice);
 }
@@ -60,11 +63,10 @@ export async function upload(
     if (isNil(config.bucket) || !isString(config.bucket)) throw new Error('config must include parameter bucket');
     if (isNil(config.path) || !isString(config.path)) throw new Error('config must include parameter path');
 
-    // TODO: fix this
-    const senderConfig = Object.assign({}, defaultConfigs, config) as any;
+    const senderConfig = Object.assign({}, defaultSenderConfigs, config) as BaseSenderConfig;
     const api = new S3Sender(client, senderConfig, logger);
 
-    await api.ensureBucket(config.bucket);
+    await api.ensureBucket();
 
     return api.send(data);
 }

@@ -64,6 +64,8 @@ describe('File Sender API', () => {
         expect(fs.readdirSync(testDataDir).length).toEqual(0);
 
         const senderApi = await makeTest({ path: testDataDir });
+        // workerId is made after making test
+        const expectedFileName = `${workerId}.ldjson`;
 
         const sender = await senderApi.create('test', {});
 
@@ -73,9 +75,9 @@ describe('File Sender API', () => {
 
         await sender.send(data);
 
-        expect(fs.readdirSync(testDataDir)).toContain(workerId);
+        expect(fs.readdirSync(testDataDir)).toContain(expectedFileName);
 
-        const filePath = path.join(testDataDir, workerId);
+        const filePath = path.join(testDataDir, expectedFileName);
 
         expect(fs.readFileSync(filePath, 'utf-8')).toEqual(
             '{"field1":42,"field3":"test data","field2":55}\n'

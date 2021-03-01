@@ -1,10 +1,10 @@
 import { Slicer, SlicerRecoveryData } from '@terascope/job-components';
-import { S3Slicer as S3SlicerAPI } from '@terascope/file-asset-apis';
+import { FileSlice } from '@terascope/file-asset-apis';
 import { S3ReaderConfig } from './interfaces';
 import { S3ReaderFactoryAPI } from '../s3_reader_api/interfaces';
 
 export default class S3Slicer extends Slicer<S3ReaderConfig> {
-    slicer!: S3SlicerAPI
+    slicer!: () => Promise<FileSlice[]|null>;
     /**
      * Currently only enable autorecover jobs
      *
@@ -23,7 +23,7 @@ export default class S3Slicer extends Slicer<S3ReaderConfig> {
         this.slicer = await api.makeSlicer();
     }
 
-    async slice(): Promise<any|null> {
-        return this.slicer.slice();
+    async slice(): Promise<FileSlice[]|null> {
+        return this.slicer();
     }
 }

@@ -2,11 +2,11 @@ import 'jest-extended';
 import { DataEntity } from '@terascope/utils';
 import {
     FileSenderType,
-    ChunkedSenderConfig,
+    BaseSenderConfig,
     Compression,
     Format,
     ChunkedFileSender
-} from '../src';
+} from '../../src';
 
 describe('ChunkedSlicer', () => {
     const path = 'some/path';
@@ -25,19 +25,15 @@ describe('ChunkedSlicer', () => {
         }
 
         async sendToDestination(
-            fileName: string, list: (DataEntity | Record<string, unknown>)[]
+            file: string, list: (DataEntity | Record<string, unknown>)[]
         ) {
-            this.sentData.set(fileName, list);
+            const { fileName, output } = await this.prepareSegment(file, list);
+            this.sentData.set(fileName, output.toString());
         }
     }
 
-    const defaults: Partial<ChunkedSenderConfig> = {
-        worker_id: workerId,
-        size: 1000,
-        connection: 'default',
-        remove_header: true,
-        ignore_empty: true,
-        extra_args: {},
+    const defaults: Partial<BaseSenderConfig> = {
+        id: workerId,
         compression: Compression.none,
         field_delimiter: ',',
         line_delimiter: '\n',
@@ -49,16 +45,15 @@ describe('ChunkedSlicer', () => {
         dynamic_routing: false
     };
 
-    function makeConfig(config: Partial<ChunkedSenderConfig> = {}): ChunkedSenderConfig {
-        return Object.assign({}, defaults, config) as ChunkedSenderConfig;
+    function makeConfig(config: Partial<BaseSenderConfig> = {}): BaseSenderConfig {
+        return Object.assign({}, defaults, config) as BaseSenderConfig;
     }
 
-    it('will set file filePerSlice to true if its a file type and format is JSON', () => {
-        const test = new Test(FileSenderType.file, makeConfig({ format: Format.json }));
-        expect(test.nameOptions.filePerSlice).toBeTrue();
-
-        const test2 = new Test(FileSenderType.hdfs, makeConfig({ format: Format.json }));
-        expect(test2.nameOptions.filePerSlice).toBeFalse();
+    it('will throw if file_per_slice is false if its a file type and format is JSON', () => {
+        const errMsg = 'Invalid parameter "file_per_slice", it must be set to true if format is set to json';
+        expect(
+            () => new Test(FileSenderType.file, makeConfig({ format: Format.json }))
+        ).toThrowError(errMsg);
     });
 
     it('will throw if file_per_slice is false and compression is anything but none', () => {
@@ -73,11 +68,6 @@ describe('ChunkedSlicer', () => {
 
         const test3 = new Test(FileSenderType.file, makeConfig({ compression: Compression.none }));
         expect(test3.nameOptions.filePerSlice).toBeFalse();
-    });
-
-    it('will set file filePerSlice to true if its a s3 type', () => {
-        const test = new Test(FileSenderType.s3, makeConfig({ format: Format.json }));
-        expect(test.nameOptions.filePerSlice).toBeTrue();
     });
 
     it('can check its a router is being used', () => {
@@ -97,7 +87,6 @@ describe('ChunkedSlicer', () => {
         ];
 
         const results = test.prepareDispatch(data);
-
         expect(results[path]).toBeArrayOfSize(3);
     });
 
@@ -128,7 +117,7 @@ describe('ChunkedSlicer', () => {
         it('can make correct base paths', async () => {
             const test = new Test(FileSenderType.file, makeConfig());
 
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}`);
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.ldjson`);
             expect(test.verifyCalled).toEqual(true);
         });
 
@@ -136,13 +125,13 @@ describe('ChunkedSlicer', () => {
             const newPath = `${path}/final/dir`;
             const test = new Test(FileSenderType.file, makeConfig());
 
-            expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}`);
+            expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}.ldjson`);
             expect(test.verifyCalled).toEqual(true);
         });
 
         it('can add extensions', async () => {
             const test = new Test(FileSenderType.file, makeConfig({ extension: 'stuff' }));
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}stuff`);
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.stuff`);
         });
 
         it('can add slice count', async () => {
@@ -150,11 +139,52 @@ describe('ChunkedSlicer', () => {
             // @ts-expect-error
             test.incrementCount();
 
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0`);
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0.ldjson`);
             // @ts-expect-error
             test.incrementCount();
 
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.1`);
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.1.ldjson`);
+        });
+
+        it('can add extensions and file_per_slice', async () => {
+            const test = new Test(FileSenderType.file, makeConfig({ file_per_slice: true, extension: 'stuff' }));
+            // @ts-expect-error
+            test.incrementCount();
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0.stuff`);
+        });
+
+        it('can respect compression and other formats', async () => {
+            const test = new Test(
+                FileSenderType.file,
+                makeConfig({ compression: Compression.lz4, file_per_slice: true })
+            );
+            // @ts-expect-error
+            test.incrementCount();
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0.ldjson.lz4`);
+
+            const test2 = new Test(
+                FileSenderType.file,
+                makeConfig({
+                    compression: Compression.gzip,
+                    format: Format.csv,
+                    file_per_slice: true
+                })
+            );
+            // @ts-expect-error
+            test2.incrementCount();
+            expect(await test2.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0.csv.gz`);
+
+            const test3 = new Test(
+                FileSenderType.file,
+                makeConfig({
+                    compression: Compression.none,
+                    format: Format.json,
+                    file_per_slice: true
+                })
+            );
+            // @ts-expect-error
+            test3.incrementCount();
+            expect(await test3.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0.json`);
         });
     });
 
@@ -162,7 +192,7 @@ describe('ChunkedSlicer', () => {
         it('can make correct base paths', async () => {
             const test = new Test(FileSenderType.hdfs, makeConfig());
 
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}`);
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.ldjson`);
             expect(test.verifyCalled).toEqual(true);
         });
 
@@ -170,14 +200,14 @@ describe('ChunkedSlicer', () => {
             const newPath = `${path}/final/dir`;
             const test = new Test(FileSenderType.hdfs, makeConfig());
 
-            expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}`);
+            expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}.ldjson`);
             expect(test.verifyCalled).toEqual(true);
         });
 
         it('can add extensions', async () => {
             const test = new Test(FileSenderType.hdfs, makeConfig({ extension: 'stuff' }));
 
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}stuff`);
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.stuff`);
         });
 
         it('can add slice count', async () => {
@@ -186,45 +216,45 @@ describe('ChunkedSlicer', () => {
 
             test.incrementCount();
 
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0`);
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0.ldjson`);
             // @ts-expect-error
             test.incrementCount();
 
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.1`);
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.1.ldjson`);
         });
     });
 
     describe('s3 destination names', () => {
         it('can make correct base paths', async () => {
-            const test = new Test(FileSenderType.s3, makeConfig());
+            const test = new Test(FileSenderType.s3, makeConfig({ file_per_slice: true }));
             // @ts-expect-error
             test.incrementCount();
 
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0`);
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0.ldjson`);
             expect(test.verifyCalled).toEqual(false);
         });
 
         it('can make correct path', async () => {
             const newPath = `${path}/final/dir`;
-            const test = new Test(FileSenderType.s3, makeConfig());
+            const test = new Test(FileSenderType.s3, makeConfig({ file_per_slice: true }));
             // @ts-expect-error
             test.incrementCount();
 
-            expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}.0`);
+            expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}.0.ldjson`);
             expect(test.verifyCalled).toEqual(false);
         });
 
         it('can add extensions', async () => {
-            const test = new Test(FileSenderType.s3, makeConfig({ extension: 'stuff' }));
+            const test = new Test(FileSenderType.s3, makeConfig({ extension: 'stuff', file_per_slice: true }));
             // @ts-expect-error
             test.incrementCount();
 
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0stuff`);
+            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0.stuff`);
         });
     });
 
     it('can prepare a segment for sending', async () => {
-        const test = new Test(FileSenderType.s3, makeConfig());
+        const test = new Test(FileSenderType.s3, makeConfig({ file_per_slice: true }));
         const records = [
             DataEntity.make({ some: 'data' }),
             DataEntity.make({ other: 'stuff' }),
@@ -238,7 +268,38 @@ describe('ChunkedSlicer', () => {
         expect(results.fileName).toBeDefined();
         expect(results.output).toBeDefined();
 
-        expect(results.fileName).toEqual(`${path}/${workerId}.0`);
+        expect(results.fileName).toEqual(`${path}/${workerId}.0.ldjson`);
         expect((results.output as Buffer).toString()).toEqual('{"some":"data"}\n{"other":"stuff"}\n');
+    });
+
+    it('can respect file destination using send and field_per_slice false', async () => {
+        const test = new Test(
+            FileSenderType.s3,
+            makeConfig({
+                file_per_slice: true,
+                format: Format.ldjson,
+                compression: Compression.none,
+                extension: '.ldjson'
+            })
+        );
+
+        const data = [{ some: 'data' }, { other: 'data' }];
+        const expectedTransforms = '{"some":"data"}\n{"other":"data"}\n';
+
+        await test.send(data);
+        await test.send(data);
+
+        const results = Array.from(test.sentData);
+
+        expect(results).toBeArrayOfSize(2);
+
+        const [firstPath, firstRecords] = results[0];
+        const [secondPath, secondRecords] = results[1];
+
+        expect(firstPath).toEqual('some/path/1234.0.ldjson');
+        expect(firstRecords).toEqual(expectedTransforms);
+
+        expect(secondPath).toEqual('some/path/1234.1.ldjson');
+        expect(secondRecords).toEqual(expectedTransforms);
     });
 });

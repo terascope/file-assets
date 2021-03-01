@@ -74,7 +74,7 @@ describe('S3 sender api', () => {
         if (harness) await harness.shutdown();
     });
 
-    it('can read data', async () => {
+    it('can send data', async () => {
         const expectedResults = '0,1,2,3,4,5\n';
         const format = Format.csv;
         const test = await makeTest({ format });
@@ -84,7 +84,7 @@ describe('S3 sender api', () => {
         expect(results).toBeArrayOfSize(1);
         expect(results[0]).toMatchObject(data[0]);
 
-        const key = `testing/${workerId}.0`;
+        const key = `testing/${workerId}.0.csv`;
 
         const dbData = await getS3Object(client, {
             Bucket: bucket,
