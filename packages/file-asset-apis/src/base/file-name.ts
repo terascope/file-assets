@@ -25,7 +25,7 @@ function validateOptions(nameOptions: NameOptions) {
         throw new Error('Invalid parameter filePerSlice, it must be a boolean value');
     }
 
-    if (filePerSlice && (sliceCount == null || !isNumber(sliceCount))) {
+    if (filePerSlice === true && (sliceCount == null || !isNumber(sliceCount))) {
         throw new Error('Invalid parameter sliceCount, it must be provided when filePerSlice is set to true, and must be a number');
     }
 
