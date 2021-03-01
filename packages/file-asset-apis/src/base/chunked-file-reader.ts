@@ -71,7 +71,6 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
         super(inputConfig.compression ?? Compression.none);
 
         const {
-            encoding = DataEncoding.JSON,
             on_reject_action = 'throw',
             rejectFn = this.reject,
             tryFn = this.tryCatch,
@@ -86,8 +85,10 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
             fields = []
         } = inputConfig;
 
+        const encoding = format === Format.raw ? DataEncoding.RAW : DataEncoding.JSON;
+
         if (format == null || !formatValues.includes(format)) {
-            throw new Error(`Invalid paramter format, is must be provided and be set to any of these: ${formatValues.join(', ')}`);
+            throw new Error(`Invalid parameter format, is must be provided and be set to any of these: ${formatValues.join(', ')}`);
         }
 
         let fieldDelimiter = field_delimiter;

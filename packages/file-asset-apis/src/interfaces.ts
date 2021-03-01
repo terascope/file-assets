@@ -1,5 +1,5 @@
 import type json2csv from 'json2csv';
-import type { DataEncoding, DataEntity } from '@terascope/utils';
+import type { DataEntity } from '@terascope/utils';
 
 export interface S3PutConfig {
     Bucket: string;
@@ -29,10 +29,6 @@ interface BaseFileReaderConfig extends ChunkedAPIMethods {
      * @default  "throw"
      */
     on_reject_action?: string;
-    /** Determines how to parse record from Buffer, could be set to "json" or "raw"
-    * @default  "json"
-    */
-    encoding?: DataEncoding
 }
 
 export interface CSVReaderParams {
