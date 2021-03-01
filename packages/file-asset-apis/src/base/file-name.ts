@@ -9,7 +9,6 @@ const compressionValues = Object.values(Compression);
 
 function validateOptions(nameOptions: NameOptions) {
     const {
-        filePath,
         id,
         filePerSlice,
         sliceCount,
@@ -17,9 +16,6 @@ function validateOptions(nameOptions: NameOptions) {
         format,
         compression
     } = nameOptions;
-    if (isNil(filePath) || !isString(filePath)) {
-        throw new Error('Invalid parameter filePath, it must be a string value');
-    }
 
     if (isNil(id) || !isString(id)) {
         throw new Error('Invalid parameter id, it must be a string value');
@@ -46,10 +42,14 @@ function validateOptions(nameOptions: NameOptions) {
     }
 }
 
-export function createFileName(nameOptions: NameOptions): string {
+export function createFileName(filePath: string, nameOptions: NameOptions): string {
     validateOptions(nameOptions);
+
+    if (isNil(filePath) || !isString(filePath)) {
+        throw new Error('Invalid parameter filePath, it must be a string value');
+    }
+
     const {
-        filePath,
         id,
         filePerSlice = false,
         sliceCount,
@@ -66,22 +66,21 @@ export function createFileName(nameOptions: NameOptions): string {
         fileName += `.${sliceCount}`;
     }
 
-    if (extension && isString(extension)) {
-        const override = extension.startsWith('.') ? `${extension}` : `.${extension}`;
-        return override;
-    }
-
     let newExtension = '';
 
-    // if it is raw, we don't know what extension as it could be anything
-    if (format !== Format.raw) {
-        newExtension += `.${format}`;
-    }
+    if (extension && isString(extension)) {
+        newExtension = extension.startsWith('.') ? `${extension}` : `.${extension}`;
+    } else {
+        // if it is raw, we don't know what extension as it could be anything
+        if (format !== Format.raw) {
+            newExtension += `.${format}`;
+        }
 
-    if (compression === Compression.lz4) {
-        newExtension += `.${compression}`;
-    } else if (compression === Compression.gzip) {
-        newExtension += '.gz';
+        if (compression === Compression.lz4) {
+            newExtension += `.${compression}`;
+        } else if (compression === Compression.gzip) {
+            newExtension += '.gz';
+        }
     }
 
     fileName += newExtension;

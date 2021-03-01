@@ -95,9 +95,8 @@ export async function upload(
     const formattedData = formatter.format(data);
     const finalData = await compressionFormatter.compress(formattedData);
 
-    const fileName = createFileName({
+    const fileName = createFileName(path, {
         filePerSlice: true,
-        filePath: path,
         id,
         extension,
         format,

@@ -25,7 +25,7 @@ function makeConfig(config: any) {
     const defaults = {
         line_delimiter: '\n',
         format: Format.ldjson,
-        on_error: 'none',
+        on_reject_action: 'none',
         compression: Compression.none
     };
     return Object.assign({}, defaults, config) as ReaderConfig;
@@ -68,7 +68,7 @@ describe('The chunked file reader', () => {
             offset: 100, length: 5, total: 30, path: '/test/file'
         };
         const incData = [
-            '\n{"test4": "data"}\n{"test5": data}\n{"test6": "data"}\n',
+            '\n{"test4": "data"}\n',
         ];
 
         const test = new Test(ldjsonOpConfig, incData);

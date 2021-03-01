@@ -29,6 +29,7 @@ export abstract class ChunkedFileSender {
     readonly concurrency: number;
     readonly filePerSlice: boolean;
     readonly lineDelimiter: string;
+    readonly path: string;
 
     constructor(type: FileSenderType, config: BaseSenderConfig) {
         const {
@@ -63,9 +64,9 @@ export abstract class ChunkedFileSender {
         this.type = type;
         this.id = id;
         this.format = format;
+        this.path = path;
 
         this.nameOptions = {
-            filePath: path,
             filePerSlice: file_per_slice,
             format,
             compression,
@@ -94,7 +95,7 @@ export abstract class ChunkedFileSender {
     private async ensurePathing(path: string, removeFilePath = false): Promise<void> {
         if (!this.pathList.has(path)) {
             if (removeFilePath) {
-                const route = path.replace(this.nameOptions.filePath, '');
+                const route = path.replace(this.path, '');
                 // we make sure file_path is not present because its added back in with verify call
                 await this.verify(route);
             } else {
@@ -104,15 +105,15 @@ export abstract class ChunkedFileSender {
         }
     }
 
-    async createFileDestinationName(pathing: string): Promise<string> {
+    async createFileDestinationName(filePath: string): Promise<string> {
         // Can't use path.join() here since the path might include a filename prefix
-        const { nameOptions } = this;
+        const { nameOptions, path } = this;
 
         if (this.type === FileSenderType.file || this.type === FileSenderType.hdfs) {
-            if (pathing === nameOptions.filePath) {
-                await this.ensurePathing(pathing);
+            if (filePath === path) {
+                await this.ensurePathing(filePath);
             } else {
-                await this.ensurePathing(pathing, true);
+                await this.ensurePathing(filePath, true);
             }
         }
 
@@ -121,7 +122,7 @@ export abstract class ChunkedFileSender {
             sliceCount: this.sliceCount
         };
 
-        return createFileName(fileNameConfig);
+        return createFileName(filePath, fileNameConfig);
     }
 
     async convertFileChunk(slice: DataEntity[] | null | undefined): Promise<any|null>
@@ -148,12 +149,13 @@ export abstract class ChunkedFileSender {
      *  Method to help create proper file paths, mainly used in the abstract "verify" method
      * @param path: string | undefined
      */
-    protected joinPath(path?: string): string {
-        const { filePath } = this.nameOptions;
-        if (path && path !== filePath) {
-            return nodePathModule.join(filePath, '/', path);
+    protected joinPath(route?: string): string {
+        const { path } = this;
+        if (route && route !== path) {
+            return nodePathModule.join(path, '/', route);
         }
-        return filePath;
+
+        return path;
     }
     /**
      * Batches records in a slice into groups based on the "path" config
@@ -171,23 +173,23 @@ export abstract class ChunkedFileSender {
         data: (DataEntity | Record<string, unknown>)[]
     ): Record<string, DataEntity | Record<string, unknown>[]> {
         const batches: Record<string, DataEntity | Record<string, unknown>[]> = {};
-        const { filePath } = this.nameOptions;
+        const { path } = this;
 
-        batches[filePath] = [];
+        batches[path] = [];
         const isDataEntityArray = DataEntity.isDataEntityArray(data);
 
         for (const record of data) {
             const override = isDataEntityArray ? (record as DataEntity).getMetadata('standard:route') : false;
 
             if (this.isRouter && override) {
-                const routePath = nodePathModule.join(filePath, '/', override);
+                const routePath = nodePathModule.join(path, '/', override);
 
                 if (!batches[routePath]) {
                     batches[routePath] = [];
                 }
                 batches[routePath].push(record);
             } else {
-                batches[filePath].push(record);
+                batches[path].push(record);
             }
         }
 

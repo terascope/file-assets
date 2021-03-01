@@ -61,7 +61,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
      * if it does not exist
      */
     async ensureBucket(): Promise<void> {
-        const { bucket } = parsePath(this.nameOptions.filePath);
+        const { bucket } = parsePath(this.path);
         const params = { Bucket: bucket };
 
         try {
@@ -71,7 +71,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                 await createS3Bucket(this.client, params);
             } catch (err) {
                 throw new TSError(err, {
-                    reason: `Could not setup bucket ${this.nameOptions.filePath}`
+                    reason: `Could not setup bucket ${this.path}`
                 });
             }
         }

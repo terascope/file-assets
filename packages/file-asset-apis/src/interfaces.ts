@@ -122,7 +122,6 @@ export enum Compression {
 }
 
 export interface NameOptions {
-    filePath: string;
     filePerSlice?: boolean;
     /** Should be provided if filePerSlice is set to true */
     sliceCount?: number;
