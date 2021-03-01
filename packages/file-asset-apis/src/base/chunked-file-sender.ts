@@ -4,6 +4,7 @@ import {
 import * as nodePathModule from 'path';
 import { CompressionFormatter } from './compression';
 import { FileFormatter } from './file-formatter';
+import { createFileName } from './file-name';
 import {
     NameOptions,
     FileSenderType,
@@ -12,30 +13,6 @@ import {
     BaseSenderConfig,
     CSVSenderConfig
 } from '../interfaces';
-
-function addFileExtensionModifiers(
-    format: Format, compression: Compression, extension?: string
-): string {
-    if (extension && isString(extension)) {
-        const override = extension.startsWith('.') ? `${extension}` : `.${extension}`;
-        return override;
-    }
-
-    let newExtension = '';
-
-    // if it is raw, we don't know what extension as it could be anything
-    if (format !== Format.raw) {
-        newExtension += `.${format}`;
-    }
-
-    if (compression === Compression.lz4) {
-        newExtension += `.${compression}`;
-    } else if (compression === Compression.gzip) {
-        newExtension += '.gz';
-    }
-
-    return newExtension;
-}
 
 const formatValues = Object.values(Format);
 
@@ -52,7 +29,6 @@ export abstract class ChunkedFileSender {
     readonly concurrency: number;
     readonly filePerSlice: boolean;
     readonly lineDelimiter: string;
-    readonly fileExtension: string;
 
     constructor(type: FileSenderType, config: BaseSenderConfig) {
         const {
@@ -62,7 +38,7 @@ export abstract class ChunkedFileSender {
             field_delimiter = ',', concurrency = 10, extension
         } = config;
 
-        if (format == null || formatValues.includes(format)) {
+        if (format == null || !formatValues.includes(format)) {
             throw new Error(`Invalid paramter format, is must be provided and be set to any of these: ${formatValues.join(', ')}`);
         }
 
@@ -90,7 +66,11 @@ export abstract class ChunkedFileSender {
 
         this.nameOptions = {
             filePath: path,
-            filePerSlice: file_per_slice
+            filePerSlice: file_per_slice,
+            format,
+            compression,
+            extension,
+            id
         };
 
         const csvOptions: CSVSenderConfig = {
@@ -107,7 +87,6 @@ export abstract class ChunkedFileSender {
         this.filePerSlice = file_per_slice;
         this.lineDelimiter = line_delimiter;
         this.concurrency = concurrency;
-        this.fileExtension = addFileExtensionModifiers(format, compression, extension);
     }
 
     abstract verify(path: string): Promise<void>
@@ -127,32 +106,22 @@ export abstract class ChunkedFileSender {
 
     async createFileDestinationName(pathing: string): Promise<string> {
         // Can't use path.join() here since the path might include a filename prefix
-        const { filePerSlice, filePath } = this.nameOptions;
-        let fileName: string;
+        const { nameOptions } = this;
 
         if (this.type === FileSenderType.file || this.type === FileSenderType.hdfs) {
-            if (pathing === filePath) {
+            if (pathing === nameOptions.filePath) {
                 await this.ensurePathing(pathing);
             } else {
                 await this.ensurePathing(pathing, true);
             }
-
-            fileName = nodePathModule.join(pathing, this.id);
-        } else if (this.type === FileSenderType.s3) {
-            // we treat this different because of working with a single bucket
-            fileName = nodePathModule.join(pathing, this.id);
-        } else {
-            fileName = '';
         }
 
-        // The slice count is only added for `file_per_slice`
-        if (filePerSlice) {
-            fileName += `.${this.sliceCount}`;
-        }
+        const fileNameConfig = {
+            ...nameOptions,
+            sliceCount: this.sliceCount
+        };
 
-        fileName += this.fileExtension;
-
-        return fileName;
+        return createFileName(fileNameConfig);
     }
 
     async convertFileChunk(slice: DataEntity[] | null | undefined): Promise<any|null>

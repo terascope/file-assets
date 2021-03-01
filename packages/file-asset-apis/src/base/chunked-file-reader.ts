@@ -86,7 +86,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
             fields = []
         } = inputConfig;
 
-        if (format == null || formatValues.includes(format)) {
+        if (format == null || !formatValues.includes(format)) {
             throw new Error(`Invalid paramter format, is must be provided and be set to any of these: ${formatValues.join(', ')}`);
         }
 

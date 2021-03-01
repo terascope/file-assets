@@ -47,7 +47,6 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
             return [];
         }
 
-        // TODO: may need to verify bucket first
         const params: S3PutConfig = {
             Bucket: objPath.bucket,
             Key: fileName,
