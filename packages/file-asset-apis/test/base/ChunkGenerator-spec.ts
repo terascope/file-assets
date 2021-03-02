@@ -19,7 +19,7 @@ describe('ChunkGenerator', () => {
                 );
             });
 
-            it('should have return no chunks', async () => {
+            it('should return no chunks', async () => {
                 await expect(toArray(gen)).resolves.toEqual([]);
             });
         });
@@ -39,7 +39,7 @@ describe('ChunkGenerator', () => {
                 );
             });
 
-            it('should have return no chunks', async () => {
+            it('should return a small chunk', async () => {
                 const expected: Chunk[] = [{
                     index: 1,
                     data: Buffer.from(`${JSON.stringify(input)}\n`),
@@ -48,6 +48,37 @@ describe('ChunkGenerator', () => {
                 await expect(toArray(gen)).resolves.toEqual(expected);
             });
         });
+
+        // describe('when constructed with a large slice', () => {
+        //     let gen: ChunkGenerator;
+
+        //     const input = new Array(1000).map((_val, index) => ({
+        //         foo: 'bar',
+        //         count: index,
+        //         boo: true
+        //     }));
+
+        //     beforeAll(() => {
+        //         gen = new ChunkGenerator(
+        //             new Formatter({
+        //                 id: 'foo',
+        //                 path: 'foo',
+        //                 format: Format.ldjson,
+        //             }),
+        //             new Compressor(Compression.none),
+        //             input
+        //         );
+        //     });
+
+        //     it('should return a small chunk', async () => {
+        //         const expected: Chunk[] = [{
+        //             index: 1,
+        //             data: Buffer.from(`${JSON.stringify(input)}\n`),
+        //             has_more: false,
+        //         }];
+        //         await expect(toArray(gen)).resolves.toEqual(expected);
+        //     });
+        // });
     });
 });
 

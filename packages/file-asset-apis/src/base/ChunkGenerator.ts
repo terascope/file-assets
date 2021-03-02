@@ -33,13 +33,15 @@ export class ChunkGenerator {
 
     async* [Symbol.asyncIterator](): AsyncIterableIterator<Chunk> {
         if (!this.slice.length) return;
+        const has_more = false;
+
         const formattedData = this.formatter.format(this.slice);
         const data = await this.compression.compress(formattedData);
 
         yield {
             index: 1,
             data,
-            has_more: false
+            has_more
         };
     }
 }

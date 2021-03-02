@@ -5,6 +5,7 @@ import * as nodePathModule from 'path';
 import { Compressor } from './Compressor';
 import { Formatter } from './Formatter';
 import { createFileName } from './createFileName';
+import { ChunkGenerator } from './ChunkGenerator';
 import {
     NameOptions,
     FileSenderType,
@@ -15,6 +16,16 @@ import {
 } from '../interfaces';
 
 const formatValues = Object.values(Format);
+
+/** The arguments for sendToFileDestination */
+export interface SendBatchConfig {
+    /** The original filename  */
+    readonly filename: string;
+    /** The full path generated for filename  */
+    readonly dest: string;
+    /** Async Iterator that provides chunks of data to write  */
+    readonly chunkGenerator: ChunkGenerator
+}
 
 export abstract class ChunkedFileSender {
     protected sliceCount = -1;
@@ -128,22 +139,6 @@ export abstract class ChunkedFileSender {
         return createFileName(filePath, fileNameConfig);
     }
 
-    async convertFileChunk(
-        slice: (Record<string, unknown> | DataEntity)[] | null | undefined
-    ): Promise<Buffer|null> {
-        // null or empty slices get an empty output and will get filtered out below
-        if (!slice || !slice.length) return null;
-        // Build the output string to dump to the object
-        const outStr = this.formatter.format(slice);
-
-        // Let the exporters prevent empty slices from making it through
-        if (!outStr || outStr.length === 0 || outStr === this.lineDelimiter) {
-            return null;
-        }
-
-        return this.compressor.compress(outStr);
-    }
-
     /**
      *  Method to help create proper file paths, mainly used in the abstract "verify" method
      * @param path: string | undefined
@@ -162,9 +157,9 @@ export abstract class ChunkedFileSender {
      * dynamic routing is being used, this is called in the "send" method
      *
      */
-    prepareDispatch(
+    async prepareDispatch(
         data: (DataEntity | Record<string, unknown>)[]
-    ): Record<string, (DataEntity | Record<string, unknown>)[]> {
+    ): Promise<SendBatchConfig[]> {
         const batches: Record<string, (DataEntity | Record<string, unknown>)[]> = {};
         const { path } = this;
 
@@ -186,19 +181,17 @@ export abstract class ChunkedFileSender {
             }
         }
 
-        return batches;
-    }
-
-    /**
-     * Creates final filename destination as well as converts and compresses data
-     * based on configuration
-     */
-    async prepareSegment(
-        path: string, records: (DataEntity |Record<string, unknown>)[] | null | undefined,
-    ): Promise<{ fileName: string, output: Buffer|null }> {
-        const fileName = await this.createFileDestinationName(path);
-        const output = await this.convertFileChunk(records);
-        return { fileName, output };
+        return pMap(
+            Object.entries(batches),
+            async ([filename, list]) => {
+                const destName = await this.createFileDestinationName(filename);
+                return {
+                    filename,
+                    dest: destName,
+                    chunkGenerator: new ChunkGenerator(this.formatter, this.compressor, list)
+                };
+            }
+        );
     }
 
     /**
@@ -210,8 +203,8 @@ export abstract class ChunkedFileSender {
     }
 
     protected abstract sendToDestination(
-        fileName: string, list: (DataEntity | Record<string, unknown>)[]
-    ): Promise<any>
+        config: SendBatchConfig
+    ): Promise<void>
 
     /**
      * Write data to file, uses parent "sendToDestination" method to determine location
@@ -228,17 +221,11 @@ export abstract class ChunkedFileSender {
             if (this.sliceCount > 0) this.formatter.csvOptions.header = false;
         }
 
-        const dispatch = this.prepareDispatch(records);
-
-        const actions: [filename: string, list: (DataEntity | Record<string, unknown>)[]][] = [];
-
-        for (const [filename, list] of Object.entries(dispatch)) {
-            actions.push([filename, list]);
-        }
+        const dispatch = await this.prepareDispatch(records);
 
         await pMap(
-            actions,
-            ([fileName, list]) => this.sendToDestination(fileName, list),
+            dispatch,
+            (config) => this.sendToDestination(config),
             { concurrency }
         );
     }

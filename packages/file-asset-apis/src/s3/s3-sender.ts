@@ -1,11 +1,9 @@
 import type { RouteSenderAPI } from '@terascope/job-components';
 import type S3 from 'aws-sdk/clients/s3';
+import { Logger, TSError } from '@terascope/utils';
 import {
-    DataEntity,
-    Logger,
-    TSError
-} from '@terascope/utils';
-import { parsePath, ChunkedFileSender } from '../base';
+    parsePath, ChunkedFileSender, SendBatchConfig
+} from '../base';
 import { FileSenderType, S3PutConfig, ChunkedFileSenderConfig } from '../interfaces';
 import { createS3Bucket, headS3Bucket, putS3Object } from './s3-helpers';
 import { isObject } from '../helpers';
@@ -35,25 +33,31 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
      *
      */
     protected async sendToDestination(
-        file: string, list: (DataEntity | Record<string, unknown>)[]
-    ): Promise<any> {
-        const objPath = parsePath(file);
+        config: SendBatchConfig
+    ): Promise<void> {
+        const { filename, chunkGenerator } = config;
+        const objPath = parsePath(filename);
 
-        const { fileName, output } = await this.prepareSegment(objPath.prefix, list);
+        const Key = await this.createFileDestinationName(objPath.prefix);
 
-        // This will prevent empty objects from being added to the S3 store, which can cause
-        // problems with the S3 reader
-        if (!output || output.length === 0) {
-            return [];
+        let Body: Buffer|undefined;
+
+        for await (const chunk of chunkGenerator) {
+            if (chunk.has_more) {
+                throw new Error('has_more is not supported');
+            }
+            Body = chunk.data;
         }
+
+        if (!Body) return;
 
         const params: S3PutConfig = {
             Bucket: objPath.bucket,
-            Key: fileName,
-            Body: output
+            Key,
+            Body
         };
 
-        return putS3Object(this.client, params);
+        await putS3Object(this.client, params);
     }
 
     /**

@@ -6,6 +6,7 @@ import {
     Compression,
     Format,
     ChunkedFileSender,
+    SendBatchConfig
 } from '../../src';
 
 describe('ChunkedSlicer', () => {
@@ -25,11 +26,19 @@ describe('ChunkedSlicer', () => {
         }
 
         async sendToDestination(
-            file: string, list: (DataEntity | Record<string, unknown>)[]
+            { dest, chunkGenerator }: SendBatchConfig
         ) {
-            const { fileName, output } = await this.prepareSegment(file, list);
+            let output: Buffer|undefined;
+
+            for await (const chunk of chunkGenerator) {
+                if (chunk.has_more) {
+                    throw new Error('has_more is not supported');
+                }
+                output = chunk.data;
+            }
+
             if (output) {
-                this.sentData.set(fileName, output.toString());
+                this.sentData.set(dest, output.toString());
             }
         }
     }
@@ -83,7 +92,7 @@ describe('ChunkedSlicer', () => {
         expect(test2.isRouter).toBeFalse();
     });
 
-    it('can prepare a dispatch with no routing', () => {
+    it('can prepare a dispatch with no routing', async () => {
         const test = new Test(FileSenderType.file, makeConfig(Format.ldjson));
         const data = [
             DataEntity.make({ name: 'chilly' }),
@@ -91,11 +100,17 @@ describe('ChunkedSlicer', () => {
             DataEntity.make({ name: 'billy' }, { 'standard:route': 'b' }),
         ];
 
-        const results = test.prepareDispatch(data);
-        expect(results[path]).toBeArrayOfSize(3);
+        const results = await test.prepareDispatch(data);
+        expect(results).toBeArrayOfSize(1);
+
+        const [firstBatchConfig] = results;
+
+        expect(firstBatchConfig).toHaveProperty('filename', path);
+        expect(firstBatchConfig).toHaveProperty('chunkGenerator');
+        expect(firstBatchConfig.chunkGenerator.slice).toBeArrayOfSize(3);
     });
 
-    it('can prepare a dispatch with routing', () => {
+    it('can prepare a dispatch with routing', async () => {
         const test = new Test(FileSenderType.file, makeConfig(
             Format.ldjson, { dynamic_routing: true }
         ));
@@ -105,11 +120,23 @@ describe('ChunkedSlicer', () => {
             DataEntity.make({ name: 'billy' }, { 'standard:route': 'b' }),
         ];
 
-        const results = test.prepareDispatch(data);
+        const results = await test.prepareDispatch(data);
 
-        expect(results[path]).toBeArrayOfSize(1);
-        expect(results[`${path}/a`]).toBeArrayOfSize(1);
-        expect(results[`${path}/b`]).toBeArrayOfSize(1);
+        expect(results).toBeArrayOfSize(3);
+
+        const [firstBatchConfig, secondBatchConfig, thirdBatchConfig] = results;
+
+        expect(firstBatchConfig).toHaveProperty('filename', `${path}`);
+        expect(firstBatchConfig).toHaveProperty('chunkGenerator');
+        expect(firstBatchConfig.chunkGenerator.slice).toBeArrayOfSize(1);
+
+        expect(secondBatchConfig).toHaveProperty('filename', `${path}/a`);
+        expect(secondBatchConfig).toHaveProperty('chunkGenerator');
+        expect(secondBatchConfig.chunkGenerator.slice).toBeArrayOfSize(1);
+
+        expect(thirdBatchConfig).toHaveProperty('filename', `${path}/b`);
+        expect(thirdBatchConfig).toHaveProperty('chunkGenerator');
+        expect(thirdBatchConfig.chunkGenerator.slice).toBeArrayOfSize(1);
     });
 
     it('can make a new route path', () => {
@@ -274,26 +301,25 @@ describe('ChunkedSlicer', () => {
         });
     });
 
-    it('can prepare a segment for sending', async () => {
-        const test = new Test(FileSenderType.s3, makeConfig(
-            Format.ldjson, { file_per_slice: true }
-        ));
-        const records = [
-            DataEntity.make({ some: 'data' }),
-            DataEntity.make({ other: 'stuff' }),
-        ];
-        // @ts-expect-error
-        test.incrementCount();
+    // it('can prepare a segment for sending', async () => {
+    //     const test = new Test(FileSenderType.s3, makeConfig(
+    //         Format.ldjson, { file_per_slice: true }
+    //     ));
+    //     const records = [
+    //         DataEntity.make({ some: 'data' }),
+    //         DataEntity.make({ other: 'stuff' }),
+    //     ];
+    //     test.incrementCount();
 
-        const results = await test.prepareSegment(path, records);
+    //     const results = await test.prepareSegment(path, records);
 
-        expect(results).toBeDefined();
-        expect(results.fileName).toBeDefined();
-        expect(results.output).toBeDefined();
+    //     expect(results).toBeDefined();
+    //     expect(results.fileName).toBeDefined();
+    //     expect(results.output).toBeDefined();
 
-        expect(results.fileName).toEqual(`${path}/${workerId}.0.ldjson`);
-        expect(results.output?.toString()).toEqual('{"some":"data"}\n{"other":"stuff"}\n');
-    });
+    //     expect(results.fileName).toEqual(`${path}/${workerId}.0.ldjson`);
+    //     expect(results.output?.toString()).toEqual('{"some":"data"}\n{"other":"stuff"}\n');
+    // });
 
     it('can respect file destination using send and field_per_slice false', async () => {
         const test = new Test(

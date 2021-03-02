@@ -1,12 +1,11 @@
 import type { RouteSenderAPI } from '@terascope/job-components';
 import {
-    DataEntity,
     AnyObject,
     Logger,
     TSError
 } from '@terascope/utils';
 import path from 'path';
-import { ChunkedFileSender } from '../base';
+import { ChunkedFileSender, SendBatchConfig } from '../base';
 import { FileSenderType, ChunkedFileSenderConfig } from '../interfaces';
 
 export class HDFSSender extends ChunkedFileSender implements RouteSenderAPI {
@@ -25,23 +24,24 @@ export class HDFSSender extends ChunkedFileSender implements RouteSenderAPI {
      *
      */
     protected async sendToDestination(
-        filename: string, list: (DataEntity | Record<string, unknown>)[]
-    ): Promise<any[]> {
-        const { fileName, output } = await this.prepareSegment(filename, list);
+        { dest, chunkGenerator }: SendBatchConfig
+    ): Promise<void> {
+        let output: Buffer|undefined;
 
-        // This will prevent empty objects from being added to the S3 store, which can cause
-        // problems with the S3 reader
-        if (!output || output.length === 0) {
-            return [];
+        for await (const chunk of chunkGenerator) {
+            if (chunk.has_more) {
+                throw new Error('has_more is not supported');
+            }
+            output = chunk.data;
         }
 
         try {
-            return this.client.appendAsync(fileName, output);
+            return this.client.appendAsync(dest, output);
         } catch (err) {
             throw new TSError(err, {
                 reason: 'Error sending data to file',
                 context: {
-                    file: fileName
+                    file: dest
                 }
             });
         }
