@@ -11,6 +11,7 @@ import {
     Format,
     Compression,
     ChunkedFileSenderConfig,
+    getLineDelimiter,
 } from '../interfaces';
 
 const formatValues = Object.values(Format);
@@ -71,7 +72,7 @@ export abstract class ChunkedFileSender {
     }
 
     get lineDelimiter(): string {
-        return this.config.line_delimiter ?? '\n';
+        return getLineDelimiter(this.config);
     }
 
     get filePerSlice(): boolean {

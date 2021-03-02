@@ -12,6 +12,7 @@ import {
     isCSVSenderConfig,
     getLineDelimiter,
     getFieldDelimiter,
+    getFieldsFromConfig,
 } from '../interfaces';
 
 type FormatFn = (
@@ -36,20 +37,15 @@ const formatsFns: Record<Format, FormatFn> = {
     },
     ldjson(slice, config) {
         const lineDelimiter = getLineDelimiter(config);
-        const fields = getFields(config);
+        const fields = getFieldsFromConfig(config);
         return `${slice.map((record: any) => JSON.stringify(record, fields)).join(lineDelimiter)}${lineDelimiter}`;
     },
     json(slice, config) {
         const lineDelimiter = getLineDelimiter(config);
-        const fields = getFields(config);
+        const fields = getFieldsFromConfig(config);
         return `${JSON.stringify(slice, fields)}${lineDelimiter}`;
     }
 };
-
-function getFields(config: ChunkedFileSenderConfig): string[]|undefined {
-    const fields = (config as any).fields as string[]|undefined;
-    return fields?.length ? fields : undefined;
-}
 
 function getFormatFn(format: Format): FormatFn {
     const fn = formatsFns[format];
@@ -67,7 +63,7 @@ export class FileFormatter {
     constructor(config: ChunkedFileSenderConfig) {
         this.validateConfig(config);
         this.config = { ...config };
-        this.csvOptions = makeCsvOptions(config);
+        this.csvOptions = makeCSVOptions(config);
         this.fn = getFormatFn(config.format);
     }
 
@@ -104,20 +100,13 @@ export class FileFormatter {
     }
 }
 
-function makeCsvOptions(config: ChunkedFileSenderConfig): CSVOptions {
+function makeCSVOptions(config: ChunkedFileSenderConfig): CSVOptions {
     if (!isCSVSenderConfig(config)) return {};
 
-    const csvOptions: CSVOptions = {};
-
-    if (config.fields?.length !== 0) {
-        csvOptions.fields = config.fields;
-    } else {
-        csvOptions.fields = undefined;
-    }
-
-    csvOptions.header = config.include_header;
-    csvOptions.eol = getLineDelimiter(config);
-    csvOptions.delimiter = getFieldDelimiter(config);
-
-    return csvOptions;
+    return {
+        fields: getFieldsFromConfig(config),
+        header: config.include_header ?? false,
+        eol: getLineDelimiter(config),
+        delimiter: getFieldDelimiter(config),
+    };
 }

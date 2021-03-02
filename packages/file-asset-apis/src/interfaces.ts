@@ -100,11 +100,18 @@ export function isCSVReaderConfig(config: ChunkedFileReaderConfig): config is CS
 
 export function getFieldDelimiter(config: CSVReaderConfig): string {
     if (config.format === Format.tsv) return config.field_delimiter ?? '\t';
-    return config.field_delimiter ?? '\n';
+    return config.field_delimiter ?? ',';
 }
 
 export function getLineDelimiter(config: ChunkedFileSenderConfig|ChunkedFileReaderConfig): string {
     return config.line_delimiter ?? '\n';
+}
+
+export function getFieldsFromConfig(
+    config: ChunkedFileSenderConfig|ChunkedFileReaderConfig
+): string[]|undefined {
+    const fields = (config as any).fields as string[]|undefined;
+    return fields?.length ? fields : undefined;
 }
 
 export interface CSVSenderConfig extends ChunkedFileSenderConfig {

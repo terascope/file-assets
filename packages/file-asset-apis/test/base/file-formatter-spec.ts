@@ -71,15 +71,13 @@ describe('FileFormatter', () => {
             path: 'foo',
             format: Format.tsv,
             fields: [],
-            line_delimiter: '\t',
             include_header: false,
-            field_delimiter: ','
         };
         const data = [{ some: 'stuff', other: 'things' }];
 
         const formatter = new FileFormatter(config);
 
-        expect(formatter.format(data)).toEqual('"stuff"\t"things"\t');
+        expect(formatter.format(data)).toEqual('"stuff"\t"things"\n');
     });
 
     it('can format csv data', () => {
