@@ -82,7 +82,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                 Bucket,
                 Key,
                 Body,
-                UploadId: uploadId as string,
+                UploadId: uploadId!,
                 PartNumber: chunk.index + 1
             };
 
@@ -90,14 +90,14 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
 
             // we are done, finalize the upload
             if (!chunk.has_more) {
-                const completeMultipartPayload = {
+                const completeMultipartPayload: S3.CompleteMultipartUploadRequest = {
                     Bucket,
                     Key,
                     MultipartUpload: {
                         Parts: payloads
                     },
-                    UploadId: uploadId as string
-                } as S3.CompleteMultipartUploadRequest;
+                    UploadId: uploadId!
+                };
                     // Finalize multipart upload
                 await finalizeS3Multipart(this.client, completeMultipartPayload);
             }
