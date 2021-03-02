@@ -40,11 +40,9 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
      *
      */
     protected async sendToDestination(
-        config: SendBatchConfig
+        { filename, chunkGenerator } : SendBatchConfig
     ): Promise<void> {
-        const { filename, chunkGenerator } = config;
         const objPath = parsePath(filename);
-
         const Key = await this.createFileDestinationName(objPath.prefix);
         const Bucket = objPath.bucket;
 
