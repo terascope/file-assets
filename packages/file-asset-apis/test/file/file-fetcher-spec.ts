@@ -2,7 +2,7 @@ import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
 import pathModule from 'path';
 import {
-    Compression, FileFetcher, Format, ReaderConfig, FileSlice, CSVReaderConfig
+    Compression, FileFetcher, Format, ReaderConfig, FileSlice
 } from '../../src';
 
 const fixtures = require('jest-fixtures');

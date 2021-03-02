@@ -11,7 +11,7 @@ export interface Chunk {
     /**
      * The chunk of data to published
     */
-    readonly chunk: Buffer;
+    readonly data: Buffer;
 
     /**
      * Indicates whether there are more chunks to be processed
@@ -31,7 +31,15 @@ export class ChunkGenerator {
         readonly slice: (Record<string, unknown>|DataEntity)[]
     ) {}
 
-    * [Symbol.iterator](): IterableIterator<Chunk> {
-        yield* [];
+    async* [Symbol.asyncIterator](): AsyncIterableIterator<Chunk> {
+        if (!this.slice.length) return;
+        const formattedData = this.formatter.format(this.slice);
+        const data = await this.compression.compress(formattedData);
+
+        yield {
+            index: 1,
+            data,
+            has_more: false
+        };
     }
 }
