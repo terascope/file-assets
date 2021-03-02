@@ -33,11 +33,11 @@ export class ChunkGenerator {
     /*
     * 5MiB - Minimum part size for multipart uploads with Minio
     */
-    static MIN_CHUNK_SIZE_BYTES = 1024 * 1024 * 5
+    static MIN_CHUNK_SIZE_BYTES = 1024 * 1024 * 5;
 
     constructor(
         readonly formatter: Formatter,
-        readonly compression: Compressor,
+        readonly compressor: Compressor,
         readonly slice: (Record<string, unknown>|DataEntity)[]
     ) {}
 
@@ -45,7 +45,7 @@ export class ChunkGenerator {
         if (!this.slice.length) return;
 
         const formattedData = this.formatter.format(this.slice);
-        const data = await this.compression.compress(formattedData);
+        const data = await this.compressor.compress(formattedData);
 
         const chunkSize = getBytes(ChunkGenerator.MAX_CHUNK_SIZE_BYTES);
         const numChunks = Math.ceil(data.length / chunkSize);
