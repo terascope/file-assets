@@ -6,7 +6,7 @@ import {
     TSError
 } from '@terascope/utils';
 import { parsePath, ChunkedFileSender } from '../base';
-import { FileSenderType, S3PutConfig, BaseSenderConfig } from '../interfaces';
+import { FileSenderType, S3PutConfig, ChunkedFileSenderConfig } from '../interfaces';
 import { createS3Bucket, headS3Bucket, putS3Object } from './s3-helpers';
 import { isObject } from '../helpers';
 
@@ -22,7 +22,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
     logger: Logger;
     client: S3;
 
-    constructor(client: S3, config: BaseSenderConfig, logger: Logger) {
+    constructor(client: S3, config: ChunkedFileSenderConfig, logger: Logger) {
         validateConfig(config);
         super(FileSenderType.s3, config);
         this.logger = logger;

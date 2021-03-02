@@ -5,7 +5,7 @@ import { makeClient, cleanupBucket, getBodyFromResults } from './helpers';
 import {
     Compression,
     Format,
-    BaseSenderConfig,
+    ChunkedFileSenderConfig,
     S3Sender,
     getS3Object,
     CompressionFormatter,
@@ -50,7 +50,7 @@ describe('S3 Sender API', () => {
         const testDirPath = 'bucket_test';
         const testPath = `${ensureBucket}/${testDirPath}`;
 
-        const config: BaseSenderConfig = {
+        const config: ChunkedFileSenderConfig = {
             path: testPath,
             id,
             format,
@@ -83,7 +83,7 @@ describe('S3 Sender API', () => {
         const compression = Compression.none;
         const compressor = new CompressionFormatter(compression);
 
-        const config: BaseSenderConfig = {
+        const config: ChunkedFileSenderConfig = {
             path,
             id,
             format,
@@ -119,7 +119,7 @@ describe('S3 Sender API', () => {
         const compression = Compression.gzip;
         const compressor = new CompressionFormatter(compression);
 
-        const config: BaseSenderConfig = {
+        const config: ChunkedFileSenderConfig = {
             path,
             id,
             format,

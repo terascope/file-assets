@@ -227,16 +227,16 @@ describe('S3 Fetcher API', () => {
         const testDirPath = 'tsv_test';
         const testPath = `${path}/${testDirPath}`;
 
-        const config: ReaderConfig = {
+        const config = {
             path: testPath,
             format,
             compression,
             file_per_slice: true,
             size: 1000,
             field_delimiter: '\t'
-        };
+        } as ReaderConfig;
 
-        const uploadConfig: UploadConfig = {
+        const uploadConfig = {
             format,
             id,
             path,
@@ -244,7 +244,7 @@ describe('S3 Fetcher API', () => {
             compression,
             sliceCount: 0,
             field_delimiter: '\t'
-        };
+        } as UploadConfig;
         const fileName = await upload(client, uploadConfig, testData);
         const fetcher = new S3Fetcher(client, config, logger);
         const slice: FileSlice = {

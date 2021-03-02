@@ -1,5 +1,5 @@
 import {
-    DataEntity, pMap, isNil, isString
+    DataEntity, pMap, isString
 } from '@terascope/utils';
 import * as nodePathModule from 'path';
 import { CompressionFormatter } from './compression';
@@ -10,8 +10,7 @@ import {
     FileSenderType,
     Format,
     Compression,
-    BaseSenderConfig,
-    CSVSenderConfig
+    ChunkedFileSenderConfig,
 } from '../interfaces';
 
 const formatValues = Object.values(Format);
@@ -31,23 +30,23 @@ export abstract class ChunkedFileSender {
     readonly lineDelimiter: string;
     readonly path: string;
 
-    constructor(type: FileSenderType, config: BaseSenderConfig) {
+    constructor(type: FileSenderType, config: ChunkedFileSenderConfig) {
         const {
             path, id, format, compression = Compression.none,
             file_per_slice = false, dynamic_routing = false,
-            fields = [], include_header = false, line_delimiter = '\n',
-            field_delimiter = ',', concurrency = 10, extension
+            line_delimiter = '\n', extension,
+            concurrency = 10,
         } = config;
 
-        if (format == null || !formatValues.includes(format)) {
+        if (!formatValues.includes(format)) {
             throw new Error(`Invalid paramter format, is must be provided and be set to any of these: ${formatValues.join(', ')}`);
         }
 
-        if (isNil(path) || !isString(path)) {
+        if (!isString(path)) {
             throw new Error('Invalid parameter path, it must be provided and be of type string');
         }
 
-        if ((isNil(id) || !isString(id))) {
+        if (!isString(id)) {
             throw new Error('Invalid parameter id, it must be set to a unique string value');
         }
 
@@ -57,7 +56,9 @@ export abstract class ChunkedFileSender {
         }
 
         // file_per_slice must be set to true if compression is set to anything besides "none"
-        if (config.compression !== Compression.none && config.file_per_slice !== true) {
+        if (config.compression != null
+            && config.compression !== Compression.none
+            && config.file_per_slice !== true) {
             throw new Error('Invalid parameter "file_per_slice", it must be set to true if compression is set to anything other than "none" as we cannot properly divide up a compressed file');
         }
 
@@ -74,16 +75,8 @@ export abstract class ChunkedFileSender {
             id
         };
 
-        const csvOptions: CSVSenderConfig = {
-            fields,
-            include_header,
-            line_delimiter,
-            field_delimiter,
-            format,
-        };
-
         this.compressionFormatter = new CompressionFormatter(compression);
-        this.fileFormatter = new FileFormatter(format, csvOptions);
+        this.fileFormatter = new FileFormatter(config);
         this.isRouter = dynamic_routing;
         this.filePerSlice = file_per_slice;
         this.lineDelimiter = line_delimiter;

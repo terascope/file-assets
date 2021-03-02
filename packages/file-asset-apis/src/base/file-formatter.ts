@@ -7,31 +7,48 @@ import {
 import json2csv, { parse } from 'json2csv';
 import {
     Format,
-    CSVSenderConfig,
     CSVOptions,
+    ChunkedFileSenderConfig,
+    isCSVSenderConfig,
+    getLineDelimiter,
+    getFieldDelimiter,
 } from '../interfaces';
 
 type FormatFn = (
-    slice: any[], opConfig: CSVSenderConfig, csvOptions: json2csv.Options<any>
+    slice: any[], config: ChunkedFileSenderConfig, csvOptions: json2csv.Options<any>
 ) => string
 
-function csvFunction(slice: any[], opConfig: CSVSenderConfig, csvOptions: json2csv.Options<any>) {
-    return `${parse(slice, csvOptions)}${opConfig.line_delimiter}`;
+function csvFunction(
+    slice: any[],
+    config: ChunkedFileSenderConfig,
+    csvOptions: json2csv.Options<any>
+) {
+    const lineDelimiter = getLineDelimiter(config);
+    return `${parse(slice, csvOptions)}${lineDelimiter}`;
 }
 
-const formatsFns = {
+const formatsFns: Record<Format, FormatFn> = {
     csv: csvFunction,
     tsv: csvFunction,
-    raw(slice: any[], opConfig: CSVSenderConfig) {
-        return `${slice.map((record: any) => record.data).join(opConfig.line_delimiter)}${opConfig.line_delimiter}`;
+    raw(slice, config) {
+        const lineDelimiter = getLineDelimiter(config);
+        return `${slice.map((record: any) => record.data).join(lineDelimiter)}${lineDelimiter}`;
     },
-    ldjson(slice: any[], opConfig: CSVSenderConfig) {
-        return `${slice.map((record: any) => JSON.stringify(record, (opConfig.fields.length > 0) ? opConfig.fields : undefined)).join(opConfig.line_delimiter)}${opConfig.line_delimiter}`;
+    ldjson(slice, config) {
+        const lineDelimiter = getLineDelimiter(config);
+        const fields = getFields(config);
+        return `${slice.map((record: any) => JSON.stringify(record, fields)).join(lineDelimiter)}${lineDelimiter}`;
     },
-    json(slice: any[], opConfig: CSVSenderConfig) {
-        return `${JSON.stringify(slice, (opConfig.fields.length > 0) ? opConfig.fields : undefined)}${opConfig.line_delimiter}`;
+    json(slice, config) {
+        const lineDelimiter = getLineDelimiter(config);
+        const fields = getFields(config);
+        return `${JSON.stringify(slice, fields)}${lineDelimiter}`;
     }
 };
+
+function getFields(config: ChunkedFileSenderConfig): string[]|undefined {
+    return (config as any).fields ?? undefined;
+}
 
 function getFormatFn(format: Format): FormatFn {
     const fn = formatsFns[format];
@@ -43,22 +60,28 @@ const formatValues = Object.values(Format);
 
 export class FileFormatter {
     csvOptions: json2csv.Options<any>;
-    private config: CSVSenderConfig;
+    private config: ChunkedFileSenderConfig;
     private fn: FormatFn;
 
-    constructor(format: Format, config: CSVSenderConfig) {
-        this.validateConfig(format, config);
+    constructor(config: ChunkedFileSenderConfig) {
+        this.validateConfig(config);
         this.config = config;
         this.csvOptions = makeCsvOptions(config);
-        this.fn = getFormatFn(format);
+        this.fn = getFormatFn(config.format);
     }
 
-    private validateConfig(format: Format, config: CSVSenderConfig) {
-        const { fields, line_delimiter } = config;
-        if (!formatValues.includes(format)) throw new TSError(`Unsupported output format "${format}"`);
-        if (isNil(line_delimiter) || !isString(line_delimiter)) throw new TSError(`Invalid parameter line_delimiter, it must be provided and be of type string, was given ${getTypeOf(config.line_delimiter)}`);
-        if (format === Format.ldjson) {
-            if (isNil(fields) || !Array.isArray(fields) || !fields.every(isString)) {
+    private validateConfig(config: ChunkedFileSenderConfig) {
+        const { line_delimiter, format } = config;
+        if (!formatValues.includes(format)) {
+            throw new TSError(`Unsupported output format "${format}"`);
+        }
+        if (line_delimiter != null && !isString(line_delimiter)) {
+            throw new TSError(`Invalid parameter line_delimiter, it must be provided and be of type string, was given ${getTypeOf(config.line_delimiter)}`);
+        }
+        if (isCSVSenderConfig(config)) {
+            if (!isNil(config.fields) && (
+                !Array.isArray(config.fields) || !config.fields.every(isString)
+            )) {
                 throw new TSError(`Invalid parameter fields, it must be provided and be an empty array or an array of strings, was given ${getTypeOf(config.fields)}`);
             }
         }
@@ -80,24 +103,20 @@ export class FileFormatter {
     }
 }
 
-function makeCsvOptions(config: CSVSenderConfig): CSVOptions {
+function makeCsvOptions(config: ChunkedFileSenderConfig): CSVOptions {
+    if (!isCSVSenderConfig(config)) return {};
+
     const csvOptions: CSVOptions = {};
 
-    if (config.fields.length !== 0) {
+    if (config.fields?.length !== 0) {
         csvOptions.fields = config.fields;
     } else {
         csvOptions.fields = undefined;
     }
 
     csvOptions.header = config.include_header;
-    csvOptions.eol = config.line_delimiter;
-
-    // Assumes a custom delimiter will be used only if the `csv` output format is chosen
-    if (config.format === 'csv') {
-        csvOptions.delimiter = config.field_delimiter;
-    } else if (config.format === 'tsv') {
-        csvOptions.delimiter = '\t';
-    }
+    csvOptions.eol = getLineDelimiter(config);
+    csvOptions.delimiter = getFieldDelimiter(config);
 
     return csvOptions;
 }

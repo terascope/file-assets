@@ -1,6 +1,6 @@
 import { OpConfig } from '@terascope/job-components';
-import { BaseSenderConfig } from '@terascope/file-asset-apis';
+import { ChunkedFileSenderConfig } from '@terascope/file-asset-apis';
 
-export interface FileExporterConfig extends BaseSenderConfig, OpConfig {
+export interface FileExporterConfig extends ChunkedFileSenderConfig, OpConfig {
     api_name: string
 }

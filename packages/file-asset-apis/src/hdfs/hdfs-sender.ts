@@ -7,13 +7,13 @@ import {
 } from '@terascope/utils';
 import path from 'path';
 import { ChunkedFileSender } from '../base';
-import { FileSenderType, BaseSenderConfig } from '../interfaces';
+import { FileSenderType, ChunkedFileSenderConfig } from '../interfaces';
 
 export class HDFSSender extends ChunkedFileSender implements RouteSenderAPI {
     logger: Logger;
     client: AnyObject;
 
-    constructor(client: AnyObject, config: BaseSenderConfig, logger: Logger) {
+    constructor(client: AnyObject, config: ChunkedFileSenderConfig, logger: Logger) {
         super(FileSenderType.hdfs, config as any);
         this.logger = logger;
         this.client = client;

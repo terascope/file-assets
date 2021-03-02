@@ -1,4 +1,4 @@
 import { OpConfig } from '@terascope/job-components';
-import { BaseSenderConfig } from '@terascope/file-asset-apis';
+import { ChunkedFileSenderConfig } from '@terascope/file-asset-apis';
 
-export interface HDFSExportOpConfig extends BaseSenderConfig, OpConfig {}
+export interface HDFSExportOpConfig extends ChunkedFileSenderConfig, OpConfig {}

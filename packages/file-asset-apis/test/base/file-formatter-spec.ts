@@ -1,4 +1,8 @@
-import { Format, CSVSenderConfig, FileFormatter } from '../../src';
+import {
+    Format, CSVSenderConfig, FileFormatter,
+    JSONSenderConfig, ChunkedFileSenderConfig,
+    LDJSONSenderConfig
+} from '../../src';
 
 describe('FileFormatter', () => {
     it('incorrect format will throw', () => {
@@ -33,41 +37,39 @@ describe('FileFormatter', () => {
     });
 
     it('can format json data', () => {
-        const format = Format.json;
-        const config: CSVSenderConfig = {
-            format,
+        const config: JSONSenderConfig = {
+            id: 'foo',
+            path: 'foo',
+            format: Format.json,
             fields: [],
             line_delimiter: '\n',
-            include_header: false,
-            field_delimiter: ','
         };
         const data = [{ some: 'stuff' }, { other: 'things' }];
 
-        const formatter = new FileFormatter(format, config);
+        const formatter = new FileFormatter(config);
 
         expect(formatter.format(data)).toEqual(`${JSON.stringify(data)}${config.line_delimiter}`);
     });
 
     it('can format raw data', () => {
-        const format = Format.raw;
-        const config: CSVSenderConfig = {
-            format,
-            fields: [],
+        const config: ChunkedFileSenderConfig = {
+            id: 'foo',
+            path: 'foo',
+            format: Format.raw,
             line_delimiter: '\t',
-            include_header: false,
-            field_delimiter: ','
         };
         const data = [{ data: 'stuff' }, { data: 'things' }];
 
-        const formatter = new FileFormatter(format, config);
+        const formatter = new FileFormatter(config);
 
         expect(formatter.format(data)).toEqual('stuff\tthings\t');
     });
 
     it('can format tsv data', () => {
-        const format = Format.tsv;
         const config: CSVSenderConfig = {
-            format,
+            id: 'foo',
+            path: 'foo',
+            format: Format.tsv,
             fields: [],
             line_delimiter: '\t',
             include_header: false,
@@ -75,15 +77,16 @@ describe('FileFormatter', () => {
         };
         const data = [{ some: 'stuff', other: 'things' }];
 
-        const formatter = new FileFormatter(format, config);
+        const formatter = new FileFormatter(config);
 
         expect(formatter.format(data)).toEqual('"stuff"\t"things"\t');
     });
 
     it('can format csv data', () => {
-        const format = Format.csv;
         const config: CSVSenderConfig = {
-            format,
+            id: 'foo',
+            path: 'foo',
+            format: Format.csv,
             fields: [],
             line_delimiter: '\n',
             include_header: false,
@@ -91,33 +94,33 @@ describe('FileFormatter', () => {
         };
         const data = [{ some: 'stuff', other: 'things' }];
 
-        const formatter = new FileFormatter(format, config);
+        const formatter = new FileFormatter(config);
 
         expect(formatter.format(data)).toEqual('"stuff","things"\n');
     });
 
     it('can format ldjson data', () => {
-        const format = Format.ldjson;
-        const config: CSVSenderConfig = {
-            format,
+        const config: LDJSONSenderConfig = {
+            id: 'foo',
+            path: 'foo',
+            format: Format.ldjson,
             fields: [],
             line_delimiter: '\n',
-            include_header: false,
-            field_delimiter: ','
         };
         const data = [{ some: 'stuff' }, { other: 'things' }];
         const expectedData = data.map((obj) => JSON.stringify(obj)).join('\n');
 
-        const formatter = new FileFormatter(format, config);
+        const formatter = new FileFormatter(config);
 
         expect(formatter.format(data)).toEqual(`${expectedData}\n`);
     });
 
     describe('fields parameter', () => {
         it('can restrict csv output', async () => {
-            const format = Format.csv;
             const config: CSVSenderConfig = {
-                format,
+                id: 'foo',
+                path: 'foo',
+                format: Format.csv,
                 fields: ['some'],
                 line_delimiter: '\n',
                 include_header: false,
@@ -125,15 +128,16 @@ describe('FileFormatter', () => {
             };
             const data = [{ some: 'stuff', other: 'things' }, { some: 'person', key: 'field' }];
 
-            const formatter = new FileFormatter(format, config);
+            const formatter = new FileFormatter(config);
 
             expect(formatter.format(data)).toEqual(`"stuff"${'\n'}"person"${'\n'}`);
         });
 
         it('can restrict tsv output', async () => {
-            const format = Format.tsv;
             const config: CSVSenderConfig = {
-                format,
+                id: 'foo',
+                path: 'foo',
+                format: Format.tsv,
                 fields: ['some'],
                 line_delimiter: '\n',
                 include_header: false,
@@ -141,39 +145,36 @@ describe('FileFormatter', () => {
             };
             const data = [{ some: 'stuff', other: 'things' }, { some: 'person', key: 'field' }];
 
-            const formatter = new FileFormatter(format, config);
+            const formatter = new FileFormatter(config);
 
             expect(formatter.format(data)).toEqual(`"stuff"${'\n'}"person"${'\n'}`);
         });
 
         it('can restrict json output', async () => {
-            const format = Format.json;
-            const config: CSVSenderConfig = {
-                format,
+            const config: JSONSenderConfig = {
+                id: 'foo',
+                path: 'foo',
+                format: Format.json,
                 fields: ['some'],
-                line_delimiter: '\n',
-                include_header: false,
-                field_delimiter: ','
             };
             const data = [{ some: 'stuff', other: 'things' }, { some: 'person', key: 'field' }];
 
-            const formatter = new FileFormatter(format, config);
+            const formatter = new FileFormatter(config);
 
             expect(formatter.format(data)).toEqual(`[{"some":"stuff"},{"some":"person"}]${'\n'}`);
         });
 
         it('can restrict ldjson output', async () => {
-            const format = Format.ldjson;
-            const config: CSVSenderConfig = {
-                format,
+            const config: LDJSONSenderConfig = {
+                id: 'foo',
+                path: 'foo',
+                format: Format.ldjson,
                 fields: ['some'],
                 line_delimiter: '\n',
-                include_header: false,
-                field_delimiter: ','
             };
             const data = [{ some: 'stuff', other: 'things' }, { some: 'person', key: 'field' }];
 
-            const formatter = new FileFormatter(format, config);
+            const formatter = new FileFormatter(config);
 
             expect(formatter.format(data)).toEqual(`{"some":"stuff"}${'\n'}{"some":"person"}${'\n'}`);
         });

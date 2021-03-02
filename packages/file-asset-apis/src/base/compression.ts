@@ -46,7 +46,7 @@ export class CompressionFormatter {
     compress: (data: Buffer|string) => Promise<Buffer>;
     decompress: (data: Buffer|string) => Promise<string>;
 
-    constructor(format: Compression) {
+    constructor(format: Compression = Compression.none) {
         this.compression = format;
 
         if (this.compression === Compression.lz4) {
