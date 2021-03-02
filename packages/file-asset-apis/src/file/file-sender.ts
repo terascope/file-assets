@@ -1,5 +1,5 @@
 import type { RouteSenderAPI } from '@terascope/job-components';
-import { Logger, TSError } from '@terascope/utils';
+import { Logger } from '@terascope/utils';
 import fse from 'fs-extra';
 import { ChunkedFileSender, SendBatchConfig } from '../base';
 import { ChunkedFileSenderConfig, FileSenderType } from '../interfaces';
@@ -18,23 +18,17 @@ export class FileSender extends ChunkedFileSender implements RouteSenderAPI {
     protected async sendToDestination(
         { dest, chunkGenerator }: SendBatchConfig
     ): Promise<void> {
-        let output: Buffer|undefined;
+        // eslint-disable-next-line no-bitwise
+        const fd = await fse.open(dest, fse.constants.O_CREAT | fse.constants.O_WRONLY);
+        let position = 0;
 
-        for await (const chunk of chunkGenerator) {
-            if (chunk.has_more) {
-                throw new Error('has_more is not supported');
-            }
-            output = chunk.data;
-        }
-
-        if (!output) return;
-        // Doesn't return a DataEntity or anything else if successful
         try {
-            return fse.appendFile(dest, output);
-        } catch (err) {
-            throw new TSError(err, {
-                reason: `Failure to append to file ${dest}`
-            });
+            for await (const chunk of chunkGenerator) {
+                await fse.write(fd, chunk.data, 0, chunk.data.length, position);
+                position += chunk.data.length;
+            }
+        } finally {
+            await fse.close(fd);
         }
     }
 
