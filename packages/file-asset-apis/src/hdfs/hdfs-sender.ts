@@ -13,7 +13,7 @@ export class HDFSSender extends ChunkedFileSender implements RouteSenderAPI {
     client: AnyObject;
 
     constructor(client: AnyObject, config: ChunkedFileSenderConfig, logger: Logger) {
-        super(FileSenderType.hdfs, config as any);
+        super(FileSenderType.hdfs, config);
         this.logger = logger;
         this.client = client;
     }

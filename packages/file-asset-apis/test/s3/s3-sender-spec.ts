@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { debugLogger, isString } from '@terascope/utils';
+import { debugLogger, isString, times } from '@terascope/utils';
 import { DataEntity } from '@terascope/job-components';
 import { makeClient, cleanupBucket, getBodyFromResults } from './helpers';
 import {
@@ -9,8 +9,11 @@ import {
     S3Sender,
     getS3Object,
     Compressor,
-    listS3Buckets
+    listS3Buckets,
+    ChunkGenerator
 } from '../../src';
+
+jest.setTimeout(30_000);
 
 describe('S3 Sender API', () => {
     const logger = debugLogger('s3-sender');
@@ -157,5 +160,52 @@ describe('S3 Sender API', () => {
 
         expect(JSON.parse(fetchedDataRoute1)).toMatchObject({ some: 'data' });
         expect(JSON.parse(fetchedDataRoute2)).toMatchObject({ other: 'data' });
+    });
+
+    it('can send large ldjson, lz4 compressed data to s3 (multipart)', async () => {
+        let data = times(100_000, (index) => ({
+            count: 'foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo',
+            id: index,
+            obj: { foo: 'bar' }
+        }));
+
+        data = data.concat(
+            data, data, data, data, data,
+            data, data, data, data, data,
+            data, data, data, data, data
+        );
+
+        const expectedResults = `${data.map((obj) => JSON.stringify(obj)).join('\n')}\n`;
+
+        expect(expectedResults.length).toBeGreaterThan(ChunkGenerator.MIN_CHUNK_SIZE_BYTES);
+
+        const format = Format.ldjson;
+        const compression = Compression.lz4;
+        const compressor = new Compressor(compression);
+
+        const config: ChunkedFileSenderConfig = {
+            path,
+            id,
+            format,
+            compression,
+            file_per_slice: true
+        };
+        const sender = new S3Sender(client, config, logger);
+
+        await sender.ensureBucket();
+
+        await sender.send(data);
+
+        const key = `testing/${id}.0.${format}.lz4`;
+
+        const dbData = await getS3Object(client, {
+            Bucket: bucket,
+            Key: key,
+        });
+
+        const fetchedData = await compressor.decompress(
+            getBodyFromResults(dbData)
+        );
+        expect(fetchedData).toEqual(expectedResults);
     });
 });

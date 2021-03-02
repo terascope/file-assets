@@ -94,3 +94,49 @@ export async function createS3Bucket(
         });
     });
 }
+
+export async function createS3MultipartUpload(
+    client: S3, Bucket: string, Key: string
+): Promise<string> {
+    const multiPartPayload = {
+        Bucket,
+        Key
+    };
+    return new Promise<string>((resolve, reject) => {
+        client.createMultipartUpload(multiPartPayload, (err, data) => {
+            if (err) return reject(err);
+
+            if (!data.UploadId) {
+                return reject(new Error(`Expected UploadId from S3, response: ${JSON.stringify(data)}`));
+            }
+
+            resolve(data.UploadId);
+        });
+    });
+}
+
+export async function uploadS3ObjectPart(
+    s3Client: S3, s3Payload: S3.UploadPartRequest
+): Promise<S3.CompletedPart> {
+    return new Promise<S3.CompletedPart>((resolve, reject) => {
+        s3Client.uploadPart(s3Payload, (err, data) => {
+            if (err) return reject(err);
+
+            resolve({
+                ETag: data.ETag,
+                PartNumber: s3Payload.PartNumber
+            });
+        });
+    });
+}
+
+export async function finalizeS3Multipart(
+    s3Client: S3, multipartPayload: S3.CompleteMultipartUploadRequest
+): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+        s3Client.completeMultipartUpload(multipartPayload, (err) => {
+            if (err) return reject(err);
+            resolve();
+        });
+    });
+}

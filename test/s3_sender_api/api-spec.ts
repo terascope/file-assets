@@ -16,6 +16,8 @@ import { S3SenderFactoryAPI } from '../../asset/src/s3_sender_api/interfaces';
 const lz4Module = {};
 const lz4Ready = lz4init(lz4Module);
 
+jest.setTimeout(10_000);
+
 describe('S3 sender api', () => {
     const bucket = 's3-api-sender';
     const dirPath = '/testing/';

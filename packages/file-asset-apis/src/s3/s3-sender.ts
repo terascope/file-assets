@@ -5,7 +5,14 @@ import {
     parsePath, ChunkedFileSender, SendBatchConfig
 } from '../base';
 import { FileSenderType, S3PutConfig, ChunkedFileSenderConfig } from '../interfaces';
-import { createS3Bucket, headS3Bucket, putS3Object } from './s3-helpers';
+import {
+    createS3Bucket,
+    headS3Bucket,
+    putS3Object,
+    createS3MultipartUpload,
+    uploadS3ObjectPart,
+    finalizeS3Multipart
+} from './s3-helpers';
 import { isObject } from '../helpers';
 
 function validateConfig(input: unknown) {
@@ -39,25 +46,62 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
         const objPath = parsePath(filename);
 
         const Key = await this.createFileDestinationName(objPath.prefix);
+        const Bucket = objPath.bucket;
 
+        let isFirstSlice = true;
         let Body: Buffer|undefined;
+        let uploadId: string|undefined;
+        const payloads: S3.CompletedPart[] = [];
 
         for await (const chunk of chunkGenerator) {
-            if (chunk.has_more) {
-                throw new Error('has_more is not supported');
-            }
             Body = chunk.data;
+            // first slice decides if it is multipart or not
+            if (isFirstSlice) {
+                isFirstSlice = false;
+
+                if (chunk.has_more) {
+                    // set up multipart
+                    uploadId = await createS3MultipartUpload(this.client, Bucket, Key);
+                } else {
+                    // make regular query
+                    if (!Body) return;
+
+                    const params: S3PutConfig = {
+                        Bucket,
+                        Key,
+                        Body
+                    };
+
+                    await putS3Object(this.client, params);
+                    return;
+                }
+            }
+            // since we return if its a regular query, uploadKey will exists
+            // if we reach this point
+            const params: S3.UploadPartRequest = {
+                Bucket,
+                Key,
+                Body,
+                UploadId: uploadId as string,
+                PartNumber: chunk.index + 1
+            };
+
+            payloads.push(await uploadS3ObjectPart(this.client, params));
+
+            // we are done, finalize the upload
+            if (!chunk.has_more) {
+                const completeMultipartPayload = {
+                    Bucket,
+                    Key,
+                    MultipartUpload: {
+                        Parts: payloads
+                    },
+                    UploadId: uploadId as string
+                } as S3.CompleteMultipartUploadRequest;
+                    // Finalize multipart upload
+                await finalizeS3Multipart(this.client, completeMultipartPayload);
+            }
         }
-
-        if (!Body) return;
-
-        const params: S3PutConfig = {
-            Bucket: objPath.bucket,
-            Key,
-            Body
-        };
-
-        await putS3Object(this.client, params);
     }
 
     /**
