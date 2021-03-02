@@ -42,16 +42,15 @@ describe('S3 sender api', () => {
 
     const rawSlice = [DataEntity.make({ data: 'This is a sentence.' })];
 
-    async function makeApiTest(config?: any) {
+    // FIXME the config type should not be so loose
+    async function makeAPITest(config?: Record<string, any>) {
         const _op = {
             _op: 's3_exporter',
             path,
             connection: 'my-s3-connector',
             file_per_slice: true,
-            compression: 'none',
-            format: 'csv',
-            field_delimiter: ',',
-            line_delimiter: '\n',
+            compression: Compression.none,
+            format: Format.csv,
             include_header: false
         };
         const opConfig = config ? Object.assign({}, _op, config) : _op;
@@ -118,7 +117,7 @@ describe('S3 sender api', () => {
         const listResponseBefore = await getBucketList();
         expect(listResponseBefore).toBeArrayOfSize(0);
 
-        const apiManager = await makeApiTest(config);
+        const apiManager = await makeAPITest(config);
         await apiManager.create('test1', {});
 
         const listResponseAfter = await getBucketList();
@@ -128,7 +127,7 @@ describe('S3 sender api', () => {
     it('generates a csv object', async () => {
         const expectedResults = '0,1,2,3,4,5\n';
         const format = Format.csv;
-        const apiManager = await makeApiTest({ format });
+        const apiManager = await makeAPITest({ format });
         const api = await apiManager.create(format, {});
 
         await api.send(data);
@@ -149,7 +148,7 @@ describe('S3 sender api', () => {
     it('generates a tsv object', async () => {
         const expectedResults = '0\t1\t2\t3\t4\t5\n';
         const format = Format.tsv;
-        const apiManager = await makeApiTest({ format });
+        const apiManager = await makeAPITest({ format });
         const api = await apiManager.create(format, {});
 
         await api.send(data);
@@ -170,7 +169,7 @@ describe('S3 sender api', () => {
     it('generates a raw object', async () => {
         const expectedResults = `${rawSlice[0].data}\n`;
         const format = Format.raw;
-        const apiManager = await makeApiTest({ format });
+        const apiManager = await makeAPITest({ format });
         const api = await apiManager.create(format, {});
 
         await api.send(rawSlice);
@@ -191,7 +190,7 @@ describe('S3 sender api', () => {
     it('generates an ldjson object', async () => {
         const expectedResults = '{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4,"field5":5}\n';
         const format = Format.ldjson;
-        const apiManager = await makeApiTest({ format });
+        const apiManager = await makeAPITest({ format });
         const api = await apiManager.create(format, {});
 
         await api.send(data);
@@ -220,7 +219,7 @@ describe('S3 sender api', () => {
         ];
         const expectedResults = '{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4}\n';
         const format = Format.ldjson;
-        const apiManager = await makeApiTest({ format, fields });
+        const apiManager = await makeAPITest({ format, fields });
         const api = await apiManager.create(format, {});
 
         await api.send(data);
@@ -241,7 +240,7 @@ describe('S3 sender api', () => {
     it('generates a json object', async () => {
         const expectedResults = '[{"field0":0,"field1":1,"field2":2,"field3":3,"field4":4,"field5":5}]\n';
         const format = Format.json;
-        const apiManager = await makeApiTest({ format });
+        const apiManager = await makeAPITest({ format });
         const api = await apiManager.create(format, {});
 
         await api.send(data);
@@ -262,7 +261,7 @@ describe('S3 sender api', () => {
     it('generates lz4 compressed object', async () => {
         const compression = Compression.lz4;
         const format = Format.json;
-        const apiManager = await makeApiTest({ format, compression });
+        const apiManager = await makeAPITest({ format, compression });
         const api = await apiManager.create(format, {});
 
         await api.send(data);
@@ -287,7 +286,7 @@ describe('S3 sender api', () => {
     it('generates gzip compressed object', async () => {
         const compression = Compression.gzip;
         const format = Format.json;
-        const apiManager = await makeApiTest({ format, compression });
+        const apiManager = await makeAPITest({ format, compression });
         const api = await apiManager.create(format, {});
 
         await api.send(data);
@@ -310,7 +309,7 @@ describe('S3 sender api', () => {
     it('does not respect routing unless a router is being used', async () => {
         const expectedResults = '[{"field1":"first"},{"field1":"second"}]\n';
         const format = Format.json;
-        const apiManager = await makeApiTest({ format });
+        const apiManager = await makeAPITest({ format });
         const api = await apiManager.create(format, {});
 
         await api.send(routeSlice);
@@ -333,7 +332,7 @@ describe('S3 sender api', () => {
         const expectedResults2 = '[{"field1":"second"}]\n';
 
         const format = Format.json;
-        const apiManager = await makeApiTest({ format, _key: 'a' });
+        const apiManager = await makeAPITest({ format, _key: 'a' });
         const api = await apiManager.create(format, {});
 
         await api.send(routeSlice);
@@ -367,7 +366,7 @@ describe('S3 sender api', () => {
         const expectedResults2 = '[{"field1":"second"}]\n';
 
         const format = Format.json;
-        const apiManager = await makeApiTest({ format, dynamic_routing: true });
+        const apiManager = await makeAPITest({ format, dynamic_routing: true });
         const api = await apiManager.create(format, {});
 
         await api.send(routeSlice);

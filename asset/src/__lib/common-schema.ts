@@ -52,12 +52,13 @@ export const commonSchema = {
     },
     field_delimiter: {
         doc: 'Delimiter character between record fields. Only used with `csv` format',
-        default: ',',
-        format: String
+        default: null,
+        format: 'optional_String'
     },
     line_delimiter: {
         doc: 'Line delimiter character for the object',
-        default: '\n',
+        default: null,
+        format: 'optional_String'
     },
     fields: {
         doc: 'Fields to include in the output',
