@@ -106,6 +106,10 @@ export abstract class ChunkedFileSender {
 
     abstract verify(path: string): Promise<void>
 
+    /**
+     * Verifies that the base file path exists and that the destination
+     * file doesn't already exist
+    */
     private async ensurePathing(path: string, removeFilePath = false): Promise<void> {
         if (!this.pathList.has(path)) {
             if (removeFilePath) {
@@ -119,6 +123,12 @@ export abstract class ChunkedFileSender {
         }
     }
 
+    /**
+     * Ensures the root destination file path exists and returns
+     * the full destination file path.
+     *
+     * @note this API might change since it should not have knowledge of the different sender types
+    */
     async createFileDestinationName(filePath: string): Promise<string> {
         // Can't use path.join() here since the path might include a filename prefix
         const { nameOptions, path } = this;
@@ -141,7 +151,6 @@ export abstract class ChunkedFileSender {
 
     /**
      *  Method to help create proper file paths, mainly used in the abstract "verify" method
-     * @param path: string | undefined
      */
     protected joinPath(route?: string): string {
         const { path } = this;
