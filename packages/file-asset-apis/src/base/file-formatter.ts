@@ -47,7 +47,8 @@ const formatsFns: Record<Format, FormatFn> = {
 };
 
 function getFields(config: ChunkedFileSenderConfig): string[]|undefined {
-    return (config as any).fields ?? undefined;
+    const fields = (config as any).fields as string[]|undefined;
+    return fields?.length ? fields : undefined;
 }
 
 function getFormatFn(format: Format): FormatFn {
@@ -65,7 +66,7 @@ export class FileFormatter {
 
     constructor(config: ChunkedFileSenderConfig) {
         this.validateConfig(config);
-        this.config = config;
+        this.config = { ...config };
         this.csvOptions = makeCsvOptions(config);
         this.fn = getFormatFn(config.format);
     }

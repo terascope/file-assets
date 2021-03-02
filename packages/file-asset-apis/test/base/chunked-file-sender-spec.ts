@@ -6,7 +6,6 @@ import {
     Compression,
     Format,
     ChunkedFileSender,
-    CSVSenderConfig
 } from '../../src';
 
 describe('ChunkedSlicer', () => {
@@ -29,25 +28,20 @@ describe('ChunkedSlicer', () => {
             file: string, list: (DataEntity | Record<string, unknown>)[]
         ) {
             const { fileName, output } = await this.prepareSegment(file, list);
-            this.sentData.set(fileName, output.toString());
+            if (output) {
+                this.sentData.set(fileName, output.toString());
+            }
         }
     }
 
-    const defaults: Partial<CSVSenderConfig> = {
+    const defaults: Partial<ChunkedFileSenderConfig> = {
         id: workerId,
-        compression: Compression.none,
-        field_delimiter: ',',
-        line_delimiter: '\n',
-        fields: [],
-        file_per_slice: false,
-        include_header: false,
-        path,
-        dynamic_routing: false
+        path
     };
 
     function makeConfig(
         format: Format,
-        config: Partial<ChunkedFileSenderConfig> = {}
+        config: Partial<Omit<ChunkedFileSenderConfig, 'format'>> = {}
     ): ChunkedFileSenderConfig {
         return Object.assign({}, defaults, config, { format }) as ChunkedFileSenderConfig;
     }
@@ -298,7 +292,7 @@ describe('ChunkedSlicer', () => {
         expect(results.output).toBeDefined();
 
         expect(results.fileName).toEqual(`${path}/${workerId}.0.ldjson`);
-        expect((results.output as Buffer).toString()).toEqual('{"some":"data"}\n{"other":"stuff"}\n');
+        expect(results.output?.toString()).toEqual('{"some":"data"}\n{"other":"stuff"}\n');
     });
 
     it('can respect file destination using send and field_per_slice false', async () => {

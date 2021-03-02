@@ -16,42 +16,28 @@ import {
 const formatValues = Object.values(Format);
 
 export abstract class ChunkedFileSender {
-    readonly id: string;
-    readonly nameOptions: NameOptions;
     protected sliceCount = -1;
-    readonly format: Format;
-    readonly isRouter: boolean;
     private compressionFormatter: CompressionFormatter
     protected fileFormatter: FileFormatter
     readonly pathList = new Map<string, boolean>();
     readonly type: FileSenderType;
-    readonly concurrency: number;
-    readonly filePerSlice: boolean;
-    readonly lineDelimiter: string;
-    readonly path: string;
+    readonly config: ChunkedFileSenderConfig;
 
     constructor(type: FileSenderType, config: ChunkedFileSenderConfig) {
-        const {
-            path, id, format, compression = Compression.none,
-            file_per_slice = false, dynamic_routing = false,
-            line_delimiter = '\n', extension,
-            concurrency = 10,
-        } = config;
-
-        if (!formatValues.includes(format)) {
+        if (!formatValues.includes(config.format)) {
             throw new Error(`Invalid paramter format, is must be provided and be set to any of these: ${formatValues.join(', ')}`);
         }
 
-        if (!isString(path)) {
+        if (!isString(config.path)) {
             throw new Error('Invalid parameter path, it must be provided and be of type string');
         }
 
-        if (!isString(id)) {
+        if (!isString(config.id)) {
             throw new Error('Invalid parameter id, it must be set to a unique string value');
         }
 
         // Enforce `file_per_slice` for JSON format or compressed output
-        if (format === Format.json && config.file_per_slice !== true) {
+        if (config.format === Format.json && config.file_per_slice !== true) {
             throw new Error('Invalid parameter "file_per_slice", it must be set to true if format is set to json');
         }
 
@@ -63,24 +49,47 @@ export abstract class ChunkedFileSender {
         }
 
         this.type = type;
-        this.id = id;
-        this.format = format;
-        this.path = path;
-
-        this.nameOptions = {
-            filePerSlice: file_per_slice,
-            format,
-            compression,
-            extension,
-            id
-        };
-
-        this.compressionFormatter = new CompressionFormatter(compression);
+        this.config = { ...config };
+        this.compressionFormatter = new CompressionFormatter(config.compression);
         this.fileFormatter = new FileFormatter(config);
-        this.isRouter = dynamic_routing;
-        this.filePerSlice = file_per_slice;
-        this.lineDelimiter = line_delimiter;
-        this.concurrency = concurrency;
+    }
+
+    get id(): string {
+        return this.config.id;
+    }
+
+    get path(): string {
+        return this.config.path;
+    }
+
+    get isRouter(): boolean {
+        return this.config.dynamic_routing ?? false;
+    }
+
+    get concurrency(): number {
+        return this.config.concurrency ?? 10;
+    }
+
+    get lineDelimiter(): string {
+        return this.config.line_delimiter ?? '\n';
+    }
+
+    get filePerSlice(): boolean {
+        return this.config.file_per_slice ?? false;
+    }
+
+    get format(): Format {
+        return this.config.format;
+    }
+
+    get nameOptions(): NameOptions {
+        return {
+            filePerSlice: this.filePerSlice,
+            format: this.format,
+            compression: this.config.compression ?? Compression.none,
+            extension: this.config.extension,
+            id: this.config.id,
+        };
     }
 
     abstract verify(path: string): Promise<void>
@@ -118,13 +127,9 @@ export abstract class ChunkedFileSender {
         return createFileName(filePath, fileNameConfig);
     }
 
-    async convertFileChunk(slice: DataEntity[] | null | undefined): Promise<any|null>
-    async convertFileChunk(
-        slice: Record<string, unknown>[] | null | undefined
-    ): Promise<any|null>
     async convertFileChunk(
         slice: (Record<string, unknown> | DataEntity)[] | null | undefined
-    ): Promise<any|null> {
+    ): Promise<Buffer|null> {
         // null or empty slices get an empty output and will get filtered out below
         if (!slice || !slice.length) return null;
         // Build the output string to dump to the object
@@ -157,15 +162,9 @@ export abstract class ChunkedFileSender {
      *
      */
     prepareDispatch(
-        data: DataEntity[]
-    ): Record<string, DataEntity[]>
-    prepareDispatch(
-        data: Record<string, unknown>[]
-    ): Record<string, Record<string, unknown>[]>
-    prepareDispatch(
         data: (DataEntity | Record<string, unknown>)[]
-    ): Record<string, DataEntity | Record<string, unknown>[]> {
-        const batches: Record<string, DataEntity | Record<string, unknown>[]> = {};
+    ): Record<string, (DataEntity | Record<string, unknown>)[]> {
+        const batches: Record<string, (DataEntity | Record<string, unknown>)[]> = {};
         const { path } = this;
 
         batches[path] = [];
@@ -194,14 +193,8 @@ export abstract class ChunkedFileSender {
      * based on configuration
      */
     async prepareSegment(
-        path: string, records: DataEntity[] | null | undefined,
-    ): Promise<{ fileName: string, output: Buffer }>
-    async prepareSegment(
-        path: string, records: Record<string, unknown>[] | null | undefined,
-    ): Promise<{ fileName: string, output: Buffer }>
-    async prepareSegment(
         path: string, records: (DataEntity |Record<string, unknown>)[] | null | undefined,
-    ): Promise<{ fileName: string, output: Buffer }> {
+    ): Promise<{ fileName: string, output: Buffer|null }> {
         const fileName = await this.createFileDestinationName(path);
         const output = await this.convertFileChunk(records);
         return { fileName, output };
@@ -236,7 +229,7 @@ export abstract class ChunkedFileSender {
 
         const dispatch = this.prepareDispatch(records);
 
-        const actions: [string, (DataEntity | Record<string, unknown>)[]][] = [];
+        const actions: [filename: string, list: (DataEntity | Record<string, unknown>)[]][] = [];
 
         for (const [filename, list] of Object.entries(dispatch)) {
             actions.push([filename, list]);
