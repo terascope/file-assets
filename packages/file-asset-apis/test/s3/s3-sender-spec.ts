@@ -163,17 +163,11 @@ describe('S3 Sender API', () => {
     });
 
     it('can send large ldjson, lz4 compressed data to s3 (multipart)', async () => {
-        let data = times(100_000, (index) => ({
+        const data = times(30_000, (index) => ({
             count: 'foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo',
             id: index,
             obj: { foo: 'bar' }
         }));
-
-        data = data.concat(
-            data, data, data, data, data,
-            data, data, data, data, data,
-            data, data, data, data, data
-        );
 
         const expectedResults = `${data.map((obj) => JSON.stringify(obj)).join('\n')}\n`;
 
