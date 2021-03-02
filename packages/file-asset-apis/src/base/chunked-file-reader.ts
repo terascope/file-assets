@@ -22,7 +22,7 @@ import {
     getLineDelimiter,
     getFieldsFromConfig,
 } from '../interfaces';
-import { CompressionFormatter } from './compression';
+import { Compressor } from './Compressor';
 
 type FN = (input: any) => any;
 
@@ -69,8 +69,9 @@ function validateCSVConfig(inputConfig: CSVReaderConfig) {
 }
 
 const formatValues = Object.values(Format);
-export abstract class ChunkedFileReader extends CompressionFormatter {
+export abstract class ChunkedFileReader {
     logger: Logger;
+    compressor: Compressor;
     private onRejectAction: string;
     private tryFn: (fn:(msg: any) => DataEntity) => (input: any) => DataEntity | null;
     private rejectRecord: (input: unknown, err: Error) => never | null;
@@ -81,8 +82,6 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
     protected filePerSlice: boolean;
 
     constructor(inputConfig: ChunkedFileReaderConfig, logger: Logger) {
-        super(inputConfig.compression ?? Compression.none);
-
         const {
             on_reject_action = 'throw',
             rejectFn = this.reject,
@@ -102,7 +101,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
             validateCSVConfig(inputConfig);
         }
 
-        this.config = inputConfig;
+        this.config = { ...inputConfig };
         this.logger = logger;
         this.tryFn = tryFn;
         this.rejectRecord = rejectFn;
@@ -115,6 +114,8 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
         if (compression !== Compression.none && file_per_slice !== true) {
             throw new Error('Invalid parameter "file_per_slice", it must be set to true if compression is set to anything other than "none" as we cannot properly divide up a compressed file');
         }
+
+        this.compressor = new Compressor(inputConfig.compression);
         this.filePerSlice = file_per_slice;
     }
 

@@ -5,7 +5,7 @@ import { DataEntity } from '@terascope/job-components';
 import lz4init from 'lz4-asm';
 import { ungzip } from 'node-gzip';
 import {
-    Format, Compression, CompressionFormatter,
+    Format, Compression, Compressor,
     listS3Buckets,
     getS3Object
 } from '@terascope/file-asset-apis';
@@ -20,7 +20,7 @@ describe('S3 sender api', () => {
     const bucket = 's3-api-sender';
     const dirPath = '/testing/';
     const path = `${bucket}${dirPath}`;
-    let compressor: CompressionFormatter;
+    let compressor: Compressor;
     let harness: WorkerTestHarness;
     let workerId: string;
     let data: DataEntity[];
@@ -57,7 +57,7 @@ describe('S3 sender api', () => {
         const opConfig = config ? Object.assign({}, _op, config) : _op;
         harness = WorkerTestHarness.testProcessor(opConfig, { clients });
 
-        compressor = new CompressionFormatter(opConfig.compression);
+        compressor = new Compressor(opConfig.compression);
 
         await harness.initialize();
 

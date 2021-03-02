@@ -5,8 +5,8 @@ import {
     deleteS3Bucket,
     ChunkedFileSenderConfig,
     Compression,
-    FileFormatter,
-    CompressionFormatter,
+    Formatter,
+    Compressor,
     createFileName,
     S3PutConfig,
     putS3Object
@@ -79,8 +79,8 @@ export async function upload(
     if (path == null) throw new Error('path must be provided');
     if (id == null) throw new Error('id must be provided');
 
-    const formatter = new FileFormatter(config as ChunkedFileSenderConfig);
-    const compressionFormatter = new CompressionFormatter(compression);
+    const formatter = new Formatter(config as ChunkedFileSenderConfig);
+    const compressionFormatter = new Compressor(compression);
 
     const formattedData = formatter.format(data);
     const finalData = await compressionFormatter.compress(formattedData);

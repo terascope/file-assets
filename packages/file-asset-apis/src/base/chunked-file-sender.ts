@@ -2,9 +2,9 @@ import {
     DataEntity, pMap, isString
 } from '@terascope/utils';
 import * as nodePathModule from 'path';
-import { CompressionFormatter } from './compression';
-import { FileFormatter } from './file-formatter';
-import { createFileName } from './file-name';
+import { Compressor } from './Compressor';
+import { Formatter } from './Formatter';
+import { createFileName } from './createFileName';
 import {
     NameOptions,
     FileSenderType,
@@ -18,8 +18,8 @@ const formatValues = Object.values(Format);
 
 export abstract class ChunkedFileSender {
     protected sliceCount = -1;
-    private compressionFormatter: CompressionFormatter
-    protected fileFormatter: FileFormatter
+    private compressor: Compressor
+    protected formatter: Formatter
     readonly pathList = new Map<string, boolean>();
     readonly type: FileSenderType;
     readonly config: ChunkedFileSenderConfig;
@@ -51,8 +51,8 @@ export abstract class ChunkedFileSender {
 
         this.type = type;
         this.config = { ...config };
-        this.compressionFormatter = new CompressionFormatter(config.compression);
-        this.fileFormatter = new FileFormatter(config);
+        this.compressor = new Compressor(config.compression);
+        this.formatter = new Formatter(config);
     }
 
     get id(): string {
@@ -134,14 +134,14 @@ export abstract class ChunkedFileSender {
         // null or empty slices get an empty output and will get filtered out below
         if (!slice || !slice.length) return null;
         // Build the output string to dump to the object
-        const outStr = this.fileFormatter.format(slice);
+        const outStr = this.formatter.format(slice);
 
         // Let the exporters prevent empty slices from making it through
         if (!outStr || outStr.length === 0 || outStr === this.lineDelimiter) {
             return null;
         }
 
-        return this.compressionFormatter.compress(outStr);
+        return this.compressor.compress(outStr);
     }
 
     /**
@@ -225,7 +225,7 @@ export abstract class ChunkedFileSender {
         this.incrementCount();
 
         if (!this.filePerSlice) {
-            if (this.sliceCount > 0) this.fileFormatter.csvOptions.header = false;
+            if (this.sliceCount > 0) this.formatter.csvOptions.header = false;
         }
 
         const dispatch = this.prepareDispatch(records);

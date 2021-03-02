@@ -2,7 +2,7 @@ import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
 import { DataEntity } from '@terascope/job-components';
 import {
-    Format, CompressionFormatter, getS3Object
+    Format, Compressor, getS3Object
 } from '@terascope/file-asset-apis';
 import { makeClient, cleanupBucket, getBodyFromResults } from '../helpers';
 
@@ -10,7 +10,7 @@ describe('S3 sender api', () => {
     const bucket = 's3-exporter';
     const dirPath = '/testing/';
     const path = `${bucket}${dirPath}`;
-    let compressor: CompressionFormatter;
+    let compressor: Compressor;
     let harness: WorkerTestHarness;
     let workerId: string;
     let data: DataEntity[];
@@ -42,7 +42,7 @@ describe('S3 sender api', () => {
         const opConfig = config ? Object.assign({}, _op, config) : _op;
         harness = WorkerTestHarness.testProcessor(opConfig, { clients });
 
-        compressor = new CompressionFormatter(opConfig.compression);
+        compressor = new Compressor(opConfig.compression);
 
         await harness.initialize();
 

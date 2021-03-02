@@ -1,6 +1,6 @@
 import 'jest-extended';
 import {
-    ChunkGenerator, FileFormatter, CompressionFormatter, Format, Compression
+    ChunkGenerator, Formatter, Compressor, Format, Compression
 } from '../../src';
 
 describe('ChunkGenerator', () => {
@@ -8,10 +8,10 @@ describe('ChunkGenerator', () => {
         let gen: ChunkGenerator;
         beforeAll(() => {
             gen = new ChunkGenerator(
-                new FileFormatter({
+                new Formatter({
                     format: Format.json,
                 } as any), // FIXME
-                new CompressionFormatter(Compression.none),
+                new Compressor(Compression.none),
                 []
             );
         });

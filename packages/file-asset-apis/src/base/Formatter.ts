@@ -55,7 +55,7 @@ function getFormatFn(format: Format): FormatFn {
 
 const formatValues = Object.values(Format);
 
-export class FileFormatter {
+export class Formatter {
     csvOptions: json2csv.Options<any>;
     private config: ChunkedFileSenderConfig;
     private fn: FormatFn;
@@ -65,6 +65,10 @@ export class FileFormatter {
         this.config = { ...config };
         this.csvOptions = makeCSVOptions(config);
         this.fn = getFormatFn(config.format);
+    }
+
+    get type(): Format {
+        return this.config.format;
     }
 
     private validateConfig(config: ChunkedFileSenderConfig) {

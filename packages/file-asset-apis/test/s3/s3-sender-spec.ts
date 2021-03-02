@@ -8,7 +8,7 @@ import {
     ChunkedFileSenderConfig,
     S3Sender,
     getS3Object,
-    CompressionFormatter,
+    Compressor,
     listS3Buckets
 } from '../../src';
 
@@ -81,7 +81,7 @@ describe('S3 Sender API', () => {
         const expectedResults = '0,1,2,3,4,5\n';
         const format = Format.csv;
         const compression = Compression.none;
-        const compressor = new CompressionFormatter(compression);
+        const compressor = new Compressor(compression);
 
         const config: ChunkedFileSenderConfig = {
             path,
@@ -117,7 +117,7 @@ describe('S3 Sender API', () => {
 
         const format = Format.ldjson;
         const compression = Compression.gzip;
-        const compressor = new CompressionFormatter(compression);
+        const compressor = new Compressor(compression);
 
         const config: ChunkedFileSenderConfig = {
             path,

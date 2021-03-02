@@ -1,10 +1,10 @@
 import {
-    Format, CSVSenderConfig, FileFormatter,
+    Format, CSVSenderConfig, Formatter,
     JSONSenderConfig, ChunkedFileSenderConfig,
     LDJSONSenderConfig
 } from '../../src';
 
-describe('FileFormatter', () => {
+describe('Formatter', () => {
     it('incorrect format will throw', () => {
         const format = 'something';
         const config = {
@@ -14,7 +14,7 @@ describe('FileFormatter', () => {
         };
 
         // @ts-expect-error
-        expect(() => new FileFormatter(format, config)).toThrow();
+        expect(() => new Formatter(format, config)).toThrow();
     });
 
     it('incorrect line_delimiter will throw', () => {
@@ -31,9 +31,9 @@ describe('FileFormatter', () => {
         };
 
         // @ts-expect-error
-        expect(() => new FileFormatter(format, config)).toThrow();
+        expect(() => new Formatter(format, config)).toThrow();
         // @ts-expect-error
-        expect(() => new FileFormatter(format, config2)).toThrow();
+        expect(() => new Formatter(format, config2)).toThrow();
     });
 
     it('can format json data', () => {
@@ -46,7 +46,7 @@ describe('FileFormatter', () => {
         };
         const data = [{ some: 'stuff' }, { other: 'things' }];
 
-        const formatter = new FileFormatter(config);
+        const formatter = new Formatter(config);
 
         expect(formatter.format(data)).toEqual(`${JSON.stringify(data)}${config.line_delimiter}`);
     });
@@ -60,7 +60,7 @@ describe('FileFormatter', () => {
         };
         const data = [{ data: 'stuff' }, { data: 'things' }];
 
-        const formatter = new FileFormatter(config);
+        const formatter = new Formatter(config);
 
         expect(formatter.format(data)).toEqual('stuff\tthings\t');
     });
@@ -75,7 +75,7 @@ describe('FileFormatter', () => {
         };
         const data = [{ some: 'stuff', other: 'things' }];
 
-        const formatter = new FileFormatter(config);
+        const formatter = new Formatter(config);
 
         expect(formatter.format(data)).toEqual('"stuff"\t"things"\n');
     });
@@ -92,7 +92,7 @@ describe('FileFormatter', () => {
         };
         const data = [{ some: 'stuff', other: 'things' }];
 
-        const formatter = new FileFormatter(config);
+        const formatter = new Formatter(config);
 
         expect(formatter.format(data)).toEqual('"stuff","things"\n');
     });
@@ -108,7 +108,7 @@ describe('FileFormatter', () => {
         const data = [{ some: 'stuff' }, { other: 'things' }];
         const expectedData = data.map((obj) => JSON.stringify(obj)).join('\n');
 
-        const formatter = new FileFormatter(config);
+        const formatter = new Formatter(config);
 
         expect(formatter.format(data)).toEqual(`${expectedData}\n`);
     });
@@ -126,7 +126,7 @@ describe('FileFormatter', () => {
             };
             const data = [{ some: 'stuff', other: 'things' }, { some: 'person', key: 'field' }];
 
-            const formatter = new FileFormatter(config);
+            const formatter = new Formatter(config);
 
             expect(formatter.format(data)).toEqual(`"stuff"${'\n'}"person"${'\n'}`);
         });
@@ -143,7 +143,7 @@ describe('FileFormatter', () => {
             };
             const data = [{ some: 'stuff', other: 'things' }, { some: 'person', key: 'field' }];
 
-            const formatter = new FileFormatter(config);
+            const formatter = new Formatter(config);
 
             expect(formatter.format(data)).toEqual(`"stuff"${'\n'}"person"${'\n'}`);
         });
@@ -157,7 +157,7 @@ describe('FileFormatter', () => {
             };
             const data = [{ some: 'stuff', other: 'things' }, { some: 'person', key: 'field' }];
 
-            const formatter = new FileFormatter(config);
+            const formatter = new Formatter(config);
 
             expect(formatter.format(data)).toEqual(`[{"some":"stuff"},{"some":"person"}]${'\n'}`);
         });
@@ -172,7 +172,7 @@ describe('FileFormatter', () => {
             };
             const data = [{ some: 'stuff', other: 'things' }, { some: 'person', key: 'field' }];
 
-            const formatter = new FileFormatter(config);
+            const formatter = new Formatter(config);
 
             expect(formatter.format(data)).toEqual(`{"some":"stuff"}${'\n'}{"some":"person"}${'\n'}`);
         });

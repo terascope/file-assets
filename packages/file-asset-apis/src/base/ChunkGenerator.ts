@@ -1,6 +1,6 @@
 import { DataEntity } from '@terascope/utils';
-import { CompressionFormatter } from './compression';
-import { FileFormatter } from './file-formatter';
+import { Compressor } from './Compressor';
+import { Formatter } from './Formatter';
 
 export interface Chunk {
     /**
@@ -19,11 +19,16 @@ export interface Chunk {
     readonly has_more: boolean;
 }
 
+/**
+ * Efficiently breaks up a slice into multiple chunks.
+ * The behavior will change depending if the whole slice has be
+ * serialized at once or not.
+*/
 export class ChunkGenerator {
     constructor(
-        readonly formatter: FileFormatter,
-        readonly compression: CompressionFormatter,
-        readonly slice: (Record<string, any>|DataEntity)[]
+        readonly formatter: Formatter,
+        readonly compression: Compressor,
+        readonly slice: (Record<string, unknown>|DataEntity)[]
     ) {}
 
     * [Symbol.iterator](): IterableIterator<Chunk> {

@@ -39,7 +39,7 @@ export class S3Fetcher extends ChunkedFileReader {
             throw new Error('Missing body from s3 get object request');
         }
 
-        return this.decompress(
+        return this.compressor.decompress(
             Buffer.isBuffer(results.Body)
                 ? results.Body
                 : Buffer.from(results.Body as any)
