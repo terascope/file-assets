@@ -52,10 +52,12 @@ export function segmentFile(file: {
             config.size,
             file.size,
             config.line_delimiter
-        ).forEach((offset: any) => {
-            offset.path = file.path;
-            offset.total = file.size;
-            slices.push(offset);
+        ).forEach((offset) => {
+            slices.push({
+                ...offset,
+                path: file.path,
+                total: file.size,
+            });
         });
     }
 
