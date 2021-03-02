@@ -2,7 +2,7 @@ import {
     Compression, createFileName, Format, NameOptions
 } from '../../src';
 
-describe('can create formatted filename', () => {
+describe('createFileName', () => {
     const testFile = 'testFile';
     const id = 'some-id';
     const baseFileName = `${testFile}/${id}`;
