@@ -1,7 +1,8 @@
 import {
     Format, CSVSenderConfig, Formatter,
     JSONSenderConfig, ChunkedFileSenderConfig,
-    LDJSONSenderConfig
+    LDJSONSenderConfig,
+    SendRecords
 } from '../../src';
 
 describe('Formatter', () => {
@@ -243,7 +244,7 @@ describe('Formatter', () => {
 
 function expectFormatResult(
     formatter: Formatter,
-    input: any[],
+    input: SendRecords,
     expected: string
 ): void {
     expect(formatter.format(input)).toEqual(expected);
@@ -251,7 +252,9 @@ function expectFormatResult(
     if (formatter.type === Format.ldjson
         || formatter.type === Format.tsv
         || formatter.type === Format.csv) {
-        const output = [...formatter.formatIterator(input)].join('');
+        const output = [...formatter.formatIterator(input)]
+            .map(([str]) => str)
+            .join('');
         expect(output).toEqual(expected);
     }
 }

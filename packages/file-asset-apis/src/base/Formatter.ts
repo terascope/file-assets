@@ -13,14 +13,15 @@ import {
     getLineDelimiter,
     getFieldDelimiter,
     getFieldsFromConfig,
+    SendRecords,
 } from '../interfaces';
 
 type FormatFn = (
-    slice: any[], config: ChunkedFileSenderConfig, csvOptions: json2csv.Options<any>
+    slice: SendRecords, config: ChunkedFileSenderConfig, csvOptions: json2csv.Options<any>
 ) => string
 
 function csvFunction(
-    slice: any[],
+    slice: SendRecords,
     config: ChunkedFileSenderConfig,
     csvOptions: json2csv.Options<any>
 ) {
@@ -32,12 +33,12 @@ const formatsFns: Record<Format, FormatFn> = {
     tsv: csvFunction,
     raw(slice, config) {
         const lineDelimiter = getLineDelimiter(config);
-        return slice.map((record: any) => record.data).join(lineDelimiter);
+        return slice.map((record) => record.data).join(lineDelimiter);
     },
     ldjson(slice, config) {
         const lineDelimiter = getLineDelimiter(config);
         const fields = getFieldsFromConfig(config);
-        return slice.map((record: any) => JSON.stringify(record, fields)).join(lineDelimiter);
+        return slice.map((record) => JSON.stringify(record, fields)).join(lineDelimiter);
     },
     json(slice, config) {
         const fields = getFieldsFromConfig(config);
@@ -92,20 +93,21 @@ export class Formatter {
      * of doing it all at once which can potentially throw invalid
      * string or buffer length errors
     */
-    * formatIterator(slice: any[]): IterableIterator<string> {
+    * formatIterator(slice: SendRecords): IterableIterator<[formatted: string, has_more: boolean]> {
         let firstSlice = true;
-        for (const row of slice) {
+        for (let i = 0; i < slice.length; i++) {
+            const has_more = slice.length !== (i + 2);
             const lineDelimiter = getLineDelimiter(this.config);
-            const formatted = this.fn([row], this.config, {
+            const formatted = this.fn([slice[i]], this.config, {
                 ...this.csvOptions,
                 header: this.csvOptions.header && firstSlice,
             });
             firstSlice = false;
 
             if (formatted.length) {
-                yield formatted + lineDelimiter;
+                yield [formatted + lineDelimiter, has_more];
             } else {
-                yield formatted;
+                yield [formatted, has_more];
             }
         }
     }
@@ -121,7 +123,7 @@ export class Formatter {
      *
      * raw => writes raw data as is, requires the use of DataEntity raw data.
      */
-    format(slice: any[]): string {
+    format(slice: SendRecords): string {
         const lineDelimiter = getLineDelimiter(this.config);
         const formatted = this.fn(slice, this.config, this.csvOptions);
         if (!formatted.length) return '';

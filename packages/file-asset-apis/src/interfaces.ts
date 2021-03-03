@@ -1,6 +1,12 @@
 import type json2csv from 'json2csv';
 import type { DataEntity } from '@terascope/utils';
 
+/**
+ * Used for defining the slice records type definition
+*/
+export type SendRecord = Record<string, unknown>|DataEntity;
+export type SendRecords = SendRecord[];
+
 export interface S3PutConfig {
     Bucket: string;
     Key: string;

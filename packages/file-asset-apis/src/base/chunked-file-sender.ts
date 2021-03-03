@@ -13,6 +13,7 @@ import {
     Compression,
     ChunkedFileSenderConfig,
     getLineDelimiter,
+    SendRecords,
 } from '../interfaces';
 
 const formatValues = Object.values(Format);
@@ -167,9 +168,9 @@ export abstract class ChunkedFileSender {
      *
      */
     async prepareDispatch(
-        data: (DataEntity | Record<string, unknown>)[]
+        data: SendRecords
     ): Promise<SendBatchConfig[]> {
-        const batches: Record<string, (DataEntity | Record<string, unknown>)[]> = {};
+        const batches: Record<string, SendRecords> = {};
         const { path } = this;
 
         batches[path] = [];
@@ -222,7 +223,7 @@ export abstract class ChunkedFileSender {
      *   s3Sender.send([{ some: 'data' }]) => Promise<void>
      *   s3Sender.send([DataEntity.make({ some: 'data' })]) => Promise<void>
     */
-    async send(records: (DataEntity | Record<string, unknown>)[]):Promise<void> {
+    async send(records: SendRecords):Promise<void> {
         const { concurrency } = this;
         this.incrementCount();
 
