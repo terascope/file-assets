@@ -1,47 +1,48 @@
 import type { RouteSenderAPI } from '@terascope/job-components';
 import {
-    DataEntity,
     AnyObject,
     Logger,
     TSError
 } from '@terascope/utils';
 import path from 'path';
-import { ChunkedFileSender } from '../base';
-import { FileSenderType, BaseSenderConfig } from '../interfaces';
+import { ChunkedFileSender, SendBatchConfig } from '../base';
+import { FileSenderType, ChunkedFileSenderConfig } from '../interfaces';
 
 export class HDFSSender extends ChunkedFileSender implements RouteSenderAPI {
     logger: Logger;
     client: AnyObject;
 
-    constructor(client: AnyObject, config: BaseSenderConfig, logger: Logger) {
-        super(FileSenderType.hdfs, config as any);
+    constructor(client: AnyObject, config: ChunkedFileSenderConfig, logger: Logger) {
+        super(FileSenderType.hdfs, config);
         this.logger = logger;
         this.client = client;
     }
 
     /**
      * This is a low level API, it is not meant to be used externally,
-     * please use the "send" method instead
+     * please use the "send" method instead.
      *
+     * @todo THIS PROBABLY NOT WORK and is missing some logic in the file sender
      */
     protected async sendToDestination(
-        filename: string, list: (DataEntity | Record<string, unknown>)[]
-    ): Promise<any[]> {
-        const { fileName, output } = await this.prepareSegment(filename, list);
+        { dest, chunkGenerator }: SendBatchConfig
+    ): Promise<void> {
+        let output: Buffer|undefined;
 
-        // This will prevent empty objects from being added to the S3 store, which can cause
-        // problems with the S3 reader
-        if (!output || output.length === 0) {
-            return [];
+        for await (const chunk of chunkGenerator) {
+            if (chunk.has_more) {
+                throw new Error('has_more is not supported');
+            }
+            output = chunk.data;
         }
 
         try {
-            return this.client.appendAsync(fileName, output);
+            return this.client.appendAsync(dest, output);
         } catch (err) {
             throw new TSError(err, {
                 reason: 'Error sending data to file',
                 context: {
-                    file: fileName
+                    file: dest
                 }
             });
         }

@@ -1,6 +1,7 @@
 import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
 import { AnyObject, DataEntity } from '@terascope/job-components';
+import { Format } from '@terascope/file-asset-apis';
 import path from 'path';
 import fs from 'fs';
 import { FileSenderFactoryAPI } from '../../asset/src/file_sender_api/interfaces';
@@ -13,7 +14,11 @@ describe('File Sender API', () => {
     let workerId: string;
 
     async function makeTest(config: AnyObject = {}) {
-        const opConfig = Object.assign({}, { _op: 'file_exporter' }, config);
+        const opConfig = {
+            _op: 'file_exporter',
+            format: Format.ldjson,
+            ...config
+        };
 
         harness = WorkerTestHarness.testProcessor(opConfig);
 

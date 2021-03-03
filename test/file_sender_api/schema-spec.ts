@@ -1,6 +1,7 @@
 import 'jest-extended';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
 import { ValidatedJobConfig } from '@terascope/job-components';
+import { Format } from '@terascope/file-asset-apis';
 import { FileSenderAPIConfig } from '../../asset/src/file_sender_api/interfaces';
 
 describe('File Sender API Schema', () => {
@@ -10,7 +11,7 @@ describe('File Sender API Schema', () => {
         const apiName = 'file_sender_api';
 
         const config = Object.assign(
-            { _name: apiName },
+            { _name: apiName, format: Format.ldjson },
             apiConfig
         );
 
@@ -18,7 +19,11 @@ describe('File Sender API Schema', () => {
             analytics: true,
             apis: [config],
             operations: [
-                { _op: 'file_exporter', api_name: apiName },
+                {
+                    _op: 'file_exporter',
+                    api_name: apiName,
+                    format: Format.ldjson
+                },
                 { _op: 'noop' },
             ],
         };

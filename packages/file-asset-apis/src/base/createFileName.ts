@@ -45,7 +45,7 @@ function validateOptions(nameOptions: NameOptions) {
 export function createFileName(filePath: string, nameOptions: NameOptions): string {
     validateOptions(nameOptions);
 
-    if (isNil(filePath) || !isString(filePath)) {
+    if (!isString(filePath)) {
         throw new Error('Invalid parameter filePath, it must be a string value');
     }
 
@@ -67,8 +67,12 @@ export function createFileName(filePath: string, nameOptions: NameOptions): stri
 
     let newExtension = '';
 
-    if (extension && isString(extension)) {
-        newExtension = extension.startsWith('.') ? `${extension}` : `.${extension}`;
+    // if the extension is used then it override the automatically
+    // generated extension
+    if (isString(extension)) {
+        // we need to ensure the that no extension can set
+        const addDotPrefix = !extension.length || extension.startsWith('.');
+        newExtension = addDotPrefix ? `${extension}` : `.${extension}`;
     } else {
         // if it is raw, we don't know what extension as it could be anything
         if (format !== Format.raw) {
@@ -76,7 +80,7 @@ export function createFileName(filePath: string, nameOptions: NameOptions): stri
         }
 
         if (compression === Compression.lz4) {
-            newExtension += `.${compression}`;
+            newExtension += '.lz4';
         } else if (compression === Compression.gzip) {
             newExtension += '.gz';
         }

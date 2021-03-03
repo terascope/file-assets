@@ -1,16 +1,19 @@
 import 'jest-extended';
-import { debugLogger, isString } from '@terascope/utils';
+import { debugLogger, isString, times } from '@terascope/utils';
 import { DataEntity } from '@terascope/job-components';
 import { makeClient, cleanupBucket, getBodyFromResults } from './helpers';
 import {
     Compression,
     Format,
-    BaseSenderConfig,
+    ChunkedFileSenderConfig,
     S3Sender,
     getS3Object,
-    CompressionFormatter,
-    listS3Buckets
+    Compressor,
+    listS3Buckets,
+    ChunkGenerator
 } from '../../src';
+
+jest.setTimeout(30_000);
 
 describe('S3 Sender API', () => {
     const logger = debugLogger('s3-sender');
@@ -50,7 +53,7 @@ describe('S3 Sender API', () => {
         const testDirPath = 'bucket_test';
         const testPath = `${ensureBucket}/${testDirPath}`;
 
-        const config: BaseSenderConfig = {
+        const config: ChunkedFileSenderConfig = {
             path: testPath,
             id,
             format,
@@ -81,9 +84,9 @@ describe('S3 Sender API', () => {
         const expectedResults = '0,1,2,3,4,5\n';
         const format = Format.csv;
         const compression = Compression.none;
-        const compressor = new CompressionFormatter(compression);
+        const compressor = new Compressor(compression);
 
-        const config: BaseSenderConfig = {
+        const config: ChunkedFileSenderConfig = {
             path,
             id,
             format,
@@ -117,9 +120,9 @@ describe('S3 Sender API', () => {
 
         const format = Format.ldjson;
         const compression = Compression.gzip;
-        const compressor = new CompressionFormatter(compression);
+        const compressor = new Compressor(compression);
 
-        const config: BaseSenderConfig = {
+        const config: ChunkedFileSenderConfig = {
             path,
             id,
             format,
@@ -157,5 +160,45 @@ describe('S3 Sender API', () => {
 
         expect(JSON.parse(fetchedDataRoute1)).toMatchObject({ some: 'data' });
         expect(JSON.parse(fetchedDataRoute2)).toMatchObject({ other: 'data' });
+    });
+
+    it('can send large ldjson, not compressed data to s3 (multipart)', async () => {
+        const data = times(30_000, (index) => ({
+            count: 'foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo',
+            id: index,
+            obj: { foo: 'bar' }
+        }));
+
+        const format = Format.ldjson;
+        const compression = Compression.none;
+        const compressor = new Compressor(compression);
+
+        const config: ChunkedFileSenderConfig = {
+            path,
+            id,
+            format,
+            compression,
+            file_per_slice: true
+        };
+        const sender = new S3Sender(client, config, logger);
+
+        await sender.ensureBucket();
+
+        await sender.send(data);
+
+        const key = `testing/${id}.0.${format}`;
+
+        const dbData = await getS3Object(client, {
+            Bucket: bucket,
+            Key: key,
+        });
+
+        const fetchedData = await compressor.decompress(
+            getBodyFromResults(dbData)
+        );
+
+        const expectedResults = `${data.map((obj) => JSON.stringify(obj)).join('\n')}\n`;
+        expect(fetchedData).toEqual(expectedResults);
+        expect(expectedResults.length).toBeGreaterThan(ChunkGenerator.MIN_CHUNK_SIZE_BYTES);
     });
 });

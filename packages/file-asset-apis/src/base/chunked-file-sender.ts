@@ -1,97 +1,116 @@
 import {
-    DataEntity, pMap, isNil, isString
+    DataEntity, pMap, isString
 } from '@terascope/utils';
 import * as nodePathModule from 'path';
-import { CompressionFormatter } from './compression';
-import { FileFormatter } from './file-formatter';
-import { createFileName } from './file-name';
+import { Compressor } from './Compressor';
+import { Formatter } from './Formatter';
+import { createFileName } from './createFileName';
+import { ChunkGenerator } from './ChunkGenerator';
 import {
     NameOptions,
     FileSenderType,
     Format,
     Compression,
-    BaseSenderConfig,
-    CSVSenderConfig
+    ChunkedFileSenderConfig,
+    getLineDelimiter,
+    SendRecords,
 } from '../interfaces';
 
 const formatValues = Object.values(Format);
 
+/** The arguments for sendToFileDestination */
+export interface SendBatchConfig {
+    /** The original filename  */
+    readonly filename: string;
+    /** The full path generated for filename  */
+    readonly dest: string;
+    /** Async Iterator that provides chunks of data to write  */
+    readonly chunkGenerator: ChunkGenerator
+}
+
 export abstract class ChunkedFileSender {
-    readonly id: string;
-    readonly nameOptions: NameOptions;
     protected sliceCount = -1;
-    readonly format: Format;
-    readonly isRouter: boolean;
-    private compressionFormatter: CompressionFormatter
-    protected fileFormatter: FileFormatter
+    private compressor: Compressor
+    protected formatter: Formatter
     readonly pathList = new Map<string, boolean>();
     readonly type: FileSenderType;
-    readonly concurrency: number;
-    readonly filePerSlice: boolean;
-    readonly lineDelimiter: string;
-    readonly path: string;
+    readonly config: ChunkedFileSenderConfig;
 
-    constructor(type: FileSenderType, config: BaseSenderConfig) {
-        const {
-            path, id, format, compression = Compression.none,
-            file_per_slice = false, dynamic_routing = false,
-            fields = [], include_header = false, line_delimiter = '\n',
-            field_delimiter = ',', concurrency = 10, extension
-        } = config;
-
-        if (format == null || !formatValues.includes(format)) {
+    constructor(type: FileSenderType, config: ChunkedFileSenderConfig) {
+        if (!formatValues.includes(config.format)) {
             throw new Error(`Invalid paramter format, is must be provided and be set to any of these: ${formatValues.join(', ')}`);
         }
 
-        if (isNil(path) || !isString(path)) {
+        if (!isString(config.path)) {
             throw new Error('Invalid parameter path, it must be provided and be of type string');
         }
 
-        if ((isNil(id) || !isString(id))) {
+        if (!isString(config.id)) {
             throw new Error('Invalid parameter id, it must be set to a unique string value');
         }
 
         // Enforce `file_per_slice` for JSON format or compressed output
-        if (format === Format.json && config.file_per_slice !== true) {
+        if (config.format === Format.json && config.file_per_slice !== true) {
             throw new Error('Invalid parameter "file_per_slice", it must be set to true if format is set to json');
         }
 
         // file_per_slice must be set to true if compression is set to anything besides "none"
-        if (config.compression !== Compression.none && config.file_per_slice !== true) {
+        if (config.compression != null
+            && config.compression !== Compression.none
+            && config.file_per_slice !== true) {
             throw new Error('Invalid parameter "file_per_slice", it must be set to true if compression is set to anything other than "none" as we cannot properly divide up a compressed file');
         }
 
         this.type = type;
-        this.id = id;
-        this.format = format;
-        this.path = path;
+        this.config = { ...config };
+        this.compressor = new Compressor(config.compression);
+        this.formatter = new Formatter(config);
+    }
 
-        this.nameOptions = {
-            filePerSlice: file_per_slice,
-            format,
-            compression,
-            extension,
-            id
+    get id(): string {
+        return this.config.id;
+    }
+
+    get path(): string {
+        return this.config.path;
+    }
+
+    get isRouter(): boolean {
+        return this.config.dynamic_routing ?? false;
+    }
+
+    get concurrency(): number {
+        return this.config.concurrency ?? 10;
+    }
+
+    get lineDelimiter(): string {
+        return getLineDelimiter(this.config);
+    }
+
+    get filePerSlice(): boolean {
+        return this.config.file_per_slice ?? false;
+    }
+
+    get format(): Format {
+        return this.config.format;
+    }
+
+    get nameOptions(): NameOptions {
+        return {
+            filePerSlice: this.filePerSlice,
+            format: this.format,
+            compression: this.config.compression ?? Compression.none,
+            extension: this.config.extension,
+            id: this.config.id,
         };
-
-        const csvOptions: CSVSenderConfig = {
-            fields,
-            include_header,
-            line_delimiter,
-            field_delimiter,
-            format,
-        };
-
-        this.compressionFormatter = new CompressionFormatter(compression);
-        this.fileFormatter = new FileFormatter(format, csvOptions);
-        this.isRouter = dynamic_routing;
-        this.filePerSlice = file_per_slice;
-        this.lineDelimiter = line_delimiter;
-        this.concurrency = concurrency;
     }
 
     abstract verify(path: string): Promise<void>
 
+    /**
+     * Verifies that the base file path exists and that the destination
+     * file doesn't already exist
+    */
     private async ensurePathing(path: string, removeFilePath = false): Promise<void> {
         if (!this.pathList.has(path)) {
             if (removeFilePath) {
@@ -105,6 +124,12 @@ export abstract class ChunkedFileSender {
         }
     }
 
+    /**
+     * Ensures the root destination file path exists and returns
+     * the full destination file path.
+     *
+     * @note this API might change since it should not have knowledge of the different sender types
+    */
     async createFileDestinationName(filePath: string): Promise<string> {
         // Can't use path.join() here since the path might include a filename prefix
         const { nameOptions, path } = this;
@@ -125,29 +150,8 @@ export abstract class ChunkedFileSender {
         return createFileName(filePath, fileNameConfig);
     }
 
-    async convertFileChunk(slice: DataEntity[] | null | undefined): Promise<any|null>
-    async convertFileChunk(
-        slice: Record<string, unknown>[] | null | undefined
-    ): Promise<any|null>
-    async convertFileChunk(
-        slice: (Record<string, unknown> | DataEntity)[] | null | undefined
-    ): Promise<any|null> {
-        // null or empty slices get an empty output and will get filtered out below
-        if (!slice || !slice.length) return null;
-        // Build the output string to dump to the object
-        const outStr = this.fileFormatter.format(slice);
-
-        // Let the exporters prevent empty slices from making it through
-        if (!outStr || outStr.length === 0 || outStr === this.lineDelimiter) {
-            return null;
-        }
-
-        return this.compressionFormatter.compress(outStr);
-    }
-
     /**
      *  Method to help create proper file paths, mainly used in the abstract "verify" method
-     * @param path: string | undefined
      */
     protected joinPath(route?: string): string {
         const { path } = this;
@@ -163,16 +167,10 @@ export abstract class ChunkedFileSender {
      * dynamic routing is being used, this is called in the "send" method
      *
      */
-    prepareDispatch(
-        data: DataEntity[]
-    ): Record<string, DataEntity[]>
-    prepareDispatch(
-        data: Record<string, unknown>[]
-    ): Record<string, Record<string, unknown>[]>
-    prepareDispatch(
-        data: (DataEntity | Record<string, unknown>)[]
-    ): Record<string, DataEntity | Record<string, unknown>[]> {
-        const batches: Record<string, DataEntity | Record<string, unknown>[]> = {};
+    async prepareDispatch(
+        data: SendRecords
+    ): Promise<SendBatchConfig[]> {
+        const batches: Record<string, SendRecords> = {};
         const { path } = this;
 
         batches[path] = [];
@@ -193,25 +191,17 @@ export abstract class ChunkedFileSender {
             }
         }
 
-        return batches;
-    }
-
-    /**
-     * Creates final filename destination as well as converts and compresses data
-     * based on configuration
-     */
-    async prepareSegment(
-        path: string, records: DataEntity[] | null | undefined,
-    ): Promise<{ fileName: string, output: Buffer }>
-    async prepareSegment(
-        path: string, records: Record<string, unknown>[] | null | undefined,
-    ): Promise<{ fileName: string, output: Buffer }>
-    async prepareSegment(
-        path: string, records: (DataEntity |Record<string, unknown>)[] | null | undefined,
-    ): Promise<{ fileName: string, output: Buffer }> {
-        const fileName = await this.createFileDestinationName(path);
-        const output = await this.convertFileChunk(records);
-        return { fileName, output };
+        return pMap(
+            Object.entries(batches),
+            async ([filename, list]) => {
+                const destName = await this.createFileDestinationName(filename);
+                return {
+                    filename,
+                    dest: destName,
+                    chunkGenerator: new ChunkGenerator(this.formatter, this.compressor, list)
+                };
+            }
+        );
     }
 
     /**
@@ -223,8 +213,8 @@ export abstract class ChunkedFileSender {
     }
 
     protected abstract sendToDestination(
-        fileName: string, list: (DataEntity | Record<string, unknown>)[]
-    ): Promise<any>
+        config: SendBatchConfig
+    ): Promise<void>
 
     /**
      * Write data to file, uses parent "sendToDestination" method to determine location
@@ -233,25 +223,19 @@ export abstract class ChunkedFileSender {
      *   s3Sender.send([{ some: 'data' }]) => Promise<void>
      *   s3Sender.send([DataEntity.make({ some: 'data' })]) => Promise<void>
     */
-    async send(records: (DataEntity | Record<string, unknown>)[]):Promise<void> {
+    async send(records: SendRecords):Promise<void> {
         const { concurrency } = this;
         this.incrementCount();
 
         if (!this.filePerSlice) {
-            if (this.sliceCount > 0) this.fileFormatter.csvOptions.header = false;
+            if (this.sliceCount > 0) this.formatter.csvOptions.header = false;
         }
 
-        const dispatch = this.prepareDispatch(records);
-
-        const actions: [string, (DataEntity | Record<string, unknown>)[]][] = [];
-
-        for (const [filename, list] of Object.entries(dispatch)) {
-            actions.push([filename, list]);
-        }
+        const dispatch = await this.prepareDispatch(records);
 
         await pMap(
-            actions,
-            ([fileName, list]) => this.sendToDestination(fileName, list),
+            dispatch,
+            (config) => this.sendToDestination(config),
             { concurrency }
         );
     }

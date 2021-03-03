@@ -2,6 +2,7 @@ import 'jest-extended';
 import {
     OpConfig, APIConfig, ValidatedJobConfig, DataEncoding
 } from '@terascope/job-components';
+import { Format } from '@terascope/file-asset-apis';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
 
 describe('File exporter Schema', () => {
@@ -13,12 +14,16 @@ describe('File exporter Schema', () => {
             apis: [],
             operations: [
                 { _op: 'test-reader' },
-                config,
-
+                { format: Format.ldjson, ...config },
             ],
         };
 
-        if (apiConfig) testJob!.apis!.push(apiConfig);
+        if (apiConfig) {
+            testJob!.apis!.push({
+                format: Format.ldjson,
+                ...apiConfig
+            });
+        }
 
         const job = newTestJobConfig(testJob);
 

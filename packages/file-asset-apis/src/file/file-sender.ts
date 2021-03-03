@@ -1,17 +1,13 @@
 import type { RouteSenderAPI } from '@terascope/job-components';
-import {
-    DataEntity,
-    Logger,
-    TSError
-} from '@terascope/utils';
+import { Logger } from '@terascope/utils';
 import fse from 'fs-extra';
-import { ChunkedFileSender } from '../base';
-import { BaseSenderConfig, FileSenderType } from '../interfaces';
+import { ChunkedFileSender, SendBatchConfig } from '../base';
+import { ChunkedFileSenderConfig, FileSenderType, isCSVSenderConfig } from '../interfaces';
 
 export class FileSender extends ChunkedFileSender implements RouteSenderAPI {
     logger: Logger;
 
-    constructor(config: BaseSenderConfig, logger: Logger) {
+    constructor(config: ChunkedFileSenderConfig, logger: Logger) {
         super(FileSenderType.file, config);
         this.logger = logger;
     }
@@ -20,21 +16,37 @@ export class FileSender extends ChunkedFileSender implements RouteSenderAPI {
      * please use the "send" method instead
      */
     protected async sendToDestination(
-        path: string, records: (DataEntity | Record<string, unknown>)[]
-    ): Promise<any> {
-        const { fileName, output } = await this.prepareSegment(path, records);
-        // Prevents empty slices from resulting in empty files
-        if (!output || output.length === 0) {
-            return [];
+        { dest, chunkGenerator }: SendBatchConfig
+    ): Promise<void> {
+        let fd: number|undefined;
+
+        if (this.config.file_per_slice) {
+            // we need to move the file to avoid
+            // to avoid appending AND creating empty
+            // slice files
+            if (await fse.pathExists(dest)) {
+                await fse.unlink(dest);
+            }
+        } else if (isCSVSenderConfig(this.config) && this.config.include_header) {
+            // if the file already exists we should NOT include the header
+            // since it would include more than header every time you append
+            if (await fse.pathExists(dest)) {
+                chunkGenerator.formatter.csvOptions.header = false;
+            }
         }
 
-        // Doesn't return a DataEntity or anything else if successful
         try {
-            return fse.appendFile(fileName, output);
-        } catch (err) {
-            throw new TSError(err, {
-                reason: `Failure to append to file ${fileName}`
-            });
+            for await (const chunk of chunkGenerator) {
+                // we can't create the file descriptor unless
+                // there are chunks, since calling open will create
+                // the file for empty slices
+                if (fd == null) {
+                    fd = await fse.open(dest, 'a');
+                }
+                await fse.appendFile(fd, chunk.data);
+            }
+        } finally {
+            if (fd != null) await fse.close(fd);
         }
     }
 

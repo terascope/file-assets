@@ -2,7 +2,7 @@ import 'jest-extended';
 import fs from 'fs';
 import { debugLogger, toNumber } from '@terascope/utils';
 import {
-    FileSender, BaseSenderConfig, Format, Compression
+    FileSender, Format, Compression, LDJSONSenderConfig
 } from '../../src';
 
 const fixtures = require('jest-fixtures');
@@ -19,7 +19,7 @@ describe('File Asset Sender API', () => {
 
     it('can send data and respect slice', async () => {
         const testDataDir = await fixtures.createTempDir();
-        const config: BaseSenderConfig = {
+        const config: LDJSONSenderConfig = {
             id: workerId,
             dynamic_routing: false,
             path: testDataDir,
@@ -28,9 +28,7 @@ describe('File Asset Sender API', () => {
             format: Format.ldjson,
             extension: '',
             compression: Compression.none,
-            field_delimiter: '',
             line_delimiter: '\n',
-            include_header: false,
             file_per_slice: true
         };
 

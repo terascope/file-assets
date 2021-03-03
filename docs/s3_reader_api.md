@@ -249,41 +249,23 @@ results === [
 
 ```
 
-### makeS3Slicer (async)
-```(config: FileSliceConfig) => Promise<S3Slicer>```
+### makeSlicer (async)
+```() => Promise<FileSlice[]|null>```
 
-This function will generate a slicer which is the s3_reader slicer core component. You can use this to generate slice chunks for your reader.
-
-parameters:
-- config: {
-    file_per_slice: please check [Parameters](#parameters) for more information,
-    format: used to determine how the data should be written to file,
-    size: how big each slice chunk should be,
-    line_delimiter: a delimiter applied between each record or slice,
-    path: the top level directory to search for files
-}
+This function will generate slice chunks for your reader.
 
 
 ```js
+const slicer = await api.makeSlicer();
 
-const config = {
-    file_per_slice: false,
-    format: 'ldjson',
-    size: 1000,
-    line_delimiter: '\n',
-    path: 'some/path'
-};
+const slice = await slicer();
 
-const slicer = await api.makeS3Slicer(config);
-
-const slice = await slicer.slice();
-
-slice ===  {
+slice ===  [{
       offset: 0,
       length: 1000,
       path: 'some/path',
       total: 1000
-}
+}]
 ```
 
 ## Parameters
@@ -298,7 +280,7 @@ slice ===  {
 | line_delimiter  | If a line delimiter other than `\n` is used in the files, this option will tell the reader how to read records in the file. This option is ignored for `json` format. See the [format](#format) section for more information how this deliminator is applied for each format.                               | String   | optional, defaults to `\n`                                                                                                                            |
 | file_per_slice  | This setting determines if the output for a worker will be in a single file (`false`), or if the worker will create a new file for every slice it processes  (`true`). If set to `true`, an integer, starting at 0, will be appended to the filename and incremented by 1 for each slice a worker processes | Boolean  | optional, defaults to `true`. If using `json` format, this option will be overridden to `true`                                                        |
 | include_header  | Determines whether or not to include column headers for the fields in output files. If set to `true`, a header will be added as the first entry to every file created. This option is only used for `tsv` and `csv` formats                                                                                 | Boolean  | optional, defaults to `false`                                                                                                                         |
-| format          | Used to determine how the data should be written to file, options are: `json`, `ldjson`, `raw`, `csv`, `tsv`                                                                                                                                                                                                | String   | optional, defaults to `ldjson`, please reference the [format](#format) section for more information                                                   |
+| format          | Used to determine how the data should be written to file, options are: `json`, `ldjson`, `raw`, `csv`, `tsv`                                                                                                                                                                                                | String   | required, please reference the [format](#format) section for more information                                                                         |
 | size            | Determines the target slice size in bytes. The actual slice size will vary slightly since the reader will read additional bytes from the file in order to complete a record if the read ends with a partial record. This option is ignored for `json` format. See `json` format option below for more info. | Number   | optional, defaults to `10000000`                                                                                                                      |
 | remove_header   | Checks for the header row in csv or tsv files and removes it                                                                                                                                                                                                                                                | Boolean  | optional, defaults to `true`                                                                                                                          |
 | ignore_empty    | Ignores empty fields when parsing CSV/TSV files                                                                                                                                                                                                                                                             | Boolean  | optional, defaults to `true`                                                                                                                          |

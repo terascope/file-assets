@@ -8,7 +8,6 @@ import {
     isSimpleObject,
     isString,
     isBoolean,
-    isNil
 } from '@terascope/utils';
 import csvToJson from 'csvtojson';
 import { CSVParseParam } from 'csvtojson/v2/Parameters';
@@ -17,17 +16,17 @@ import {
     ChunkedFileReaderConfig,
     Compression,
     Format,
-    CSVReaderParams,
+    isCSVReaderConfig,
+    CSVReaderConfig,
+    getFieldDelimiter,
+    getLineDelimiter,
+    getFieldsFromConfig,
 } from '../interfaces';
-import { CompressionFormatter } from './compression';
+import { Compressor } from './Compressor';
 
 type FN = (input: any) => any;
 
-interface CSVConfigInput extends CSVReaderParams {
-    format: Format
-}
-
-function validateCSVConfig(inputConfig: CSVConfigInput) {
+function validateCSVConfig(inputConfig: CSVReaderConfig) {
     const {
         extra_args,
         fields,
@@ -37,16 +36,32 @@ function validateCSVConfig(inputConfig: CSVConfigInput) {
         format
     } = inputConfig;
 
-    if (!isSimpleObject(extra_args)) throw new Error('Invalid parameter extra_args, it must be an object');
+    if (extra_args != null && !isSimpleObject(extra_args)) {
+        throw new Error('Invalid parameter extra_args, it must be an object');
+    }
 
-    if (!Array.isArray(fields)) throw new Error('Invalid parameter fields, it must be an empty array or an array containing strings');
-    if (!fields.every(isString)) throw new Error('Invalid parameter fields, it must be an array containing strings');
-    if (!isBoolean(ignore_empty)) throw new Error('Invalid parameter ignore_empty, it must be a boolean');
-    if (!isBoolean(remove_header)) throw new Error('Invalid parameter remove_header, it must be a boolean');
+    if (fields != null && !Array.isArray(fields)) {
+        throw new Error('Invalid parameter fields, it must be an empty array or an array containing strings');
+    }
 
-    if (!isString(field_delimiter)) throw new Error('Invalid parameter field_delimiter, it must be a string');
+    if (fields != null && !fields.every(isString)) {
+        throw new Error('Invalid parameter fields, it must be an array containing strings');
+    }
+
+    if (ignore_empty != null && !isBoolean(ignore_empty)) {
+        throw new Error('Invalid parameter ignore_empty, it must be a boolean');
+    }
+
+    if (remove_header != null && !isBoolean(remove_header)) {
+        throw new Error('Invalid parameter remove_header, it must be a boolean');
+    }
+
+    if (field_delimiter != null && !isString(field_delimiter)) {
+        throw new Error('Invalid parameter field_delimiter, it must be a string');
+    }
+
     // if field_delimiter is given and format is tsv, it must be set to \t
-    if (format === Format.tsv && field_delimiter !== '\t') {
+    if (format === Format.tsv && field_delimiter != null && field_delimiter !== '\t') {
         throw new Error(`Invalid parameter field_delimiter, if format is set to ${Format.tsv} and field_delimiter is provided, it must be set to "\\t"`);
     }
 
@@ -54,35 +69,26 @@ function validateCSVConfig(inputConfig: CSVConfigInput) {
 }
 
 const formatValues = Object.values(Format);
-export abstract class ChunkedFileReader extends CompressionFormatter {
+export abstract class ChunkedFileReader {
     logger: Logger;
-    protected format: Format
-    protected lineDelimiter: string
-    private csvOptions: CSVReaderParams
+    compressor: Compressor;
     private onRejectAction: string;
     private tryFn: (fn:(msg: any) => DataEntity) => (input: any) => DataEntity | null;
     private rejectRecord: (input: unknown, err: Error) => never | null;
+    private config: ChunkedFileReaderConfig
     private encodingConfig: {
         _encoding: DataEncoding
     }
     protected filePerSlice: boolean;
 
     constructor(inputConfig: ChunkedFileReaderConfig, logger: Logger) {
-        super(inputConfig.compression ?? Compression.none);
-
         const {
             on_reject_action = 'throw',
             rejectFn = this.reject,
             tryFn = this.tryCatch,
             compression = Compression.none,
             file_per_slice = false,
-            line_delimiter = '\n',
-            field_delimiter,
             format,
-            extra_args = {},
-            ignore_empty = true,
-            remove_header = true,
-            fields = []
         } = inputConfig;
 
         const encoding = format === Format.raw ? DataEncoding.RAW : DataEncoding.JSON;
@@ -91,34 +97,11 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
             throw new Error(`Invalid parameter format, is must be provided and be set to any of these: ${formatValues.join(', ')}`);
         }
 
-        let fieldDelimiter = field_delimiter;
-        // if format is tsv and line_delimiter is defined, it must be set to "\t"
-        if (format === Format.tsv && fieldDelimiter && fieldDelimiter !== '\t') {
-            throw new Error(`Invalid parameter field_delimiter, if format is set to ${Format.tsv} and field_delimiter is given, it must be set to "\\t"`);
+        if (isCSVReaderConfig(inputConfig)) {
+            validateCSVConfig(inputConfig);
         }
 
-        const lineDelimiter = line_delimiter ?? '\n';
-
-        // set defaults for field_delimiter
-        if (isNil(fieldDelimiter)) {
-            if (format === Format.tsv) {
-                fieldDelimiter = '\t';
-            } else {
-                fieldDelimiter = ',';
-            }
-        }
-
-        const csvInput: CSVConfigInput = {
-            field_delimiter: fieldDelimiter,
-            extra_args,
-            ignore_empty,
-            remove_header,
-            fields,
-            format
-        };
-
-        this.lineDelimiter = lineDelimiter;
-        this.csvOptions = validateCSVConfig(csvInput);
+        this.config = { ...inputConfig };
         this.logger = logger;
         this.tryFn = tryFn;
         this.rejectRecord = rejectFn;
@@ -126,13 +109,22 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
         this.encodingConfig = {
             _encoding: encoding
         };
-        this.format = format;
 
         // file_per_slice must be set to true if compression is set to anything besides "none"
         if (compression !== Compression.none && file_per_slice !== true) {
             throw new Error('Invalid parameter "file_per_slice", it must be set to true if compression is set to anything other than "none" as we cannot properly divide up a compressed file');
         }
+
+        this.compressor = new Compressor(inputConfig.compression);
         this.filePerSlice = file_per_slice;
+    }
+
+    get lineDelimiter(): string {
+        return getLineDelimiter(this.config);
+    }
+
+    get format(): Format {
+        return this.config.format;
     }
 
     private tryCatch(fn: FN) {
@@ -240,14 +232,18 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
     protected async csv(
         incomingData: string, slice: FileSlice
     ): Promise<(DataEntity | null)[]> {
+        const config = this.config as CSVReaderConfig;
+        const removeHeader = config.remove_header ?? true;
+        const ignoreEmpty = config.ignore_empty ?? true;
+
         const csvParams = Object.assign({
-            delimiter: this.csvOptions.field_delimiter,
-            headers: this.csvOptions.fields,
+            delimiter: getFieldDelimiter(config),
+            headers: getFieldsFromConfig(config) ?? [],
             trim: true,
             noheader: true,
-            ignoreEmpty: this.csvOptions.ignore_empty,
+            ignoreEmpty,
             output: 'json'
-        } as Partial<CSVParseParam>, this.csvOptions.extra_args);
+        } as Partial<CSVParseParam>, config.extra_args);
 
         let foundHeader = false;
         const data = splitChunks(incomingData, this.lineDelimiter, slice);
@@ -262,7 +258,7 @@ export abstract class ChunkedFileReader extends CompressionFormatter {
                     parsedLine[key] = parsedLine[key].trim();
                 });
                 // Check for header row. Assumes there would only be one header row in a slice
-                if (this.csvOptions.remove_header && !foundHeader
+                if (removeHeader && !foundHeader
                     && Object.keys(parsedLine)
                         .sort().join() === Object.values(parsedLine).sort().join()) {
                     foundHeader = true;

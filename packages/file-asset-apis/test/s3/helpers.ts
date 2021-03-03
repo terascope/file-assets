@@ -3,11 +3,10 @@ import {
     listS3Objects,
     deleteS3Object,
     deleteS3Bucket,
-    BaseSenderConfig,
+    ChunkedFileSenderConfig,
     Compression,
-    CSVSenderConfig,
-    FileFormatter,
-    CompressionFormatter,
+    Formatter,
+    Compressor,
     createFileName,
     S3PutConfig,
     putS3Object
@@ -63,7 +62,7 @@ export function getBodyFromResults(results: S3.GetObjectOutput): Buffer {
         : Buffer.from(results.Body as string);
 }
 
-export interface UploadConfig extends Partial<BaseSenderConfig>{
+export interface UploadConfig extends Partial<ChunkedFileSenderConfig> {
     sliceCount: number,
     bucket: string,
 }
@@ -73,8 +72,6 @@ export async function upload(
 ): Promise<string> {
     const {
         format, compression = Compression.none,
-        fields = [], line_delimiter = '\n',
-        field_delimiter = ',', include_header = false,
         extension, sliceCount, path, bucket, id
     } = config;
 
@@ -82,15 +79,8 @@ export async function upload(
     if (path == null) throw new Error('path must be provided');
     if (id == null) throw new Error('id must be provided');
 
-    const csvOptions: CSVSenderConfig = {
-        fields,
-        include_header,
-        line_delimiter,
-        field_delimiter,
-        format,
-    };
-    const formatter = new FileFormatter(format, csvOptions);
-    const compressionFormatter = new CompressionFormatter(compression);
+    const formatter = new Formatter(config as ChunkedFileSenderConfig);
+    const compressionFormatter = new Compressor(compression);
 
     const formattedData = formatter.format(data);
     const finalData = await compressionFormatter.compress(formattedData);

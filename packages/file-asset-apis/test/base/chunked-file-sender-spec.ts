@@ -2,10 +2,11 @@ import 'jest-extended';
 import { DataEntity } from '@terascope/utils';
 import {
     FileSenderType,
-    BaseSenderConfig,
+    ChunkedFileSenderConfig,
     Compression,
     Format,
-    ChunkedFileSender
+    ChunkedFileSender,
+    SendBatchConfig
 } from '../../src';
 
 describe('ChunkedSlicer', () => {
@@ -25,88 +26,121 @@ describe('ChunkedSlicer', () => {
         }
 
         async sendToDestination(
-            file: string, list: (DataEntity | Record<string, unknown>)[]
+            { dest, chunkGenerator }: SendBatchConfig
         ) {
-            const { fileName, output } = await this.prepareSegment(file, list);
-            this.sentData.set(fileName, output.toString());
+            let output: Buffer|undefined;
+
+            for await (const chunk of chunkGenerator) {
+                if (chunk.has_more) {
+                    throw new Error('has_more is not supported');
+                }
+                output = chunk.data;
+            }
+
+            if (output) {
+                this.sentData.set(dest, output.toString());
+            }
         }
     }
 
-    const defaults: Partial<BaseSenderConfig> = {
+    const defaults: Partial<ChunkedFileSenderConfig> = {
         id: workerId,
-        compression: Compression.none,
-        field_delimiter: ',',
-        line_delimiter: '\n',
-        fields: [],
-        file_per_slice: false,
-        include_header: false,
-        format: Format.ldjson,
-        path,
-        dynamic_routing: false
+        path
     };
 
-    function makeConfig(config: Partial<BaseSenderConfig> = {}): BaseSenderConfig {
-        return Object.assign({}, defaults, config) as BaseSenderConfig;
+    function makeConfig(
+        format: Format,
+        config: Partial<Omit<ChunkedFileSenderConfig, 'format'>> = {}
+    ): ChunkedFileSenderConfig {
+        return Object.assign({}, defaults, config, { format }) as ChunkedFileSenderConfig;
     }
 
     it('will throw if file_per_slice is false if its a file type and format is JSON', () => {
         const errMsg = 'Invalid parameter "file_per_slice", it must be set to true if format is set to json';
         expect(
-            () => new Test(FileSenderType.file, makeConfig({ format: Format.json }))
+            () => new Test(FileSenderType.file, makeConfig(Format.json))
         ).toThrowError(errMsg);
     });
 
     it('will throw if file_per_slice is false and compression is anything but none', () => {
         const errMsg = 'Invalid parameter "file_per_slice", it must be set to true if compression is set to anything other than "none" as we cannot properly divide up a compressed file';
-        expect(
-            () => new Test(FileSenderType.file, makeConfig({ compression: Compression.gzip }))
-        ).toThrowError(errMsg);
+        expect(() => {
+            const config = makeConfig(Format.ldjson, { compression: Compression.gzip });
+            new Test(FileSenderType.file, config);
+        }).toThrowError(errMsg);
 
-        expect(
-            () => new Test(FileSenderType.file, makeConfig({ compression: Compression.lz4 }))
-        ).toThrowError(errMsg);
+        expect(() => {
+            const config = makeConfig(Format.ldjson, { compression: Compression.lz4 });
+            new Test(FileSenderType.file, config);
+        }).toThrowError(errMsg);
 
-        const test3 = new Test(FileSenderType.file, makeConfig({ compression: Compression.none }));
+        const test3 = new Test(FileSenderType.file, makeConfig(
+            Format.ldjson, { compression: Compression.none }
+        ));
         expect(test3.nameOptions.filePerSlice).toBeFalse();
     });
 
     it('can check its a router is being used', () => {
-        const test = new Test(FileSenderType.file, makeConfig({ dynamic_routing: true }));
+        const test = new Test(FileSenderType.file, makeConfig(
+            Format.ldjson, { dynamic_routing: true }
+        ));
         expect(test.isRouter).toBeTrue();
 
-        const test2 = new Test(FileSenderType.file, makeConfig());
+        const test2 = new Test(FileSenderType.file, makeConfig(
+            Format.ldjson
+        ));
         expect(test2.isRouter).toBeFalse();
     });
 
-    it('can prepare a dispatch with no routing', () => {
-        const test = new Test(FileSenderType.file, makeConfig());
+    it('can prepare a dispatch with no routing', async () => {
+        const test = new Test(FileSenderType.file, makeConfig(Format.ldjson));
         const data = [
             DataEntity.make({ name: 'chilly' }),
             DataEntity.make({ name: 'willy' }, { 'standard:route': 'a' }),
             DataEntity.make({ name: 'billy' }, { 'standard:route': 'b' }),
         ];
 
-        const results = test.prepareDispatch(data);
-        expect(results[path]).toBeArrayOfSize(3);
+        const results = await test.prepareDispatch(data);
+        expect(results).toBeArrayOfSize(1);
+
+        const [firstBatchConfig] = results;
+
+        expect(firstBatchConfig).toHaveProperty('filename', path);
+        expect(firstBatchConfig).toHaveProperty('chunkGenerator');
+        expect(firstBatchConfig.chunkGenerator.slice).toBeArrayOfSize(3);
     });
 
-    it('can prepare a dispatch with routing', () => {
-        const test = new Test(FileSenderType.file, makeConfig({ dynamic_routing: true }));
+    it('can prepare a dispatch with routing', async () => {
+        const test = new Test(FileSenderType.file, makeConfig(
+            Format.ldjson, { dynamic_routing: true }
+        ));
         const data = [
             DataEntity.make({ name: 'chilly' }),
             DataEntity.make({ name: 'willy' }, { 'standard:route': 'a' }),
             DataEntity.make({ name: 'billy' }, { 'standard:route': 'b' }),
         ];
 
-        const results = test.prepareDispatch(data);
+        const results = await test.prepareDispatch(data);
 
-        expect(results[path]).toBeArrayOfSize(1);
-        expect(results[`${path}/a`]).toBeArrayOfSize(1);
-        expect(results[`${path}/b`]).toBeArrayOfSize(1);
+        expect(results).toBeArrayOfSize(3);
+
+        const [firstBatchConfig, secondBatchConfig, thirdBatchConfig] = results;
+
+        expect(firstBatchConfig).toHaveProperty('filename', `${path}`);
+        expect(firstBatchConfig).toHaveProperty('chunkGenerator');
+        expect(firstBatchConfig.chunkGenerator.slice).toBeArrayOfSize(1);
+
+        expect(secondBatchConfig).toHaveProperty('filename', `${path}/a`);
+        expect(secondBatchConfig).toHaveProperty('chunkGenerator');
+        expect(secondBatchConfig.chunkGenerator.slice).toBeArrayOfSize(1);
+
+        expect(thirdBatchConfig).toHaveProperty('filename', `${path}/b`);
+        expect(thirdBatchConfig).toHaveProperty('chunkGenerator');
+        expect(thirdBatchConfig.chunkGenerator.slice).toBeArrayOfSize(1);
     });
 
     it('can make a new route path', () => {
-        const test = new Test(FileSenderType.file, makeConfig());
+        const test = new Test(FileSenderType.file, makeConfig(Format.ldjson));
 
         expect(test.testJoinPath()).toEqual(path);
         expect(test.testJoinPath(path)).toEqual(path);
@@ -115,7 +149,7 @@ describe('ChunkedSlicer', () => {
 
     describe('file destination names', () => {
         it('can make correct base paths', async () => {
-            const test = new Test(FileSenderType.file, makeConfig());
+            const test = new Test(FileSenderType.file, makeConfig(Format.ldjson));
 
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.ldjson`);
             expect(test.verifyCalled).toEqual(true);
@@ -123,19 +157,23 @@ describe('ChunkedSlicer', () => {
 
         it('can make correct path', async () => {
             const newPath = `${path}/final/dir`;
-            const test = new Test(FileSenderType.file, makeConfig());
+            const test = new Test(FileSenderType.file, makeConfig(Format.ldjson));
 
             expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}.ldjson`);
             expect(test.verifyCalled).toEqual(true);
         });
 
         it('can add extensions', async () => {
-            const test = new Test(FileSenderType.file, makeConfig({ extension: 'stuff' }));
+            const test = new Test(FileSenderType.file, makeConfig(
+                Format.ldjson, { extension: 'stuff' }
+            ));
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.stuff`);
         });
 
         it('can add slice count', async () => {
-            const test = new Test(FileSenderType.file, makeConfig({ file_per_slice: true }));
+            const test = new Test(FileSenderType.file, makeConfig(
+                Format.ldjson, { file_per_slice: true }
+            ));
             // @ts-expect-error
             test.incrementCount();
 
@@ -147,7 +185,9 @@ describe('ChunkedSlicer', () => {
         });
 
         it('can add extensions and file_per_slice', async () => {
-            const test = new Test(FileSenderType.file, makeConfig({ file_per_slice: true, extension: 'stuff' }));
+            const test = new Test(FileSenderType.file, makeConfig(
+                Format.ldjson, { file_per_slice: true, extension: 'stuff' }
+            ));
             // @ts-expect-error
             test.incrementCount();
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0.stuff`);
@@ -156,7 +196,7 @@ describe('ChunkedSlicer', () => {
         it('can respect compression and other formats', async () => {
             const test = new Test(
                 FileSenderType.file,
-                makeConfig({ compression: Compression.lz4, file_per_slice: true })
+                makeConfig(Format.ldjson, { compression: Compression.lz4, file_per_slice: true })
             );
             // @ts-expect-error
             test.incrementCount();
@@ -164,9 +204,8 @@ describe('ChunkedSlicer', () => {
 
             const test2 = new Test(
                 FileSenderType.file,
-                makeConfig({
+                makeConfig(Format.csv, {
                     compression: Compression.gzip,
-                    format: Format.csv,
                     file_per_slice: true
                 })
             );
@@ -176,9 +215,8 @@ describe('ChunkedSlicer', () => {
 
             const test3 = new Test(
                 FileSenderType.file,
-                makeConfig({
+                makeConfig(Format.json, {
                     compression: Compression.none,
-                    format: Format.json,
                     file_per_slice: true
                 })
             );
@@ -190,7 +228,7 @@ describe('ChunkedSlicer', () => {
 
     describe('hdfs destination names', () => {
         it('can make correct base paths', async () => {
-            const test = new Test(FileSenderType.hdfs, makeConfig());
+            const test = new Test(FileSenderType.hdfs, makeConfig(Format.ldjson));
 
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.ldjson`);
             expect(test.verifyCalled).toEqual(true);
@@ -198,22 +236,26 @@ describe('ChunkedSlicer', () => {
 
         it('can make correct path', async () => {
             const newPath = `${path}/final/dir`;
-            const test = new Test(FileSenderType.hdfs, makeConfig());
+            const test = new Test(FileSenderType.hdfs, makeConfig(Format.ldjson));
 
             expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}.ldjson`);
             expect(test.verifyCalled).toEqual(true);
         });
 
         it('can add extensions', async () => {
-            const test = new Test(FileSenderType.hdfs, makeConfig({ extension: 'stuff' }));
+            const test = new Test(FileSenderType.hdfs, makeConfig(
+                Format.ldjson, { extension: 'stuff' }
+            ));
 
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.stuff`);
         });
 
         it('can add slice count', async () => {
-            const test = new Test(FileSenderType.hdfs, makeConfig({ file_per_slice: true }));
-            // @ts-expect-error
+            const test = new Test(FileSenderType.hdfs, makeConfig(
+                Format.ldjson, { file_per_slice: true }
+            ));
 
+            // @ts-expect-error
             test.incrementCount();
 
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0.ldjson`);
@@ -226,7 +268,9 @@ describe('ChunkedSlicer', () => {
 
     describe('s3 destination names', () => {
         it('can make correct base paths', async () => {
-            const test = new Test(FileSenderType.s3, makeConfig({ file_per_slice: true }));
+            const test = new Test(FileSenderType.s3, makeConfig(
+                Format.ldjson, { file_per_slice: true }
+            ));
             // @ts-expect-error
             test.incrementCount();
 
@@ -236,7 +280,9 @@ describe('ChunkedSlicer', () => {
 
         it('can make correct path', async () => {
             const newPath = `${path}/final/dir`;
-            const test = new Test(FileSenderType.s3, makeConfig({ file_per_slice: true }));
+            const test = new Test(FileSenderType.s3, makeConfig(
+                Format.ldjson, { file_per_slice: true }
+            ));
             // @ts-expect-error
             test.incrementCount();
 
@@ -245,7 +291,9 @@ describe('ChunkedSlicer', () => {
         });
 
         it('can add extensions', async () => {
-            const test = new Test(FileSenderType.s3, makeConfig({ extension: 'stuff', file_per_slice: true }));
+            const test = new Test(FileSenderType.s3, makeConfig(
+                Format.ldjson, { extension: 'stuff', file_per_slice: true }
+            ));
             // @ts-expect-error
             test.incrementCount();
 
@@ -253,33 +301,11 @@ describe('ChunkedSlicer', () => {
         });
     });
 
-    it('can prepare a segment for sending', async () => {
-        const test = new Test(FileSenderType.s3, makeConfig({ file_per_slice: true }));
-        const records = [
-            DataEntity.make({ some: 'data' }),
-            DataEntity.make({ other: 'stuff' }),
-        ];
-        // @ts-expect-error
-        test.incrementCount();
-
-        const results = await test.prepareSegment(path, records);
-
-        expect(results).toBeDefined();
-        expect(results.fileName).toBeDefined();
-        expect(results.output).toBeDefined();
-
-        expect(results.fileName).toEqual(`${path}/${workerId}.0.ldjson`);
-        expect((results.output as Buffer).toString()).toEqual('{"some":"data"}\n{"other":"stuff"}\n');
-    });
-
-    it('can respect file destination using send and field_per_slice false', async () => {
+    it('can respect file destination using send and field_per_slice true', async () => {
         const test = new Test(
             FileSenderType.s3,
-            makeConfig({
+            makeConfig(Format.ldjson, {
                 file_per_slice: true,
-                format: Format.ldjson,
-                compression: Compression.none,
-                extension: '.ldjson'
             })
         );
 

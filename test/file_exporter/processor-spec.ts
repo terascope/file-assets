@@ -4,7 +4,9 @@ import { DataEntity } from '@terascope/job-components';
 import path from 'path';
 import fs from 'fs';
 import { remove, ensureDir } from 'fs-extra';
-import { Format, BaseSenderConfig } from '@terascope/file-asset-apis';
+import {
+    Format, ChunkedFileSenderConfig, CSVSenderConfig, LDJSONSenderConfig, JSONSenderConfig
+} from '@terascope/file-asset-apis';
 
 function getTestFilePath(filename?: string) {
     if (filename) return path.join(__dirname, 'test_output/test', filename);
@@ -31,7 +33,7 @@ describe('File exporter processor', () => {
     const metaRoute1 = '0';
     const metaRoute2 = '1';
 
-    async function makeTest(config?: Partial<BaseSenderConfig>) {
+    async function makeTest(config?: Partial<ChunkedFileSenderConfig>) {
         const _op = {
             _op: 'file_exporter',
             path: `${getTestFilePath()}`,
@@ -164,7 +166,7 @@ describe('File exporter processor', () => {
     });
 
     it('creates multiple CSV files with all fields', async () => {
-        const config: Partial<BaseSenderConfig> = { fields: [] };
+        const config: Partial<CSVSenderConfig> = { fields: [] };
         const test = await makeTest(config);
 
         await test.runSlice(data);
@@ -180,7 +182,7 @@ describe('File exporter processor', () => {
     });
 
     it('creates multiple CSV files with all fields and headers', async () => {
-        const config: Partial<BaseSenderConfig> = { fields: [], include_header: true };
+        const config: Partial<CSVSenderConfig> = { fields: [], include_header: true };
         const test = await makeTest(config);
 
         await test.runSlice(data);
@@ -202,7 +204,7 @@ describe('File exporter processor', () => {
     });
 
     it('creates a single csv file with custom fields', async () => {
-        const config: Partial<BaseSenderConfig> = { fields: ['field3', 'field1'], include_header: false, file_per_slice: false };
+        const config: Partial<CSVSenderConfig> = { fields: ['field3', 'field1'], include_header: false, file_per_slice: false };
         const test = await makeTest(config);
 
         await test.runSlice(data);
@@ -220,7 +222,7 @@ describe('File exporter processor', () => {
     });
 
     it('creates a single csv file with custom complex fields', async () => {
-        const config: Partial<BaseSenderConfig> = { fields: ['field2', 'field1'], include_header: false, file_per_slice: false };
+        const config: Partial<CSVSenderConfig> = { fields: ['field2', 'field1'], include_header: false, file_per_slice: false };
         const test = await makeTest(config);
 
         await test.runSlice(complexData);
@@ -233,7 +235,7 @@ describe('File exporter processor', () => {
     });
 
     it('creates a single csv file with all fields', async () => {
-        const config: Partial<BaseSenderConfig> = {
+        const config: Partial<CSVSenderConfig> = {
             fields: [],
             include_header: false,
             file_per_slice: false
@@ -255,7 +257,7 @@ describe('File exporter processor', () => {
     });
 
     it('creates a single csv file and adds a header properly', async () => {
-        const config: Partial<BaseSenderConfig> = {
+        const config: Partial<CSVSenderConfig> = {
             fields: [],
             include_header: true,
             file_per_slice: false
@@ -278,7 +280,7 @@ describe('File exporter processor', () => {
     });
 
     it('creates a single tsv file with a tab delimiter', async () => {
-        const config: Partial<BaseSenderConfig> = {
+        const config: Partial<CSVSenderConfig> = {
             fields: [],
             field_delimiter: '\t',
             include_header: false,
@@ -297,7 +299,7 @@ describe('File exporter processor', () => {
     });
 
     it('creates a single csv file with a custom delimiter', async () => {
-        const config: Partial<BaseSenderConfig> = {
+        const config: Partial<CSVSenderConfig> = {
             fields: [],
             field_delimiter: '^',
             include_header: false,
@@ -316,7 +318,7 @@ describe('File exporter processor', () => {
     });
 
     it('creates a single csv file with a custom line delimiter', async () => {
-        const config: Partial<BaseSenderConfig> = {
+        const config: Partial<CSVSenderConfig> = {
             fields: [],
             field_delimiter: ',',
             include_header: false,
@@ -336,10 +338,8 @@ describe('File exporter processor', () => {
     });
 
     it('creates a single file with line-delimited JSON records', async () => {
-        const config: Partial<BaseSenderConfig> = {
+        const config: Partial<LDJSONSenderConfig> = {
             fields: [],
-            field_delimiter: ',',
-            include_header: false,
             file_per_slice: false,
             line_delimiter: '\n',
             format: Format.ldjson
@@ -357,10 +357,8 @@ describe('File exporter processor', () => {
     });
 
     it('filters and orders line-delimited JSON fields', async () => {
-        const config: Partial<BaseSenderConfig> = {
+        const config: Partial<LDJSONSenderConfig> = {
             fields: ['field3', 'field1'],
-            field_delimiter: ',',
-            include_header: false,
             file_per_slice: false,
             line_delimiter: '\n',
             format: Format.ldjson
@@ -384,10 +382,8 @@ describe('File exporter processor', () => {
             'subfield1',
             'subfield2'
         ];
-        const config: Partial<BaseSenderConfig> = {
+        const config: Partial<LDJSONSenderConfig> = {
             fields,
-            field_delimiter: ',',
-            include_header: false,
             file_per_slice: false,
             line_delimiter: '\n',
             format: Format.ldjson
@@ -404,10 +400,8 @@ describe('File exporter processor', () => {
     });
 
     it('creates a single file with a JSON record for `json` format', async () => {
-        const config: Partial<BaseSenderConfig> = {
+        const config: Partial<JSONSenderConfig> = {
             fields: [],
-            field_delimiter: ',',
-            include_header: false,
             file_per_slice: true,
             line_delimiter: '\n',
             format: Format.json
@@ -427,10 +421,8 @@ describe('File exporter processor', () => {
     });
 
     it('ignores non-existent fields in ldjson', async () => {
-        const config: Partial<BaseSenderConfig> = {
+        const config: Partial<LDJSONSenderConfig> = {
             fields: ['field1', 'field2', 'field8'],
-            field_delimiter: ',',
-            include_header: false,
             file_per_slice: true,
             line_delimiter: '\n',
             format: Format.ldjson
@@ -446,10 +438,7 @@ describe('File exporter processor', () => {
     });
 
     it('creates a single file with raw records on each line', async () => {
-        const config: Partial<BaseSenderConfig> = {
-            fields: ['field1', 'field2', 'field8'],
-            field_delimiter: ',',
-            include_header: false,
+        const config: Partial<ChunkedFileSenderConfig> = {
             file_per_slice: false,
             line_delimiter: '\n',
             format: Format.raw
@@ -467,10 +456,7 @@ describe('File exporter processor', () => {
     });
 
     it('will not respect metadata routing when used normally', async () => {
-        const config: Partial<BaseSenderConfig> = {
-            fields: ['field1'],
-            field_delimiter: ',',
-            include_header: false,
+        const config: Partial<JSONSenderConfig> = {
             file_per_slice: true,
             line_delimiter: '\n',
             format: Format.json,

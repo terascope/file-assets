@@ -41,25 +41,25 @@ async function noneDecompress(data: Buffer|string): Promise<string> {
     return Buffer.isBuffer(data) ? data.toString() : data;
 }
 
-export class CompressionFormatter {
-    readonly compression: Compression;
+export class Compressor {
+    readonly type: Compression;
     compress: (data: Buffer|string) => Promise<Buffer>;
     decompress: (data: Buffer|string) => Promise<string>;
 
-    constructor(format: Compression) {
-        this.compression = format;
+    constructor(type: Compression = Compression.none) {
+        this.type = type;
 
-        if (this.compression === Compression.lz4) {
+        if (this.type === Compression.lz4) {
             this.compress = lz4Compress;
             this.decompress = lz4Decompress;
-        } else if (this.compression === Compression.gzip) {
+        } else if (this.type === Compression.gzip) {
             this.compress = gzipCompress;
             this.decompress = gzipDecompress;
-        } else if (this.compression === Compression.none) {
+        } else if (this.type === Compression.none) {
             this.compress = noneCompress;
             this.decompress = noneDecompress;
         } else {
-            throw new Error(`Unsupported compression: ${format}`);
+            throw new Error(`Unsupported compression: ${this.type}`);
         }
     }
 }

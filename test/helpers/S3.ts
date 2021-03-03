@@ -7,9 +7,9 @@ import {
 } from '@terascope/job-components';
 import S3 from 'aws-sdk/clients/s3';
 import {
-    S3Fetcher, S3Sender, FileSlice, Format, Compression,
+    S3Fetcher, S3Sender, FileSlice, Format,
     deleteS3Object, listS3Objects, deleteS3Bucket,
-    BaseSenderConfig, ReaderConfig
+    ChunkedFileSenderConfig, ReaderConfig
 } from '@terascope/file-asset-apis';
 import * as s3Config from './config';
 
@@ -30,13 +30,9 @@ export function makeClient(): S3 {
 
 export const testWorkerId = 'test-id';
 
-const defaultSenderConfigs: Partial<BaseSenderConfig> = {
+const defaultSenderConfigs: Partial<ChunkedFileSenderConfig> = {
     concurrency: 10,
     format: Format.ldjson,
-    line_delimiter: '\n',
-    field_delimiter: ',',
-    compression: Compression.none,
-    fields: [],
     id: testWorkerId,
     file_per_slice: true
 };
@@ -63,7 +59,7 @@ export async function upload(
     if (isNil(config.bucket) || !isString(config.bucket)) throw new Error('config must include parameter bucket');
     if (isNil(config.path) || !isString(config.path)) throw new Error('config must include parameter path');
 
-    const senderConfig = Object.assign({}, defaultSenderConfigs, config) as BaseSenderConfig;
+    const senderConfig = Object.assign({}, defaultSenderConfigs, config) as ChunkedFileSenderConfig;
     const api = new S3Sender(client, senderConfig, logger);
 
     await api.ensureBucket();

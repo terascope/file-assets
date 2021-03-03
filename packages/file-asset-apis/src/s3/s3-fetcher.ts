@@ -8,7 +8,7 @@ export class S3Fetcher extends ChunkedFileReader {
     protected client: S3;
     protected readonly bucket: string;
 
-    constructor(client: S3, config: ReaderConfig, logger: Logger) {
+    constructor(client: S3, config: Omit<ReaderConfig, 'size'>, logger: Logger) {
         super(config, logger);
         const { path } = config;
         const { bucket } = parsePath(path);
@@ -39,7 +39,7 @@ export class S3Fetcher extends ChunkedFileReader {
             throw new Error('Missing body from s3 get object request');
         }
 
-        return this.decompress(
+        return this.compressor.decompress(
             Buffer.isBuffer(results.Body)
                 ? results.Body
                 : Buffer.from(results.Body as any)

@@ -1,5 +1,7 @@
 'use strict';
 
+const path = require('path');
+
 module.exports = {
     verbose: true,
     testEnvironment: 'node',
@@ -20,6 +22,9 @@ module.exports = {
         '<rootDir>/test/**/*-spec.{ts,js}',
         '<rootDir>/test/*-spec.{ts,js}',
     ],
+    moduleNameMapper: {
+        '^@terascope/file-asset-apis$': path.join(__dirname, '/packages/file-asset-apis/src/index.ts'),
+    },
     preset: 'ts-jest',
     globals: {
         'ts-jest': {

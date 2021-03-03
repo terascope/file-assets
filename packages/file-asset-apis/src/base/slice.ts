@@ -1,6 +1,8 @@
 import { isString } from '@terascope/utils';
 import path from 'path';
-import { SliceConfig, FileSlice, Offsets } from '../interfaces';
+import {
+    SliceConfig, FileSlice, Offsets, Format, getLineDelimiter
+} from '../interfaces';
 
 /**
  *  Used to slice up a file based on the configuration provided, this is a
@@ -38,7 +40,7 @@ export function segmentFile(file: {
     size: number;
 }, config: SliceConfig): FileSlice[] {
     const slices: FileSlice[] = [];
-    if (config.format === 'json' || config.file_per_slice) {
+    if (config.format === Format.json || config.file_per_slice) {
         slices.push({
             path: file.path,
             offset: 0,
@@ -49,11 +51,13 @@ export function segmentFile(file: {
         getOffsets(
             config.size,
             file.size,
-            config.line_delimiter
-        ).forEach((offset: any) => {
-            offset.path = file.path;
-            offset.total = file.size;
-            slices.push(offset);
+            getLineDelimiter(config)
+        ).forEach((offset) => {
+            slices.push({
+                ...offset,
+                path: file.path,
+                total: file.size,
+            });
         });
     }
 

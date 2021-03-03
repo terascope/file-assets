@@ -117,7 +117,7 @@ describe('file-fetcher', () => {
         };
 
         const results = await fetcher.read(slice);
-        const [headers, firsRecord] = results;
+        const [headers, firstRecord] = results;
 
         expect(results).toBeArrayOfSize(4);
         expect(headers).toEqual({
@@ -129,7 +129,7 @@ describe('file-fetcher', () => {
             data6: 'data6'
         });
 
-        expect(firsRecord).toEqual({
+        expect(firstRecord).toEqual({
             data1: '1',
             data2: '2',
             data3: '3',
@@ -161,11 +161,11 @@ describe('file-fetcher', () => {
         };
 
         const results = await fetcher.read(slice);
-        const [firsRecord] = results;
+        const [firstRecord] = results;
 
         expect(results).toBeArrayOfSize(3);
 
-        expect(firsRecord).toEqual({
+        expect(firstRecord).toEqual({
             data1: '1',
             data2: '2',
             data3: '3',
@@ -198,11 +198,11 @@ describe('file-fetcher', () => {
         };
 
         const results = await fetcher.read(slice);
-        const [firsRecord] = results;
+        const [firstRecord] = results;
 
         expect(results).toBeArrayOfSize(3);
 
-        expect(firsRecord).toEqual({
+        expect(firstRecord).toEqual({
             data1: '1',
             data2: '2',
             data3: '3',
@@ -233,10 +233,10 @@ describe('file-fetcher', () => {
         };
 
         const results = await fetcher.read(slice);
-        const [firsRecord] = results;
+        const [firstRecord] = results;
 
         expect(results).toBeArrayOfSize(5);
-        expect(firsRecord).toEqual({
+        expect(firstRecord).toEqual({
             data: 'the quick brown fox jumped over the lazy dog'
         });
     });

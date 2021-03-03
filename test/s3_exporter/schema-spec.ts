@@ -8,6 +8,7 @@ import {
     Logger,
     DataEncoding
 } from '@terascope/job-components';
+import { Format } from '@terascope/file-asset-apis';
 
 describe('S3 exporter Schema', () => {
     let harness: WorkerTestHarness;
@@ -34,7 +35,7 @@ describe('S3 exporter Schema', () => {
 
     async function makeTest(config: AnyObject, apiConfig?: APIConfig) {
         const opConfig = Object.assign(
-            { _op: 's3_exporter' },
+            { _op: 's3_exporter', format: Format.ldjson },
             config
         );
 
@@ -47,7 +48,12 @@ describe('S3 exporter Schema', () => {
             ],
         };
 
-        if (apiConfig) testJob!.apis!.push(apiConfig);
+        if (apiConfig) {
+            testJob!.apis!.push({
+                format: Format.ldjson,
+                ...apiConfig
+            });
+        }
 
         const job = newTestJobConfig(testJob);
 

@@ -1,6 +1,7 @@
 import 'jest-extended';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
 import { AnyObject } from '@terascope/job-components';
+import { Format } from '@terascope/file-asset-apis';
 import path from 'path';
 import { FileReaderFactoryAPI } from '../../asset/src/file_reader_api/interfaces';
 
@@ -15,7 +16,12 @@ describe('File Reader API', () => {
     });
 
     async function makeTest(config: AnyObject = {}) {
-        const opConfig = Object.assign({}, { _op: 'file_reader', path: testDataDir }, config);
+        const opConfig = {
+            _op: 'file_reader',
+            path: testDataDir,
+            format: Format.ldjson,
+            ...config
+        };
         const job = newTestJobConfig({
             operations: [
                 opConfig,

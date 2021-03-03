@@ -33,7 +33,7 @@ export class FileFetcher extends ChunkedFileReader {
         try {
             const buf = Buffer.alloc(2 * this.size);
             const { bytesRead } = await fse.read(fd, buf, 0, length, offset);
-            return this.decompress(buf.slice(0, bytesRead));
+            return this.compressor.decompress(buf.slice(0, bytesRead));
         } finally {
             fse.close(fd);
         }
