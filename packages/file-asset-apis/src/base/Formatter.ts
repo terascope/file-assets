@@ -24,8 +24,7 @@ function csvFunction(
     config: ChunkedFileSenderConfig,
     csvOptions: json2csv.Options<any>
 ) {
-    const lineDelimiter = getLineDelimiter(config);
-    return `${parse(slice, csvOptions)}${lineDelimiter}`;
+    return parse(slice, csvOptions);
 }
 
 const formatsFns: Record<Format, FormatFn> = {
@@ -33,17 +32,16 @@ const formatsFns: Record<Format, FormatFn> = {
     tsv: csvFunction,
     raw(slice, config) {
         const lineDelimiter = getLineDelimiter(config);
-        return `${slice.map((record: any) => record.data).join(lineDelimiter)}${lineDelimiter}`;
+        return slice.map((record: any) => record.data).join(lineDelimiter);
     },
     ldjson(slice, config) {
         const lineDelimiter = getLineDelimiter(config);
         const fields = getFieldsFromConfig(config);
-        return `${slice.map((record: any) => JSON.stringify(record, fields)).join(lineDelimiter)}${lineDelimiter}`;
+        return slice.map((record: any) => JSON.stringify(record, fields)).join(lineDelimiter);
     },
     json(slice, config) {
-        const lineDelimiter = getLineDelimiter(config);
         const fields = getFieldsFromConfig(config);
-        return `${JSON.stringify(slice, fields)}${lineDelimiter}`;
+        return JSON.stringify(slice, fields);
     }
 };
 
@@ -100,7 +98,10 @@ export class Formatter {
      * raw => writes raw data as is, requires the use of DataEntity raw data.
      */
     format(slice: any[]): string {
-        return this.fn(slice, this.config, this.csvOptions);
+        const lineDelimiter = getLineDelimiter(this.config);
+        const formatted = this.fn(slice, this.config, this.csvOptions);
+        if (!formatted.length) return '';
+        return formatted + lineDelimiter;
     }
 }
 

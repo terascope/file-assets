@@ -1,6 +1,7 @@
 import { DataEntity, isTest } from '@terascope/utils';
 import { Compressor } from './Compressor';
 import { Formatter } from './Formatter';
+import { Format, Compression } from '../interfaces';
 
 export interface Chunk {
     /**
@@ -40,6 +41,17 @@ export class ChunkGenerator {
         readonly compressor: Compressor,
         readonly slice: (Record<string, unknown>|DataEntity)[]
     ) {}
+
+    /**
+     * If the format is ldjson and compression is not on,
+     * the whole array of records won't have to be serialized
+     * at once and can be chunked per record to create the appropriate
+     * chunk size.
+    */
+    isRowOptimized(): boolean {
+        return this.formatter.type === Format.ldjson
+            && this.compressor.type === Compression.none;
+    }
 
     async* [Symbol.asyncIterator](): AsyncIterableIterator<Chunk> {
         if (!this.slice.length) return;
