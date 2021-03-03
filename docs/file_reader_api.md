@@ -276,41 +276,23 @@ results === [
 
 ```
 
-### makeFileSlicer (async)
-```(config: FileSliceConfig) => Promise<FileSlicer>```
+### makeSlicer (async)
+```() => Promise<FileSlice[]|null>```
 
-This function will generate a slicer which is the file_reader slicer core component. You can use this to generate slice chunks for your reader.
-
-parameters:
-- config: {
-    file_per_slice: please check [Parameters](#parameters) for more information,
-    format: used to determine how the data should be written to file,
-    size: how big each slice chunk should be,
-    line_delimiter: a delimiter applied between each record or slice,
-    path: the top level directory to search for files
-}
+This function will generate slice chunks for your reader.
 
 
 ```js
+const slicer = await api.makeSlicer();
 
-const config = {
-    file_per_slice: false,
-    format: 'ldjson',
-    size: 1000,
-    line_delimiter: '\n',
-    path: 'some/path'
-};
+const slice = await slicer();
 
-const slicer = await api.makeFileSlicer(config);
-
-const slice = await slicer.slice();
-
-slice ===  {
+slice ===  [{
       offset: 0,
       length: 1000,
       path: 'some/path',
       total: 1000
-}
+}]
 ```
 
 ## Parameters
@@ -325,7 +307,7 @@ slice ===  {
 | file_per_slice  | This setting determines if the output for a worker will be in a single file (`false`), or if the worker will create a new file for every slice it processes  (`true`). If set to `true`, an integer, starting at 0, will be appended to the filename and incremented by 1 for each slice a worker processes | Boolean  | optional, defaults to `true`. If using `json` format, this option will be overridden to `true`                                                        |
 | include_header  | Determines whether or not to include column headers for the fields in output files. If set to `true`, a header will be added as the first entry to every file created. This option is only used for `tsv` and `csv` formats                                                                                 | Boolean  | optional, defaults to `false`                                                                                                                         |
 | concurrency     | The represents the limit on how many parallel writes will occur at a given time                                                                                                                                                                                                                             | Number   | optional, defaults to `10`                                                                                                                            |
-| format          | Used to determine how the data should be written to file, options are: `json`, `ldjson`, `raw`, `csv`, `tsv`                                                                                                                                                                                                | String   | optional, defaults to `ldjson`, please reference the [format](#format) section for more information                                                   |
+| format          | Used to determine how the data should be written to file, options are: `json`, `ldjson`, `raw`, `csv`, `tsv`                                                                                                                                                                                                | String   | required, please reference the [format](#format) section for more information                                                                         |
 
 
 ## Advanced Configuration
