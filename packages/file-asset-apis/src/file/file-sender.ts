@@ -2,7 +2,7 @@ import type { RouteSenderAPI } from '@terascope/job-components';
 import { Logger } from '@terascope/utils';
 import fse from 'fs-extra';
 import { ChunkedFileSender, SendBatchConfig } from '../base';
-import { ChunkedFileSenderConfig, FileSenderType } from '../interfaces';
+import { ChunkedFileSenderConfig, FileSenderType, isCSVSenderConfig } from '../interfaces';
 
 export class FileSender extends ChunkedFileSender implements RouteSenderAPI {
     logger: Logger;
@@ -18,7 +18,22 @@ export class FileSender extends ChunkedFileSender implements RouteSenderAPI {
     protected async sendToDestination(
         { dest, chunkGenerator }: SendBatchConfig
     ): Promise<void> {
-        let fd:number|undefined;
+        let fd: number|undefined;
+
+        if (this.config.file_per_slice) {
+            // we need to move the file to avoid
+            // to avoid appending AND creating empty
+            // slice files
+            if (await fse.pathExists(dest)) {
+                await fse.unlink(dest);
+            }
+        } else if (isCSVSenderConfig(this.config) && this.config.include_header) {
+            // if the file already exists we should NOT include the header
+            // since it would include more than header every time you append
+            if (await fse.pathExists(dest)) {
+                chunkGenerator.formatter.csvOptions.header = false;
+            }
+        }
 
         try {
             for await (const chunk of chunkGenerator) {

@@ -20,8 +20,9 @@ export class HDFSSender extends ChunkedFileSender implements RouteSenderAPI {
 
     /**
      * This is a low level API, it is not meant to be used externally,
-     * please use the "send" method instead
+     * please use the "send" method instead.
      *
+     * @todo THIS PROBABLY NOT WORK and is missing some logic in the file sender
      */
     protected async sendToDestination(
         { dest, chunkGenerator }: SendBatchConfig
