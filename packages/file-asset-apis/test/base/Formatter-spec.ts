@@ -6,34 +6,28 @@ import {
 
 describe('Formatter', () => {
     it('incorrect format will throw', () => {
-        const format = 'something';
-        const config = {
-            format,
-            fields: [],
-            line_delimiter: '\n'
+        const config: ChunkedFileSenderConfig = {
+            id: 'foo',
+            path: 'foo',
+            format: 'something' as any,
         };
 
-        // @ts-expect-error
-        expect(() => new Formatter(format, config)).toThrow();
+        expect(() => new Formatter(config)).toThrowError(
+            'Unsupported output format "something"'
+        );
     });
 
     it('incorrect line_delimiter will throw', () => {
-        const format = Format.json;
-        const config = {
-            format,
-            fields: [],
+        const config: ChunkedFileSenderConfig = {
+            id: 'foo',
+            path: 'foo',
+            format: Format.json,
+            line_delimiter: 23423 as any,
         };
 
-        const config2 = {
-            format,
-            line_delimiter: 23423,
-            fields: [],
-        };
-
-        // @ts-expect-error
-        expect(() => new Formatter(format, config)).toThrow();
-        // @ts-expect-error
-        expect(() => new Formatter(format, config2)).toThrow();
+        expect(() => new Formatter(config)).toThrowError(
+            'Invalid parameter line_delimiter, it must be provided and be of type string, was given Number'
+        );
     });
 
     it('can format json data', () => {
