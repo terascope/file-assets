@@ -56,6 +56,69 @@ export class ChunkGenerator {
     async* [Symbol.asyncIterator](): AsyncIterableIterator<Chunk> {
         if (!this.slice.length) return;
 
+        if (this.isRowOptimized()) {
+            yield* this._chunkByRow();
+        } else {
+            yield* this._chunkAll();
+        }
+    }
+
+    private async* _chunkByRow(): AsyncIterableIterator<Chunk> {
+        const chunkSize = getBytes(ChunkGenerator.MAX_CHUNK_SIZE_BYTES);
+        let index = 0;
+
+        let buffers: Buffer[] = [];
+        let totalSize = 0;
+
+        for (const [formatted, has_more] of this.formatter.formatIterator(this.slice)) {
+            const buf = Buffer.from(formatted);
+            /**
+             * Since a row may push the chunk size over the limit,
+             * the overflow from the current row buffer needs to
+             * be deferred until the next iteration
+            */
+            const overflowBytes = (totalSize + buf.length) - chunkSize;
+            if (overflowBytes > 0) {
+                const limitedBuf = buf.subarray(0, buf.length - overflowBytes);
+                const overflowBuf = buf.subarray(
+                    buf.length - overflowBytes, buf.length
+                );
+
+                yield {
+                    index,
+                    has_more,
+                    data: Buffer.concat(buffers.concat(limitedBuf)),
+                };
+
+                index++;
+                totalSize = overflowBuf.length;
+                buffers = [overflowBuf];
+            } else if (overflowBytes === 0) {
+                yield {
+                    index,
+                    has_more,
+                    data: Buffer.concat(buffers.concat(buf)),
+                };
+
+                index++;
+                totalSize = 0;
+                buffers = [];
+            } else {
+                buffers.push(buf);
+                totalSize += buf.length;
+            }
+        }
+
+        if (buffers.length) {
+            yield {
+                index,
+                has_more: false,
+                data: Buffer.concat(buffers),
+            };
+        }
+    }
+
+    private async* _chunkAll(): AsyncIterableIterator<Chunk> {
         const formattedData = this.formatter.format(this.slice);
         const data = await this.compressor.compress(formattedData);
 
