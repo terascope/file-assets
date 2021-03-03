@@ -1,7 +1,7 @@
 import { isString } from '@terascope/utils';
 import path from 'path';
 import {
-    SliceConfig, FileSlice, Offsets, Format
+    SliceConfig, FileSlice, Offsets, Format, getLineDelimiter
 } from '../interfaces';
 
 /**
@@ -51,7 +51,7 @@ export function segmentFile(file: {
         getOffsets(
             config.size,
             file.size,
-            config.line_delimiter
+            getLineDelimiter(config)
         ).forEach((offset) => {
             slices.push({
                 ...offset,

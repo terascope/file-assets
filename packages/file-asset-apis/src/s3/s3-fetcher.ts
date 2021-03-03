@@ -8,7 +8,7 @@ export class S3Fetcher extends ChunkedFileReader {
     protected client: S3;
     protected readonly bucket: string;
 
-    constructor(client: S3, config: ReaderConfig, logger: Logger) {
+    constructor(client: S3, config: Omit<ReaderConfig, 'size'>, logger: Logger) {
         super(config, logger);
         const { path } = config;
         const { bucket } = parsePath(path);

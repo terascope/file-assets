@@ -16,13 +16,15 @@ import {
     SendRecords,
 } from '../interfaces';
 
+export type FormatterOptions = Omit<ChunkedFileSenderConfig, 'id'|'path'|'compression'|'file_per_slice'>;
+
 type FormatFn = (
-    slice: SendRecords, config: ChunkedFileSenderConfig, csvOptions: json2csv.Options<any>
+    slice: SendRecords, config: FormatterOptions, csvOptions: json2csv.Options<any>
 ) => string
 
 function csvFunction(
     slice: SendRecords,
-    config: ChunkedFileSenderConfig,
+    config: FormatterOptions,
     csvOptions: json2csv.Options<any>
 ) {
     return parse(slice, csvOptions);
@@ -56,10 +58,10 @@ const formatValues = Object.values(Format);
 
 export class Formatter {
     csvOptions: json2csv.Options<any>;
-    private config: ChunkedFileSenderConfig;
+    private config: FormatterOptions;
     private fn: FormatFn;
 
-    constructor(config: ChunkedFileSenderConfig) {
+    constructor(config: FormatterOptions) {
         this.validateConfig(config);
         this.config = { ...config };
         this.csvOptions = makeCSVOptions(config);
@@ -70,7 +72,7 @@ export class Formatter {
         return this.config.format;
     }
 
-    private validateConfig(config: ChunkedFileSenderConfig) {
+    private validateConfig(config: FormatterOptions) {
         const { line_delimiter, format } = config;
         if (!formatValues.includes(format)) {
             throw new TSError(`Unsupported output format "${format}"`);
@@ -131,7 +133,7 @@ export class Formatter {
     }
 }
 
-function makeCSVOptions(config: ChunkedFileSenderConfig): CSVOptions {
+function makeCSVOptions(config: FormatterOptions): CSVOptions {
     if (!isCSVSenderConfig(config)) return {};
 
     return {

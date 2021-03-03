@@ -17,8 +17,6 @@ describe('ChunkGenerator', () => {
             beforeAll(() => {
                 gen = new ChunkGenerator(
                     new Formatter({
-                        id: 'foo',
-                        path: 'foo',
                         format: Format.json,
                     }),
                     new Compressor(Compression.none),
@@ -37,8 +35,6 @@ describe('ChunkGenerator', () => {
             beforeAll(() => {
                 gen = new ChunkGenerator(
                     new Formatter({
-                        id: 'foo',
-                        path: 'foo',
                         format: Format.json,
                     }),
                     new Compressor(Compression.none),
@@ -70,8 +66,6 @@ describe('ChunkGenerator', () => {
 
                 gen = new ChunkGenerator(
                     new Formatter({
-                        id: 'foo',
-                        path: 'foo',
                         format: Format.json,
                     }),
                     new Compressor(Compression.none),
@@ -118,8 +112,6 @@ describe('ChunkGenerator', () => {
             beforeAll(() => {
                 gen = new ChunkGenerator(
                     new Formatter({
-                        id: 'foo',
-                        path: 'foo',
                         format: Format.csv,
                     }),
                     new Compressor(Compression.none),
@@ -139,8 +131,6 @@ describe('ChunkGenerator', () => {
             beforeAll(() => {
                 gen = new ChunkGenerator(
                     new Formatter({
-                        id: 'foo',
-                        path: 'foo',
                         format: Format.ldjson,
                     }),
                     new Compressor(Compression.lz4),
@@ -159,10 +149,7 @@ describe('ChunkGenerator', () => {
             beforeAll(() => {
                 gen = new ChunkGenerator(
                     new Formatter({
-                        id: 'foo',
-                        path: 'foo',
                         format: Format.ldjson,
-                        compression: Compression.lz4
                     }),
                     new Compressor(Compression.lz4),
                     input
@@ -196,8 +183,6 @@ describe('ChunkGenerator', () => {
 
                 gen = new ChunkGenerator(
                     new Formatter({
-                        id: 'foo',
-                        path: 'foo',
                         format: Format.ldjson,
                     }),
                     new Compressor(Compression.lz4),
@@ -240,8 +225,6 @@ describe('ChunkGenerator', () => {
             beforeAll(() => {
                 gen = new ChunkGenerator(
                     new Formatter({
-                        id: 'foo',
-                        path: 'foo',
                         format: Format.ldjson,
                     }),
                     new Compressor(Compression.none),
@@ -260,10 +243,7 @@ describe('ChunkGenerator', () => {
             beforeAll(() => {
                 gen = new ChunkGenerator(
                     new Formatter({
-                        id: 'foo',
-                        path: 'foo',
                         format: Format.ldjson,
-                        compression: Compression.none
                     }),
                     new Compressor(Compression.none),
                     input
@@ -297,8 +277,6 @@ describe('ChunkGenerator', () => {
 
                 gen = new ChunkGenerator(
                     new Formatter({
-                        id: 'foo',
-                        path: 'foo',
                         format: Format.ldjson,
                     }),
                     new Compressor(Compression.none),

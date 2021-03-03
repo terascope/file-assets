@@ -166,7 +166,7 @@ export interface JSONSenderConfig extends ChunkedFileSenderConfig {
      * List of fields to process, will default to all of them
      * @default []
      */
-    fields: string[];
+    fields?: string[];
 }
 
 export function isJSONSenderConfig(config: ChunkedFileReaderConfig): config is JSONSenderConfig {
@@ -256,10 +256,25 @@ export interface FileSlice extends Offsets {
 }
 
 export interface SliceConfig {
-    file_per_slice: boolean;
+    /**
+     * The format of the file that will be read
+    */
     format: Format;
+
+    /**
+     * The number of bytes to read per slice
+    */
     size: number;
-    line_delimiter: string;
+
+    /**
+     * Determines if a new file is created for each slice.
+    */
+    file_per_slice?: boolean;
+
+    /**
+     * Optionally override the line delimiter
+    */
+    line_delimiter?: string;
 }
 
 export interface FileSliceConfig extends SliceConfig {
