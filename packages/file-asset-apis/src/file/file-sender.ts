@@ -18,17 +18,20 @@ export class FileSender extends ChunkedFileSender implements RouteSenderAPI {
     protected async sendToDestination(
         { dest, chunkGenerator }: SendBatchConfig
     ): Promise<void> {
-        // eslint-disable-next-line no-bitwise
-        const fd = await fse.open(dest, fse.constants.O_CREAT | fse.constants.O_WRONLY);
-        let position = 0;
+        let fd:number|undefined;
 
         try {
             for await (const chunk of chunkGenerator) {
-                await fse.write(fd, chunk.data, 0, chunk.data.length, position);
-                position += chunk.data.length;
+                // we can't create the file descriptor unless
+                // there are chunks, since calling open will create
+                // the file for empty slices
+                if (fd == null) {
+                    fd = await fse.open(dest, 'a');
+                }
+                await fse.appendFile(fd, chunk.data);
             }
         } finally {
-            await fse.close(fd);
+            if (fd != null) await fse.close(fd);
         }
     }
 
