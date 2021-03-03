@@ -1,6 +1,7 @@
-import { isNumber } from '@terascope/job-components';
+import { isNumber, joinList } from '@terascope/job-components';
 import { Compression, Format } from '@terascope/file-asset-apis';
 
+const formats = Object.values(Format);
 const readerSchema = {
     size: {
         doc: 'Determines the size of the slice in bytes',
@@ -76,10 +77,9 @@ export const commonSchema = {
         format: Boolean
     },
     format: {
-        doc: 'Format of the target object. Currently supports "json", "ldjson", "raw", "tsv", and'
-            + ' "csv".',
-        default: Format.ldjson,
-        format: Object.keys(Format)
+        doc: `Format of the target object. Currently supports ${joinList(formats)}.`,
+        default: null,
+        format: formats,
     },
     concurrency: {
         doc: 'the number of in flight actions',
