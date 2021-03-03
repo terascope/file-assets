@@ -301,33 +301,11 @@ describe('ChunkedSlicer', () => {
         });
     });
 
-    // it('can prepare a segment for sending', async () => {
-    //     const test = new Test(FileSenderType.s3, makeConfig(
-    //         Format.ldjson, { file_per_slice: true }
-    //     ));
-    //     const records = [
-    //         DataEntity.make({ some: 'data' }),
-    //         DataEntity.make({ other: 'stuff' }),
-    //     ];
-    //     test.incrementCount();
-
-    //     const results = await test.prepareSegment(path, records);
-
-    //     expect(results).toBeDefined();
-    //     expect(results.fileName).toBeDefined();
-    //     expect(results.output).toBeDefined();
-
-    //     expect(results.fileName).toEqual(`${path}/${workerId}.0.ldjson`);
-    //     expect(results.output?.toString()).toEqual('{"some":"data"}\n{"other":"stuff"}\n');
-    // });
-
-    it('can respect file destination using send and field_per_slice false', async () => {
+    it('can respect file destination using send and field_per_slice true', async () => {
         const test = new Test(
             FileSenderType.s3,
             makeConfig(Format.ldjson, {
                 file_per_slice: true,
-                compression: Compression.none,
-                extension: '.ldjson'
             })
         );
 

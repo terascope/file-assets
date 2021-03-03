@@ -162,19 +162,15 @@ describe('S3 Sender API', () => {
         expect(JSON.parse(fetchedDataRoute2)).toMatchObject({ other: 'data' });
     });
 
-    it('can send large ldjson, lz4 compressed data to s3 (multipart)', async () => {
+    it('can send large ldjson, not compressed data to s3 (multipart)', async () => {
         const data = times(30_000, (index) => ({
             count: 'foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo',
             id: index,
             obj: { foo: 'bar' }
         }));
 
-        const expectedResults = `${data.map((obj) => JSON.stringify(obj)).join('\n')}\n`;
-
-        expect(expectedResults.length).toBeGreaterThan(ChunkGenerator.MIN_CHUNK_SIZE_BYTES);
-
         const format = Format.ldjson;
-        const compression = Compression.lz4;
+        const compression = Compression.none;
         const compressor = new Compressor(compression);
 
         const config: ChunkedFileSenderConfig = {
@@ -190,7 +186,7 @@ describe('S3 Sender API', () => {
 
         await sender.send(data);
 
-        const key = `testing/${id}.0.${format}.lz4`;
+        const key = `testing/${id}.0.${format}`;
 
         const dbData = await getS3Object(client, {
             Bucket: bucket,
@@ -200,6 +196,9 @@ describe('S3 Sender API', () => {
         const fetchedData = await compressor.decompress(
             getBodyFromResults(dbData)
         );
+
+        const expectedResults = `${data.map((obj) => JSON.stringify(obj)).join('\n')}\n`;
         expect(fetchedData).toEqual(expectedResults);
+        expect(expectedResults.length).toBeGreaterThan(ChunkGenerator.MIN_CHUNK_SIZE_BYTES);
     });
 });
