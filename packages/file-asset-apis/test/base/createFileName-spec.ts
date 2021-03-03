@@ -60,6 +60,34 @@ describe('createFileName', () => {
         expect(fileName).toEqual(`${baseFileName}.csv`);
     });
 
+    it('can overwrite the extension for the file', () => {
+        const config: NameOptions = {
+            format: Format.csv,
+            compression: Compression.none,
+            filePerSlice: false,
+            id,
+            extension: 'foo'
+        };
+
+        const fileName = createFileName(testFile, config);
+
+        expect(fileName).toEqual(`${baseFileName}.foo`);
+    });
+
+    it('can overwrite set the extension to nothing', () => {
+        const config: NameOptions = {
+            format: Format.csv,
+            compression: Compression.lz4,
+            filePerSlice: false,
+            id,
+            extension: ''
+        };
+
+        const fileName = createFileName(testFile, config);
+
+        expect(fileName).toEqual(`${baseFileName}`);
+    });
+
     it('can make a raw file (no modifiers are given)', () => {
         const config: NameOptions = {
             format: Format.raw,
