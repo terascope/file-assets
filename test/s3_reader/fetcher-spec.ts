@@ -54,7 +54,8 @@ describe('S3Reader fetcher', () => {
                 size: 100000,
                 field_delimiter: ',',
                 line_delimiter: '\n',
-                compression: 'none'
+                compression: 'none',
+                format: Format.ldjson
             },
             config
         );
