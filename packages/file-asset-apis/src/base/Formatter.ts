@@ -87,6 +87,30 @@ export class Formatter {
     }
 
     /**
+     * Some formats, like ldjson and csv can be parsed by row,
+     * so this function returns an iterator to format instead
+     * of doing it all at once which can potentially throw invalid
+     * string or buffer length errors
+    */
+    * formatIterator(slice: any[]): IterableIterator<string> {
+        let firstSlice = true;
+        for (const row of slice) {
+            const lineDelimiter = getLineDelimiter(this.config);
+            const formatted = this.fn([row], this.config, {
+                ...this.csvOptions,
+                header: this.csvOptions.header && firstSlice,
+            });
+            firstSlice = false;
+
+            if (formatted.length) {
+                yield formatted + lineDelimiter;
+            } else {
+                yield formatted;
+            }
+        }
+    }
+
+    /**
      * Formats data based on configuration
      *
      * json => will stringify the whole array

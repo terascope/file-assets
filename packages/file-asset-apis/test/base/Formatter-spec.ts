@@ -39,10 +39,10 @@ describe('Formatter', () => {
             line_delimiter: '\n',
         };
         const data = [{ some: 'stuff' }, { other: 'things' }];
-
+        const expectedResults = `${JSON.stringify(data)}${config.line_delimiter}`;
         const formatter = new Formatter(config);
 
-        expect(formatter.format(data)).toEqual(`${JSON.stringify(data)}${config.line_delimiter}`);
+        expectFormatResult(formatter, data, expectedResults);
     });
 
     it('can format raw data', () => {
@@ -56,7 +56,7 @@ describe('Formatter', () => {
 
         const formatter = new Formatter(config);
 
-        expect(formatter.format(data)).toEqual('stuff\tthings\t');
+        expectFormatResult(formatter, data, 'stuff\tthings\t');
     });
 
     it('can format tsv data', () => {
@@ -71,7 +71,7 @@ describe('Formatter', () => {
 
         const formatter = new Formatter(config);
 
-        expect(formatter.format(data)).toEqual('"stuff"\t"things"\n');
+        expectFormatResult(formatter, data, '"stuff"\t"things"\n');
     });
 
     it('can format csv data', () => {
@@ -88,7 +88,7 @@ describe('Formatter', () => {
 
         const formatter = new Formatter(config);
 
-        expect(formatter.format(data)).toEqual('"stuff","things"\n');
+        expectFormatResult(formatter, data, '"stuff","things"\n');
     });
 
     it('can format ldjson data', () => {
@@ -104,7 +104,18 @@ describe('Formatter', () => {
 
         const formatter = new Formatter(config);
 
-        expect(formatter.format(data)).toEqual(`${expectedData}\n`);
+        expectFormatResult(formatter, data, `${expectedData}\n`);
+    });
+
+    it('can format ldjson data with an empty slice', () => {
+        const config: LDJSONSenderConfig = {
+            id: 'foo',
+            path: 'foo',
+            format: Format.ldjson,
+        };
+
+        const formatter = new Formatter(config);
+        expectFormatResult(formatter, [], '');
     });
 
     describe('fields parameter', () => {
@@ -122,7 +133,52 @@ describe('Formatter', () => {
 
             const formatter = new Formatter(config);
 
-            expect(formatter.format(data)).toEqual(`"stuff"${'\n'}"person"${'\n'}`);
+            expectFormatResult(
+                formatter,
+                data,
+                '"stuff"\n"person"\n'
+            );
+        });
+
+        it('should return an empty string if given an empty row', async () => {
+            const config: CSVSenderConfig = {
+                id: 'foo',
+                path: 'foo',
+                format: Format.csv,
+                line_delimiter: '\n',
+                include_header: false,
+                field_delimiter: ','
+            };
+            const data = [{}];
+
+            const formatter = new Formatter(config);
+
+            expectFormatResult(
+                formatter,
+                data,
+                ''
+            );
+        });
+
+        it('can restrict csv output with header', async () => {
+            const config: CSVSenderConfig = {
+                id: 'foo',
+                path: 'foo',
+                format: Format.csv,
+                fields: ['some'],
+                line_delimiter: '\n',
+                include_header: true,
+                field_delimiter: ','
+            };
+            const data = [{ some: 'stuff', other: 'things' }, { some: 'person', key: 'field' }];
+
+            const formatter = new Formatter(config);
+
+            expectFormatResult(
+                formatter,
+                data,
+                '"some"\n"stuff"\n"person"\n'
+            );
         });
 
         it('can restrict tsv output', async () => {
@@ -139,7 +195,11 @@ describe('Formatter', () => {
 
             const formatter = new Formatter(config);
 
-            expect(formatter.format(data)).toEqual(`"stuff"${'\n'}"person"${'\n'}`);
+            expectFormatResult(
+                formatter,
+                data,
+                '"stuff"\n"person"\n'
+            );
         });
 
         it('can restrict json output', async () => {
@@ -153,7 +213,11 @@ describe('Formatter', () => {
 
             const formatter = new Formatter(config);
 
-            expect(formatter.format(data)).toEqual(`[{"some":"stuff"},{"some":"person"}]${'\n'}`);
+            expectFormatResult(
+                formatter,
+                data,
+                '[{"some":"stuff"},{"some":"person"}]\n'
+            );
         });
 
         it('can restrict ldjson output', async () => {
@@ -168,7 +232,26 @@ describe('Formatter', () => {
 
             const formatter = new Formatter(config);
 
-            expect(formatter.format(data)).toEqual(`{"some":"stuff"}${'\n'}{"some":"person"}${'\n'}`);
+            expectFormatResult(
+                formatter,
+                data,
+                '{"some":"stuff"}\n{"some":"person"}\n'
+            );
         });
     });
 });
+
+function expectFormatResult(
+    formatter: Formatter,
+    input: any[],
+    expected: string
+): void {
+    expect(formatter.format(input)).toEqual(expected);
+
+    if (formatter.type === Format.ldjson
+        || formatter.type === Format.tsv
+        || formatter.type === Format.csv) {
+        const output = [...formatter.formatIterator(input)].join('');
+        expect(output).toEqual(expected);
+    }
+}
