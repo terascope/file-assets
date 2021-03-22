@@ -29,7 +29,7 @@
         "@terascope/file-asset-apis": "^0.4.0",
         "@terascope/job-components": "^0.48.0",
         "@types/fs-extra": "^9.0.8",
-        "@types/jest": "^26.0.19",
+        "@types/jest": "^26.0.21",
         "@types/json2csv": "^5.0.1",
         "@types/node": "^14.14.16",
         "@types/node-gzip": "^1.1.0",
