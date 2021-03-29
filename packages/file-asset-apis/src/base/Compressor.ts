@@ -1,6 +1,6 @@
 import { gzip, ungzip } from 'node-gzip';
 // @ts-expect-error
-import lz4init from 'lz4-asm';
+import lz4init from 'lz4-asm/dist/lz4asm';
 import { Compression } from '../interfaces';
 
 const lz4Module = {};
