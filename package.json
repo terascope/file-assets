@@ -17,6 +17,7 @@
         "build:watch": "tsc --build --watch",
         "lint": "eslint --ignore-path .gitignore --ext .js,.ts .",
         "lint:fix": "yarn lint --fix",
+        "setup": "yarn && yarn build --force",
         "test": "jest",
         "test:all": "yarn workspaces run test",
         "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
