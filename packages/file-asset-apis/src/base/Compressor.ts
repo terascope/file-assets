@@ -1,15 +1,10 @@
 import { gzip, ungzip } from 'node-gzip';
-// @ts-expect-error
-import lz4init from 'lz4-asm/dist/lz4asm';
 import { Compression } from '../interfaces';
-
-const lz4Module = {};
-const lz4Ready = lz4init(lz4Module);
+import { getLZ4 } from './lz4';
 
 async function lz4Compress(data: Buffer|string): Promise<Buffer> {
-    const { lz4js } = await lz4Ready;
-
-    return lz4js.compress(
+    const { compress } = await getLZ4();
+    return compress(
         Buffer.isBuffer(data)
             ? data
             : Buffer.from(data)
@@ -27,8 +22,8 @@ async function noneCompress(data: Buffer|string): Promise<Buffer> {
 }
 
 async function lz4Decompress(data: Buffer|string): Promise<string> {
-    const { lz4js } = await lz4Ready;
-    const buf = lz4js.decompress(data);
+    const { decompress } = await getLZ4();
+    const buf = decompress(data);
     return buf.toString();
 }
 

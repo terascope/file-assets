@@ -5,3 +5,4 @@ export * from './Compressor';
 export * from './Formatter';
 export * from './createFileName';
 export * from './slice';
+export * from './lz4';
