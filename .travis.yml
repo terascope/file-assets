@@ -2,8 +2,8 @@
 dist: bionic
 language: node_js
 node_js:
-  - "10.19"
-  - "12.20"
+  - '12.22'
+  - '14.17'
 os:
   - linux
   - osx
@@ -31,7 +31,9 @@ script:
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 before_deploy:
+  - teraslice-cli -v
   - teraslice-cli assets build
+  - teraslice-cli assets build --bundle
   - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
 deploy:
   - provider: script
