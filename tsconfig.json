@@ -4,7 +4,7 @@
         "outDir": "dist",
         "module": "commonjs",
         "moduleResolution": "node",
-        "target": "es2020",
+        "target": "es2019",
         "skipLibCheck": true,
         "experimentalDecorators": true,
         "strict": true,
