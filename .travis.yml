@@ -27,13 +27,12 @@ before_script:
 script:
   - yarn test:all
   - yarn lint
-  - teraslice-cli assets build
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
-before_deploy:
   - teraslice-cli -v
   - teraslice-cli assets build
   - teraslice-cli assets build --bundle
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+before_deploy:
   - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
 deploy:
   - provider: script
