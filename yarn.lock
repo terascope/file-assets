@@ -654,6 +654,11 @@
   resolved "https://registry.yarnpkg.com/@terascope/types/-/types-0.8.0.tgz#ad93c634e2741055848063a124e41ec51f563b12"
   integrity sha512-S/gU8pwdE23kbJ5vSG5NxcxdZMYBu2T7weDZxccQwcPvH2KcmqnZ5DK161k8iqc0c3oUaOgsgm5l3oBc0qq6EQ==
 
+"@terascope/types@^0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@terascope/types/-/types-0.9.0.tgz#567e7deb1a9b620deab7507ad5d8fb27182eb101"
+  integrity sha512-HGI6cPUHKEdbNOkMYNFjbNmcLE9d03yKbuiha6IO0L5koHXxV5u99uUiDa6U1Q6dQy2s750W2yoBrXmZYBqyiw==
+
 "@terascope/utils@^0.37.0":
   version "0.37.0"
   resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.37.0.tgz#2747ee019646fbb976e68a99ce15e6806e41175b"
@@ -666,6 +671,22 @@
     kind-of "^6.0.3"
     latlon-geohash "^1.1.0"
     lodash "^4.17.21"
+    p-map "^4.0.0"
+    shallow-clone "^3.0.1"
+
+"@terascope/utils@^0.39.0":
+  version "0.39.0"
+  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.39.0.tgz#c0fd44ea3d4b125681276a16aa81b38ad866f6f4"
+  integrity sha512-PFCvsPxblBwqVuE1Ws0weako+O5pNAI7aaWsyG1PE+rKOcjlBkH7+/CWNnuftnjuuv9ZCjpm8keC7fjjevIyAA==
+  dependencies:
+    "@terascope/types" "^0.9.0"
+    debug "^4.3.1"
+    is-plain-object "^5.0.0"
+    js-string-escape "^1.0.1"
+    kind-of "^6.0.3"
+    latlon-geohash "^1.1.0"
+    lodash "^4.17.21"
+    mnemonist "^0.38.3"
     p-map "^4.0.0"
     shallow-clone "^3.0.1"
 
@@ -4196,6 +4217,13 @@ mkdirp@1.x:
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
+mnemonist@^0.38.3:
+  version "0.38.3"
+  resolved "https://registry.yarnpkg.com/mnemonist/-/mnemonist-0.38.3.tgz#35ec79c1c1f4357cfda2fe264659c2775ccd7d9d"
+  integrity sha512-2K9QYubXx/NAjv4VLq1d1Ly8pWNC5L3BrixtdkyTegXWJIqY+zLNDhhX/A+ZwWt70tB1S8H4BE8FLYEFyNoOBw==
+  dependencies:
+    obliterator "^1.6.1"
+
 moment@2.22.2:
   version "2.22.2"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.22.2.tgz#3c257f9839fc0e93ff53149632239eb90783ff66"
@@ -4413,6 +4441,11 @@ object.values@^1.1.1, object.values@^1.1.3:
     define-properties "^1.1.3"
     es-abstract "^1.18.0-next.2"
     has "^1.0.3"
+
+obliterator@^1.6.1:
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/obliterator/-/obliterator-1.6.1.tgz#dea03e8ab821f6c4d96a299e17aef6a3af994ef3"
+  integrity sha512-9WXswnqINnnhOG/5SLimUlzuU1hFJUc8zkwyD59Sd+dPOMf05PmnYG/d6Q7HZ+KmgkZJa1PxRso6QdM3sTNHig==
 
 once@^1.3.0, once@^1.3.1, once@^1.4.0:
   version "1.4.0"
