@@ -34,8 +34,8 @@
     "devDependencies": {
         "@terascope/job-components": "^0.51.0",
         "@types/jest": "^26.0.23",
-        "aws-sdk": "^2.909.0",
-        "jest": "^26.6.3",
+        "aws-sdk": "^2.923.0",
+        "jest": "^27.0.4",
         "jest-extended": "^0.11.5",
         "jest-fixtures": "^0.6.0",
         "ts-jest": "^27.0.3"
