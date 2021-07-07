@@ -1,12 +1,15 @@
 import 'jest-extended';
-import { WorkerTestHarness } from 'teraslice-test-harness';
-import { DataEntity } from '@terascope/job-components';
+import {WorkerTestHarness} from 'teraslice-test-harness';
+import {DataEntity} from '@terascope/job-components';
 import path from 'path';
 import fs from 'fs';
-import { remove, ensureDir } from 'fs-extra';
+import {remove, ensureDir} from 'fs-extra';
 import {
     Format, ChunkedFileSenderConfig, CSVSenderConfig, LDJSONSenderConfig, JSONSenderConfig
 } from '@terascope/file-asset-apis';
+
+// Increase the timeout for this test
+jest.setTimeout(15_000);
 
 function getTestFilePath(filename?: string) {
     if (filename) return path.join(__dirname, 'test_output/test', filename);
@@ -83,9 +86,9 @@ describe('File exporter processor', () => {
         ];
 
         data2 = [
-            DataEntity.make({ data: 'record1' }),
-            DataEntity.make({ data: 'record2' }),
-            DataEntity.make({ data: 'record3' })
+            DataEntity.make({data: 'record1'}),
+            DataEntity.make({data: 'record2'}),
+            DataEntity.make({data: 'record3'})
         ];
 
         data3 = [DataEntity.make(
@@ -124,13 +127,13 @@ describe('File exporter processor', () => {
                     field1: 'first',
 
                 },
-                { 'standard:route': metaRoute1 }
+                {'standard:route': metaRoute1}
             ),
             DataEntity.make(
                 {
                     field1: 'second',
                 },
-                { 'standard:route': metaRoute2 }
+                {'standard:route': metaRoute2}
             )
         ];
 
@@ -166,7 +169,7 @@ describe('File exporter processor', () => {
     });
 
     it('creates multiple CSV files with all fields', async () => {
-        const config: Partial<CSVSenderConfig> = { fields: [] };
+        const config: Partial<CSVSenderConfig> = {fields: []};
         const test = await makeTest(config);
 
         await test.runSlice(data);
@@ -182,7 +185,7 @@ describe('File exporter processor', () => {
     });
 
     it('creates multiple CSV files with all fields and headers', async () => {
-        const config: Partial<CSVSenderConfig> = { fields: [], include_header: true };
+        const config: Partial<CSVSenderConfig> = {fields: [], include_header: true};
         const test = await makeTest(config);
 
         await test.runSlice(data);
@@ -204,7 +207,7 @@ describe('File exporter processor', () => {
     });
 
     it('creates a single csv file with custom fields', async () => {
-        const config: Partial<CSVSenderConfig> = { fields: ['field3', 'field1'], include_header: false, file_per_slice: false };
+        const config: Partial<CSVSenderConfig> = {fields: ['field3', 'field1'], include_header: false, file_per_slice: false};
         const test = await makeTest(config);
 
         await test.runSlice(data);
@@ -222,7 +225,7 @@ describe('File exporter processor', () => {
     });
 
     it('creates a single csv file with custom complex fields', async () => {
-        const config: Partial<CSVSenderConfig> = { fields: ['field2', 'field1'], include_header: false, file_per_slice: false };
+        const config: Partial<CSVSenderConfig> = {fields: ['field2', 'field1'], include_header: false, file_per_slice: false};
         const test = await makeTest(config);
 
         await test.runSlice(complexData);
