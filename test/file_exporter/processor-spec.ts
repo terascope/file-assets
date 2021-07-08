@@ -8,6 +8,9 @@ import {
     Format, ChunkedFileSenderConfig, CSVSenderConfig, LDJSONSenderConfig, JSONSenderConfig
 } from '@terascope/file-asset-apis';
 
+// Increase the timeout for this test
+jest.setTimeout(15_000);
+
 function getTestFilePath(filename?: string) {
     if (filename) return path.join(__dirname, 'test_output/test', filename);
     return path.join(__dirname, 'test_output/test');
