@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, debugLogger } from '@terascope/utils';
 import {
     FileSenderType,
     ChunkedFileSenderConfig,
@@ -12,6 +12,8 @@ import {
 describe('ChunkedSlicer', () => {
     const path = 'some/path';
     const workerId = '1234';
+
+    const logger = debugLogger(__filename);
 
     class Test extends ChunkedFileSender {
         sentData = new Map();
@@ -58,7 +60,7 @@ describe('ChunkedSlicer', () => {
     it('will throw if file_per_slice is false if its a file type and format is JSON', () => {
         const errMsg = 'Invalid parameter "file_per_slice", it must be set to true if format is set to json';
         expect(
-            () => new Test(FileSenderType.file, makeConfig(Format.json))
+            () => new Test(FileSenderType.file, makeConfig(Format.json), logger)
         ).toThrowError(errMsg);
     });
 
@@ -66,34 +68,34 @@ describe('ChunkedSlicer', () => {
         const errMsg = 'Invalid parameter "file_per_slice", it must be set to true if compression is set to anything other than "none" as we cannot properly divide up a compressed file';
         expect(() => {
             const config = makeConfig(Format.ldjson, { compression: Compression.gzip });
-            new Test(FileSenderType.file, config);
+            new Test(FileSenderType.file, config, logger);
         }).toThrowError(errMsg);
 
         expect(() => {
             const config = makeConfig(Format.ldjson, { compression: Compression.lz4 });
-            new Test(FileSenderType.file, config);
+            new Test(FileSenderType.file, config, logger);
         }).toThrowError(errMsg);
 
         const test3 = new Test(FileSenderType.file, makeConfig(
             Format.ldjson, { compression: Compression.none }
-        ));
+        ), logger);
         expect(test3.nameOptions.filePerSlice).toBeFalse();
     });
 
     it('can check its a router is being used', () => {
         const test = new Test(FileSenderType.file, makeConfig(
             Format.ldjson, { dynamic_routing: true }
-        ));
+        ), logger);
         expect(test.isRouter).toBeTrue();
 
         const test2 = new Test(FileSenderType.file, makeConfig(
             Format.ldjson
-        ));
+        ), logger);
         expect(test2.isRouter).toBeFalse();
     });
 
     it('can prepare a dispatch with no routing', async () => {
-        const test = new Test(FileSenderType.file, makeConfig(Format.ldjson));
+        const test = new Test(FileSenderType.file, makeConfig(Format.ldjson), logger);
         const data = [
             DataEntity.make({ name: 'chilly' }),
             DataEntity.make({ name: 'willy' }, { 'standard:route': 'a' }),
@@ -113,7 +115,7 @@ describe('ChunkedSlicer', () => {
     it('can prepare a dispatch with routing', async () => {
         const test = new Test(FileSenderType.file, makeConfig(
             Format.ldjson, { dynamic_routing: true }
-        ));
+        ), logger);
         const data = [
             DataEntity.make({ name: 'chilly' }),
             DataEntity.make({ name: 'willy' }, { 'standard:route': 'a' }),
@@ -140,7 +142,7 @@ describe('ChunkedSlicer', () => {
     });
 
     it('can make a new route path', () => {
-        const test = new Test(FileSenderType.file, makeConfig(Format.ldjson));
+        const test = new Test(FileSenderType.file, makeConfig(Format.ldjson), logger);
 
         expect(test.testJoinPath()).toEqual(path);
         expect(test.testJoinPath(path)).toEqual(path);
@@ -149,7 +151,7 @@ describe('ChunkedSlicer', () => {
 
     describe('file destination names', () => {
         it('can make correct base paths', async () => {
-            const test = new Test(FileSenderType.file, makeConfig(Format.ldjson));
+            const test = new Test(FileSenderType.file, makeConfig(Format.ldjson), logger);
 
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.ldjson`);
             expect(test.verifyCalled).toEqual(true);
@@ -157,7 +159,7 @@ describe('ChunkedSlicer', () => {
 
         it('can make correct path', async () => {
             const newPath = `${path}/final/dir`;
-            const test = new Test(FileSenderType.file, makeConfig(Format.ldjson));
+            const test = new Test(FileSenderType.file, makeConfig(Format.ldjson), logger);
 
             expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}.ldjson`);
             expect(test.verifyCalled).toEqual(true);
@@ -166,14 +168,14 @@ describe('ChunkedSlicer', () => {
         it('can add extensions', async () => {
             const test = new Test(FileSenderType.file, makeConfig(
                 Format.ldjson, { extension: 'stuff' }
-            ));
+            ), logger);
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.stuff`);
         });
 
         it('can add slice count', async () => {
             const test = new Test(FileSenderType.file, makeConfig(
                 Format.ldjson, { file_per_slice: true }
-            ));
+            ), logger);
             // @ts-expect-error
             test.incrementCount();
 
@@ -187,7 +189,7 @@ describe('ChunkedSlicer', () => {
         it('can add extensions and file_per_slice', async () => {
             const test = new Test(FileSenderType.file, makeConfig(
                 Format.ldjson, { file_per_slice: true, extension: 'stuff' }
-            ));
+            ), logger);
             // @ts-expect-error
             test.incrementCount();
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0.stuff`);
@@ -196,7 +198,8 @@ describe('ChunkedSlicer', () => {
         it('can respect compression and other formats', async () => {
             const test = new Test(
                 FileSenderType.file,
-                makeConfig(Format.ldjson, { compression: Compression.lz4, file_per_slice: true })
+                makeConfig(Format.ldjson, { compression: Compression.lz4, file_per_slice: true }),
+                logger
             );
             // @ts-expect-error
             test.incrementCount();
@@ -207,7 +210,8 @@ describe('ChunkedSlicer', () => {
                 makeConfig(Format.csv, {
                     compression: Compression.gzip,
                     file_per_slice: true
-                })
+                }),
+                logger
             );
             // @ts-expect-error
             test2.incrementCount();
@@ -218,7 +222,8 @@ describe('ChunkedSlicer', () => {
                 makeConfig(Format.json, {
                     compression: Compression.none,
                     file_per_slice: true
-                })
+                }),
+                logger
             );
             // @ts-expect-error
             test3.incrementCount();
@@ -228,7 +233,7 @@ describe('ChunkedSlicer', () => {
 
     describe('hdfs destination names', () => {
         it('can make correct base paths', async () => {
-            const test = new Test(FileSenderType.hdfs, makeConfig(Format.ldjson));
+            const test = new Test(FileSenderType.hdfs, makeConfig(Format.ldjson), logger);
 
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.ldjson`);
             expect(test.verifyCalled).toEqual(true);
@@ -236,7 +241,7 @@ describe('ChunkedSlicer', () => {
 
         it('can make correct path', async () => {
             const newPath = `${path}/final/dir`;
-            const test = new Test(FileSenderType.hdfs, makeConfig(Format.ldjson));
+            const test = new Test(FileSenderType.hdfs, makeConfig(Format.ldjson), logger);
 
             expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}.ldjson`);
             expect(test.verifyCalled).toEqual(true);
@@ -245,7 +250,7 @@ describe('ChunkedSlicer', () => {
         it('can add extensions', async () => {
             const test = new Test(FileSenderType.hdfs, makeConfig(
                 Format.ldjson, { extension: 'stuff' }
-            ));
+            ), logger);
 
             expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.stuff`);
         });
@@ -253,7 +258,7 @@ describe('ChunkedSlicer', () => {
         it('can add slice count', async () => {
             const test = new Test(FileSenderType.hdfs, makeConfig(
                 Format.ldjson, { file_per_slice: true }
-            ));
+            ), logger);
 
             // @ts-expect-error
             test.incrementCount();
@@ -270,7 +275,7 @@ describe('ChunkedSlicer', () => {
         it('can make correct base paths', async () => {
             const test = new Test(FileSenderType.s3, makeConfig(
                 Format.ldjson, { file_per_slice: true }
-            ));
+            ), logger);
             // @ts-expect-error
             test.incrementCount();
 
@@ -282,7 +287,7 @@ describe('ChunkedSlicer', () => {
             const newPath = `${path}/final/dir`;
             const test = new Test(FileSenderType.s3, makeConfig(
                 Format.ldjson, { file_per_slice: true }
-            ));
+            ), logger);
             // @ts-expect-error
             test.incrementCount();
 
@@ -293,7 +298,7 @@ describe('ChunkedSlicer', () => {
         it('can add extensions', async () => {
             const test = new Test(FileSenderType.s3, makeConfig(
                 Format.ldjson, { extension: 'stuff', file_per_slice: true }
-            ));
+            ), logger);
             // @ts-expect-error
             test.incrementCount();
 
@@ -306,7 +311,8 @@ describe('ChunkedSlicer', () => {
             FileSenderType.s3,
             makeConfig(Format.ldjson, {
                 file_per_slice: true,
-            })
+            }),
+            logger
         );
 
         const data = [{ some: 'data' }, { other: 'data' }];

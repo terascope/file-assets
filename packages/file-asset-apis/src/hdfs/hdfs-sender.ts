@@ -9,12 +9,10 @@ import { ChunkedFileSender, SendBatchConfig } from '../base';
 import { FileSenderType, ChunkedFileSenderConfig } from '../interfaces';
 
 export class HDFSSender extends ChunkedFileSender implements RouteSenderAPI {
-    logger: Logger;
     client: AnyObject;
 
     constructor(client: AnyObject, config: ChunkedFileSenderConfig, logger: Logger) {
-        super(FileSenderType.hdfs, config);
-        this.logger = logger;
+        super(FileSenderType.hdfs, config, logger);
         this.client = client;
     }
 

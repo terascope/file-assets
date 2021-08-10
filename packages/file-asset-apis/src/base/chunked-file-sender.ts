@@ -1,5 +1,5 @@
 import {
-    DataEntity, pMap, isString
+    DataEntity, pMap, isString, Logger, toHumanTime
 } from '@terascope/utils';
 import * as nodePathModule from 'path';
 import { Compressor } from './Compressor';
@@ -35,8 +35,9 @@ export abstract class ChunkedFileSender {
     readonly pathList = new Map<string, boolean>();
     readonly type: FileSenderType;
     readonly config: ChunkedFileSenderConfig;
+    readonly logger: Logger;
 
-    constructor(type: FileSenderType, config: ChunkedFileSenderConfig) {
+    constructor(type: FileSenderType, config: ChunkedFileSenderConfig, logger: Logger) {
         if (!formatValues.includes(config.format)) {
             throw new Error(`Invalid paramter format, is must be provided and be set to any of these: ${formatValues.join(', ')}`);
         }
@@ -63,6 +64,7 @@ export abstract class ChunkedFileSender {
 
         this.type = type;
         this.config = { ...config };
+        this.logger = logger;
         this.compressor = new Compressor(config.compression);
         this.formatter = new Formatter(config);
     }
@@ -231,12 +233,18 @@ export abstract class ChunkedFileSender {
             if (this.sliceCount > 0) this.formatter.csvOptions.header = false;
         }
 
+        let start = Date.now();
+        this.logger.debug('Preparing dispatch...');
         const dispatch = await this.prepareDispatch(records);
+        this.logger.debug(`Prepared dispatched, took ${toHumanTime(Date.now() - start)}`);
 
+        start = Date.now();
+        this.logger.debug(`Sending to destinations (${concurrency} concurrency, ${dispatch.length} dispatch)...`);
         await pMap(
             dispatch,
             (config) => this.sendToDestination(config),
             { concurrency }
         );
+        this.logger.debug(`Sent to destinations, took ${toHumanTime(Date.now() - start)}`);
     }
 }
