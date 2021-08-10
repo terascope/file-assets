@@ -3,6 +3,7 @@ import {
     isNil,
     isString,
     getTypeOf,
+    toHumanTime,
 } from '@terascope/utils';
 import json2csv, { parse } from 'json2csv';
 import {
@@ -54,12 +55,17 @@ function makeLDJSONFunction(config: FormatterOptions): FormatFn {
     const lineDelimiter = getLineDelimiter(config);
     const fields = getFieldsFromConfig(config);
     function _stringify(record: SendRecord): string {
-        return JSON.stringify(record, fields);
+        return JSON.stringify(record, fields) + lineDelimiter;
     }
     return function ldjsonFormat(
         slice: SendRecords,
     ) {
-        return slice.map(_stringify).join(lineDelimiter);
+        let output = '';
+        const len = slice.length;
+        for (let i = 0; i < len; i++) {
+            output += _stringify(slice[i]);
+        }
+        return output;
     };
 }
 
@@ -131,10 +137,15 @@ export class Formatter {
         let firstSlice = true;
 
         const lineDelimiter = getLineDelimiter(this.config);
+        let totalTime = 0;
 
-        for (const [chunk, has_more] of chunkIterator(slice, 10)) {
+        for (const [chunk, has_more] of chunkIterator(slice, 100)) {
+            const start = Date.now();
+
             const formatted = this.fn(chunk, firstSlice);
             firstSlice = false;
+
+            totalTime += Date.now() - start;
 
             if (formatted.length) {
                 yield [formatted + lineDelimiter, has_more];
@@ -142,6 +153,8 @@ export class Formatter {
                 yield [formatted, has_more];
             }
         }
+
+        console.log(`formatIterator total time executing ${toHumanTime(totalTime)}`);
     }
 
     /**

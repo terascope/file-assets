@@ -1,4 +1,6 @@
-import { DataEntity, isTest } from '@terascope/utils';
+import {
+    DataEntity, EventLoop, isTest, toHumanTime
+} from '@terascope/utils';
 import { Compressor } from './Compressor';
 import { Formatter } from './Formatter';
 import { Format, Compression } from '../interfaces';
@@ -67,11 +69,17 @@ export class ChunkGenerator {
         const chunkSize = getBytes(ChunkGenerator.MAX_CHUNK_SIZE_BYTES);
         let index = 0;
 
-        let buffers: Buffer[] = [];
+        let buffers: readonly Buffer[] = [];
         let totalSize = 0;
 
+        let totalTime = 0;
+
+        let chunk: Chunk|undefined;
         for (const [formatted, has_more] of this.formatter.formatIterator(this.slice)) {
+            chunk = undefined;
+            const start = Date.now();
             const buf = Buffer.from(formatted);
+
             /**
              * Since a row may push the chunk size over the limit,
              * the overflow from the current row buffer needs to
@@ -84,7 +92,7 @@ export class ChunkGenerator {
                     buf.length - overflowBytes, buf.length
                 );
 
-                yield {
+                chunk = {
                     index,
                     has_more,
                     data: Buffer.concat(buffers.concat(limitedBuf)),
@@ -94,7 +102,7 @@ export class ChunkGenerator {
                 totalSize = overflowBuf.length;
                 buffers = [overflowBuf];
             } else if (overflowBytes === 0) {
-                yield {
+                chunk = {
                     index,
                     has_more,
                     data: Buffer.concat(buffers.concat(buf)),
@@ -104,18 +112,29 @@ export class ChunkGenerator {
                 totalSize = 0;
                 buffers = [];
             } else {
-                buffers.push(buf);
+                buffers = buffers.concat(buf);
                 totalSize += buf.length;
+            }
+
+            totalTime += Date.now() - start;
+            if (chunk) {
+                yield chunk;
+                await EventLoop.wait();
             }
         }
 
         if (buffers.length) {
-            yield {
+            const start = Date.now();
+            chunk = {
                 index,
                 has_more: false,
                 data: Buffer.concat(buffers),
             };
+            totalTime += Date.now() - start;
+            yield chunk;
         }
+
+        console.log(`_chunkByRow total time executing ${toHumanTime(totalTime)}`);
     }
 
     private async* _chunkAll(): AsyncIterableIterator<Chunk> {
