@@ -49,7 +49,8 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
         let isFirstSlice = true;
         let Body: Buffer|undefined;
         let uploadId: string|undefined;
-        const payloads: S3.UploadPartRequest[] = [];
+        let partsRequests: S3.UploadPartRequest[] = [];
+        const parts: S3.CompletedPart[] = [];
 
         for await (const chunk of chunkGenerator) {
             Body = chunk.data;
@@ -72,9 +73,10 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                     return;
                 }
             }
+
             // since we return if its a regular query, uploadKey will exists
             // if we reach this point
-            payloads.push({
+            partsRequests.push({
                 Bucket,
                 Key,
                 Body,
@@ -82,17 +84,26 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                 PartNumber: chunk.index + 1
             });
 
+            if (!chunk.has_more || partsRequests.length >= this.concurrency) {
+                const start = Date.now();
+
+                const requests = partsRequests.slice();
+                partsRequests = [];
+                parts.push(...(await pMap(
+                    requests,
+                    (params) => uploadS3ObjectPart(this.client, params),
+                    { concurrency: this.concurrency, stopOnError: true }
+                )));
+
+                this.logger.debug(`uploadS3ObjectParts(${Bucket}, ${Key}, ${uploadId}), ${requests.length} parts, took ${toHumanTime(Date.now() - start)}`);
+            }
+
             // we are done, finalize the upload
             if (!chunk.has_more) {
-                let start = Date.now();
-                const parts = await pMap(
-                    payloads,
-                    (params) => uploadS3ObjectPart(this.client, params),
-                    { concurrency: this.concurrency }
-                );
-                this.logger.debug(`uploadS3ObjectParts(${Bucket}, ${Key}, ${uploadId}), ${payloads.length} payloads, took ${toHumanTime(Date.now() - start)}`);
-
-                start = Date.now();
+                if (partsRequests.length) {
+                    throw new Error('Expected partsRequests to be empty');
+                }
+                const start = Date.now();
                 // Finalize multipart upload
                 await finalizeS3Multipart(this.client, {
                     Bucket,
