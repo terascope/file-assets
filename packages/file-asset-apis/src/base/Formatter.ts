@@ -4,6 +4,7 @@ import {
     isString,
     getTypeOf,
     toHumanTime,
+    isTest,
 } from '@terascope/utils';
 import json2csv, { parse } from 'json2csv';
 import {
@@ -55,7 +56,7 @@ function makeLDJSONFunction(config: FormatterOptions): FormatFn {
     const lineDelimiter = getLineDelimiter(config);
     const fields = getFieldsFromConfig(config);
     function _stringify(record: SendRecord): string {
-        return JSON.stringify(record, fields) + lineDelimiter;
+        return JSON.stringify(record, fields);
     }
     return function ldjsonFormat(
         slice: SendRecords,
@@ -64,6 +65,9 @@ function makeLDJSONFunction(config: FormatterOptions): FormatFn {
         const len = slice.length;
         for (let i = 0; i < len; i++) {
             output += _stringify(slice[i]);
+            if ((i + 1) < len) {
+                output += lineDelimiter;
+            }
         }
         return output;
     };
@@ -93,6 +97,8 @@ function getFormatFn(format: Format): MakeFormatFn {
 }
 
 const formatValues = Object.values(Format);
+
+const CHUNK_SIZE = isTest ? 10 : 100;
 
 export class Formatter {
     csvOptions: json2csv.Options<any>;
@@ -139,7 +145,7 @@ export class Formatter {
         const lineDelimiter = getLineDelimiter(this.config);
         let totalTime = 0;
 
-        for (const [chunk, has_more] of chunkIterator(slice, 100)) {
+        for (const [chunk, has_more] of chunkIterator(slice, CHUNK_SIZE)) {
             const start = Date.now();
 
             const formatted = this.fn(chunk, firstSlice);
@@ -179,9 +185,10 @@ export class Formatter {
 export function* chunkIterator<T>(
     dataArray: T[]|readonly T[], size: number
 ): IterableIterator<[data: T[], has_more: boolean]> {
-    for (let i = 0; i < dataArray.length; i += size) {
+    const len = dataArray.length;
+    for (let i = 0; i < len; i += size) {
         const chunk = dataArray.slice(i, i + size);
-        yield [chunk, (i + size) < dataArray.length];
+        yield [chunk, (i + size) < len];
     }
 }
 
