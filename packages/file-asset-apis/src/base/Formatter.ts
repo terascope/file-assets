@@ -53,19 +53,19 @@ function makeRawFunction(config: FormatterOptions): FormatFn {
 function makeLDJSONFunction(config: FormatterOptions): FormatFn {
     const lineDelimiter = getLineDelimiter(config);
     const fields = getFieldsFromConfig(config);
-    function stringify(record: SendRecord): string {
+    function _stringify(record: SendRecord): string {
         return JSON.stringify(record, fields);
     }
     return function ldjsonFormat(
         slice: SendRecords,
     ) {
-        return slice.map(stringify).join(lineDelimiter);
+        return slice.map(_stringify).join(lineDelimiter);
     };
 }
 
 function makeJSONFunction(config: FormatterOptions): FormatFn {
     const fields = getFieldsFromConfig(config);
-    return function ldjsonFormat(
+    return function jsonFormat(
         slice: SendRecords,
     ) {
         return JSON.stringify(slice, fields);
@@ -157,7 +157,7 @@ export class Formatter {
      */
     format(slice: SendRecords): string {
         const lineDelimiter = getLineDelimiter(this.config);
-        const formatted = this.fn(slice, false);
+        const formatted = this.fn(slice, true);
         if (!formatted.length) return '';
         return formatted + lineDelimiter;
     }
@@ -168,7 +168,7 @@ export function* chunkIterator<T>(
 ): IterableIterator<[data: T[], has_more: boolean]> {
     for (let i = 0; i < dataArray.length; i += size) {
         const chunk = dataArray.slice(i, i + size);
-        yield [chunk, i + size >= dataArray.length];
+        yield [chunk, (i + size) < dataArray.length];
     }
 }
 
