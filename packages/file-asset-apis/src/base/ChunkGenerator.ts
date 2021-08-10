@@ -69,8 +69,8 @@ export class ChunkGenerator {
         const chunkSize = getBytes(ChunkGenerator.MAX_CHUNK_SIZE_BYTES);
         let index = 0;
 
-        let buffers: readonly Buffer[] = [];
-        let totalSize = 0;
+        const buffers: Buffer[] = [];
+        let buffersLength = 0;
 
         let totalTime = 0;
 
@@ -78,42 +78,53 @@ export class ChunkGenerator {
         for (const [formatted, has_more] of this.formatter.formatIterator(this.slice)) {
             chunk = undefined;
             const start = Date.now();
-            const buf = Buffer.from(formatted);
+
+            const buf = Buffer.from(formatted, 'utf8');
+            buffers.push(buf);
+            buffersLength += buf.length;
 
             /**
              * Since a row may push the chunk size over the limit,
              * the overflow from the current row buffer needs to
              * be deferred until the next iteration
             */
-            const overflowBytes = (totalSize + buf.length) - chunkSize;
+            const overflowBytes = buffersLength - chunkSize;
             if (overflowBytes > 0) {
-                const limitedBuf = buf.subarray(0, buf.length - overflowBytes);
-                const overflowBuf = buf.subarray(
-                    buf.length - overflowBytes, buf.length
+                const combinedBuffer = Buffer.concat(
+                    buffers,
+                    buffersLength
                 );
+                buffersLength = 0;
+                buffers.length = 0;
 
+                const overflowBuf = Buffer.alloc(overflowBytes);
+                combinedBuffer.copy(overflowBuf, 0, chunkSize);
+
+                const uploadBuf = Buffer.alloc(chunkSize, combinedBuffer);
                 chunk = {
                     index,
                     has_more,
-                    data: Buffer.concat(buffers.concat(limitedBuf)),
+                    data: uploadBuf,
                 };
 
                 index++;
-                totalSize = overflowBuf.length;
-                buffers = [overflowBuf];
+                buffersLength += overflowBuf.length;
+                buffers.push(overflowBuf);
             } else if (overflowBytes === 0) {
+                const combinedBuffer = Buffer.concat(
+                    buffers,
+                    buffersLength
+                );
+                buffersLength = 0;
+                buffers.length = 0;
+
                 chunk = {
                     index,
                     has_more,
-                    data: Buffer.concat(buffers.concat(buf)),
+                    data: combinedBuffer,
                 };
 
                 index++;
-                totalSize = 0;
-                buffers = [];
-            } else {
-                buffers = buffers.concat(buf);
-                totalSize += buf.length;
             }
 
             totalTime += Date.now() - start;
@@ -125,10 +136,18 @@ export class ChunkGenerator {
 
         if (buffers.length) {
             const start = Date.now();
+
+            const combinedBuffer = Buffer.concat(
+                buffers,
+                buffersLength
+            );
+            buffersLength = 0;
+            buffers.length = 0;
+
             chunk = {
                 index,
                 has_more: false,
-                data: Buffer.concat(buffers),
+                data: combinedBuffer,
             };
             totalTime += Date.now() - start;
             yield chunk;
