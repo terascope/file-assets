@@ -1,5 +1,5 @@
 import {
-    DataEntity, EventLoop, isTest, toHumanTime
+    DataEntity, EventLoop, isTest
 } from '@terascope/utils';
 import { Compressor } from './Compressor';
 import { Formatter } from './Formatter';
@@ -72,12 +72,9 @@ export class ChunkGenerator {
         const buffers: Buffer[] = [];
         let buffersLength = 0;
 
-        let totalTime = 0;
-
         let chunk: Chunk|undefined;
         for (const [formatted, has_more] of this.formatter.formatIterator(this.slice)) {
             chunk = undefined;
-            const start = Date.now();
 
             const buf = Buffer.from(formatted, 'utf8');
             buffers.push(buf);
@@ -127,7 +124,6 @@ export class ChunkGenerator {
                 index++;
             }
 
-            totalTime += Date.now() - start;
             if (chunk) {
                 yield chunk;
                 await EventLoop.wait();
@@ -135,8 +131,6 @@ export class ChunkGenerator {
         }
 
         if (buffers.length) {
-            const start = Date.now();
-
             const combinedBuffer = Buffer.concat(
                 buffers,
                 buffersLength
@@ -149,11 +143,8 @@ export class ChunkGenerator {
                 has_more: false,
                 data: combinedBuffer,
             };
-            totalTime += Date.now() - start;
             yield chunk;
         }
-
-        console.log(`_chunkByRow total time executing ${toHumanTime(totalTime)}`);
     }
 
     private async* _chunkAll(): AsyncIterableIterator<Chunk> {

@@ -3,7 +3,6 @@ import {
     isNil,
     isString,
     getTypeOf,
-    toHumanTime,
     isTest,
 } from '@terascope/utils';
 import json2csv, { parse } from 'json2csv';
@@ -143,15 +142,10 @@ export class Formatter {
         let firstSlice = true;
 
         const lineDelimiter = getLineDelimiter(this.config);
-        let totalTime = 0;
 
         for (const [chunk, has_more] of chunkIterator(slice, CHUNK_SIZE)) {
-            const start = Date.now();
-
             const formatted = this.fn(chunk, firstSlice);
             firstSlice = false;
-
-            totalTime += Date.now() - start;
 
             if (formatted.length) {
                 yield [formatted + lineDelimiter, has_more];
@@ -159,8 +153,6 @@ export class Formatter {
                 yield [formatted, has_more];
             }
         }
-
-        console.log(`formatIterator total time executing ${toHumanTime(totalTime)}`);
     }
 
     /**
