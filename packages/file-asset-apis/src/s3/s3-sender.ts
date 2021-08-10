@@ -43,9 +43,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
         { filename, chunkGenerator } : SendBatchConfig
     ): Promise<void> {
         const objPath = parsePath(filename);
-        let start = Date.now();
         const Key = await this.createFileDestinationName(objPath.prefix);
-        this.logger.debug(`createFileDestinationName(${objPath.prefix}) took ${toHumanTime(Date.now() - start)}`);
         const Bucket = objPath.bucket;
 
         let isFirstSlice = true;
@@ -60,21 +58,17 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                 isFirstSlice = false;
 
                 if (chunk.has_more) {
-                    start = Date.now();
                     // set up multipart
                     uploadId = await createS3MultipartUpload(this.client, Bucket, Key);
-                    this.logger.debug(`createS3MultipartUpload(${Bucket}, ${Key}) took ${toHumanTime(Date.now() - start)}`);
                 } else {
                     // make regular query
                     if (!Body) return;
 
-                    start = Date.now();
                     await putS3Object(this.client, {
                         Bucket,
                         Key,
                         Body
                     });
-                    this.logger.debug(`putS3Object(${Bucket}, ${Key}) took ${toHumanTime(Date.now() - start)}`);
                     return;
                 }
             }
@@ -90,7 +84,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
 
             // we are done, finalize the upload
             if (!chunk.has_more) {
-                start = Date.now();
+                let start = Date.now();
                 const parts = await pMap(
                     payloads,
                     (params) => uploadS3ObjectPart(this.client, params),

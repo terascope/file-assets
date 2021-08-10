@@ -1,5 +1,5 @@
 import {
-    DataEntity, pMap, isString, Logger, toHumanTime
+    DataEntity, pMap, isString, Logger
 } from '@terascope/utils';
 import * as nodePathModule from 'path';
 import { Compressor } from './Compressor';
@@ -233,18 +233,12 @@ export abstract class ChunkedFileSender {
             if (this.sliceCount > 0) this.formatter.csvOptions.header = false;
         }
 
-        let start = Date.now();
-        this.logger.debug('Preparing dispatch...');
         const dispatch = await this.prepareDispatch(records);
-        this.logger.debug(`Prepared dispatched, took ${toHumanTime(Date.now() - start)}`);
 
-        start = Date.now();
-        this.logger.debug(`Sending to destinations (${concurrency} concurrency, ${dispatch.length} dispatch)...`);
         await pMap(
             dispatch,
             (config) => this.sendToDestination(config),
             { concurrency }
         );
-        this.logger.debug(`Sent to destinations, took ${toHumanTime(Date.now() - start)}`);
     }
 }
