@@ -1,10 +1,12 @@
 import type { RouteSenderAPI } from '@terascope/job-components';
 import type S3 from 'aws-sdk/clients/s3';
-import { Logger, TSError } from '@terascope/utils';
+import {
+    Logger, pMap, toHumanTime, TSError
+} from '@terascope/utils';
 import {
     parsePath, ChunkedFileSender, SendBatchConfig
 } from '../base';
-import { FileSenderType, S3PutConfig, ChunkedFileSenderConfig } from '../interfaces';
+import { FileSenderType, ChunkedFileSenderConfig } from '../interfaces';
 import {
     createS3Bucket,
     headS3Bucket,
@@ -24,13 +26,11 @@ function validateConfig(input: unknown) {
 }
 
 export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
-    logger: Logger;
     client: S3;
 
     constructor(client: S3, config: ChunkedFileSenderConfig, logger: Logger) {
         validateConfig(config);
-        super(FileSenderType.s3, config);
-        this.logger = logger;
+        super(FileSenderType.s3, config, logger);
         this.client = client;
     }
 
@@ -49,7 +49,8 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
         let isFirstSlice = true;
         let Body: Buffer|undefined;
         let uploadId: string|undefined;
-        const payloads: S3.CompletedPart[] = [];
+        let partsRequests: S3.UploadPartRequest[] = [];
+        const parts: S3.CompletedPart[] = [];
 
         for await (const chunk of chunkGenerator) {
             Body = chunk.data;
@@ -64,40 +65,55 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                     // make regular query
                     if (!Body) return;
 
-                    const params: S3PutConfig = {
+                    await putS3Object(this.client, {
                         Bucket,
                         Key,
                         Body
-                    };
-
-                    await putS3Object(this.client, params);
+                    });
                     return;
                 }
             }
+
             // since we return if its a regular query, uploadKey will exists
             // if we reach this point
-            const params: S3.UploadPartRequest = {
+            partsRequests.push({
                 Bucket,
                 Key,
                 Body,
                 UploadId: uploadId!,
                 PartNumber: chunk.index + 1
-            };
+            });
 
-            payloads.push(await uploadS3ObjectPart(this.client, params));
+            if (!chunk.has_more || partsRequests.length >= this.concurrency) {
+                const start = Date.now();
+
+                const requests = partsRequests.slice();
+                partsRequests = [];
+                parts.push(...(await pMap(
+                    requests,
+                    (params) => uploadS3ObjectPart(this.client, params),
+                    { concurrency: this.concurrency, stopOnError: true }
+                )));
+
+                this.logger.debug(`uploadS3ObjectParts(${Bucket}, ${Key}, ${uploadId}), ${requests.length} parts, took ${toHumanTime(Date.now() - start)}`);
+            }
 
             // we are done, finalize the upload
             if (!chunk.has_more) {
-                const completeMultipartPayload: S3.CompleteMultipartUploadRequest = {
+                if (partsRequests.length) {
+                    throw new Error('Expected partsRequests to be empty');
+                }
+                const start = Date.now();
+                // Finalize multipart upload
+                await finalizeS3Multipart(this.client, {
                     Bucket,
                     Key,
                     MultipartUpload: {
-                        Parts: payloads
+                        Parts: parts
                     },
                     UploadId: uploadId!
-                };
-                    // Finalize multipart upload
-                await finalizeS3Multipart(this.client, completeMultipartPayload);
+                });
+                this.logger.debug(`finalizeS3Multipart(${Bucket}, ${Key}, ${uploadId}) took ${toHumanTime(Date.now() - start)}`);
             }
         }
     }
@@ -117,7 +133,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                 await createS3Bucket(this.client, params);
             } catch (err) {
                 throw new TSError(err, {
-                    reason: `Could not setup bucket ${this.path}`
+                    reason: `Failure to setup bucket ${this.path}`
                 });
             }
         }

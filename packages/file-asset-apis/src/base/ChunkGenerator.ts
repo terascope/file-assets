@@ -1,4 +1,6 @@
-import { DataEntity, isTest } from '@terascope/utils';
+import {
+    DataEntity, EventLoop, isTest
+} from '@terascope/utils';
 import { Compressor } from './Compressor';
 import { Formatter } from './Formatter';
 import { Format, Compression } from '../interfaces';
@@ -67,54 +69,81 @@ export class ChunkGenerator {
         const chunkSize = getBytes(ChunkGenerator.MAX_CHUNK_SIZE_BYTES);
         let index = 0;
 
-        let buffers: Buffer[] = [];
-        let totalSize = 0;
+        const buffers: Buffer[] = [];
+        let buffersLength = 0;
 
+        let chunk: Chunk|undefined;
         for (const [formatted, has_more] of this.formatter.formatIterator(this.slice)) {
-            const buf = Buffer.from(formatted);
+            chunk = undefined;
+
+            const buf = Buffer.from(formatted, 'utf8');
+            buffers.push(buf);
+            buffersLength += buf.length;
+
             /**
              * Since a row may push the chunk size over the limit,
              * the overflow from the current row buffer needs to
              * be deferred until the next iteration
             */
-            const overflowBytes = (totalSize + buf.length) - chunkSize;
+            const overflowBytes = buffersLength - chunkSize;
             if (overflowBytes > 0) {
-                const limitedBuf = buf.subarray(0, buf.length - overflowBytes);
-                const overflowBuf = buf.subarray(
-                    buf.length - overflowBytes, buf.length
+                const combinedBuffer = Buffer.concat(
+                    buffers,
+                    buffersLength
                 );
+                buffersLength = 0;
+                buffers.length = 0;
 
-                yield {
+                const overflowBuf = Buffer.alloc(overflowBytes);
+                combinedBuffer.copy(overflowBuf, 0, chunkSize);
+
+                const uploadBuf = Buffer.alloc(chunkSize, combinedBuffer);
+                chunk = {
                     index,
                     has_more,
-                    data: Buffer.concat(buffers.concat(limitedBuf)),
+                    data: uploadBuf,
                 };
 
                 index++;
-                totalSize = overflowBuf.length;
-                buffers = [overflowBuf];
+                buffersLength += overflowBuf.length;
+                buffers.push(overflowBuf);
             } else if (overflowBytes === 0) {
-                yield {
+                const combinedBuffer = Buffer.concat(
+                    buffers,
+                    buffersLength
+                );
+                buffersLength = 0;
+                buffers.length = 0;
+
+                chunk = {
                     index,
                     has_more,
-                    data: Buffer.concat(buffers.concat(buf)),
+                    data: combinedBuffer,
                 };
 
                 index++;
-                totalSize = 0;
-                buffers = [];
-            } else {
-                buffers.push(buf);
-                totalSize += buf.length;
+            }
+
+            if (chunk) {
+                yield chunk;
+                await EventLoop.wait();
             }
         }
 
         if (buffers.length) {
-            yield {
+            const combinedBuffer = Buffer.concat(
+                buffers,
+                buffersLength
+            );
+            buffersLength = 0;
+            buffers.length = 0;
+
+            chunk = {
                 index,
                 has_more: false,
-                data: Buffer.concat(buffers),
+                data: combinedBuffer,
             };
+            yield chunk;
         }
     }
 

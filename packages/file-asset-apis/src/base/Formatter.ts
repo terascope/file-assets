@@ -2,7 +2,8 @@ import {
     TSError,
     isNil,
     isString,
-    getTypeOf
+    getTypeOf,
+    isTest,
 } from '@terascope/utils';
 import json2csv, { parse } from 'json2csv';
 import {
@@ -14,47 +15,89 @@ import {
     getFieldDelimiter,
     getFieldsFromConfig,
     SendRecords,
+    SendRecord,
 } from '../interfaces';
 
 export type FormatterOptions = Omit<ChunkedFileSenderConfig, 'id'|'path'|'compression'|'file_per_slice'>;
 
+type MakeFormatFn = (
+    config: FormatterOptions, csvOptions: json2csv.Options<any>
+) => FormatFn
+
 type FormatFn = (
-    slice: SendRecords, config: FormatterOptions, csvOptions: json2csv.Options<any>
+    slice: SendRecords, isFirstSlice: boolean
 ) => string
 
-function csvFunction(
-    slice: SendRecords,
-    config: FormatterOptions,
-    csvOptions: json2csv.Options<any>
-) {
-    return parse(slice, csvOptions);
+function makeCSVOrTSVFunction(
+    _config: FormatterOptions, csvOptions: json2csv.Options<any>
+): FormatFn {
+    return function csvOrTSVFormat(
+        slice: SendRecords,
+        isFirstSlice: boolean
+    ) {
+        return parse(slice, {
+            ...csvOptions,
+            header: csvOptions.header && isFirstSlice,
+        });
+    };
 }
 
-const formatsFns: Record<Format, FormatFn> = {
-    csv: csvFunction,
-    tsv: csvFunction,
-    raw(slice, config) {
-        const lineDelimiter = getLineDelimiter(config);
+function makeRawFunction(config: FormatterOptions): FormatFn {
+    const lineDelimiter = getLineDelimiter(config);
+    return function rawFormat(
+        slice: SendRecords,
+    ) {
         return slice.map((record) => record.data).join(lineDelimiter);
-    },
-    ldjson(slice, config) {
-        const lineDelimiter = getLineDelimiter(config);
-        const fields = getFieldsFromConfig(config);
-        return slice.map((record) => JSON.stringify(record, fields)).join(lineDelimiter);
-    },
-    json(slice, config) {
-        const fields = getFieldsFromConfig(config);
-        return JSON.stringify(slice, fields);
+    };
+}
+
+function makeLDJSONFunction(config: FormatterOptions): FormatFn {
+    const lineDelimiter = getLineDelimiter(config);
+    const fields = getFieldsFromConfig(config);
+    function _stringify(record: SendRecord): string {
+        return JSON.stringify(record, fields);
     }
+    return function ldjsonFormat(
+        slice: SendRecords,
+    ) {
+        let output = '';
+        const len = slice.length;
+        for (let i = 0; i < len; i++) {
+            output += _stringify(slice[i]);
+            if ((i + 1) < len) {
+                output += lineDelimiter;
+            }
+        }
+        return output;
+    };
+}
+
+function makeJSONFunction(config: FormatterOptions): FormatFn {
+    const fields = getFieldsFromConfig(config);
+    return function jsonFormat(
+        slice: SendRecords,
+    ) {
+        return JSON.stringify(slice, fields);
+    };
+}
+
+const formatsFns: Record<Format, MakeFormatFn> = {
+    csv: makeCSVOrTSVFunction,
+    tsv: makeCSVOrTSVFunction,
+    raw: makeRawFunction,
+    ldjson: makeLDJSONFunction,
+    json: makeJSONFunction
 };
 
-function getFormatFn(format: Format): FormatFn {
+function getFormatFn(format: Format): MakeFormatFn {
     const fn = formatsFns[format];
     if (fn == null) throw new TSError(`Unsupported output format "${format}"`);
     return fn;
 }
 
 const formatValues = Object.values(Format);
+
+const CHUNK_SIZE = isTest ? 10 : 100;
 
 export class Formatter {
     csvOptions: json2csv.Options<any>;
@@ -65,7 +108,7 @@ export class Formatter {
         this.validateConfig(config);
         this.config = { ...config };
         this.csvOptions = makeCSVOptions(config);
-        this.fn = getFormatFn(config.format);
+        this.fn = getFormatFn(config.format)(this.config, this.csvOptions);
     }
 
     get type(): Format {
@@ -97,13 +140,11 @@ export class Formatter {
     */
     * formatIterator(slice: SendRecords): IterableIterator<[formatted: string, has_more: boolean]> {
         let firstSlice = true;
-        for (let i = 0; i < slice.length; i++) {
-            const has_more = slice.length !== (i + 2);
-            const lineDelimiter = getLineDelimiter(this.config);
-            const formatted = this.fn([slice[i]], this.config, {
-                ...this.csvOptions,
-                header: this.csvOptions.header && firstSlice,
-            });
+
+        const lineDelimiter = getLineDelimiter(this.config);
+
+        for (const [chunk, has_more] of chunkIterator(slice, CHUNK_SIZE)) {
+            const formatted = this.fn(chunk, firstSlice);
             firstSlice = false;
 
             if (formatted.length) {
@@ -127,9 +168,19 @@ export class Formatter {
      */
     format(slice: SendRecords): string {
         const lineDelimiter = getLineDelimiter(this.config);
-        const formatted = this.fn(slice, this.config, this.csvOptions);
+        const formatted = this.fn(slice, true);
         if (!formatted.length) return '';
         return formatted + lineDelimiter;
+    }
+}
+
+export function* chunkIterator<T>(
+    dataArray: T[]|readonly T[], size: number
+): IterableIterator<[data: T[], has_more: boolean]> {
+    const len = dataArray.length;
+    for (let i = 0; i < len; i += size) {
+        const chunk = dataArray.slice(i, i + size);
+        yield [chunk, (i + size) < len];
     }
 }
 

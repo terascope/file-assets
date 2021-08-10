@@ -5,11 +5,8 @@ import { ChunkedFileSender, SendBatchConfig } from '../base';
 import { ChunkedFileSenderConfig, FileSenderType, isCSVSenderConfig } from '../interfaces';
 
 export class FileSender extends ChunkedFileSender implements RouteSenderAPI {
-    logger: Logger;
-
     constructor(config: ChunkedFileSenderConfig, logger: Logger) {
-        super(FileSenderType.file, config);
-        this.logger = logger;
+        super(FileSenderType.file, config, logger);
     }
     /**
      * This is a low level API, it is not meant to be used externally,
