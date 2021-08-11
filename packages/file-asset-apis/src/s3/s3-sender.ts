@@ -55,7 +55,9 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                 isFirstSlice = false;
 
                 if (chunk.has_more) {
-                    uploader = new MultiPartUploader(this.client, Bucket, Key, this.logger);
+                    uploader = new MultiPartUploader(
+                        this.client, Bucket, Key, this.concurrency, this.logger
+                    );
                     await uploader.start();
                 } else {
                     // make regular query

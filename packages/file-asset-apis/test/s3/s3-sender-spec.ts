@@ -163,7 +163,7 @@ describe('S3 Sender API', () => {
     });
 
     it('can send large ldjson, not compressed data to s3 (multipart)', async () => {
-        const data = times(30_000, (index) => ({
+        const data = times(60_000, (index) => ({
             count: 'foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo',
             id: index,
             obj: { foo: 'bar' }
@@ -178,7 +178,8 @@ describe('S3 Sender API', () => {
             id,
             format,
             compression,
-            file_per_slice: true
+            file_per_slice: true,
+            concurrency: 1
         };
         const sender = new S3Sender(client, config, logger);
 

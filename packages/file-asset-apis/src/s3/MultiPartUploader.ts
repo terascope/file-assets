@@ -1,4 +1,5 @@
 import type S3 from 'aws-sdk/clients/s3';
+import { E_CANCELED, Semaphore } from 'async-mutex';
 import {
     Logger, pDelay, pWhile, sortBy, toHumanTime
 } from '@terascope/utils';
@@ -11,11 +12,6 @@ import {
 /**
  * This is a multi-part uploader that will handle
  * uploading the parts in the background.
- *
- * @note this does not control the concurrency of the part
- * uploads because typically we can't create the parts fast
- * enough BUT if we can improve that, then we will likely want
- * to control that concurrency
 */
 export class MultiPartUploader {
     /**
@@ -38,14 +34,27 @@ export class MultiPartUploader {
 
     private partUploadErrors = new Map<string, unknown>();
 
+    /**
+     * This will be used to throw an error if any new
+     * parts are added after finishing is called
+    */
     private finishing = false;
+
+    /**
+     * this is used to control the concurrency of the
+     * part upload requests
+    */
+    readonly readSemaphore: Semaphore;
 
     constructor(
         readonly client: S3,
         readonly bucket: string,
         readonly key: string,
+        readonly concurrency: number,
         readonly logger: Logger
-    ) {}
+    ) {
+        this.readSemaphore = new Semaphore(this.concurrency);
+    }
 
     /**
      * Start the multi-part upload
@@ -68,14 +77,20 @@ export class MultiPartUploader {
             this._throwPartUploadError();
         }
 
-        this.pendingParts++;
-
-        this._uploadPart(body, partNumber)
-            .catch((err) => {
-                this.partUploadErrors.set(String(err), err);
-            }).finally(() => {
+        this.readSemaphore.runExclusive(() => {
+            this.pendingParts++;
+            return this._uploadPart(body, partNumber).finally(() => {
                 this.pendingParts--;
             });
+        }).catch((err) => {
+            if (err === E_CANCELED) {
+                this.logger.debug(`upload part #${partNumber} canceled`);
+                return;
+            }
+
+            this.partUploadErrors.set(String(err), err);
+            this.readSemaphore.cancel();
+        });
     }
 
     /**
@@ -126,19 +141,19 @@ export class MultiPartUploader {
     }
 
     /**
-     * Used before finalizing all the multiple part upload
-     * to ensure all of the part requests are done and to
-     * throw an error if needed.
+     * Used wait until the pending part count is less than or equal to
+     * a specific number and to throw an error if needed.
      *
      * Ideally this should wait for any pending requests
      * to finish, even if there is already an error, this
      * is to avoid leaving dangling requests
     */
-    private async _waitForParts(): Promise<void> {
-        if (this.pendingParts > 0) {
+    private async _waitForParts(minCount = 0): Promise<void> {
+        if (this.pendingParts > minCount || this.readSemaphore.isLocked()) {
+            this.logger.warn(`Waiting for ~${this.pendingParts} parts to finish uploading...`);
             await pWhile(async () => {
                 await pDelay(100);
-                return this.pendingParts === 0;
+                return this.pendingParts <= minCount && !this.readSemaphore.isLocked();
             });
         }
 
