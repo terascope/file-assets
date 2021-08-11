@@ -74,7 +74,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
 
             // the index is zero based but the part numbers start at 1
             // so we need to increment by 1
-            await uploader.uploadPart(Body, chunk.index + 1);
+            uploader.enqueuePart(Body, chunk.index + 1);
 
             // we are done, finalize the upload
             if (!chunk.has_more) {
