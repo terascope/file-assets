@@ -5,8 +5,6 @@ import {
     getTypeOf,
     isTest,
 } from '@terascope/utils';
-// @ts-expect-error since this doesn't have types
-import flatstr from 'flatstr';
 import json2csv, { parse } from 'json2csv';
 import {
     Format,
@@ -150,9 +148,9 @@ export class Formatter {
             firstSlice = false;
 
             if (formatted.length) {
-                yield [flatstr(formatted + lineDelimiter), has_more];
+                yield [formatted + lineDelimiter, has_more];
             } else {
-                yield [flatstr(formatted), has_more];
+                yield [formatted, has_more];
             }
         }
     }

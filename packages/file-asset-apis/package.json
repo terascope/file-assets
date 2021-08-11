@@ -26,7 +26,6 @@
         "@terascope/utils": "^0.40.5",
         "async-mutex": "^0.3.1",
         "csvtojson": "^2.0.10",
-        "flatstr": "^1.0.12",
         "fs-extra": "^10.0.0",
         "json2csv": "5.0.6",
         "lz4-asm": "^0.4.2",
