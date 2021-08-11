@@ -1,7 +1,7 @@
 import type { RouteSenderAPI } from '@terascope/job-components';
 import type S3 from 'aws-sdk/clients/s3';
 import {
-    Logger, pMap, toHumanTime, TSError
+    Logger, TSError
 } from '@terascope/utils';
 import {
     parsePath, ChunkedFileSender, SendBatchConfig
@@ -11,11 +11,9 @@ import {
     createS3Bucket,
     headS3Bucket,
     putS3Object,
-    createS3MultipartUpload,
-    uploadS3ObjectPart,
-    finalizeS3Multipart
 } from './s3-helpers';
 import { isObject } from '../helpers';
+import { MultiPartUploader } from './MultiPartUploader';
 
 function validateConfig(input: unknown) {
     if (!isObject(input)) throw new Error('Invalid config parameter, ut must be an object');
@@ -48,9 +46,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
 
         let isFirstSlice = true;
         let Body: Buffer|undefined;
-        let uploadId: string|undefined;
-        let partsRequests: S3.UploadPartRequest[] = [];
-        const parts: S3.CompletedPart[] = [];
+        let uploader: MultiPartUploader|undefined;
 
         for await (const chunk of chunkGenerator) {
             Body = chunk.data;
@@ -59,8 +55,8 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                 isFirstSlice = false;
 
                 if (chunk.has_more) {
-                    // set up multipart
-                    uploadId = await createS3MultipartUpload(this.client, Bucket, Key);
+                    uploader = new MultiPartUploader(this.client, Bucket, Key, this.logger);
+                    await uploader.start();
                 } else {
                     // make regular query
                     if (!Body) return;
@@ -74,46 +70,15 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                 }
             }
 
-            // since we return if its a regular query, uploadKey will exists
-            // if we reach this point
-            partsRequests.push({
-                Bucket,
-                Key,
-                Body,
-                UploadId: uploadId!,
-                PartNumber: chunk.index + 1
-            });
+            if (!uploader) throw new Error('Expected uploader to exist');
 
-            if (!chunk.has_more || partsRequests.length >= this.concurrency) {
-                const start = Date.now();
-
-                const requests = partsRequests.slice();
-                partsRequests = [];
-                parts.push(...(await pMap(
-                    requests,
-                    (params) => uploadS3ObjectPart(this.client, params),
-                    { concurrency: this.concurrency, stopOnError: true }
-                )));
-
-                this.logger.debug(`uploadS3ObjectParts(${Bucket}, ${Key}, ${uploadId}), ${requests.length} parts, took ${toHumanTime(Date.now() - start)}`);
-            }
+            // the index is zero based but the part numbers start at 1
+            // so we need to increment by 1
+            uploader.enqueuePart(Body, chunk.index + 1);
 
             // we are done, finalize the upload
             if (!chunk.has_more) {
-                if (partsRequests.length) {
-                    throw new Error('Expected partsRequests to be empty');
-                }
-                const start = Date.now();
-                // Finalize multipart upload
-                await finalizeS3Multipart(this.client, {
-                    Bucket,
-                    Key,
-                    MultipartUpload: {
-                        Parts: parts
-                    },
-                    UploadId: uploadId!
-                });
-                this.logger.debug(`finalizeS3Multipart(${Bucket}, ${Key}, ${uploadId}) took ${toHumanTime(Date.now() - start)}`);
+                await uploader.finish();
             }
         }
     }
