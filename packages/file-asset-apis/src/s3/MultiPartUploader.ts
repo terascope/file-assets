@@ -10,7 +10,12 @@ import {
 
 /**
  * This is a multi-part uploader that will handle
- * uploading the parts in the background
+ * uploading the parts in the background.
+ *
+ * @note this does not control the concurrency of the part
+ * uploads because typically we can't create the parts fast
+ * enough BUT if we can improve that, then we will likely want
+ * to control that concurrency
 */
 export class MultiPartUploader {
     /**
