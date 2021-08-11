@@ -1,5 +1,5 @@
 {
     "name": "file",
-    "version": "2.1.3",
-    "description": "A set of processors for exporting data to files"
+    "version": "2.1.4",
+    "description": "A set of processors for working with files"
 }
