@@ -225,7 +225,7 @@ export abstract class ChunkedFileSender {
      *   s3Sender.send([{ some: 'data' }]) => Promise<void>
      *   s3Sender.send([DataEntity.make({ some: 'data' })]) => Promise<void>
     */
-    async send(records: SendRecords):Promise<void> {
+    async send(records: SendRecords): Promise<void> {
         const { concurrency } = this;
         this.incrementCount();
 
@@ -240,5 +240,35 @@ export abstract class ChunkedFileSender {
             (config) => this.sendToDestination(config),
             { concurrency }
         );
+    }
+
+    /**
+     * Write data to file, uses parent "sendToDestination" method to determine location.
+     * Use this to avoid having to bucket the data into different paths. Normally
+     * you don't want this but it can be used in specific case.
+     *
+     * @example
+     *   s3Sender.simpleSend([{ some: 'data' }]) => Promise<void>
+     *   s3Sender.simpleSend([DataEntity.make({ some: 'data' })]) => Promise<void>
+    */
+    async simpleSend(records: SendRecords): Promise<void> {
+        this.incrementCount();
+
+        if (!this.filePerSlice) {
+            if (this.sliceCount > 0) this.formatter.csvOptions.header = false;
+        }
+
+        const filename = this.path;
+        const destName = await this.createFileDestinationName(filename);
+
+        await this.sendToDestination({
+            filename,
+            dest: destName,
+            chunkGenerator: new ChunkGenerator(
+                this.formatter,
+                this.compressor,
+                records
+            )
+        });
     }
 }
