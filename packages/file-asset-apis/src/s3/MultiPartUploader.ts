@@ -1,7 +1,7 @@
 import type S3 from 'aws-sdk/clients/s3';
 import { E_CANCELED, Semaphore } from 'async-mutex';
 import {
-    Logger, pDelay, pWhile, sortBy, toHumanTime
+    Logger, pWhile, sortBy, toHumanTime
 } from '@terascope/utils';
 import {
     createS3MultipartUpload,
@@ -18,6 +18,17 @@ export class MultiPartUploader {
      * This will be set once start is called
     */
     private uploadId: string|undefined;
+
+    /**
+     * This will be used to throw an error if any new
+     * parts are added or finish is called before start is called
+    */
+    private started = false;
+
+    /**
+     * If there is an error starting this should happen here
+    */
+    private startError: unknown;
 
     /**
      * These are the completed responses from the upload
@@ -59,10 +70,38 @@ export class MultiPartUploader {
     /**
      * Start the multi-part upload
     */
-    async start(): Promise<void> {
-        this.uploadId = await createS3MultipartUpload(
+    start(): void {
+        if (this.started) throw new Error('Upload already started');
+
+        const start = Date.now();
+        this.started = true;
+        createS3MultipartUpload(
             this.client, this.bucket, this.key
-        );
+        ).then((uploadId) => {
+            this.uploadId = uploadId;
+            this.logger.debug(`s3 multipart upload ${uploadId} started, took ${toHumanTime(Date.now() - start)}`);
+        }).catch((err) => {
+            this.startError = err;
+        });
+    }
+
+    /**
+     * Used wait until the background request for start is finished.
+     * If that failed, this should throw
+    */
+    private async _waitForStart(ctx: string): Promise<void> {
+        if (!this.started) {
+            throw Error('Expected MultiPartUploader->start to have been finished');
+        }
+
+        if (this.uploadId == null) {
+            this.logger.debug(`${ctx} waiting for upload to start`);
+            await pWhile(async () => this.uploadId != null || this.startError != null);
+        }
+
+        if (this.startError != null) {
+            throw this.startError;
+        }
     }
 
     /**
@@ -79,9 +118,12 @@ export class MultiPartUploader {
 
         this.readSemaphore.runExclusive(() => {
             this.pendingParts++;
-            return this._uploadPart(body, partNumber).finally(() => {
-                this.pendingParts--;
-            });
+            return Promise.resolve()
+                .then(() => this._waitForStart(`part #${partNumber}`))
+                .then(() => this._uploadPart(body, partNumber))
+                .finally(() => {
+                    this.pendingParts--;
+                });
         }).catch((err) => {
             if (err === E_CANCELED) {
                 this.logger.debug(`upload part #${partNumber} canceled`);
@@ -98,7 +140,7 @@ export class MultiPartUploader {
     */
     private async _uploadPart(body: Buffer, partNumber: number): Promise<void> {
         if (!this.uploadId) {
-            throw Error('Expected MultiPartUploader->start to have been called');
+            throw Error('Expected MultiPartUploader->start to have been finished');
         }
 
         if (this.partUploadErrors.size) {
@@ -119,11 +161,8 @@ export class MultiPartUploader {
      * after this called
     */
     async finish(): Promise<void> {
-        if (!this.uploadId) {
-            throw Error('Expected MultiPartUploader->start to have been called');
-        }
-
         this.finishing = true;
+        await this._waitForStart('finish');
         await this._waitForParts();
 
         const start = Date.now();
@@ -135,7 +174,7 @@ export class MultiPartUploader {
                 // request will fail
                 Parts: sortBy(this.parts, 'PartNumber')
             },
-            UploadId: this.uploadId
+            UploadId: this.uploadId!
         });
         this.logger.debug(`finalizeS3Multipart(${this.bucket}, ${this.key}, ${this.uploadId}) took ${toHumanTime(Date.now() - start)}`);
     }
@@ -150,11 +189,10 @@ export class MultiPartUploader {
     */
     private async _waitForParts(minCount = 0): Promise<void> {
         if (this.pendingParts > minCount || this.readSemaphore.isLocked()) {
-            this.logger.warn(`Waiting for ~${this.pendingParts} parts to finish uploading...`);
-            await pWhile(async () => {
-                await pDelay(100);
-                return this.pendingParts <= minCount && !this.readSemaphore.isLocked();
-            });
+            this.logger.debug(`Waiting for ~${this.pendingParts} parts to finish uploading...`);
+            await pWhile(async () => (
+                this.pendingParts <= minCount && !this.readSemaphore.isLocked()
+            ));
         }
 
         if (this.partUploadErrors.size) {

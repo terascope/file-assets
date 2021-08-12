@@ -125,8 +125,8 @@ export class ChunkGenerator {
             }
 
             if (chunk) {
-                yield chunk;
                 await EventLoop.wait();
+                yield chunk;
             }
         }
 
@@ -143,6 +143,7 @@ export class ChunkGenerator {
                 has_more: false,
                 data: combinedBuffer,
             };
+
             yield chunk;
         }
     }
