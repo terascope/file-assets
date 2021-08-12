@@ -1,13 +1,19 @@
+import { EventEmitter, once } from 'events';
 import type S3 from 'aws-sdk/clients/s3';
 import { E_CANCELED, Semaphore } from 'async-mutex';
 import {
-    Logger, pWhile, sortBy, toHumanTime
+    Logger, sortBy, toHumanTime
 } from '@terascope/utils';
 import {
     createS3MultipartUpload,
     uploadS3ObjectPart,
     finalizeS3Multipart
 } from './s3-helpers';
+
+enum Events {
+    StartDone = 'start:done',
+    PartDone = 'part:done',
+}
 
 /**
  * This is a multi-part uploader that will handle
@@ -55,7 +61,8 @@ export class MultiPartUploader {
      * this is used to control the concurrency of the
      * part upload requests
     */
-    readonly readSemaphore: Semaphore;
+    private readonly readSemaphore: Semaphore;
+    private readonly events: EventEmitter;
 
     constructor(
         readonly client: S3,
@@ -65,6 +72,7 @@ export class MultiPartUploader {
         readonly logger: Logger
     ) {
         this.readSemaphore = new Semaphore(this.concurrency);
+        this.events = new EventEmitter();
     }
 
     /**
@@ -82,6 +90,8 @@ export class MultiPartUploader {
             this.logger.debug(`s3 multipart upload ${uploadId} started, took ${toHumanTime(Date.now() - start)}`);
         }).catch((err) => {
             this.startError = err;
+        }).finally(() => {
+            this.events.emit(Events.StartDone);
         });
     }
 
@@ -96,7 +106,7 @@ export class MultiPartUploader {
 
         if (this.uploadId == null) {
             this.logger.debug(`${ctx} waiting for upload to start`);
-            await pWhile(async () => this.uploadId != null || this.startError != null);
+            await once(this.events, Events.StartDone);
         }
 
         if (this.startError != null) {
@@ -116,14 +126,10 @@ export class MultiPartUploader {
             this._throwPartUploadError();
         }
 
-        this.readSemaphore.runExclusive(() => {
-            this.pendingParts++;
-            return Promise.resolve()
-                .then(() => this._waitForStart(`part #${partNumber}`))
-                .then(() => this._uploadPart(body, partNumber))
-                .finally(() => {
-                    this.pendingParts--;
-                });
+        this.pendingParts++;
+        this.readSemaphore.runExclusive(async () => {
+            await this._waitForStart(`part #${partNumber}`);
+            await this._uploadPart(body, partNumber);
         }).catch((err) => {
             if (err === E_CANCELED) {
                 this.logger.debug(`upload part #${partNumber} canceled`);
@@ -132,6 +138,9 @@ export class MultiPartUploader {
 
             this.partUploadErrors.set(String(err), err);
             this.readSemaphore.cancel();
+        }).finally(() => {
+            this.pendingParts--;
+            this.events.emit(Events.PartDone);
         });
     }
 
@@ -188,11 +197,17 @@ export class MultiPartUploader {
      * is to avoid leaving dangling requests
     */
     private async _waitForParts(minCount = 0): Promise<void> {
-        if (this.pendingParts > minCount || this.readSemaphore.isLocked()) {
+        if (this.pendingParts > minCount) {
             this.logger.debug(`Waiting for ~${this.pendingParts} parts to finish uploading...`);
-            await pWhile(async () => (
-                this.pendingParts <= minCount && !this.readSemaphore.isLocked()
-            ));
+            await new Promise<void>((resolve) => {
+                const onPart = () => {
+                    if (this.pendingParts <= minCount) {
+                        this.events.removeListener(Events.PartDone, onPart);
+                        resolve();
+                    }
+                };
+                this.events.on(Events.PartDone, onPart);
+            });
         }
 
         if (this.partUploadErrors.size) {
