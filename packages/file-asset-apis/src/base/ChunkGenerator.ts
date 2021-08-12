@@ -71,6 +71,11 @@ export class ChunkGenerator {
 
         const buffers: Buffer[] = [];
         let buffersLength = 0;
+        /**
+         * this is used to count the number of
+         * small data pieces so we can break out the event loop
+        */
+        let tooSmallOfDataCount = 0;
 
         let chunk: Chunk|undefined;
         for (const [formatted, has_more] of this.formatter.formatIterator(this.slice)) {
@@ -125,11 +130,17 @@ export class ChunkGenerator {
             }
 
             if (chunk) {
+                tooSmallOfDataCount = 0;
                 yield chunk;
+            } else {
+                tooSmallOfDataCount++;
             }
 
-            // always breakout of the event loop
-            await EventLoop.wait();
+            // this will ensure we don't block the event loop
+            // for too long blocking requests from going out
+            if (tooSmallOfDataCount % 100 === 99) {
+                await EventLoop.wait();
+            }
         }
 
         if (buffers.length) {
@@ -147,9 +158,6 @@ export class ChunkGenerator {
             };
 
             yield chunk;
-
-            // always breakout of the event loop
-            await EventLoop.wait();
         }
     }
 
