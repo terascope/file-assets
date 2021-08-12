@@ -58,7 +58,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                     uploader = new MultiPartUploader(
                         this.client, Bucket, Key, this.concurrency, this.logger
                     );
-                    await uploader.start();
+                    uploader.start();
                 } else {
                     // make regular query
                     if (!Body) return;
@@ -77,11 +77,13 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
             // the index is zero based but the part numbers start at 1
             // so we need to increment by 1
             uploader.enqueuePart(Body, chunk.index + 1);
+        }
 
-            // we are done, finalize the upload
-            if (!chunk.has_more) {
-                await uploader.finish();
-            }
+        // we are done, finalize the upload
+        // do this outside of the for loop
+        // to free up the chunkGenerator
+        if (uploader) {
+            return uploader.finish();
         }
     }
 
