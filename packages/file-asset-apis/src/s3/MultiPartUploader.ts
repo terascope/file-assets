@@ -2,7 +2,8 @@ import { EventEmitter, once } from 'events';
 import type S3 from 'aws-sdk/clients/s3';
 import { E_CANCELED, Semaphore } from 'async-mutex';
 import {
-    Logger, sortBy, toHumanTime
+    EventLoop,
+    Logger, pDelay, sortBy, toHumanTime
 } from '@terascope/utils';
 import {
     createS3MultipartUpload,
@@ -73,15 +74,18 @@ export class MultiPartUploader {
     ) {
         this.readSemaphore = new Semaphore(this.concurrency);
         this.events = new EventEmitter();
+        // just so we don't get warnings set this to a higher number
+        this.events.setMaxListeners(1000);
     }
 
     /**
      * Start the multi-part upload
     */
-    start(): void {
+    async start(): Promise<void> {
         if (this.started) throw new Error('Upload already started');
 
         const start = Date.now();
+
         this.started = true;
         createS3MultipartUpload(
             this.client, this.bucket, this.key
@@ -93,6 +97,11 @@ export class MultiPartUploader {
         }).finally(() => {
             this.events.emit(Events.StartDone);
         });
+
+        // adding this here will ensure that
+        // we give the event loop some time to
+        // to start the upload
+        await pDelay(10);
     }
 
     /**
@@ -117,7 +126,9 @@ export class MultiPartUploader {
     /**
      * Enqueue a part upload request
     */
-    enqueuePart(body: Buffer, partNumber: number): void {
+    async enqueuePart(
+        body: Buffer, partNumber: number
+    ): Promise<void> {
         if (this.finishing) {
             throw new Error(`MultiPartUploader already finishing, cannot upload part #${partNumber}`);
         }
@@ -142,6 +153,13 @@ export class MultiPartUploader {
             this.pendingParts--;
             this.events.emit(Events.PartDone);
         });
+
+        if (!this.uploadId) {
+            // adding this here will ensure that
+            // we give the event loop some time to
+            // to start the upload
+            await EventLoop.wait();
+        }
     }
 
     /**
@@ -203,7 +221,7 @@ export class MultiPartUploader {
                 const onPart = () => {
                     if (this.pendingParts <= minCount) {
                         this.events.removeListener(Events.PartDone, onPart);
-                        resolve();
+                        process.nextTick(resolve);
                     }
                 };
                 this.events.on(Events.PartDone, onPart);

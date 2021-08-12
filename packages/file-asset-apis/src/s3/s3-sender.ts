@@ -1,8 +1,6 @@
 import type { RouteSenderAPI } from '@terascope/job-components';
 import type S3 from 'aws-sdk/clients/s3';
-import {
-    Logger, TSError
-} from '@terascope/utils';
+import { Logger, TSError } from '@terascope/utils';
 import {
     parsePath, ChunkedFileSender, SendBatchConfig
 } from '../base';
@@ -58,7 +56,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                     uploader = new MultiPartUploader(
                         this.client, Bucket, Key, this.concurrency, this.logger
                     );
-                    uploader.start();
+                    await uploader.start();
                 } else {
                     // make regular query
                     if (!Body) return;
@@ -76,7 +74,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
 
             // the index is zero based but the part numbers start at 1
             // so we need to increment by 1
-            uploader.enqueuePart(Body, chunk.index + 1);
+            await uploader.enqueuePart(Body, chunk.index + 1);
         }
 
         // we are done, finalize the upload

@@ -125,9 +125,11 @@ export class ChunkGenerator {
             }
 
             if (chunk) {
-                await EventLoop.wait();
                 yield chunk;
             }
+
+            // always breakout of the event loop
+            await EventLoop.wait();
         }
 
         if (buffers.length) {
@@ -145,6 +147,9 @@ export class ChunkGenerator {
             };
 
             yield chunk;
+
+            // always breakout of the event loop
+            await EventLoop.wait();
         }
     }
 
