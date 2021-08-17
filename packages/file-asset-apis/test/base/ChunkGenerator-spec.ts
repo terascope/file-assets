@@ -289,23 +289,17 @@ describe('ChunkGenerator', () => {
             });
 
             it('should return a more than one chunk', async () => {
-                const wholeBuffer = await gen.compressor.compress(
-                    gen.formatter.format(input)
-                );
+                const str = gen.formatter.format(input);
                 // we just need to ensure that our test will work
-                expect(wholeBuffer.length).toBeGreaterThan(CHUNK_SIZE);
+                expect(str.length).toBeGreaterThan(CHUNK_SIZE);
 
                 const expected: TestChunk[] = [{
                     index: 0,
-                    data: wholeBuffer
-                        .subarray(0, CHUNK_SIZE)
-                        .toString(),
+                    data: str.slice(0, CHUNK_SIZE),
                     has_more: true,
                 }, {
                     index: 1,
-                    data: wholeBuffer
-                        .subarray(CHUNK_SIZE, CHUNK_SIZE * 2)
-                        .toString(),
+                    data: str.slice(CHUNK_SIZE, CHUNK_SIZE * 2),
                     has_more: false,
                 }];
                 await expect(toArray(gen)).resolves.toEqual(expected);

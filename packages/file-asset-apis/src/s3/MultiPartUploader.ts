@@ -1,8 +1,6 @@
 import { EventEmitter, once } from 'events';
 import type S3 from 'aws-sdk/clients/s3';
-import { E_CANCELED, Semaphore } from 'async-mutex';
 import {
-    EventLoop,
     Logger, pDelay, sortBy, toHumanTime
 } from '@terascope/utils';
 import {
@@ -58,21 +56,14 @@ export class MultiPartUploader {
     */
     private finishing = false;
 
-    /**
-     * this is used to control the concurrency of the
-     * part upload requests
-    */
-    private readonly readSemaphore: Semaphore;
     private readonly events: EventEmitter;
 
     constructor(
         readonly client: S3,
         readonly bucket: string,
         readonly key: string,
-        readonly concurrency: number,
         readonly logger: Logger
     ) {
-        this.readSemaphore = new Semaphore(this.concurrency);
         this.events = new EventEmitter();
         // just so we don't get warnings set this to a higher number
         this.events.setMaxListeners(1000);
@@ -101,21 +92,21 @@ export class MultiPartUploader {
         // adding this here will ensure that
         // we give the event loop some time to
         // to start the upload
-        await pDelay(10);
+        await pDelay(0);
     }
 
     /**
      * Used wait until the background request for start is finished.
      * If that failed, this should throw
     */
-    private async _waitForStart(ctx: string): Promise<void> {
+    private _waitForStart(ctx: string): Promise<void>|void {
         if (!this.started) {
             throw Error('Expected MultiPartUploader->start to have been finished');
         }
 
         if (this.uploadId == null) {
             this.logger.debug(`${ctx} waiting for upload to start`);
-            await once(this.events, Events.StartDone);
+            return once(this.events, Events.StartDone).then(() => undefined);
         }
 
         if (this.startError != null) {
@@ -138,27 +129,23 @@ export class MultiPartUploader {
         }
 
         this.pendingParts++;
-        this.readSemaphore.runExclusive(async () => {
-            await this._waitForStart(`part #${partNumber}`);
-            await this._uploadPart(body, partNumber);
-        }).catch((err) => {
-            if (err === E_CANCELED) {
-                this.logger.debug(`upload part #${partNumber} canceled`);
-                return;
-            }
+        // run this in the background
+        Promise.resolve()
+            .then(() => this._waitForStart(`part #${partNumber}`))
+            .then(() => this._uploadPart(body, partNumber))
+            .catch((err) => {
+                this.partUploadErrors.set(String(err), err);
+            })
+            .finally(() => {
+                this.pendingParts--;
+                this.events.emit(Events.PartDone);
+            });
 
-            this.partUploadErrors.set(String(err), err);
-            this.readSemaphore.cancel();
-        }).finally(() => {
-            this.pendingParts--;
-            this.events.emit(Events.PartDone);
-        });
-
-        if (!this.uploadId) {
+        if (this.pendingParts > 0 || !this.uploadId) {
             // adding this here will ensure that
             // we give the event loop some time to
             // to start the upload
-            await EventLoop.wait();
+            await pDelay(this.pendingParts);
         }
     }
 
