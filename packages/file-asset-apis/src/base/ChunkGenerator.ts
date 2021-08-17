@@ -22,21 +22,31 @@ export interface Chunk {
     readonly has_more: boolean;
 }
 
+const MiB = 1024 * 1024;
+
 /**
  * Efficiently breaks up a slice into multiple chunks.
  * The behavior will change depending if the whole slice has be
  * serialized at once or not.
+ *
+ * The chunk size is not a guaranteed since we check the length
 */
 export class ChunkGenerator {
     /**
      * Used for determine how big each chunk of a single file should be
     */
-    static MAX_CHUNK_SIZE_BYTES = (isTest ? 5 : 100) * 1024 * 1024;
+    static MAX_CHUNK_SIZE_BYTES = (isTest ? 5 : 100) * MiB;
+
+    /**
+     * Used for determine how much the chunk must overflow byte to
+     * defer the data to the next chunk
+    */
+    static MAX_CHUNK_OVERFLOW_BYTES = (isTest ? 0 : 1) * MiB;
 
     /*
     * 5MiB - Minimum part size for multipart uploads with Minio
     */
-    static MIN_CHUNK_SIZE_BYTES = 1024 * 1024 * 5;
+    static MIN_CHUNK_SIZE_BYTES = 5 * MiB;
 
     constructor(
         readonly formatter: Formatter,
@@ -67,10 +77,14 @@ export class ChunkGenerator {
 
     private async* _chunkByRow(): AsyncIterableIterator<Chunk> {
         const chunkSize = getBytes(ChunkGenerator.MAX_CHUNK_SIZE_BYTES);
+        const maxOverflowBytes = ChunkGenerator.MAX_CHUNK_OVERFLOW_BYTES;
         let index = 0;
 
-        const buffers: Buffer[] = [];
-        let buffersLength = 0;
+        /**
+         * This will use the length of the string
+         * to determine the rough number of bytes
+        */
+        let chunkStr = '';
         /**
          * this is used to count the number of
          * small data pieces so we can break out the event loop
@@ -78,47 +92,31 @@ export class ChunkGenerator {
         let tooSmallOfDataCount = 0;
 
         let chunk: Chunk|undefined;
-        for (const [formatted, has_more] of this.formatter.formatIterator(this.slice)) {
+        for (const [str, has_more] of this.formatter.formatIterator(this.slice)) {
             chunk = undefined;
 
-            const buf = Buffer.from(formatted, 'utf8');
-            buffers.push(buf);
-            buffersLength += buf.length;
+            chunkStr += str;
 
             /**
              * Since a row may push the chunk size over the limit,
              * the overflow from the current row buffer needs to
              * be deferred until the next iteration
             */
-            const overflowBytes = buffersLength - chunkSize;
-            if (overflowBytes > 0) {
-                const combinedBuffer = Buffer.concat(
-                    buffers,
-                    buffersLength
-                );
-                buffersLength = 0;
-                buffers.length = 0;
+            const estimatedOverflowBytes = chunkStr.length - chunkSize;
+            if (estimatedOverflowBytes > maxOverflowBytes) {
+                const combinedBuffer = Buffer.from(chunkStr);
+                chunkStr = combinedBuffer.toString('utf-8', chunkSize);
 
-                const overflowBuf = Buffer.alloc(overflowBytes);
-                combinedBuffer.copy(overflowBuf, 0, chunkSize);
-
-                const uploadBuf = Buffer.alloc(chunkSize, combinedBuffer);
                 chunk = {
                     index,
                     has_more,
-                    data: uploadBuf,
+                    data: combinedBuffer.slice(0, chunkSize),
                 };
 
                 index++;
-                buffersLength += overflowBuf.length;
-                buffers.push(overflowBuf);
-            } else if (overflowBytes === 0) {
-                const combinedBuffer = Buffer.concat(
-                    buffers,
-                    buffersLength
-                );
-                buffersLength = 0;
-                buffers.length = 0;
+            } else if (estimatedOverflowBytes >= 0) {
+                const combinedBuffer = Buffer.from(chunkStr);
+                chunkStr = '';
 
                 chunk = {
                     index,
@@ -143,18 +141,14 @@ export class ChunkGenerator {
             }
         }
 
-        if (buffers.length) {
-            const combinedBuffer = Buffer.concat(
-                buffers,
-                buffersLength
-            );
-            buffersLength = 0;
-            buffers.length = 0;
+        if (chunkStr.length) {
+            const uploadBuffer = Buffer.from(chunkStr);
+            chunkStr = '';
 
             chunk = {
                 index,
                 has_more: false,
-                data: combinedBuffer,
+                data: uploadBuffer,
             };
 
             yield chunk;
