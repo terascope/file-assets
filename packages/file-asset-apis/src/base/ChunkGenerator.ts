@@ -136,7 +136,7 @@ export class ChunkGenerator {
 
             // this will ensure we don't block the event loop
             // for too long blocking requests from going out
-            if (tooSmallOfDataCount % 100 === 99) {
+            if (tooSmallOfDataCount % 1000 === 999) {
                 await EventLoop.wait();
             }
         }
