@@ -129,6 +129,7 @@ export class MultiPartUploader {
         }
 
         this.pendingParts++;
+
         // run this in the background
         Promise.resolve()
             .then(() => this._waitForStart(`part #${partNumber}`))
@@ -208,7 +209,7 @@ export class MultiPartUploader {
                 const onPart = () => {
                     if (this.pendingParts <= minCount) {
                         this.events.removeListener(Events.PartDone, onPart);
-                        process.nextTick(resolve);
+                        resolve();
                     }
                 };
                 this.events.on(Events.PartDone, onPart);
