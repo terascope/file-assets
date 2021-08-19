@@ -31,10 +31,7 @@ type FormatFn = (
 function makeCSVOrTSVFunction(
     _config: FormatterOptions, csvOptions: json2csv.Options<any>
 ): FormatFn {
-    return function csvOrTSVFormat(
-        slice: SendRecords|SendRecord,
-        isFirstSlice: boolean
-    ) {
+    return function csvOrTSVFormat(slice, isFirstSlice) {
         return parse(slice, {
             ...csvOptions,
             header: csvOptions.header && isFirstSlice,
@@ -44,12 +41,10 @@ function makeCSVOrTSVFunction(
 
 function makeRawFunction(config: FormatterOptions): FormatFn {
     const lineDelimiter = getLineDelimiter(config);
-    return function rawFormat(
-        slice: SendRecords|SendRecord,
-    ) {
-        if (!Array.isArray(slice)) return String(slice.data);
+    return function rawFormat(slice) {
+        if (!isIterable(slice)) return String(slice.data);
 
-        return slice.map((record) => record.data).join(lineDelimiter);
+        return Array.from(slice, (record) => record.data).join(lineDelimiter);
     };
 }
 
@@ -59,20 +54,10 @@ function makeLDJSONFunction(config: FormatterOptions): FormatFn {
     function _stringify(record: SendRecord): string {
         return JSON.stringify(record, fields);
     }
-    return function ldjsonFormat(
-        slice: SendRecords|SendRecord,
-    ) {
-        if (!Array.isArray(slice)) return _stringify(slice);
+    return function ldjsonFormat(slice) {
+        if (!isIterable(slice)) return _stringify(slice);
 
-        let output = '';
-        const len = slice.length;
-        for (let i = 0; i < len; i++) {
-            output += _stringify(slice[i]);
-            if ((i + 1) < len) {
-                output += lineDelimiter;
-            }
-        }
-        return output;
+        return Array.from(slice, _stringify).join(lineDelimiter);
     };
 }
 
@@ -199,6 +184,10 @@ function _hasMoreIterator<R>(
             return this;
         },
     } as IterableIterator<[items: R, has_more: boolean]>;
+}
+
+function isIterable(input: unknown): input is Iterable<any> {
+    return Symbol.iterator in Object(input);
 }
 
 function makeCSVOptions(config: FormatterOptions): CSVOptions {

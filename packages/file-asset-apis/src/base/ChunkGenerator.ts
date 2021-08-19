@@ -1,9 +1,7 @@
-import {
-    DataEntity, isTest
-} from '@terascope/utils';
+import { isTest } from '@terascope/utils';
 import { Compressor } from './Compressor';
 import { Formatter } from './Formatter';
-import { Format, Compression } from '../interfaces';
+import { Format, Compression, SendRecords } from '../interfaces';
 
 export interface Chunk {
     /**
@@ -45,7 +43,7 @@ export class ChunkGenerator {
     constructor(
         readonly formatter: Formatter,
         readonly compressor: Compressor,
-        readonly slice: (Record<string, unknown>|DataEntity)[]
+        readonly slice: SendRecords
     ) {}
 
     /**
@@ -59,14 +57,11 @@ export class ChunkGenerator {
             && this.compressor.type === Compression.none;
     }
 
-    async* [Symbol.asyncIterator](): AsyncIterableIterator<Chunk> {
-        if (!this.slice.length) return;
-
+    [Symbol.asyncIterator](): AsyncIterableIterator<Chunk> {
         if (this.isRowOptimized()) {
-            yield* this._chunkByRow();
-        } else {
-            yield* this._chunkAll();
+            return this._chunkByRow();
         }
+        return this._chunkAll();
     }
 
     private async* _chunkByRow(): AsyncIterableIterator<Chunk> {
