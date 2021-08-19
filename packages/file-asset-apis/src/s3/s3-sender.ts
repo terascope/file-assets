@@ -43,7 +43,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
         const Bucket = objPath.bucket;
 
         let isFirstSlice = true;
-        let Body: Buffer|undefined;
+        let Body: Buffer|string|undefined;
         let uploader: MultiPartUploader|undefined;
 
         for await (const chunk of chunkGenerator) {

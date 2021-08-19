@@ -3,7 +3,7 @@ import {
     isNil,
     isString,
     getTypeOf,
-    isTest,
+    castArray,
 } from '@terascope/utils';
 import json2csv, { parse } from 'json2csv';
 import {
@@ -25,14 +25,14 @@ type MakeFormatFn = (
 ) => FormatFn
 
 type FormatFn = (
-    slice: SendRecords, isFirstSlice: boolean
+    slice: SendRecords|SendRecord, isFirstSlice: boolean
 ) => string
 
 function makeCSVOrTSVFunction(
     _config: FormatterOptions, csvOptions: json2csv.Options<any>
 ): FormatFn {
     return function csvOrTSVFormat(
-        slice: SendRecords,
+        slice: SendRecords|SendRecord,
         isFirstSlice: boolean
     ) {
         return parse(slice, {
@@ -45,8 +45,10 @@ function makeCSVOrTSVFunction(
 function makeRawFunction(config: FormatterOptions): FormatFn {
     const lineDelimiter = getLineDelimiter(config);
     return function rawFormat(
-        slice: SendRecords,
+        slice: SendRecords|SendRecord,
     ) {
+        if (!Array.isArray(slice)) return String(slice.data);
+
         return slice.map((record) => record.data).join(lineDelimiter);
     };
 }
@@ -58,8 +60,10 @@ function makeLDJSONFunction(config: FormatterOptions): FormatFn {
         return JSON.stringify(record, fields);
     }
     return function ldjsonFormat(
-        slice: SendRecords,
+        slice: SendRecords|SendRecord,
     ) {
+        if (!Array.isArray(slice)) return _stringify(slice);
+
         let output = '';
         const len = slice.length;
         for (let i = 0; i < len; i++) {
@@ -75,9 +79,9 @@ function makeLDJSONFunction(config: FormatterOptions): FormatFn {
 function makeJSONFunction(config: FormatterOptions): FormatFn {
     const fields = getFieldsFromConfig(config);
     return function jsonFormat(
-        slice: SendRecords,
+        slice: SendRecords|SendRecord,
     ) {
-        return JSON.stringify(slice, fields);
+        return JSON.stringify(castArray(slice), fields);
     };
 }
 
@@ -96,8 +100,6 @@ function getFormatFn(format: Format): MakeFormatFn {
 }
 
 const formatValues = Object.values(Format);
-
-const CHUNK_SIZE = isTest ? 10 : 100;
 
 export class Formatter {
     csvOptions: json2csv.Options<any>;
@@ -143,8 +145,8 @@ export class Formatter {
 
         const lineDelimiter = getLineDelimiter(this.config);
 
-        for (const [chunk, has_more] of chunkIterator(slice, CHUNK_SIZE)) {
-            const formatted = this.fn(chunk, firstSlice);
+        for (const [record, has_more] of _hasMoreIterator<SendRecord>(slice)) {
+            const formatted = this.fn(record, firstSlice);
             firstSlice = false;
 
             if (formatted.length) {
@@ -174,14 +176,29 @@ export class Formatter {
     }
 }
 
-export function* chunkIterator<T>(
-    dataArray: T[]|readonly T[], size: number
-): IterableIterator<[data: T[], has_more: boolean]> {
-    const len = dataArray.length;
-    for (let i = 0; i < len; i += size) {
-        const chunk = dataArray.slice(i, i + size);
-        yield [chunk, (i + size) < len];
-    }
+function _hasMoreIterator<R>(
+    items: Iterable<R>
+): IterableIterator<[items: R, has_more: boolean]> {
+    const iterator = items[Symbol.iterator]();
+    return {
+        next: () => {
+            const result = iterator.next();
+            if (result.done) {
+                return {
+                    value: [result.value, false],
+                    done: true,
+                };
+            }
+
+            return {
+                value: [result.value, true],
+                done: false,
+            };
+        },
+        [Symbol.iterator]() {
+            return this;
+        },
+    } as IterableIterator<[items: R, has_more: boolean]>;
 }
 
 function makeCSVOptions(config: FormatterOptions): CSVOptions {

@@ -118,7 +118,7 @@ export class MultiPartUploader {
      * Enqueue a part upload request
     */
     async enqueuePart(
-        body: Buffer, partNumber: number
+        body: Buffer|string, partNumber: number
     ): Promise<void> {
         if (this.finishing) {
             throw new Error(`MultiPartUploader already finishing, cannot upload part #${partNumber}`);
@@ -153,7 +153,7 @@ export class MultiPartUploader {
     /**
      * Make the s3 part upload request
     */
-    private async _uploadPart(body: Buffer, partNumber: number): Promise<void> {
+    private async _uploadPart(body: Buffer|string, partNumber: number): Promise<void> {
         if (!this.uploadId) {
             throw Error('Expected MultiPartUploader->start to have been finished');
         }

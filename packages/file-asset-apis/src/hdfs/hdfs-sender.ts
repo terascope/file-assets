@@ -25,7 +25,7 @@ export class HDFSSender extends ChunkedFileSender implements RouteSenderAPI {
     protected async sendToDestination(
         { dest, chunkGenerator }: SendBatchConfig
     ): Promise<void> {
-        let output: Buffer|undefined;
+        let output: Buffer|string|undefined;
 
         for await (const chunk of chunkGenerator) {
             if (chunk.has_more) {
