@@ -46,42 +46,49 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
         let Body: Buffer|string|undefined;
         let uploader: MultiPartUploader|undefined;
 
-        for await (const chunk of chunkGenerator) {
-            Body = chunk.data;
-            // first slice decides if it is multipart or not
-            if (isFirstSlice) {
-                isFirstSlice = false;
+        try {
+            for await (const chunk of chunkGenerator) {
+                Body = chunk.data;
+                // first slice decides if it is multipart or not
+                if (isFirstSlice) {
+                    isFirstSlice = false;
 
-                if (chunk.has_more) {
-                    uploader = new MultiPartUploader(
-                        this.client, Bucket, Key, this.logger
-                    );
-                    await uploader.start();
-                } else {
-                    // make regular query
-                    if (!Body) return;
+                    if (chunk.has_more) {
+                        uploader = new MultiPartUploader(
+                            this.client, Bucket, Key, this.logger
+                        );
+                        await uploader.start();
+                    } else {
+                        // make regular query
+                        if (!Body) return;
 
-                    await putS3Object(this.client, {
-                        Bucket,
-                        Key,
-                        Body
-                    });
-                    return;
+                        await putS3Object(this.client, {
+                            Bucket,
+                            Key,
+                            Body
+                        });
+                        return;
+                    }
                 }
+
+                if (!uploader) throw new Error('Expected uploader to exist');
+
+                // the index is zero based but the part numbers start at 1
+                // so we need to increment by 1
+                await uploader.enqueuePart(Body, chunk.index + 1);
             }
 
-            if (!uploader) throw new Error('Expected uploader to exist');
-
-            // the index is zero based but the part numbers start at 1
-            // so we need to increment by 1
-            await uploader.enqueuePart(Body, chunk.index + 1);
-        }
-
-        // we are done, finalize the upload
-        // do this outside of the for loop
-        // to free up the chunkGenerator
-        if (uploader) {
-            return uploader.finish();
+            // we are done, finalize the upload
+            // do this outside of the for loop
+            // to free up the chunkGenerator
+            if (uploader) {
+                return await uploader.finish();
+            }
+        } catch (err) {
+            if (uploader) {
+                await uploader.abort();
+            }
+            throw err;
         }
     }
 

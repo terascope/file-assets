@@ -57,6 +57,12 @@ export class MultiPartUploader {
     */
     private finishing = false;
 
+    /**
+     * This will be used to check to see if we should
+     * abort the request
+    */
+    private finished = false;
+
     private readonly events: EventEmitter;
 
     constructor(
@@ -192,6 +198,7 @@ export class MultiPartUploader {
             },
             UploadId: this.uploadId!
         });
+        this.finished = true;
         this.logger.debug(`finalizeS3Multipart(${this.bucket}, ${this.key}, ${this.uploadId}) took ${toHumanTime(Date.now() - start)}`);
     }
 
@@ -227,18 +234,7 @@ export class MultiPartUploader {
             throw new Error('Expected a part upload error');
         }
 
-        if (this.uploadId) {
-            try {
-                this.logger.warn('Aborting s3 upload request');
-                await abortS3Multipart(this.client, {
-                    Bucket: this.bucket,
-                    Key: this.key,
-                    UploadId: this.uploadId!
-                });
-            } catch (err) {
-                this.logger.warn(err);
-            }
-        }
+        await this.abort();
 
         if (this.partUploadErrors.size === 1) {
             const [error] = this.partUploadErrors.values();
@@ -251,5 +247,23 @@ export class MultiPartUploader {
         // @ts-expect-error
         aggError.errors = errors;
         throw aggError;
+    }
+
+    /**
+     * Abort the s3 request
+    */
+    async abort(): Promise<void> {
+        if (!this.uploadId || this.finished) return;
+
+        try {
+            this.logger.warn('Aborting s3 upload request');
+            await abortS3Multipart(this.client, {
+                Bucket: this.bucket,
+                Key: this.key,
+                UploadId: this.uploadId!
+            });
+        } catch (err) {
+            this.logger.warn(err);
+        }
     }
 }
