@@ -6,7 +6,8 @@ import {
 import {
     createS3MultipartUpload,
     uploadS3ObjectPart,
-    finalizeS3Multipart
+    finalizeS3Multipart,
+    abortS3Multipart
 } from './s3-helpers';
 
 enum Events {
@@ -125,7 +126,7 @@ export class MultiPartUploader {
         }
 
         if (this.partUploadErrors.size) {
-            this._throwPartUploadError();
+            await this._throwPartUploadError();
         }
 
         this.pendingParts++;
@@ -159,7 +160,7 @@ export class MultiPartUploader {
         }
 
         if (this.partUploadErrors.size) {
-            this._throwPartUploadError();
+            await this._throwPartUploadError();
         }
 
         this.parts.push(await uploadS3ObjectPart(this.client, {
@@ -217,14 +218,28 @@ export class MultiPartUploader {
         }
 
         if (this.partUploadErrors.size) {
-            this._throwPartUploadError();
+            await this._throwPartUploadError();
         }
     }
 
-    private _throwPartUploadError(): never {
+    private async _throwPartUploadError(): Promise<never> {
         if (this.partUploadErrors.size === 0) {
             throw new Error('Expected a part upload error');
         }
+
+        if (this.uploadId) {
+            try {
+                this.logger.warn('Aborting s3 upload request');
+                await abortS3Multipart(this.client, {
+                    Bucket: this.bucket,
+                    Key: this.key,
+                    UploadId: this.uploadId!
+                });
+            } catch (err) {
+                this.logger.warn(err);
+            }
+        }
+
         if (this.partUploadErrors.size === 1) {
             const [error] = this.partUploadErrors.values();
             throw error;

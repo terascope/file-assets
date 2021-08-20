@@ -116,25 +116,36 @@ export async function createS3MultipartUpload(
 }
 
 export async function uploadS3ObjectPart(
-    s3Client: S3, s3Payload: S3.UploadPartRequest
+    client: S3, params: S3.UploadPartRequest
 ): Promise<S3.CompletedPart> {
     return new Promise<S3.CompletedPart>((resolve, reject) => {
-        s3Client.uploadPart(s3Payload, (err, data) => {
+        client.uploadPart(params, (err, data) => {
             if (err) return reject(err);
 
             resolve({
                 ETag: data.ETag,
-                PartNumber: s3Payload.PartNumber
+                PartNumber: params.PartNumber
             });
         });
     });
 }
 
 export async function finalizeS3Multipart(
-    s3Client: S3, multipartPayload: S3.CompleteMultipartUploadRequest
+    client: S3, params: S3.CompleteMultipartUploadRequest
 ): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        s3Client.completeMultipartUpload(multipartPayload, (err) => {
+        client.completeMultipartUpload(params, (err) => {
+            if (err) return reject(err);
+            resolve();
+        });
+    });
+}
+
+export async function abortS3Multipart(
+    client: S3, params: S3.AbortMultipartUploadRequest
+): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+        client.abortMultipartUpload(params, (err) => {
             if (err) return reject(err);
             resolve();
         });
