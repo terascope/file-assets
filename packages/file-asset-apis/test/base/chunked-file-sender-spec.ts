@@ -30,7 +30,7 @@ describe('ChunkedSlicer', () => {
         async sendToDestination(
             { dest, chunkGenerator }: SendBatchConfig
         ) {
-            let output: Buffer|undefined;
+            let output: Buffer|string|undefined;
 
             for await (const chunk of chunkGenerator) {
                 if (chunk.has_more) {

@@ -14,6 +14,7 @@ import {
     ChunkedFileSenderConfig,
     getLineDelimiter,
     SendRecords,
+    SendRecord,
 } from '../interfaces';
 
 const formatValues = Object.values(Format);
@@ -172,7 +173,7 @@ export abstract class ChunkedFileSender {
     async prepareDispatch(
         data: SendRecords
     ): Promise<SendBatchConfig[]> {
-        const batches: Record<string, SendRecords> = {};
+        const batches: Record<string, SendRecord[]> = {};
         const { path } = this;
 
         batches[path] = [];

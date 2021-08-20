@@ -1,9 +1,7 @@
-import {
-    DataEntity, EventLoop, isTest
-} from '@terascope/utils';
+import { isEmpty, isTest } from '@terascope/utils';
 import { Compressor } from './Compressor';
 import { Formatter } from './Formatter';
-import { Format, Compression } from '../interfaces';
+import { Format, Compression, SendRecords } from '../interfaces';
 
 export interface Chunk {
     /**
@@ -14,7 +12,7 @@ export interface Chunk {
     /**
      * The chunk of data to published
     */
-    readonly data: Buffer;
+    readonly data: Buffer|string;
 
     /**
      * Indicates whether there are more chunks to be processed
@@ -37,12 +35,6 @@ export class ChunkGenerator {
     */
     static MAX_CHUNK_SIZE_BYTES = (isTest ? 5 : 100) * MiB;
 
-    /**
-     * Used for determine how much the chunk must overflow byte to
-     * defer the data to the next chunk
-    */
-    static MAX_CHUNK_OVERFLOW_BYTES = (isTest ? 0 : 1) * MiB;
-
     /*
     * 5MiB - Minimum part size for multipart uploads with Minio
     */
@@ -51,7 +43,7 @@ export class ChunkGenerator {
     constructor(
         readonly formatter: Formatter,
         readonly compressor: Compressor,
-        readonly slice: (Record<string, unknown>|DataEntity)[]
+        readonly slice: SendRecords
     ) {}
 
     /**
@@ -65,19 +57,18 @@ export class ChunkGenerator {
             && this.compressor.type === Compression.none;
     }
 
-    async* [Symbol.asyncIterator](): AsyncIterableIterator<Chunk> {
-        if (!this.slice.length) return;
-
-        if (this.isRowOptimized()) {
-            yield* this._chunkByRow();
-        } else {
-            yield* this._chunkAll();
+    [Symbol.asyncIterator](): AsyncIterableIterator<Chunk> {
+        if (isEmpty(this.slice)) {
+            return this._emptyIterator();
         }
+        if (this.isRowOptimized()) {
+            return this._chunkByRow();
+        }
+        return this._chunkAll();
     }
 
     private async* _chunkByRow(): AsyncIterableIterator<Chunk> {
         const chunkSize = getBytes(ChunkGenerator.MAX_CHUNK_SIZE_BYTES);
-        const maxOverflowBytes = ChunkGenerator.MAX_CHUNK_OVERFLOW_BYTES;
         let index = 0;
 
         /**
@@ -85,11 +76,6 @@ export class ChunkGenerator {
          * to determine the rough number of bytes
         */
         let chunkStr = '';
-        /**
-         * this is used to count the number of
-         * small data pieces so we can break out the event loop
-        */
-        let tooSmallOfDataCount = 0;
 
         let chunk: Chunk|undefined;
         for (const [str, has_more] of this.formatter.formatIterator(this.slice)) {
@@ -103,54 +89,39 @@ export class ChunkGenerator {
              * be deferred until the next iteration
             */
             const estimatedOverflowBytes = chunkStr.length - chunkSize;
-            if (estimatedOverflowBytes > maxOverflowBytes) {
-                const combinedBuffer = Buffer.from(chunkStr);
-                chunkStr = combinedBuffer.toString('utf-8', chunkSize);
-
+            if (estimatedOverflowBytes >= chunkSize) {
                 chunk = {
                     index,
                     has_more,
-                    data: combinedBuffer.slice(0, chunkSize),
+                    data: chunkStr.slice(0, chunkSize),
                 };
 
+                chunkStr = chunkStr.slice(chunkSize, chunkStr.length);
                 index++;
             } else if (estimatedOverflowBytes >= 0) {
-                const combinedBuffer = Buffer.from(chunkStr);
-                chunkStr = '';
-
                 chunk = {
                     index,
                     has_more,
-                    data: combinedBuffer,
+                    data: chunkStr,
                 };
 
+                chunkStr = '';
                 index++;
             }
 
             if (chunk) {
-                tooSmallOfDataCount = 0;
                 yield chunk;
-            } else {
-                tooSmallOfDataCount++;
-            }
-
-            // this will ensure we don't block the event loop
-            // for too long blocking requests from going out
-            if (tooSmallOfDataCount % 1000 === 999) {
-                await EventLoop.wait();
             }
         }
 
         if (chunkStr.length) {
-            const uploadBuffer = Buffer.from(chunkStr);
-            chunkStr = '';
-
             chunk = {
                 index,
                 has_more: false,
-                data: uploadBuffer,
+                data: chunkStr,
             };
 
+            chunkStr = '';
             yield chunk;
         }
     }
@@ -173,6 +144,8 @@ export class ChunkGenerator {
             offset += chunk.length;
         }
     }
+
+    private async* _emptyIterator(): AsyncIterableIterator<Chunk> {}
 }
 
 /**

@@ -6,7 +6,8 @@ import {
 import {
     createS3MultipartUpload,
     uploadS3ObjectPart,
-    finalizeS3Multipart
+    finalizeS3Multipart,
+    abortS3Multipart
 } from './s3-helpers';
 
 enum Events {
@@ -55,6 +56,12 @@ export class MultiPartUploader {
      * parts are added after finishing is called
     */
     private finishing = false;
+
+    /**
+     * This will be used to check to see if we should
+     * abort the request
+    */
+    private finished = false;
 
     private readonly events: EventEmitter;
 
@@ -118,14 +125,14 @@ export class MultiPartUploader {
      * Enqueue a part upload request
     */
     async enqueuePart(
-        body: Buffer, partNumber: number
+        body: Buffer|string, partNumber: number
     ): Promise<void> {
         if (this.finishing) {
             throw new Error(`MultiPartUploader already finishing, cannot upload part #${partNumber}`);
         }
 
         if (this.partUploadErrors.size) {
-            this._throwPartUploadError();
+            await this._throwPartUploadError();
         }
 
         this.pendingParts++;
@@ -153,13 +160,13 @@ export class MultiPartUploader {
     /**
      * Make the s3 part upload request
     */
-    private async _uploadPart(body: Buffer, partNumber: number): Promise<void> {
+    private async _uploadPart(body: Buffer|string, partNumber: number): Promise<void> {
         if (!this.uploadId) {
             throw Error('Expected MultiPartUploader->start to have been finished');
         }
 
         if (this.partUploadErrors.size) {
-            this._throwPartUploadError();
+            await this._throwPartUploadError();
         }
 
         this.parts.push(await uploadS3ObjectPart(this.client, {
@@ -191,6 +198,7 @@ export class MultiPartUploader {
             },
             UploadId: this.uploadId!
         });
+        this.finished = true;
         this.logger.debug(`finalizeS3Multipart(${this.bucket}, ${this.key}, ${this.uploadId}) took ${toHumanTime(Date.now() - start)}`);
     }
 
@@ -217,14 +225,17 @@ export class MultiPartUploader {
         }
 
         if (this.partUploadErrors.size) {
-            this._throwPartUploadError();
+            await this._throwPartUploadError();
         }
     }
 
-    private _throwPartUploadError(): never {
+    private async _throwPartUploadError(): Promise<never> {
         if (this.partUploadErrors.size === 0) {
             throw new Error('Expected a part upload error');
         }
+
+        await this.abort();
+
         if (this.partUploadErrors.size === 1) {
             const [error] = this.partUploadErrors.values();
             throw error;
@@ -236,5 +247,23 @@ export class MultiPartUploader {
         // @ts-expect-error
         aggError.errors = errors;
         throw aggError;
+    }
+
+    /**
+     * Abort the s3 request
+    */
+    async abort(): Promise<void> {
+        if (!this.uploadId || this.finished) return;
+
+        try {
+            this.logger.warn('Aborting s3 upload request');
+            await abortS3Multipart(this.client, {
+                Bucket: this.bucket,
+                Key: this.key,
+                UploadId: this.uploadId!
+            });
+        } catch (err) {
+            this.logger.warn(err);
+        }
     }
 }
