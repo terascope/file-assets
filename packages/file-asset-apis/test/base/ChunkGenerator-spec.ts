@@ -293,13 +293,14 @@ describe('ChunkGenerator', () => {
                 // we just need to ensure that our test will work
                 expect(str.length).toBeGreaterThan(CHUNK_SIZE);
 
+                const overflow = 6;
                 const expected: TestChunk[] = [{
                     index: 0,
-                    data: str.slice(0, CHUNK_SIZE),
+                    data: str.slice(0, CHUNK_SIZE + overflow),
                     has_more: true,
                 }, {
                     index: 1,
-                    data: str.slice(CHUNK_SIZE, CHUNK_SIZE * 2),
+                    data: str.slice(CHUNK_SIZE + overflow, str.length),
                     has_more: false,
                 }];
                 await expect(toArray(gen)).resolves.toEqual(expected);

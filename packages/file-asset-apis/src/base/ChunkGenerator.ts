@@ -1,4 +1,4 @@
-import { isTest } from '@terascope/utils';
+import { isEmpty, isTest } from '@terascope/utils';
 import { Compressor } from './Compressor';
 import { Formatter } from './Formatter';
 import { Format, Compression, SendRecords } from '../interfaces';
@@ -58,6 +58,9 @@ export class ChunkGenerator {
     }
 
     [Symbol.asyncIterator](): AsyncIterableIterator<Chunk> {
+        if (isEmpty(this.slice)) {
+            return this._emptyIterator();
+        }
         if (this.isRowOptimized()) {
             return this._chunkByRow();
         }
@@ -141,6 +144,8 @@ export class ChunkGenerator {
             offset += chunk.length;
         }
     }
+
+    private async* _emptyIterator(): AsyncIterableIterator<Chunk> {}
 }
 
 /**
