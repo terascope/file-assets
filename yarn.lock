@@ -650,12 +650,12 @@
     progress "^2.0.3"
     regenerator-runtime "^0.13.5"
 
-"@terascope/job-components@^0.53.0":
-  version "0.53.0"
-  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.53.0.tgz#be717887b793bdb6096c893651739f5288762b10"
-  integrity sha512-qlvRfFpZvw25/8riwtL88I3a0U0SImtHDKqaYOpJHt8FI6vDzpAuqT81LlvAxLyYV+nj4NOFaPv/q2XEkt+Wxg==
+"@terascope/job-components@^0.54.0":
+  version "0.54.0"
+  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.54.0.tgz#39a2387262669c935a2122c41601cf9ee99eefd7"
+  integrity sha512-/prVqiWwQeN5vyTCOrkdeUFLV+0Ya0nseZa1Qat9MA5ZIB2ivgj66RPcbAuEf0ZHPnKdrAacBALjgNGIpoKN2A==
   dependencies:
-    "@terascope/utils" "^0.41.0"
+    "@terascope/utils" "^0.42.0"
     convict "^4.4.1"
     datemath-parser "^1.0.6"
     uuid "^8.3.2"
@@ -676,6 +676,45 @@
   version "0.41.0"
   resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.41.0.tgz#0d97c1d33e0d351092365e290f937bb81b6b1525"
   integrity sha512-K5GjNTrgw6/CWsxmj29e9SQHDuNo9ePeOGspxaG4lq3EhFGtMrIpeFOgFfN1vuOlI244GigELimGqH7w/7WznQ==
+  dependencies:
+    "@terascope/types" "^0.10.1"
+    "@turf/bbox" "^6.4.0"
+    "@turf/bbox-polygon" "^6.4.0"
+    "@turf/boolean-contains" "^6.4.0"
+    "@turf/boolean-disjoint" "^6.4.0"
+    "@turf/boolean-equal" "^6.4.0"
+    "@turf/boolean-intersects" "^6.4.0"
+    "@turf/boolean-point-in-polygon" "^6.4.0"
+    "@turf/boolean-within" "^6.4.0"
+    "@turf/circle" "^6.4.0"
+    "@turf/helpers" "^6.2.0"
+    "@turf/invariant" "^6.2.0"
+    "@turf/line-to-polygon" "^6.4.0"
+    awesome-phonenumber "^2.57.0"
+    date-fns "^2.23.0"
+    date-fns-tz "^1.1.5"
+    datemath-parser "^1.0.6"
+    debug "^4.3.2"
+    geo-tz "^6.0.1"
+    ip-bigint "^3.0.3"
+    ip6addr "^0.2.3"
+    ipaddr.js "^2.0.1"
+    is-cidr "^4.0.2"
+    is-ip "^3.1.0"
+    is-plain-object "^5.0.0"
+    js-string-escape "^1.0.1"
+    kind-of "^6.0.3"
+    latlon-geohash "^1.1.0"
+    lodash "^4.17.21"
+    mnemonist "^0.38.3"
+    p-map "^4.0.0"
+    shallow-clone "^3.0.1"
+    validator "^13.6.0"
+
+"@terascope/utils@^0.42.0":
+  version "0.42.0"
+  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.42.0.tgz#716e77295e88274015462f03df7b4b8669d32925"
+  integrity sha512-TaDV72QHU0ssEnhOrzVkTTm/yvlAeq1t36zm3eoDhEKgElDySIKdtU5P0yUv3UKS/wSNQI7ipL9cAVDjNFqK/w==
   dependencies:
     "@terascope/types" "^0.10.1"
     "@turf/bbox" "^6.4.0"
