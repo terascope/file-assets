@@ -74,7 +74,7 @@ export abstract class ChunkedFileReader {
     compressor: Compressor;
     private onRejectAction: string;
     private tryFn: (fn:(msg: any) => DataEntity) => (input: any) => DataEntity | null;
-    private rejectRecord: (input: unknown, err: Error) => never | null;
+    private rejectRecord: (input: unknown, err: unknown) => never | null;
     private config: ChunkedFileReaderConfig
     private encodingConfig: {
         _encoding: DataEncoding
@@ -137,7 +137,7 @@ export abstract class ChunkedFileReader {
         };
     }
 
-    private reject(input: unknown, err: Error): never | null {
+    private reject(input: unknown, err: unknown): never | null {
         const action = this.onRejectAction;
         if (action === 'throw' || !action) {
             throw err;
