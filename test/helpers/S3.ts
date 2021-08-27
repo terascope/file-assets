@@ -3,7 +3,8 @@ import {
     debugLogger,
     isNil,
     isString,
-    DataEntity
+    DataEntity,
+    isError
 } from '@terascope/job-components';
 import S3 from 'aws-sdk/clients/s3';
 import {
@@ -76,7 +77,9 @@ export async function cleanupBucket(
             Bucket: bucket,
         });
     } catch (err) {
-        if (err.code === 'NoSuchBucket') return;
+        if (isError(err) && (err as Error & { code: string }).code === 'NoSuchBucket') {
+            return;
+        }
         throw err;
     }
 

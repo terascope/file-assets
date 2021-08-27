@@ -1,3 +1,4 @@
+import { isError } from '@terascope/utils';
 import S3 from 'aws-sdk/clients/s3';
 import {
     listS3Objects,
@@ -40,7 +41,9 @@ export async function cleanupBucket(
             Bucket: bucket,
         });
     } catch (err) {
-        if (err.code === 'NoSuchBucket') return;
+        if (isError(err) && (err as Error & { code: string }).code === 'NoSuchBucket') {
+            return;
+        }
         throw err;
     }
 

@@ -22,7 +22,7 @@ export interface ChunkedAPIMethods {
      * will ignore the "on_reject_action" configuration which only works for the default
      * error handler
      */
-    rejectFn?: (input: unknown, err: Error) => never | null;
+    rejectFn?: (input: unknown, err: unknown) => never | null;
 }
 
 export enum Format {
