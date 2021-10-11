@@ -22,6 +22,12 @@ before_script:
   - sudo chown -R travis ./data
   - sudo chmod u+rxw ./data
   - ./minio server ./data &
+  # yarn doesn't exist in the base image for osx anymore, so this should fix it
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+    npm install -g yarn
+    else
+    echo "* skipping install yarn for $TRAVIS_OS_NAME";
+    fi
   - yarn build
   - yarn global add teraslice-cli
 script:
