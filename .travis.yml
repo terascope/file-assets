@@ -15,6 +15,13 @@ cache:
   npm: false
   yarn: false
 if: NOT (branch = master AND type = push AND tag IS blank AND os = osx)
+before_install:
+  # yarn doesn't exist in the base image for osx anymore, so this should fix it
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+    npm install -g yarn
+    else
+    echo "* skipping install yarn for $TRAVIS_OS_NAME";
+    fi
 before_script:
   - curl -LO "https://dl.min.io/server/minio/release/${TRAVIS_OS_NAME/osx/darwin}-amd64/minio"
   - sudo chmod +x minio
@@ -22,12 +29,6 @@ before_script:
   - sudo chown -R travis ./data
   - sudo chmod u+rxw ./data
   - ./minio server ./data &
-  # yarn doesn't exist in the base image for osx anymore, so this should fix it
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-    npm install -g yarn
-    else
-    echo "* skipping install yarn for $TRAVIS_OS_NAME";
-    fi
   - yarn build
   - yarn global add teraslice-cli
 script:
