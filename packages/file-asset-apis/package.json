@@ -32,7 +32,7 @@
     },
     "peerDependencies": {},
     "devDependencies": {
-        "@terascope/job-components": "^0.55.0",
+        "@terascope/job-components": "^0.55.1",
         "@types/jest": "^27.0.2",
         "aws-sdk": "^2.1004.0",
         "jest": "^27.2.4",
