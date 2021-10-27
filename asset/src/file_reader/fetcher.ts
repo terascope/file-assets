@@ -4,7 +4,7 @@ import { FileReaderConfig } from './interfaces';
 import { FileReaderFactoryAPI } from '../file_reader_api/interfaces';
 
 export default class FileFetcher extends Fetcher<FileReaderConfig> {
-    api!: FileTerasliceAPI
+    api!: FileTerasliceAPI;
 
     async initialize(): Promise<void> {
         await super.initialize();

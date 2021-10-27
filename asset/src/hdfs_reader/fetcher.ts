@@ -4,7 +4,7 @@ import { HDFSReaderOpConfig } from './interfaces';
 import { HDFSReaderFactoryAPI } from '../hdfs_reader_api/interfaces';
 
 export default class HDFSFetcher extends Fetcher<HDFSReaderOpConfig> {
-    api!: HDFSReader
+    api!: HDFSReader;
 
     async initialize(): Promise<void> {
         await super.initialize();

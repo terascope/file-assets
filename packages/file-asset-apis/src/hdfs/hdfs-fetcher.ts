@@ -3,7 +3,7 @@ import { ChunkedFileReader } from '../base';
 import { FileSlice, HDFSReaderConfig } from '../interfaces';
 
 export class HDFSReader extends ChunkedFileReader {
-    client: AnyObject
+    client: AnyObject;
 
     constructor(client: AnyObject, config: HDFSReaderConfig, logger: Logger) {
         super(config, logger);
