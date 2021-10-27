@@ -75,10 +75,10 @@ export abstract class ChunkedFileReader {
     private onRejectAction: string;
     private tryFn: (fn:(msg: any) => DataEntity) => (input: any) => DataEntity | null;
     private rejectRecord: (input: unknown, err: unknown) => never | null;
-    private config: ChunkedFileReaderConfig
+    private config: ChunkedFileReaderConfig;
     private encodingConfig: {
         _encoding: DataEncoding
-    }
+    };
     protected filePerSlice: boolean;
 
     constructor(inputConfig: ChunkedFileReaderConfig, logger: Logger) {

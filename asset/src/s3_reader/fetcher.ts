@@ -4,7 +4,7 @@ import { S3ReaderConfig } from './interfaces';
 import { S3ReaderFactoryAPI } from '../s3_reader_api/interfaces';
 
 export default class S3Fetcher extends Fetcher<S3ReaderConfig> {
-    api!: S3TerasliceAPI
+    api!: S3TerasliceAPI;
 
     async initialize(): Promise<void> {
         await super.initialize();

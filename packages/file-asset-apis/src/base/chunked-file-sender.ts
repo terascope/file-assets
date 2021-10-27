@@ -31,8 +31,8 @@ export interface SendBatchConfig {
 
 export abstract class ChunkedFileSender {
     protected sliceCount = -1;
-    private compressor: Compressor
-    protected formatter: Formatter
+    private compressor: Compressor;
+    protected formatter: Formatter;
     readonly pathList = new Map<string, boolean>();
     readonly type: FileSenderType;
     readonly config: ChunkedFileSenderConfig;

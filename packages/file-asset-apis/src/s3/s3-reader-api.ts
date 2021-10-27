@@ -11,7 +11,7 @@ import { S3Slicer } from './s3-slicer';
 import { S3Fetcher } from './s3-fetcher';
 
 export class S3TerasliceAPI extends S3Fetcher {
-    readonly segmentFileConfig: SliceConfig
+    readonly segmentFileConfig: SliceConfig;
     readonly slicerConfig: FileSliceConfig;
 
     constructor(client: S3, config: ReaderConfig, logger: Logger) {
