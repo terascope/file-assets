@@ -1,5 +1,4 @@
-import type { RouteSenderAPI } from '@terascope/job-components';
-import { Logger } from '@terascope/utils';
+import type { Logger, RouteSenderAPI } from '@terascope/utils';
 import fse from 'fs-extra';
 import { ChunkedFileSender, SendBatchConfig } from '../base';
 import { ChunkedFileSenderConfig, FileSenderType, isCSVSenderConfig } from '../interfaces';

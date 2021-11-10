@@ -1,5 +1,5 @@
-import type { RouteSenderAPI } from '@terascope/job-components';
 import {
+    RouteSenderAPI,
     AnyObject,
     Logger,
     TSError
