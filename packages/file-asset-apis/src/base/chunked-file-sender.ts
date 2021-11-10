@@ -26,7 +26,13 @@ export interface SendBatchConfig {
     /** The full path generated for filename  */
     readonly dest: string;
     /** Async Iterator that provides chunks of data to write  */
-    readonly chunkGenerator: ChunkGenerator
+    readonly chunkGenerator: ChunkGenerator;
+    /**
+     * The number of records to send,
+     * if this is set to -1 this count is unknown due to
+     * it being stored in an iterator
+    */
+    readonly count: number;
 }
 
 export abstract class ChunkedFileSender {
@@ -201,7 +207,8 @@ export abstract class ChunkedFileSender {
                 return {
                     filename,
                     dest: destName,
-                    chunkGenerator: new ChunkGenerator(this.formatter, this.compressor, list)
+                    chunkGenerator: new ChunkGenerator(this.formatter, this.compressor, list),
+                    count: list.length
                 };
             }
         );
@@ -226,7 +233,7 @@ export abstract class ChunkedFileSender {
      *   s3Sender.send([{ some: 'data' }]) => Promise<void>
      *   s3Sender.send([DataEntity.make({ some: 'data' })]) => Promise<void>
     */
-    async send(records: SendRecords): Promise<void> {
+    async send(records: SendRecords): Promise<number> {
         const { concurrency } = this;
         this.incrementCount();
 
@@ -236,11 +243,17 @@ export abstract class ChunkedFileSender {
 
         const dispatch = await this.prepareDispatch(records);
 
+        let affectedRecords = 0;
         await pMap(
             dispatch,
-            (config) => this.sendToDestination(config),
+            async (config) => {
+                await this.sendToDestination(config);
+                affectedRecords += config.count;
+            },
             { concurrency }
         );
+
+        return affectedRecords;
     }
 
     /**
@@ -269,7 +282,8 @@ export abstract class ChunkedFileSender {
                 this.formatter,
                 this.compressor,
                 records
-            )
+            ),
+            count: Array.isArray(records) ? records.length : -1
         });
     }
 }

@@ -1,6 +1,5 @@
-import type { RouteSenderAPI } from '@terascope/job-components';
 import type S3 from 'aws-sdk/clients/s3';
-import { Logger, TSError } from '@terascope/utils';
+import { Logger, TSError, RouteSenderAPI } from '@terascope/utils';
 import {
     parsePath, ChunkedFileSender, SendBatchConfig
 } from '../base';

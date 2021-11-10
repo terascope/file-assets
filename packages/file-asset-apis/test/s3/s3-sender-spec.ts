@@ -1,6 +1,7 @@
 import 'jest-extended';
-import { debugLogger, isString, times } from '@terascope/utils';
-import { DataEntity } from '@terascope/job-components';
+import {
+    DataEntity, debugLogger, isString, times
+} from '@terascope/utils';
 import { makeClient, cleanupBucket, getBodyFromResults } from './helpers';
 import {
     Compression,

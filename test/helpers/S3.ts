@@ -56,7 +56,7 @@ export async function fetch(
 
 export async function upload(
     client: S3, config: AnyObject, data: DataEntity[]
-): Promise<void> {
+): Promise<number> {
     if (isNil(config.bucket) || !isString(config.bucket)) throw new Error('config must include parameter bucket');
     if (isNil(config.path) || !isString(config.path)) throw new Error('config must include parameter path');
 
