@@ -1,6 +1,6 @@
 {
     "name": "@terascope/file-asset-apis",
-    "version": "0.5.1",
+    "version": "0.5.2",
     "description": "file reader and sender apis",
     "publishConfig": {
         "access": "public"
