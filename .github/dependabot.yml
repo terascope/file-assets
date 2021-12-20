@@ -1,48 +1,16 @@
 version: 2
 updates:
-- package-ecosystem: npm
-  directory: "/"
-  schedule:
-    interval: daily
-    time: "04:00"
-    timezone: US/Arizona
-  open-pull-requests-limit: 3
-  assignees:
-  - peterdemartini
-  ignore:
-  - dependency-name: aws-sdk
-    versions:
-    - "> 2.885.0"
-  - dependency-name: "@types/node"
-    versions:
-    - "> 14.14.37"
-  - dependency-name: aws-sdk
-    versions:
-    - 2.839.0
-    - 2.848.0
-    - 2.853.0
-    - 2.858.0
-    - 2.863.0
-    - 2.868.0
-    - 2.879.0
-    - 2.884.0
-    - 2.885.0
-  - dependency-name: "@types/fs-extra"
-    versions:
-    - 9.0.10
-    - 9.0.11
-  - dependency-name: "@types/node"
-    versions:
-    - 14.14.25
-    - 14.14.28
-    - 14.14.31
-    - 14.14.32
-    - 14.14.34
-    - 14.14.35
-    - 14.14.37
-  - dependency-name: "@terascope/utils"
-    versions:
-    - 0.36.4
-  - dependency-name: "@types/jest"
-    versions:
-    - 26.0.21
+  - package-ecosystem: npm
+    directory: '/'
+    schedule:
+      interval: monthly
+      time: '04:00'
+      timezone: US/Arizona
+    open-pull-requests-limit: 6
+    ignore:
+      - dependency-name: aws-sdk
+        versions:
+          - '> 2.885.0'
+      - dependency-name: '@types/node'
+        versions:
+          - '> 14.14.37'
