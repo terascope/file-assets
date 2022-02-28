@@ -32,7 +32,7 @@
     },
     "peerDependencies": {},
     "devDependencies": {
-        "@types/jest": "^27.4.0",
+        "@types/jest": "^27.4.1",
         "aws-sdk": "^2.1046.0",
         "jest": "^27.5.1",
         "jest-extended": "^2.0.0",
