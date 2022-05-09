@@ -35,7 +35,7 @@
         "@types/node": "^16.11.12",
         "@types/node-gzip": "^1.1.0",
         "aws-sdk": "^2.1046.0",
-        "eslint": "^8.10.0",
+        "eslint": "^8.15.0",
         "fs-extra": "^10.0.1",
         "jest": "^27.5.1",
         "jest-extended": "^2.0.0",
