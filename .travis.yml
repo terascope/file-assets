@@ -1,9 +1,9 @@
 # set the dist to bionic
-dist: bionic
+dist: focal
 language: node_js
 node_js:
-  - '14.17'
-  - '16.17.1'
+  - '14.21.3'
+  - '16.19.1'
 os:
   - linux
   - osx
@@ -33,7 +33,6 @@ script:
   - yarn lint
   - teraslice-cli -v
   - teraslice-cli assets build
-  - teraslice-cli assets build --bundle
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 before_deploy:
