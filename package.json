@@ -18,10 +18,10 @@
         "lint": "eslint --ignore-path .gitignore --ext .js,.ts .",
         "lint:fix": "yarn lint --fix",
         "setup": "yarn && yarn build --force",
-        "test": "jest",
+        "test": "ts-scripts test . --",
         "test:all": "yarn workspaces run test",
-        "test:watch": "jest --coverage=false --notify --watch --onlyChanged",
-        "test:debug": "env DEBUG=\"${DEBUG:-*teraslice*}\" jest --detectOpenHandles --coverage=false --runInBand",
+        "test:watch": "ts-scripts test --watch . --",
+        "test:debug": "ts-scripts test --debug . --",
         "publish:changed": "./scripts/publish.sh"
     },
     "dependencies": {},
@@ -29,6 +29,7 @@
         "@terascope/eslint-config": "^0.7.1",
         "@terascope/file-asset-apis": "^0.6.1",
         "@terascope/job-components": "^0.58.5",
+        "@terascope/scripts": "^0.50.6",
         "@types/fs-extra": "^11.0.1",
         "@types/jest": "^29.4.0",
         "@types/json2csv": "^5.0.3",
@@ -49,5 +50,25 @@
     },
     "engines": {
         "node": ">=14.17.0"
+    },
+    "terascope": {
+        "root": true,
+        "testSuite": "minio",
+        "tests": {
+            "suites": {
+                "unit": [],
+                "minio": [
+                    "minio"
+                ]
+            }
+        },
+        "docker": {
+            "registries": [
+                "terascope/teraslice"
+            ]
+        },
+        "npm": {
+            "registry": "https://registry.npmjs.org/"
+        }
     }
 }

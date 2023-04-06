@@ -18,9 +18,9 @@ const logger = debugLogger('s3_tests');
 
 export function makeClient(): S3 {
     return new S3({
-        endpoint: s3Config.ENDPOINT,
-        accessKeyId: s3Config.ACCESS_KEY,
-        secretAccessKey: s3Config.SECRET_KEY,
+        endpoint: s3Config.MINIO_HOST,
+        accessKeyId: s3Config.MINIO_ACCESS_KEY,
+        secretAccessKey: s3Config.MINIO_SECRET_KEY,
         maxRetries: 3,
         maxRedirects: 10,
         s3ForcePathStyle: true,
