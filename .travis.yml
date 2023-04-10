@@ -15,24 +15,31 @@ cache:
   npm: false
   yarn: false
 if: NOT (branch = master AND type = push AND tag IS blank AND os = osx)
+services:
+  - docker
 before_install:
   # Install latest yarn
   - npm install --global yarn
   - export PATH="$HOME/.yarn/bin:$PATH"
 before_script:
-  - curl -LO "https://dl.min.io/server/minio/release/${TRAVIS_OS_NAME/osx/darwin}-amd64/minio"
-  - sudo chmod +x minio
-  - mkdir -p ./data
-  - sudo chown -R travis ./data
-  - sudo chmod u+rxw ./data
-  - ./minio server ./data &
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin;
+    else
+    echo "* skipping docker login for macos...";
+    fi
   - yarn build
   - yarn global add teraslice-cli
 script:
-  - yarn test:all
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+    yarn test:all;
+    else
+    echo "* skipping tests for macos...";
+    fi
   - yarn lint
   - teraslice-cli -v
   - teraslice-cli assets build
+  - teraslice-cli assets build --bundle-target node14
+  - teraslice-cli assets build --bundle-target node16
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 before_deploy:
