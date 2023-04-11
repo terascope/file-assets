@@ -1,7 +1,7 @@
 const {
-    ENDPOINT = 'http://127.0.0.1:9000',
-    ACCESS_KEY = 'minioadmin',
-    SECRET_KEY = 'minioadmin',
+    MINIO_HOST = 'http://127.0.0.1:9000',
+    MINIO_ACCESS_KEY = 'minioadmin',
+    MINIO_SECRET_KEY = 'minioadmin',
 } = process.env;
 
-export { ENDPOINT, ACCESS_KEY, SECRET_KEY };
+export { MINIO_HOST, MINIO_ACCESS_KEY, MINIO_SECRET_KEY };

@@ -14,16 +14,18 @@ import {
 } from '../../src';
 
 const {
-    ENDPOINT = 'http://127.0.0.1:9000',
-    ACCESS_KEY = 'minioadmin',
-    SECRET_KEY = 'minioadmin',
+    MINIO_HOST = 'http://127.0.0.1:9000',
+    MINIO_ACCESS_KEY = 'minioadmin',
+    MINIO_SECRET_KEY = 'minioadmin',
 } = process.env;
+
+export { MINIO_HOST, MINIO_ACCESS_KEY, MINIO_SECRET_KEY };
 
 export function makeClient(): S3 {
     return new S3({
-        endpoint: ENDPOINT,
-        accessKeyId: ACCESS_KEY,
-        secretAccessKey: SECRET_KEY,
+        endpoint: MINIO_HOST,
+        accessKeyId: MINIO_ACCESS_KEY,
+        secretAccessKey: MINIO_SECRET_KEY,
         maxRetries: 3,
         maxRedirects: 10,
         s3ForcePathStyle: true,
@@ -106,5 +108,3 @@ export async function upload(
 
     return fileName;
 }
-
-export { ENDPOINT, ACCESS_KEY, SECRET_KEY };
