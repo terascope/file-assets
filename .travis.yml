@@ -37,7 +37,6 @@ script:
     fi
   - yarn lint
   - teraslice-cli -v
-  - teraslice-cli assets build
   - teraslice-cli assets build --bundle-target node14
   - teraslice-cli assets build --bundle-target node16
 after_success:
