@@ -315,11 +315,10 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
-        const body = await getBodyFromResults(dbData);
         // @ts-expect-error types are not correct from aws
         const rawBody = await dbData.Body.transformToByteArray();
         const fetchedData = await compressor.decompress(
-            body
+            Buffer.from(rawBody)
         );
         expect(fetchedData).toEqual(
             (await ungzip(Buffer.from(rawBody))).toString()

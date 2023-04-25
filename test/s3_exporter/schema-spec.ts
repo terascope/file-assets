@@ -15,12 +15,7 @@ describe('S3 exporter Schema', () => {
         create(_config: any, _logger: Logger, _settings: any) {
             return {
                 client: {
-                    createBucket(_params: any, cb: () => void) {
-                        cb();
-                    },
-                    headBucket(_params: any, cb: () => void) {
-                        cb();
-                    }
+                    send(_params: any) {}
                 }
             };
         },

@@ -68,25 +68,24 @@ export async function upload(
 export async function cleanupBucket(
     client: S3Client, bucket: string
 ): Promise<void> {
-    let request: S3ClientResponse.ListObjectsOutput;
     try {
-        request = await listS3Objects(client, {
+        const request = await listS3Objects(client, {
             Bucket: bucket,
         });
-    } catch (err) {
-        if (isError(err) && (err as Error & { code: string }).code === 'NoSuchBucket') {
+
+        const promises = request.Contents?.map((obj) => deleteS3Object(client, {
+            Bucket: bucket, Key: obj.Key!
+        }));
+
+        await Promise.all(promises ?? []);
+
+        await deleteS3Bucket(client, { Bucket: bucket });
+    } catch (err: any) {
+        if (isError(err) && (err as Error & { Code: string }).Code === 'NoSuchBucket') {
             return;
         }
         throw err;
     }
-
-    const promises = request.Contents?.map((obj) => deleteS3Object(client, {
-        Bucket: bucket, Key: obj.Key!
-    }));
-
-    await Promise.all(promises ?? []);
-
-    await deleteS3Bucket(client, { Bucket: bucket });
 }
 
 export async function getBodyFromResults(
