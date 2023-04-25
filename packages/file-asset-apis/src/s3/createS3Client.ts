@@ -1,9 +1,10 @@
 import fs from 'fs-extra';
 import { Agent } from 'https';
-import { S3Client } from '@aws-sdk/client-s3';
+import { S3Client as BaseClient } from '@aws-sdk/client-s3';
 import { NodeHttpHandler } from '@aws-sdk/node-http-handler';
 import type { S3ClientConfig as baseConfig } from '@aws-sdk/client-s3';
 import { debugLogger, has } from '@terascope/utils';
+import type { S3Client } from './client-types';
 
 export interface S3ClientConfig extends baseConfig {
     sslEnabled?: boolean,
@@ -55,5 +56,5 @@ export async function createS3Client(
         } as any;
     }
 
-    return new S3Client(config);
+    return new BaseClient(config);
 }

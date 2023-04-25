@@ -1,5 +1,5 @@
-import type { S3Client } from '@aws-sdk/client-s3';
 import { Logger, TSError, RouteSenderAPI } from '@terascope/utils';
+import type { S3Client } from './client-types';
 import {
     parsePath, ChunkedFileSender, SendBatchConfig
 } from '../base';

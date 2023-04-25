@@ -1,5 +1,5 @@
 import { isError } from '@terascope/utils';
-import { S3Client, GetObjectOutput } from '@aws-sdk/client-s3';
+import type { S3Client, S3ClientResponse } from '../../src';
 import {
     listS3Objects, deleteS3Object, deleteS3Bucket,
     ChunkedFileSenderConfig, Compression, Formatter,
@@ -51,7 +51,9 @@ export async function cleanupBucket(
     }
 }
 
-export async function getBodyFromResults(results: GetObjectOutput): Promise<Buffer> {
+export async function getBodyFromResults(
+    results: S3ClientResponse.GetObjectOutput
+): Promise<Buffer> {
     if (!results.Body) {
         throw new Error('Missing body from s3 results');
     }

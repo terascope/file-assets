@@ -1,8 +1,8 @@
 import { EventEmitter, once } from 'events';
-import type { S3Client, CompletedPart } from '@aws-sdk/client-s3';
 import {
     Logger, pDelay, sortBy, toHumanTime
 } from '@terascope/utils';
+import type { S3Client, S3ClientResponse } from './client-types';
 import {
     createS3MultipartUpload,
     uploadS3ObjectPart,
@@ -40,7 +40,7 @@ export class MultiPartUploader {
      * These are the completed responses from the upload
      * part requests
     */
-    private parts: CompletedPart[] = [];
+    private parts: S3ClientResponse.CompletedPart[] = [];
 
     /**
      * This is a way of tracking the number of pending

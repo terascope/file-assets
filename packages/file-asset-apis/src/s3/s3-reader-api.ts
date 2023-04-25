@@ -1,5 +1,5 @@
 import { Logger } from '@terascope/utils';
-import type { S3Client } from '@aws-sdk/client-s3';
+import type { S3Client } from './client-types';
 import {
     FileSlice,
     ReaderConfig,

@@ -1,5 +1,5 @@
-import type { S3Client } from '@aws-sdk/client-s3';
 import { flatten, Logger } from '@terascope/utils';
+import type { S3Client } from './client-types';
 import { segmentFile, parsePath, canReadFile } from '../base';
 import { SliceConfig, FileSlice, FileSliceConfig } from '../interfaces';
 import { listS3Objects } from './s3-helpers';
