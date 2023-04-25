@@ -1,5 +1,5 @@
 import { EventEmitter, once } from 'events';
-import type S3 from 'aws-sdk/clients/s3';
+import type { S3Client, CompletedPart } from '@aws-sdk/client-s3';
 import {
     Logger, pDelay, sortBy, toHumanTime
 } from '@terascope/utils';
@@ -40,7 +40,7 @@ export class MultiPartUploader {
      * These are the completed responses from the upload
      * part requests
     */
-    private parts: S3.CompletedPart[] = [];
+    private parts: CompletedPart[] = [];
 
     /**
      * This is a way of tracking the number of pending
@@ -64,13 +64,15 @@ export class MultiPartUploader {
     private finished = false;
 
     private readonly events: EventEmitter;
+    private readonly client: S3Client;
 
     constructor(
-        readonly client: S3,
+        client: S3Client,
         readonly bucket: string,
         readonly key: string,
         readonly logger: Logger
     ) {
+        this.client = client;
         this.events = new EventEmitter();
         // just so we don't get warnings set this to a higher number
         this.events.setMaxListeners(1000);
@@ -85,16 +87,18 @@ export class MultiPartUploader {
         const start = Date.now();
 
         this.started = true;
-        createS3MultipartUpload(
-            this.client, this.bucket, this.key
-        ).then((uploadId) => {
+        try {
+            const uploadId = await createS3MultipartUpload(
+                this.client, this.bucket, this.key
+            );
+
             this.uploadId = uploadId;
             this.logger.debug(`s3 multipart upload ${uploadId} started, took ${toHumanTime(Date.now() - start)}`);
-        }).catch((err) => {
+        } catch (err) {
             this.startError = err;
-        }).finally(() => {
+        } finally {
             this.events.emit(Events.StartDone);
-        });
+        }
 
         // adding this here will ensure that
         // we give the event loop some time to
@@ -106,14 +110,14 @@ export class MultiPartUploader {
      * Used wait until the background request for start is finished.
      * If that failed, this should throw
     */
-    private _waitForStart(ctx: string): Promise<void>|void {
+    private async _waitForStart(ctx: string): Promise<void> {
         if (!this.started) {
             throw Error('Expected MultiPartUploader->start to have been finished');
         }
 
         if (this.uploadId == null) {
             this.logger.debug(`${ctx} waiting for upload to start`);
-            return once(this.events, Events.StartDone).then(() => undefined);
+            await once(this.events, Events.StartDone);
         }
 
         if (this.startError != null) {
@@ -137,17 +141,16 @@ export class MultiPartUploader {
 
         this.pendingParts++;
 
-        // run this in the background
-        Promise.resolve()
-            .then(() => this._waitForStart(`part #${partNumber}`))
-            .then(() => this._uploadPart(body, partNumber))
-            .catch((err) => {
-                this.partUploadErrors.set(String(err), err);
-            })
-            .finally(() => {
-                this.pendingParts--;
-                this.events.emit(Events.PartDone);
-            });
+        await this._waitForStart(`part #${partNumber}`);
+
+        try {
+            await this._uploadPart(body, partNumber);
+        } catch (err) {
+            this.partUploadErrors.set(String(err), err);
+        } finally {
+            this.pendingParts--;
+            this.events.emit(Events.PartDone);
+        }
 
         if (this.pendingParts > 0 || !this.uploadId) {
             // adding this here will ensure that
@@ -168,14 +171,15 @@ export class MultiPartUploader {
         if (this.partUploadErrors.size) {
             await this._throwPartUploadError();
         }
-
-        this.parts.push(await uploadS3ObjectPart(this.client, {
+        const { ETag } = await uploadS3ObjectPart(this.client, {
             Bucket: this.bucket,
             Key: this.key,
-            Body: body,
+            Body: body as any,
             UploadId: this.uploadId,
             PartNumber: partNumber
-        }));
+        });
+
+        this.parts.push({ PartNumber: partNumber, ETag });
     }
 
     /**

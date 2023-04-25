@@ -1,14 +1,14 @@
 import { Logger } from '@terascope/utils';
-import type S3 from 'aws-sdk/clients/s3';
+import type { S3Client } from '@aws-sdk/client-s3';
 import { FileSlice, ReaderConfig } from '../interfaces';
 import { ChunkedFileReader, parsePath } from '../base';
 import { getS3Object } from './s3-helpers';
 
 export class S3Fetcher extends ChunkedFileReader {
-    protected client: S3;
+    protected client: S3Client;
     protected readonly bucket: string;
 
-    constructor(client: S3, config: Omit<ReaderConfig, 'size'>, logger: Logger) {
+    constructor(client: S3Client, config: Omit<ReaderConfig, 'size'>, logger: Logger) {
         super(config, logger);
         const { path } = config;
         const { bucket } = parsePath(path);
@@ -35,14 +35,14 @@ export class S3Fetcher extends ChunkedFileReader {
             Range: `bytes=${offset}-${offset + length - 1}`
         });
 
-        if (!results.Body) {
+        const body = results.Body;
+
+        if (body === undefined) {
             throw new Error('Missing body from s3 get object request');
         }
+        // @ts-expect-error, their types do not list added apis
+        const data = await body.transformToByteArray();
 
-        return this.compressor.decompress(
-            Buffer.isBuffer(results.Body)
-                ? results.Body
-                : Buffer.from(results.Body as any)
-        );
+        return this.compressor.decompress(Buffer.from(data));
     }
 }

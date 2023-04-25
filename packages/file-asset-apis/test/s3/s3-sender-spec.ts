@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import 'jest-extended';
 import {
     DataEntity, debugLogger, isString, times
@@ -23,11 +24,13 @@ describe('S3 Sender API', () => {
     const dirPath = '/testing/';
     const path = `${bucket}${dirPath}`;
     const ensureBucket = 'testing-ensure';
-    const client = makeClient();
     const metaRoute1 = 'route-1';
     const metaRoute2 = 'route-2';
+    let client: any;
 
     beforeAll(async () => {
+        client = await makeClient();
+
         await Promise.all([
             cleanupBucket(client, bucket),
             cleanupBucket(client, ensureBucket)
@@ -35,10 +38,12 @@ describe('S3 Sender API', () => {
     });
 
     afterAll(async () => {
-        await Promise.all([
-            cleanupBucket(client, bucket),
-            cleanupBucket(client, ensureBucket)
-        ]);
+        if (client) {
+            await Promise.all([
+                cleanupBucket(client, bucket),
+                cleanupBucket(client, ensureBucket)
+            ]);
+        }
     });
 
     async function getBucketListNames(): Promise<string[]> {
@@ -106,9 +111,9 @@ describe('S3 Sender API', () => {
             Bucket: bucket,
             Key: key,
         });
-
+        const response = await getBodyFromResults(dbData);
         const fetchedData = await compressor.decompress(
-            getBodyFromResults(dbData)
+            response
         );
         expect(fetchedData).toEqual(expectedResults);
     });
@@ -151,12 +156,17 @@ describe('S3 Sender API', () => {
             })
         ]);
 
+        const [response1, response2] = await Promise.all([
+            getBodyFromResults(route1Record),
+            getBodyFromResults(route2Record)
+        ]);
+
         const fetchedDataRoute1 = await compressor.decompress(
-            getBodyFromResults(route1Record)
+            response1
         );
 
         const fetchedDataRoute2 = await compressor.decompress(
-            getBodyFromResults(route2Record)
+            response2
         );
 
         expect(JSON.parse(fetchedDataRoute1)).toMatchObject({ some: 'data' });
@@ -195,8 +205,10 @@ describe('S3 Sender API', () => {
             Key: key,
         });
 
+        const response = await getBodyFromResults(dbData);
+
         const fetchedData = await compressor.decompress(
-            getBodyFromResults(dbData)
+            response
         );
 
         const expectedResults = `${data.map((obj) => JSON.stringify(obj)).join('\n')}\n`;

@@ -1,5 +1,5 @@
 import { Logger } from '@terascope/utils';
-import type S3 from 'aws-sdk/clients/s3';
+import type { S3Client } from '@aws-sdk/client-s3';
 import {
     FileSlice,
     ReaderConfig,
@@ -14,7 +14,7 @@ export class S3TerasliceAPI extends S3Fetcher {
     readonly segmentFileConfig: SliceConfig;
     readonly slicerConfig: FileSliceConfig;
 
-    constructor(client: S3, config: ReaderConfig, logger: Logger) {
+    constructor(client: S3Client, config: ReaderConfig, logger: Logger) {
         super(client, config, logger);
         const { path, size } = config;
         const { lineDelimiter, format, filePerSlice } = this;
