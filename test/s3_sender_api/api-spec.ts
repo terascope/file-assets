@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
 import { DataEntity } from '@terascope/job-components';
@@ -6,10 +7,8 @@ import lz4init from 'lz4-asm/dist/lz4asm';
 import { ungzip } from 'node-gzip';
 import {
     Format, Compression, Compressor,
-    listS3Buckets,
-    getS3Object
+    listS3Buckets, getS3Object, S3Client
 } from '@terascope/file-asset-apis';
-import S3 from 'aws-sdk/clients/s3';
 import { makeClient, cleanupBucket, getBodyFromResults } from '../helpers';
 import { S3SenderFactoryAPI } from '../../asset/src/s3_sender_api/interfaces';
 
@@ -30,17 +29,21 @@ describe('S3 sender api', () => {
     const metaRoute1 = '0';
     const metaRoute2 = '1';
 
-    const client = makeClient();
+    let client: S3Client;
+    let clients: any;
 
-    const clients = [
-        {
-            type: 's3',
-            endpoint: 'my-s3-connector',
-            create: () => ({
-                client
-            }),
-        },
-    ];
+    beforeAll(async () => {
+        client = await makeClient();
+        clients = [
+            {
+                type: 's3',
+                endpoint: 'my-s3-connector',
+                create: () => ({
+                    client
+                }),
+            },
+        ];
+    });
 
     const rawSlice = [DataEntity.make({ data: 'This is a sentence.' })];
 
@@ -102,10 +105,10 @@ describe('S3 sender api', () => {
         ];
     });
 
-    async function getBucketList(): Promise<S3.Bucket[]> {
+    async function getBucketList(): Promise<string[]> {
         const response = await listS3Buckets(client);
         if (!response.Buckets) return [];
-        return response.Buckets.filter((bucketObj) => bucketObj.Name === bucket);
+        return response.Buckets.filter((bucketObj) => bucketObj.Name === bucket) as string[];
     }
 
     afterEach(async () => {
@@ -141,8 +144,10 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
+        const body = await getBodyFromResults(dbData);
+
         const fetchedData = await compressor.decompress(
-            getBodyFromResults(dbData)
+            body
         );
         expect(fetchedData).toEqual(expectedResults);
     });
@@ -162,8 +167,10 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
+        const body = await getBodyFromResults(dbData);
+
         const fetchedData = await compressor.decompress(
-            getBodyFromResults(dbData)
+            body
         );
         expect(fetchedData).toEqual(expectedResults);
     });
@@ -183,8 +190,10 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
+        const body = await getBodyFromResults(dbData);
+
         const fetchedData = await compressor.decompress(
-            getBodyFromResults(dbData)
+            body
         );
         expect(fetchedData).toEqual(expectedResults);
     });
@@ -204,8 +213,10 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
+        const body = await getBodyFromResults(dbData);
+
         const fetchedData = await compressor.decompress(
-            getBodyFromResults(dbData)
+            body
         );
         expect(fetchedData).toEqual(expectedResults);
     });
@@ -233,8 +244,10 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
+        const body = await getBodyFromResults(dbData);
+
         const fetchedData = await compressor.decompress(
-            getBodyFromResults(dbData)
+            body
         );
         expect(fetchedData).toEqual(expectedResults);
     });
@@ -254,8 +267,10 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
+        const body = await getBodyFromResults(dbData);
+
         const fetchedData = await compressor.decompress(
-            getBodyFromResults(dbData)
+            body
         );
         expect(fetchedData).toEqual(expectedResults);
     });
@@ -275,7 +290,7 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
-        const buf = getBodyFromResults(dbData);
+        const buf = await getBodyFromResults(dbData);
         const fetchedData = await compressor.decompress(
             buf
         );
@@ -300,11 +315,14 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
+        const body = await getBodyFromResults(dbData);
+        // @ts-expect-error types are not correct from aws
+        const rawBody = await dbData.Body.transformToByteArray();
         const fetchedData = await compressor.decompress(
-            getBodyFromResults(dbData)
+            body
         );
         expect(fetchedData).toEqual(
-            (await ungzip(dbData.Body as Buffer)).toString()
+            (await ungzip(Buffer.from(rawBody))).toString()
         );
     });
 
@@ -323,8 +341,10 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
+        const body = await getBodyFromResults(dbData);
+
         const fetchedData = await compressor.decompress(
-            getBodyFromResults(dbData)
+            body
         );
         expect(fetchedData).toEqual(expectedResults);
     });
@@ -352,13 +372,16 @@ describe('S3 sender api', () => {
             Key: key2,
         });
 
+        const body1 = await getBodyFromResults(dbData1);
+        const body2 = await getBodyFromResults(dbData2);
+
         const fetchedData1 = await compressor.decompress(
-            getBodyFromResults(dbData1)
+            body1
         );
         expect(fetchedData1).toEqual(expectedResults1);
 
         const fetchedData2 = await compressor.decompress(
-            getBodyFromResults(dbData2)
+            body2
         );
         expect(fetchedData2).toEqual(expectedResults2);
     });
@@ -386,13 +409,16 @@ describe('S3 sender api', () => {
             Key: key2,
         });
 
+        const body1 = await getBodyFromResults(dbData1);
+        const body2 = await getBodyFromResults(dbData2);
+
         const fetchedData1 = await compressor.decompress(
-            getBodyFromResults(dbData1)
+            body1
         );
         expect(fetchedData1).toEqual(expectedResults1);
 
         const fetchedData2 = await compressor.decompress(
-            getBodyFromResults(dbData2)
+            body2
         );
         expect(fetchedData2).toEqual(expectedResults2);
     });

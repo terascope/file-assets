@@ -2,7 +2,8 @@ import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
 import { DataEntity } from '@terascope/job-components';
 import {
-    Format, Compressor, getS3Object
+    Format, Compressor, getS3Object,
+    S3Client
 } from '@terascope/file-asset-apis';
 import { makeClient, cleanupBucket, getBodyFromResults } from '../helpers';
 
@@ -14,18 +15,8 @@ describe('S3 sender api', () => {
     let harness: WorkerTestHarness;
     let workerId: string;
     let data: DataEntity[];
-
-    const client = makeClient();
-
-    const clients = [
-        {
-            type: 's3',
-            endpoint: 'my-s3-connector',
-            create: () => ({
-                client
-            }),
-        },
-    ];
+    let client: S3Client;
+    let clients: any[];
 
     async function makeTest(config?: any) {
         const _op = {
@@ -52,6 +43,16 @@ describe('S3 sender api', () => {
     }
 
     beforeAll(async () => {
+        client = await makeClient();
+        clients = [
+            {
+                type: 's3',
+                endpoint: 'my-s3-connector',
+                create: () => ({
+                    client
+                }),
+            },
+        ];
         await cleanupBucket(client, bucket);
     });
 
@@ -91,8 +92,10 @@ describe('S3 sender api', () => {
             Key: key,
         });
 
+        const body = await getBodyFromResults(dbData);
+
         const fetchedData = await compressor.decompress(
-            getBodyFromResults(dbData)
+            body
         );
         expect(fetchedData).toEqual(expectedResults);
     });

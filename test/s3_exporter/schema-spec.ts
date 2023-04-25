@@ -1,12 +1,8 @@
 import 'jest-extended';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
 import {
-    AnyObject,
-    APIConfig,
-    ValidatedJobConfig,
-    TestClientConfig,
-    Logger,
-    DataEncoding
+    AnyObject, APIConfig, ValidatedJobConfig,
+    TestClientConfig, Logger, DataEncoding
 } from '@terascope/job-components';
 import { Format } from '@terascope/file-asset-apis';
 
