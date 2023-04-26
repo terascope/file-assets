@@ -16,7 +16,7 @@ export interface S3ClientConfig extends baseConfig {
 
 export async function createS3Client(
     config: S3ClientConfig,
-    logger = debugLogger('elasticsearch-client')
+    logger = debugLogger('s3-client')
 ): Promise<S3Client> {
     logger.info(`Using S3 endpoint: ${config.endpoint}`);
     // pull certLocation from env
