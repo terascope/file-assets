@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
 import { DataEntity } from '@terascope/job-components';
@@ -5,7 +6,8 @@ import path from 'path';
 import fs from 'fs';
 import { remove, ensureDir } from 'fs-extra';
 import {
-    Format, ChunkedFileSenderConfig, CSVSenderConfig, LDJSONSenderConfig, JSONSenderConfig
+    Format, ChunkedFileSenderConfig, CSVSenderConfig,
+    LDJSONSenderConfig, JSONSenderConfig
 } from '@terascope/file-asset-apis';
 
 // Increase the timeout for this test

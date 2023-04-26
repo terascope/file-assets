@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import 'jest-extended';
 import { DataEntity, debugLogger } from '@terascope/utils';
 import {

@@ -18,16 +18,19 @@ describe('S3 Fetcher API', () => {
     const bucket = 's3-fetcher-api';
     const dirPath = '/testing/';
     const path = `${bucket}${dirPath}`;
-    const client = makeClient();
+    let client: any;
 
     beforeAll(async () => {
+        client = await makeClient();
         await cleanupBucket(client, bucket);
         // make sure bucket exists
         await createS3Bucket(client, { Bucket: bucket });
     });
 
     afterAll(async () => {
-        await cleanupBucket(client, bucket);
+        if (client) {
+            await cleanupBucket(client, bucket);
+        }
     });
 
     it('can fetch ldjson S3 data', async () => {

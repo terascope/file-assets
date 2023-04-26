@@ -1,29 +1,26 @@
 import {
-    AnyObject,
-    debugLogger,
-    isNil,
-    isString,
-    DataEntity,
-    isError
+    AnyObject, debugLogger, isNil,
+    isString, DataEntity, isError
 } from '@terascope/job-components';
-import S3 from 'aws-sdk/clients/s3';
 import {
     S3Fetcher, S3Sender, FileSlice, Format,
     deleteS3Object, listS3Objects, deleteS3Bucket,
-    ChunkedFileSenderConfig, ReaderConfig
+    ChunkedFileSenderConfig, ReaderConfig, createS3Client,
+    S3Client, S3ClientResponse
 } from '@terascope/file-asset-apis';
 import * as s3Config from './config';
 
 const logger = debugLogger('s3_tests');
 
-export function makeClient(): S3 {
-    return new S3({
+export async function makeClient() {
+    return createS3Client({
         endpoint: s3Config.MINIO_HOST,
-        accessKeyId: s3Config.MINIO_ACCESS_KEY,
-        secretAccessKey: s3Config.MINIO_SECRET_KEY,
-        maxRetries: 3,
-        maxRedirects: 10,
-        s3ForcePathStyle: true,
+        credentials: {
+            accessKeyId: s3Config.MINIO_ACCESS_KEY,
+            secretAccessKey: s3Config.MINIO_SECRET_KEY,
+        },
+        maxAttempts: 4,
+        forcePathStyle: true,
         sslEnabled: false,
         region: 'us-east-1'
     });
@@ -43,7 +40,7 @@ const defaultReaderConfig: Partial<ReaderConfig> = {
 };
 
 export async function fetch(
-    client: S3, config: Partial<ReaderConfig>, slice: FileSlice
+    client: S3Client, config: Partial<ReaderConfig>, slice: FileSlice
 ): Promise<string> {
     if (isNil(config.path) || !isString(config.path)) throw new Error('config must include parameter path');
 
@@ -55,7 +52,7 @@ export async function fetch(
 }
 
 export async function upload(
-    client: S3, config: AnyObject, data: DataEntity[]
+    client: S3Client, config: AnyObject, data: DataEntity[]
 ): Promise<number> {
     if (isNil(config.bucket) || !isString(config.bucket)) throw new Error('config must include parameter bucket');
     if (isNil(config.path) || !isString(config.path)) throw new Error('config must include parameter path');
@@ -69,34 +66,35 @@ export async function upload(
 }
 
 export async function cleanupBucket(
-    client: S3, bucket: string
+    client: S3Client, bucket: string
 ): Promise<void> {
-    let request: S3.ListObjectsOutput;
     try {
-        request = await listS3Objects(client, {
+        const request = await listS3Objects(client, {
             Bucket: bucket,
         });
-    } catch (err) {
-        if (isError(err) && (err as Error & { code: string }).code === 'NoSuchBucket') {
+
+        const promises = request.Contents?.map((obj) => deleteS3Object(client, {
+            Bucket: bucket, Key: obj.Key!
+        }));
+
+        await Promise.all(promises ?? []);
+
+        await deleteS3Bucket(client, { Bucket: bucket });
+    } catch (err: any) {
+        if (isError(err) && (err as Error & { Code: string }).Code === 'NoSuchBucket') {
             return;
         }
         throw err;
     }
-
-    const promises = request.Contents?.map((obj) => deleteS3Object(client, {
-        Bucket: bucket, Key: obj.Key!
-    }));
-
-    await Promise.all(promises ?? []);
-
-    await deleteS3Bucket(client, { Bucket: bucket });
 }
 
-export function getBodyFromResults(results: S3.GetObjectOutput): Buffer {
+export async function getBodyFromResults(
+    results: S3ClientResponse.GetObjectOutput
+): Promise<Buffer> {
     if (!results.Body) {
         throw new Error('Missing body from s3 results');
     }
-    return Buffer.isBuffer(results.Body)
-        ? results.Body
-        : Buffer.from(results.Body as string);
+    // @ts-expect-error, their types do not list added apis
+    const data = await results.Body.transformToByteArray();
+    return Buffer.from(data);
 }

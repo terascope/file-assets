@@ -1,23 +1,27 @@
 import 'jest-extended';
 import { DataEntity, AnyObject, toNumber } from '@terascope/job-components';
 import { JobTestHarness, newTestJobConfig } from 'teraslice-test-harness';
-import { Format } from '@terascope/file-asset-apis';
+import { Format, S3Client } from '@terascope/file-asset-apis';
 import { makeClient, cleanupBucket, upload } from '../helpers';
 
 describe('S3Reader job', () => {
     let harness: JobTestHarness;
 
-    const client = makeClient();
+    let client: S3Client;
+    let clients: any;
 
-    const clients = [
-        {
-            type: 's3',
-            endpoint: 'my-s3-connector',
-            create: () => ({
-                client
-            }),
-        },
-    ];
+    beforeAll(async () => {
+        client = await makeClient();
+        clients = [
+            {
+                type: 's3',
+                endpoint: 'my-s3-connector',
+                create: () => ({
+                    client
+                }),
+            },
+        ];
+    });
 
     const topicData = [
         {

@@ -1,16 +1,9 @@
 import { isError } from '@terascope/utils';
-import S3 from 'aws-sdk/clients/s3';
+import type { S3Client, S3ClientResponse } from '../../src';
 import {
-    listS3Objects,
-    deleteS3Object,
-    deleteS3Bucket,
-    ChunkedFileSenderConfig,
-    Compression,
-    Formatter,
-    Compressor,
-    createFileName,
-    S3PutConfig,
-    putS3Object
+    listS3Objects, deleteS3Object, deleteS3Bucket,
+    ChunkedFileSenderConfig, Compression, Formatter,
+    Compressor, createFileName, putS3Object, createS3Client
 } from '../../src';
 
 const {
@@ -21,50 +14,53 @@ const {
 
 export { MINIO_HOST, MINIO_ACCESS_KEY, MINIO_SECRET_KEY };
 
-export function makeClient(): S3 {
-    return new S3({
+export async function makeClient() {
+    return createS3Client({
         endpoint: MINIO_HOST,
-        accessKeyId: MINIO_ACCESS_KEY,
-        secretAccessKey: MINIO_SECRET_KEY,
-        maxRetries: 3,
-        maxRedirects: 10,
-        s3ForcePathStyle: true,
+        credentials: {
+            accessKeyId: MINIO_ACCESS_KEY,
+            secretAccessKey: MINIO_SECRET_KEY,
+        },
+        maxAttempts: 4,
+        forcePathStyle: true,
         sslEnabled: false,
         region: 'us-east-1'
     });
 }
 
 export async function cleanupBucket(
-    client: S3, bucket: string
+    client: S3Client, bucket: string
 ): Promise<void> {
-    let request: S3.ListObjectsOutput;
     try {
-        request = await listS3Objects(client, {
+        const request = await listS3Objects(client, {
             Bucket: bucket,
         });
-    } catch (err) {
-        if (isError(err) && (err as Error & { code: string }).code === 'NoSuchBucket') {
+
+        const promises = request.Contents?.map((obj) => deleteS3Object(client, {
+            Bucket: bucket, Key: obj.Key!
+        }));
+
+        await Promise.all(promises ?? []);
+
+        await deleteS3Bucket(client, { Bucket: bucket });
+    } catch (err: any) {
+        if (isError(err) && (err as Error & { Code: string }).Code === 'NoSuchBucket') {
             return;
         }
         throw err;
     }
-
-    const promises = request.Contents?.map((obj) => deleteS3Object(client, {
-        Bucket: bucket, Key: obj.Key!
-    }));
-
-    await Promise.all(promises ?? []);
-
-    await deleteS3Bucket(client, { Bucket: bucket });
 }
 
-export function getBodyFromResults(results: S3.GetObjectOutput): Buffer {
+export async function getBodyFromResults(
+    results: S3ClientResponse.GetObjectOutput
+): Promise<Buffer> {
     if (!results.Body) {
         throw new Error('Missing body from s3 results');
     }
-    return Buffer.isBuffer(results.Body)
-        ? results.Body
-        : Buffer.from(results.Body as string);
+    // @ts-expect-error
+    const data = await results.Body.transformToByteArray();
+
+    return Buffer.from(data);
 }
 
 export interface UploadConfig extends Partial<ChunkedFileSenderConfig> {
@@ -73,7 +69,7 @@ export interface UploadConfig extends Partial<ChunkedFileSenderConfig> {
 }
 
 export async function upload(
-    client: S3, config: UploadConfig, data: Record<string, any>[]
+    client: S3Client, config: UploadConfig, data: Record<string, any>[]
 ): Promise<string> {
     const {
         format, compression = Compression.none,
@@ -88,7 +84,7 @@ export async function upload(
     const compressionFormatter = new Compressor(compression);
 
     const formattedData = formatter.format(data);
-    const finalData = await compressionFormatter.compress(formattedData);
+    const finalData = await compressionFormatter.compress(formattedData) as any;
 
     const fileName = createFileName(path, {
         filePerSlice: true,
@@ -98,7 +94,7 @@ export async function upload(
         sliceCount
     });
 
-    const params: S3PutConfig = {
+    const params = {
         Bucket: bucket,
         Key: fileName,
         Body: finalData

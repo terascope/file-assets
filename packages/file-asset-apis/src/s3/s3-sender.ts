@@ -1,5 +1,5 @@
-import type S3 from 'aws-sdk/clients/s3';
 import { Logger, TSError, RouteSenderAPI } from '@terascope/utils';
+import type { S3Client } from './client-types';
 import {
     parsePath, ChunkedFileSender, SendBatchConfig
 } from '../base';
@@ -21,9 +21,9 @@ function validateConfig(input: unknown) {
 }
 
 export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
-    client: S3;
+    client: S3Client;
 
-    constructor(client: S3, config: ChunkedFileSenderConfig, logger: Logger) {
+    constructor(client: S3Client, config: ChunkedFileSenderConfig, logger: Logger) {
         validateConfig(config);
         super(FileSenderType.s3, config, logger);
         this.client = client;
@@ -42,7 +42,8 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
         const Bucket = objPath.bucket;
 
         let isFirstSlice = true;
-        let Body: Buffer|string|undefined;
+        // docs say Body can be a string, but types are complaining
+        let Body: any;
         let uploader: MultiPartUploader|undefined;
 
         try {
