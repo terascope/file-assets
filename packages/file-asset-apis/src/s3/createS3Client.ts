@@ -18,6 +18,7 @@ export async function createS3Client(
     config: S3ClientConfig,
     logger = debugLogger('s3-client')
 ): Promise<S3Client> {
+    config.logger = logger;
     logger.info(`Using S3 endpoint: ${config.endpoint}`);
     // pull certLocation from env
     // https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/node-registering-certs.html
