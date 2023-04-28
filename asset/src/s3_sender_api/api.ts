@@ -28,11 +28,11 @@ export default class S3SenderAPI extends APIFactory<S3Sender, S3ExporterAPIConfi
             config.dynamic_routing = true;
         }
 
-        const s3Client = this.context.foundation.getConnection({
+        const { client: s3Client } = await this.context.apis.foundation.createClient({
             endpoint: config.connection,
             type: 's3',
             cached: true
-        }).client;
+        });
 
         const client = new S3Sender(s3Client, config, this.logger);
 
