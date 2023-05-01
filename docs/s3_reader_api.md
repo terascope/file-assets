@@ -4,6 +4,8 @@ This is a [teraslice api](https://terascope.github.io/teraslice/docs/jobs/config
 
 The `s3_reader_api` will provide an [api factory](https://terascope.github.io/teraslice/docs/packages/job-components/api/classes/apifactory), which is a singleton that can create, cache and manage multiple file sender apis that can be accessed in any operation through the `getAPI` method on the operation.
 
+If you are using the asset version >= 2.4.0, it should be used on >= teraslice v84.0
+
 ## Usage
 
 ### Example Processor using a s3 reader api

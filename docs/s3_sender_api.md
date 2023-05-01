@@ -6,6 +6,8 @@ This is a [Factory API](https://terascope.github.io/teraslice/docs/packages/job-
 
 This api is the core of the [s3_exporter](./s3_exporter.md). This contains all the same behavior, functionality and configuration of that exporter
 
+If you are using the asset version >= 2.4.0, it should be used on >= teraslice v84.0
+
 ## Usage
 
 ### Example Processor using a s3 sender api
