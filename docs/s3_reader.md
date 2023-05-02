@@ -6,7 +6,7 @@ For this processor to run, a path is required in the configuration. All intermed
 
 This reader currently only works in `once` jobs.
 
-If you are using the asset version >= 2.4.0, it should be used on >= teraslice v84.0
+If you are using the asset version >= 2.4.0, it should be used on teraslice >= v84.0
 
 ## Usage
 

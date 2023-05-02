@@ -4,7 +4,7 @@ The `s3_exporter` is a processor that will export data to S3. This exporter will
 
 For this processor to run, a path is required in the configuration. The base bucket must of the path must already exists in S3.
 
-If you are using the asset version >= 2.4.0, it should be used on >= teraslice v84.0
+If you are using the asset version >= 2.4.0, it should be used on teraslice >= v84.0
 
 ## Usage
 
