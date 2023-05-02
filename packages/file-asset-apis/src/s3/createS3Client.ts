@@ -18,8 +18,15 @@ export async function createS3Client(
     config: S3ClientConfig,
     logger = debugLogger('s3-client')
 ): Promise<S3Client> {
-    config.logger = logger;
     logger.info(`Using S3 endpoint: ${config.endpoint}`);
+
+    // The aws v3 client logs every request and its metadata, it is to intrusive
+    // should only be used in trace mode otherwise it will log the body request
+    // which has heavy performance implications
+    if (logger.level() === 10) {
+        config.logger = logger;
+    }
+
     // pull certLocation from env
     // https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/node-registering-certs.html
     // Instead of updating the client, we can just update the config before creating the client
