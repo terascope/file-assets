@@ -13,5 +13,5 @@ jobs:
         run: |
           ls ${{ github.workspace }}
           apt get update
-          apt get install jq
+          apt install jq
       - run: echo "🍏 This job's status is ${{ job.status }}."
