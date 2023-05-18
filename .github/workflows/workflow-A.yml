@@ -12,6 +12,6 @@ jobs:
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
-          apt get update
+          apt update
           apt install jq
       - run: echo "🍏 This job's status is ${{ job.status }}."
