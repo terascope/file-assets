@@ -2,7 +2,7 @@ name: Workflow A
 run-name: ${{ github.actor }} is running a job
 on: [push]
 jobs:
-  This-Is-A-Job-Name:
+  job1:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -16,3 +16,15 @@ jobs:
           sudo apt update
           sudo apt install jq
       - run: echo "🍏 This job's status is ${{ job.status }}."
+  job2:
+    runs-on:  ubuntu-20.04
+    steps:
+      # I don't see the checkout directory here, right?
+      - run: ls
+      - run: touch foobar
+      - run: |
+          echo "You should see foobar, right?"
+          ls
+          whoami
+          env
+          docker ps
