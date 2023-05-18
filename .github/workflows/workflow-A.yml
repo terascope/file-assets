@@ -20,9 +20,14 @@ jobs:
     runs-on:  ubuntu-20.04
     steps:
       # I don't see the checkout directory here, right?
-      - run: ls
-      - run: touch foobar
-      - run: |
+      - name: List dir
+        run: |
+          pwd
+          ls
+      - name: Touch
+        run: touch foobar
+      - name: Get env
+        run: |
           echo "You should see foobar, right?"
           ls
           whoami
