@@ -1,8 +1,8 @@
-name: Job A (job-1.yaml)
+name: Job A (job-1.yaml) <- What is this the name of?
 run-name: ${{ github.actor }} is running a job
 on: [push]
 jobs:
-  Explore-GitHub-Actions:
+  This-Is-A-Job-Name:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
