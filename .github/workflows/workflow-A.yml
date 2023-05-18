@@ -1,4 +1,4 @@
-name: Job A (job-1.yaml) <- What is this the name of?
+name: Workflow A
 run-name: ${{ github.actor }} is running a job
 on: [push]
 jobs:
