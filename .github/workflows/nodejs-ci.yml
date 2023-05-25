@@ -23,6 +23,7 @@ jobs:
       - run: yarn build
       - run: yarn lint
       - run: yarn test:all
+      - run: yarn global add teraslice-cli
       - run: teraslice-cli -v
       - run: teraslice-cli assets build
       - run: ls -l build/
