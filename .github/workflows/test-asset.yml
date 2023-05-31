@@ -1,5 +1,5 @@
-name: Node.js CI
-run-name: ${{ github.actor }} is running Node.js CI
+name: Test Teraslice Asset
+run-name: ${{ github.actor }} is testing the Teraslice Asset
 on:
   push:
     branches: [ master ]
@@ -19,8 +19,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn --frozen-lockfile
-      - run: yarn build
+      - run: yarn setup
       - run: yarn lint
       - run: yarn test:all
       - run: yarn global add teraslice-cli
