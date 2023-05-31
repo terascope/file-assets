@@ -20,6 +20,9 @@ publish() {
         return;
     fi
 
+    # FIXME: delete this
+    npm info --json
+
     targetVersion="$(jq -r '.version' package.json)"
     currentVersion="$(npm info --json 2> /dev/null | jq -r '.version // "0.0.0"')"
 
