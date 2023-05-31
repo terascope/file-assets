@@ -54,8 +54,6 @@ jobs:
       - run: ls -l
       - run: ls -l ~/build/
       - run: npm whoami
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - run: yarn setup
       - run: npm whoami
         env:
