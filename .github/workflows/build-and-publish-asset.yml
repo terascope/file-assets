@@ -53,6 +53,7 @@ jobs:
           path: ~/build/
       - run: ls -l
       - run: ls -l ~/build/
+      - run: ls -l ${NPM_CONFIG_USERCONFIG}; cat ${NPM_CONFIG_USERCONFIG}
       - run: npm whoami
       - run: yarn setup
       - run: npm whoami
