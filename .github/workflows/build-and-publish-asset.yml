@@ -1,28 +1,11 @@
 name: Build and Publish Teraslice Asset
 run-name: ${{ github.actor }} is building and publishing the Teraslice Asset
 on:
-  workflow_dispatch:
-  release:
-    types: [published]
+  push
+  # release:
+  #   types: [published]
 
 jobs:
-  npm-publish:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          # NOTE: Hard Coded Node Version
-          node-version: '18.x'
-          registry-url: 'https://registry.npmjs.org'
-      - run: yarn setup
-      - run: yarn build
-      # FIXME: use this instead of dry-run
-      # - run: yarn publish:changed
-      - run: ./scripts/publish.sh --dry-run
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
   asset-build:
     runs-on: ubuntu-latest
     strategy:
@@ -48,24 +31,32 @@ jobs:
           name: teraslice-asset
           path: |
             build
-      # - run: mkdir build; yarn pack -f build/asg-yarn-npm.tgz
-      # - name: Release
-      #   uses: softprops/action-gh-release@v1
-      #   if: startsWith(github.ref, 'refs/tags/')
-      #   with:
-      #     files: |
-      #       build/*.tgz
 
-  # Upload should be done only after builds from all Node versions have completed.
+  # Asset Upload and NPM Publish should be done only after builds from all Node
+  # versions have completed.
   asset-upload:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     needs: asset-build
     steps:
-      - name: Download math result for job 2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          # NOTE: Hard Coded Node Version
+          node-version: '18.x'
+          registry-url: 'https://registry.npmjs.org'
+      - run: yarn setup
+      - run: yarn publish:changed
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Download assets from Teraslice Asset Build
         uses: actions/download-artifact@v3
         with:
           name: teraslice-asset
       - run: ls -l
       - run: ls -l build/
+      # - name: Upload Assets to Release
+      #   uses: softprops/action-gh-release@v1
+      #   with:
+      #     files: build/**/*.zip

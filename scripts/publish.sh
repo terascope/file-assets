@@ -48,6 +48,9 @@ main() {
 
     projectDir="$(pwd)"
 
+    echo "Check NPM Authentication"
+    npm whoami
+
     for package in "${projectDir}/packages/"*; do
         cd "$package" || continue;
         publish "$dryRun";
