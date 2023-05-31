@@ -22,7 +22,8 @@ publish() {
     currentVersion="$(npm info --json 2> /dev/null | jq -r '.version // "0.0.0"')"
 
     if [ "$currentVersion" != "$targetVersion" ]; then
-        echo "$name@$currentVersion -> $targetVersion"
+        echo "Publishing:"
+        echo "  $name@$currentVersion -> $targetVersion"
         if [ "$dryRun" == "false" ]; then
             yarn publish \
                 --silent \
@@ -31,6 +32,9 @@ publish() {
                 --new-version "$targetVersion" \
                 --no-git-tag-version
         fi
+    else
+        echo "Not publishing:"
+        echo "  $name@$currentVersion = $targetVersion"
     fi
 }
 
