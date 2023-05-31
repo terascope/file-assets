@@ -54,6 +54,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: teraslice-asset
+          path: ~/build/
       - run: ls -l
       - run: ls -l build/
       # - name: Upload Assets to Release

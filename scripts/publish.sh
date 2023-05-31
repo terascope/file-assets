@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 check_deps() {
     if [ -z "$(command -v jq)" ]; then
         echo "./publish.sh requires jq installed"

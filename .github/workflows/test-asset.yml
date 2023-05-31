@@ -1,28 +1,29 @@
-# name: Test Teraslice Asset
-# run-name: ${{ github.actor }} is testing the Teraslice Asset
-# on:
-#   push:
-#     branches: [ master ]
-#   pull_request:
-#     branches: [ master ]
+name: Test Teraslice Asset
+run-name: ${{ github.actor }} is testing the Teraslice Asset
+on:
+  workflow_dispatch
+  # push:
+  #   branches: [ master ]
+  # pull_request:
+  #   branches: [ master ]
 
-# jobs:
-#   test:
-#     runs-on: ubuntu-latest
-#     strategy:
-#       matrix:
-#         node-version: [14.x, 16.x]
-#         # node-version: [14.x, 16.x, 18.x, 20.x]
-#     steps:
-#       - uses: actions/checkout@v3
-#       - name: Use Node.js ${{ matrix.node-version }}
-#         uses: actions/setup-node@v3
-#         with:
-#           node-version: ${{ matrix.node-version }}
-#       - run: yarn setup
-#       - run: yarn lint
-#       - run: yarn test:all
-#       - run: yarn global add teraslice-cli
-#       - run: teraslice-cli -v
-#       - run: teraslice-cli assets build
-#       - run: ls -l build/
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x]
+        # node-version: [14.x, 16.x, 18.x, 20.x]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: yarn setup
+      - run: yarn lint
+      - run: yarn test:all
+      - run: yarn global add teraslice-cli
+      - run: teraslice-cli -v
+      - run: teraslice-cli assets build
+      - run: ls -l build/
