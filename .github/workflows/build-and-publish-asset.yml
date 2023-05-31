@@ -52,7 +52,7 @@ jobs:
           name: teraslice-asset
           path: ~/build/
       - run: ls -l
-      - run: ls -l build/
+      - run: ls -l ~/build/
       - run: yarn setup
       - run: npm whoami
         env:
