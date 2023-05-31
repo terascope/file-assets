@@ -45,7 +45,7 @@ jobs:
         with:
           # NOTE: Hard Coded Node Version
           node-version: '18.x'
-          registry-url: 'https://registry.npmjs.org'
+          # registry-url: 'https://registry.npmjs.org'
       # - name: Download assets from Teraslice Asset Build
       #   uses: actions/download-artifact@v3
       #   with:
@@ -54,9 +54,6 @@ jobs:
       # - run: ls -l
       # - run: ls -l ~/build/
       - run: ls -l ${NPM_CONFIG_USERCONFIG}; cat ${NPM_CONFIG_USERCONFIG}
-      - run: npm login
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - run: npm whoami
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
