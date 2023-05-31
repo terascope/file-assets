@@ -46,10 +46,6 @@ jobs:
           # NOTE: Hard Coded Node Version
           node-version: '18.x'
           registry-url: 'https://registry.npmjs.org'
-      - run: yarn setup
-      - run: yarn publish:changed
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Download assets from Teraslice Asset Build
         uses: actions/download-artifact@v3
         with:
@@ -57,6 +53,13 @@ jobs:
           path: ~/build/
       - run: ls -l
       - run: ls -l build/
+      - run: yarn setup
+      - run: npm whoami
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: yarn publish:changed
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       # - name: Upload Assets to Release
       #   uses: softprops/action-gh-release@v1
       #   with:

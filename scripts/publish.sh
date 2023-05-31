@@ -50,6 +50,10 @@ main() {
 
     projectDir="$(pwd)"
 
+    node --version
+    npm --version
+    yarn --version
+
     echo "Check NPM Authentication"
     npm whoami
 
