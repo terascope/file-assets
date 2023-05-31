@@ -54,6 +54,8 @@ main() {
     npm --version
     yarn --version
 
+    yarn config list
+
     echo "Check NPM Authentication"
     npm whoami
 
