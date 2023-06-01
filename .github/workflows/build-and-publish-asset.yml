@@ -61,6 +61,7 @@ jobs:
       - run: npm whoami
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          HELLO: "WORLD"
       - run: yarn config list
       # - run: yarn publish:changed
       - run: ./scripts/publish.sh
@@ -70,3 +71,4 @@ jobs:
       #   uses: softprops/action-gh-release@v1
       #   with:
       #     files: build/**/*.zip
+      - run: 'echo "TEST: ${HELLO}"'
