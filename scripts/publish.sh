@@ -24,7 +24,7 @@ publish() {
     npm info --json 2> /dev/null | jq -r
 
     targetVersion="$(jq -r '.version' package.json)"
-    currentVersion="$(npm info --json 2> /dev/null | jq -r '.version // "0.0.0"')"
+    currentVersion="$(npm info --json 2> /dev/null | jq -r 'first(.[]) | .version // "0.0.0"')"
 
     if [ "$currentVersion" != "$targetVersion" ]; then
         echo "Publishing:"
@@ -60,7 +60,7 @@ main() {
     yarn config list
 
     echo "Check NPM Authentication"
-    npm whoami
+    # npm whoami
 
     for package in "${projectDir}/packages/"*; do
         cd "$package" || continue;
