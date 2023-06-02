@@ -1,12 +1,13 @@
 import {
     S3Client, GetObjectCommand, ListObjectsCommand,
-    PutObjectCommand, DeleteObjectCommand, DeleteBucketCommand,
+    PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand, DeleteBucketCommand,
     HeadBucketCommand, ListBucketsCommand, CreateBucketCommand,
-    CreateMultipartUploadCommand, UploadPartCommand,
-    CompleteMultipartUploadCommand, AbortMultipartUploadCommand
+    CreateMultipartUploadCommand, UploadPartCommand, PutObjectTaggingCommand,
+    CompleteMultipartUploadCommand, AbortMultipartUploadCommand, HeadBucketCommandOutput
 } from '@aws-sdk/client-s3';
 
 import { S3ClientParams, S3ClientResponse } from './client-types';
+import { TSError } from '@terascope/utils';
 
 export async function getS3Object(
     client: S3Client,
@@ -32,11 +33,27 @@ export async function putS3Object(
     return client.send(command);
 }
 
+export async function tagS3Object(
+    client: S3Client,
+    params: S3ClientParams.PutObjectTaggingRequest
+): Promise<S3ClientResponse.PutObjectTaggingOutput> {
+    const command = new PutObjectTaggingCommand(params);
+    return client.send(command);
+}
+
 export async function deleteS3Object(
     client: S3Client,
     params: S3ClientParams.DeleteObjectRequest
 ): Promise<S3ClientResponse.DeleteObjectOutput> {
     const command = new DeleteObjectCommand(params);
+    return client.send(command);
+}
+
+export async function deleteS3Objects(
+    client: S3Client,
+    params: S3ClientParams.DeleteObjectsRequest
+): Promise<S3ClientResponse.DeleteObjectsOutput> {
+    const command = new DeleteObjectsCommand(params);
     return client.send(command);
 }
 
@@ -54,6 +71,25 @@ export async function headS3Bucket(
 ): Promise<void> {
     const command = new HeadBucketCommand(params);
     await client.send(command);
+}
+
+export async function doesBucketExist(
+    client: S3Client,
+    params: S3ClientParams.HeadBucketRequest
+): Promise<boolean> {
+    try {
+        await headS3Bucket(client, params);
+    } catch (error) {
+        const { httpStatusCode } = (error as HeadBucketCommandOutput).$metadata;
+        if (httpStatusCode === 404) {
+            return false;
+        }
+        if (httpStatusCode === 403) {
+            throw new TSError(`User does not have access to bucket "${params.Bucket}"`, { statusCode: 403 });
+        }
+        throw error;
+    }
+    return true;
 }
 
 export async function listS3Buckets(
