@@ -1,6 +1,6 @@
 {
     "name": "file-assets-bundle",
-    "version": "2.4.0",
+    "version": "2.4.1",
     "description": "A set of processors for working with files",
     "repository": "https://github.com/terascope/file-assets.git",
     "author": "Terascope, LLC <info@terascope.io>",
