@@ -23,7 +23,7 @@
         "test:all": "yarn workspaces run test",
         "test:watch": "ts-scripts test --watch . --",
         "test:debug": "ts-scripts test --debug . --",
-        "publish:changed": "./scripts/publish.sh --dry-run"
+        "publish:changed": "./scripts/publish.sh"
     },
     "dependencies": {},
     "devDependencies": {
