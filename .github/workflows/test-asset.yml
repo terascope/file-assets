@@ -45,7 +45,8 @@ jobs:
           node-version: 18
       - run: yarn setup
       - run: yarn lint
-      - run: yarn test:all
+      # TODO: Ideally we'd be able to at least run unit tests that don't require docker.
+      #- run: yarn test:all
       - run: yarn global add teraslice-cli
       - run: teraslice-cli -v
       - run: teraslice-cli assets build
