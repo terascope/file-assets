@@ -1,6 +1,7 @@
 export {
     GetObjectRequest,
     ListObjectsRequest,
+    ListObjectsV2Request,
     PutObjectRequest,
     PutObjectTaggingRequest,
     DeleteObjectRequest,

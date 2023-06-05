@@ -1,13 +1,16 @@
 import {
-    S3Client, GetObjectCommand, ListObjectsCommand,
-    PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand, DeleteBucketCommand,
-    HeadBucketCommand, ListBucketsCommand, CreateBucketCommand,
-    CreateMultipartUploadCommand, UploadPartCommand, PutObjectTaggingCommand,
-    CompleteMultipartUploadCommand, AbortMultipartUploadCommand, HeadBucketCommandOutput
+    S3Client,
+    CreateBucketCommand,
+    DeleteBucketCommand, DeleteObjectCommand, DeleteObjectsCommand,
+    GetObjectCommand, HeadBucketCommand,
+    ListBucketsCommand, ListObjectsCommand, ListObjectsV2Command,
+    PutObjectCommand, PutObjectTaggingCommand,
+    CreateMultipartUploadCommand, UploadPartCommand,
+    CompleteMultipartUploadCommand, AbortMultipartUploadCommand,
 } from '@aws-sdk/client-s3';
 
-import { S3ClientParams, S3ClientResponse } from './client-types';
 import { TSError } from '@terascope/utils';
+import { S3ClientParams, S3ClientResponse } from './client-types';
 
 export async function getS3Object(
     client: S3Client,
@@ -17,11 +20,28 @@ export async function getS3Object(
     return client.send(command);
 }
 
+/**
+ * V2 has added features - there's a 1000 keys per page limit and "ContinuationToken" in v2
+ * is supposed to make pagination easier so you don't have to keep track of the original method's
+ * "Marker". Can run parallel list requests in v2 and check the NextContinuationToken instead of
+ * keeping track of previous fetch's last key for the Marker.
+ */
+function isV2ListParams(params: any): params is S3ClientParams.ListObjectsRequest {
+    const v1Params = params as S3ClientParams.ListObjectsRequest;
+    const v2Params = params as S3ClientParams.ListObjectsV2Request;
+    if (v2Params.ContinuationToken || v2Params.StartAfter) {
+        return true;
+    }
+    if (v1Params.Marker) return false;
+    return false;
+}
 export async function listS3Objects(
     client: S3Client,
-    params: S3ClientParams.ListObjectsRequest
-): Promise<S3ClientResponse.ListObjectsOutput> {
-    const command = new ListObjectsCommand(params);
+    params: S3ClientParams.ListObjectsRequest|S3ClientParams.ListObjectsV2Request
+): Promise<S3ClientResponse.ListObjectsOutput|S3ClientResponse.ListObjectsV2Output> {
+    const command = isV2ListParams(params)
+        ? new ListObjectsV2Command(params)
+        : new ListObjectsCommand(params);
     return client.send(command);
 }
 
@@ -79,15 +99,18 @@ export async function doesBucketExist(
 ): Promise<boolean> {
     try {
         await headS3Bucket(client, params);
-    } catch (error) {
-        const { httpStatusCode } = (error as HeadBucketCommandOutput).$metadata;
+    } catch (err) {
+        const {
+            httpStatusCode = 400
+        } = (err as S3ClientResponse.S3ErrorExceptions).$metadata ?? {};
+
         if (httpStatusCode === 404) {
             return false;
         }
         if (httpStatusCode === 403) {
             throw new TSError(`User does not have access to bucket "${params.Bucket}"`, { statusCode: 403 });
         }
-        throw error;
+        throw err;
     }
     return true;
 }
