@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 check_deps() {
     if [ -z "$(command -v jq)" ]; then
         echo "./publish.sh requires jq installed"
@@ -19,10 +21,11 @@ publish() {
     fi
 
     targetVersion="$(jq -r '.version' package.json)"
-    currentVersion="$(npm info --json 2> /dev/null | jq -r '.version // "0.0.0"')"
+    currentVersion="$(npm info --json 2> /dev/null | jq -r 'first(.[]) | .version // "0.0.0"')"
 
     if [ "$currentVersion" != "$targetVersion" ]; then
-        echo "$name@$currentVersion -> $targetVersion"
+        echo "Publishing:"
+        echo "  $name@$currentVersion -> $targetVersion"
         if [ "$dryRun" == "false" ]; then
             yarn publish \
                 --silent \
@@ -31,6 +34,9 @@ publish() {
                 --new-version "$targetVersion" \
                 --no-git-tag-version
         fi
+    else
+        echo "Not publishing:"
+        echo "  $name@$currentVersion = $targetVersion"
     fi
 }
 
@@ -43,6 +49,9 @@ main() {
     fi
 
     projectDir="$(pwd)"
+
+    echo "Check NPM Authentication"
+    npm whoami
 
     for package in "${projectDir}/packages/"*; do
         cd "$package" || continue;
