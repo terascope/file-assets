@@ -1,7 +1,7 @@
 import { isError } from '@terascope/utils';
-import type { S3Client, S3ClientResponse } from '../../src';
 import {
-    listS3Objects, deleteS3Object, deleteS3Bucket,
+    S3Client, S3ClientResponse, deleteAllS3Objects,
+    deleteS3Bucket,
     ChunkedFileSenderConfig, Compression, Formatter,
     Compressor, createFileName, putS3Object, createS3Client
 } from '../../src';
@@ -32,19 +32,10 @@ export async function cleanupBucket(
     client: S3Client, bucket: string
 ): Promise<void> {
     try {
-        const request = await listS3Objects(client, {
-            Bucket: bucket,
-        });
-
-        const promises = request.Contents?.map((obj) => deleteS3Object(client, {
-            Bucket: bucket, Key: obj.Key!
-        }));
-
-        await Promise.all(promises ?? []);
-
+        await deleteAllS3Objects(client, { Bucket: bucket });
         await deleteS3Bucket(client, { Bucket: bucket });
     } catch (err: any) {
-        if (isError(err) && (err as Error & { Code: string }).Code === 'NoSuchBucket') {
+        if (isError(err) && (err as S3ClientResponse.S3Error).Code === 'NoSuchBucket') {
             return;
         }
         throw err;

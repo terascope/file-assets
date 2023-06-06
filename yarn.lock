@@ -1622,6 +1622,20 @@
     progress "^2.0.3"
     yargs "^17.2.1"
 
+"@terascope/file-asset-apis@^0.7.1":
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/@terascope/file-asset-apis/-/file-asset-apis-0.7.1.tgz#628715049022406e09b738de25cb96c44d3e0a0f"
+  integrity sha512-uvCOZNRmPuZ2rEtIu3T5DRc4AF4Ifi0savXbg+5ECOl6O+kPUdH1BK7mhmJB/WOBeVt12TuwVAkepfj4QsM4UQ==
+  dependencies:
+    "@aws-sdk/client-s3" "^3.315.0"
+    "@aws-sdk/node-http-handler" "^3.310.0"
+    "@terascope/utils" "^0.45.5"
+    csvtojson "^2.0.10"
+    fs-extra "^11.1.1"
+    json2csv "5.0.7"
+    lz4-asm "^0.4.2"
+    node-gzip "^1.1.2"
+
 "@terascope/job-components@^0.58.5":
   version "0.58.5"
   resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.58.5.tgz#28dff6fc81be4ca9ed6b7e64366bb45ac08b335d"

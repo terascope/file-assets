@@ -1,11 +1,15 @@
 import {
-    S3Client, GetObjectCommand, ListObjectsCommand,
-    PutObjectCommand, DeleteObjectCommand, DeleteBucketCommand,
-    HeadBucketCommand, ListBucketsCommand, CreateBucketCommand,
+    S3Client,
+    CreateBucketCommand,
+    DeleteBucketCommand, DeleteObjectCommand, DeleteObjectsCommand,
+    GetObjectCommand, HeadBucketCommand,
+    ListBucketsCommand, ListObjectsV2Command,
+    PutObjectCommand, PutObjectTaggingCommand,
     CreateMultipartUploadCommand, UploadPartCommand,
-    CompleteMultipartUploadCommand, AbortMultipartUploadCommand
+    CompleteMultipartUploadCommand, AbortMultipartUploadCommand,
 } from '@aws-sdk/client-s3';
 
+import { TSError } from '@terascope/utils';
 import { S3ClientParams, S3ClientResponse } from './client-types';
 
 export async function getS3Object(
@@ -18,9 +22,9 @@ export async function getS3Object(
 
 export async function listS3Objects(
     client: S3Client,
-    params: S3ClientParams.ListObjectsRequest
-): Promise<S3ClientResponse.ListObjectsOutput> {
-    const command = new ListObjectsCommand(params);
+    params: S3ClientParams.ListObjectsV2Request,
+): Promise<S3ClientResponse.ListObjectsV2Output> {
+    const command = new ListObjectsV2Command(params);
     return client.send(command);
 }
 
@@ -32,12 +36,45 @@ export async function putS3Object(
     return client.send(command);
 }
 
+export async function tagS3Object(
+    client: S3Client,
+    params: S3ClientParams.PutObjectTaggingRequest
+): Promise<S3ClientResponse.PutObjectTaggingOutput> {
+    const command = new PutObjectTaggingCommand(params);
+    return client.send(command);
+}
+
 export async function deleteS3Object(
     client: S3Client,
     params: S3ClientParams.DeleteObjectRequest
 ): Promise<S3ClientResponse.DeleteObjectOutput> {
     const command = new DeleteObjectCommand(params);
     return client.send(command);
+}
+
+/** Deletes up to 10000 or MaxKeys, if you want to delete more use {@link deleteAllS3Objects} */
+export async function deleteS3Objects(
+    client: S3Client,
+    params: S3ClientParams.DeleteObjectsRequest,
+): Promise<S3ClientResponse.DeleteObjectsOutput> {
+    const command = new DeleteObjectsCommand(params);
+    return client.send(command);
+}
+
+/** Lists objects and continues deleting until empty */
+export async function deleteAllS3Objects(
+    client: S3Client,
+    params: S3ClientParams.ListObjectsV2Request
+): Promise<void> {
+    const list = await listS3Objects(client, params);
+    const objects = list.Contents?.map((obj) => ({ Key: obj.Key! }));
+    await deleteS3Objects(client, { Bucket: params.Bucket, Delete: { Objects: objects } });
+
+    if (list.NextContinuationToken) {
+        return deleteAllS3Objects(
+            client, { ...params, ContinuationToken: list.NextContinuationToken }
+        );
+    }
 }
 
 export async function deleteS3Bucket(
@@ -54,6 +91,26 @@ export async function headS3Bucket(
 ): Promise<void> {
     const command = new HeadBucketCommand(params);
     await client.send(command);
+}
+
+export async function doesBucketExist(
+    client: S3Client,
+    params: S3ClientParams.HeadBucketRequest
+): Promise<boolean> {
+    try {
+        await headS3Bucket(client, params);
+    } catch (err) {
+        const { httpStatusCode } = (err as S3ClientResponse.S3ErrorExceptions).$metadata ?? {};
+
+        if (httpStatusCode === 404) {
+            return false;
+        }
+        if (httpStatusCode === 403) {
+            throw new TSError(`User does not have access to bucket "${params.Bucket}"`, { statusCode: 403 });
+        }
+        throw err;
+    }
+    return true;
 }
 
 export async function listS3Buckets(

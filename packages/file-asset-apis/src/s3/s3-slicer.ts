@@ -10,7 +10,7 @@ export class S3Slicer {
     client: S3Client;
     readonly bucket: string;
     readonly prefix: string;
-    private _lastKey: string | undefined;
+    private _nextToken: string | undefined;
     protected _doneSlicing = false;
 
     constructor(client: S3Client, config: FileSliceConfig, logger: Logger) {
@@ -27,7 +27,7 @@ export class S3Slicer {
         const data = await listS3Objects(this.client, {
             Bucket: this.bucket,
             Prefix: this.prefix,
-            Marker: this._lastKey,
+            ContinuationToken: this._nextToken
         });
 
         if (!data.Contents?.length) {
@@ -36,7 +36,7 @@ export class S3Slicer {
             return [];
         }
 
-        this._lastKey = data.Contents[data.Contents.length - 1].Key;
+        this._nextToken = data.NextContinuationToken;
 
         // Let slicer know whether or not there are more objects to process
         if (data.IsTruncated) {
