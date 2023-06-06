@@ -21,10 +21,10 @@ export async function getS3Object(
 }
 
 /**
- * V2 has added features - there's a 1000 keys per page limit and "ContinuationToken" in v2
- * is supposed to make pagination easier so you don't have to keep track of the original method's
- * "Marker". Can run parallel list requests in v2 and check the NextContinuationToken instead of
- * keeping track of previous fetch's last key for the Marker.
+ * V2 has added features - 1000 keys per page limit and "ContinuationToken" in v2
+ * might make pagination easier so you don't have to keep track of the "Marker".
+ * Can run parallel list requests in v2 checking the NextContinuationToken in the
+ * response instead of keeping track of previous fetch's last key for the Marker.
  */
 function isV2ListParams(params: any): params is S3ClientParams.ListObjectsRequest {
     const v1Params = params as S3ClientParams.ListObjectsRequest;
