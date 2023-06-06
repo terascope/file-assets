@@ -35,11 +35,14 @@ function isV2ListParams(params: any): params is S3ClientParams.ListObjectsReques
     if (v1Params.Marker) return false;
     return false;
 }
+
+/** uses original version unless params includes ContinuationToken or StartAfter, or useV2 = true */
 export async function listS3Objects(
     client: S3Client,
-    params: S3ClientParams.ListObjectsRequest|S3ClientParams.ListObjectsV2Request
+    params: S3ClientParams.ListObjectsRequest|S3ClientParams.ListObjectsV2Request,
+    useV2 = false
 ): Promise<S3ClientResponse.ListObjectsOutput|S3ClientResponse.ListObjectsV2Output> {
-    const command = isV2ListParams(params)
+    const command = (isV2ListParams(params) || useV2)
         ? new ListObjectsV2Command(params)
         : new ListObjectsCommand(params);
     return client.send(command);
