@@ -12,9 +12,7 @@ describe('S3 Helpers', () => {
     beforeAll(async () => {
         client = await makeClient();
         await cleanupBucket(client, bucketName);
-
         bucket = await s3Helpers.createS3Bucket(client, { Bucket: bucketName });
-        await s3Helpers.createS3Bucket(client, { Bucket: 'other-helper-bucket' });
     });
 
     afterAll(async () => {
@@ -105,15 +103,12 @@ describe('S3 Helpers', () => {
             expect(list.Contents?.length).toBe(3);
         });
 
-        it('should list objects V1', async () => {
-            const list = await s3Helpers.listS3Objects(client, { Bucket: bucketName, Marker: 'bar' });
-            expect(list.Contents?.length).toBe(2);
-        });
-
-        it('should list objects V2', async () => {
+        it('should list objects w/ start after', async () => {
             const list = await s3Helpers.listS3Objects(client, { Bucket: bucketName, StartAfter: 'bar' });
             expect(list.Contents?.length).toBe(2);
         });
+
+        // added s3-large-spec.ts to show how to use listS3Objects w/ continuation token
 
         it('should list delete an object', async () => {
             const deleted = await s3Helpers.deleteS3Object(client, { Bucket: bucketName, Key: 'bad' });

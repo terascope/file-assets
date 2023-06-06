@@ -5,7 +5,6 @@ export type S3ErrorExceptions = S3ServiceException;
 
 export {
     GetObjectOutput,
-    ListObjectsOutput,
     ListObjectsV2Output,
     PutObjectOutput,
     PutObjectTaggingOutput,

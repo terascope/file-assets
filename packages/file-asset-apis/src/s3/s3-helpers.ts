@@ -3,7 +3,7 @@ import {
     CreateBucketCommand,
     DeleteBucketCommand, DeleteObjectCommand, DeleteObjectsCommand,
     GetObjectCommand, HeadBucketCommand,
-    ListBucketsCommand, ListObjectsCommand, ListObjectsV2Command,
+    ListBucketsCommand, ListObjectsV2Command,
     PutObjectCommand, PutObjectTaggingCommand,
     CreateMultipartUploadCommand, UploadPartCommand,
     CompleteMultipartUploadCommand, AbortMultipartUploadCommand,
@@ -20,31 +20,11 @@ export async function getS3Object(
     return client.send(command);
 }
 
-/**
- * V2 has added features - 1000 keys per page limit and "ContinuationToken" in v2
- * might make pagination easier so you don't have to keep track of the "Marker".
- * Can run parallel list requests in v2 checking the NextContinuationToken in the
- * response instead of keeping track of previous fetch's last key for the Marker.
- */
-function isV2ListParams(params: any): params is S3ClientParams.ListObjectsRequest {
-    const v1Params = params as S3ClientParams.ListObjectsRequest;
-    const v2Params = params as S3ClientParams.ListObjectsV2Request;
-    if (v2Params.ContinuationToken || v2Params.StartAfter) {
-        return true;
-    }
-    if (v1Params.Marker) return false;
-    return false;
-}
-
-/** uses original version unless params includes ContinuationToken or StartAfter, or useV2 = true */
 export async function listS3Objects(
     client: S3Client,
-    params: S3ClientParams.ListObjectsRequest|S3ClientParams.ListObjectsV2Request,
-    useV2 = false
-): Promise<S3ClientResponse.ListObjectsOutput|S3ClientResponse.ListObjectsV2Output> {
-    const command = (isV2ListParams(params) || useV2)
-        ? new ListObjectsV2Command(params)
-        : new ListObjectsCommand(params);
+    params: S3ClientParams.ListObjectsV2Request,
+): Promise<S3ClientResponse.ListObjectsV2Output> {
+    const command = new ListObjectsV2Command(params);
     return client.send(command);
 }
 
@@ -72,12 +52,29 @@ export async function deleteS3Object(
     return client.send(command);
 }
 
+/** Deletes up to 10000 or MaxKeys, if you want to delete more use {@link deleteAllS3Objects} */
 export async function deleteS3Objects(
     client: S3Client,
-    params: S3ClientParams.DeleteObjectsRequest
+    params: S3ClientParams.DeleteObjectsRequest,
 ): Promise<S3ClientResponse.DeleteObjectsOutput> {
     const command = new DeleteObjectsCommand(params);
     return client.send(command);
+}
+
+/** Lists objects and continues deleting until empty */
+export async function deleteAllS3Objects(
+    client: S3Client,
+    params: S3ClientParams.ListObjectsV2Request
+): Promise<void> {
+    const list = await listS3Objects(client, params);
+    const objects = list.Contents?.map((obj) => ({ Key: obj.Key! }));
+    await deleteS3Objects(client, { Bucket: params.Bucket, Delete: { Objects: objects } });
+
+    if (list.NextContinuationToken) {
+        return deleteAllS3Objects(
+            client, { ...params, ContinuationToken: list.NextContinuationToken }
+        );
+    }
 }
 
 export async function deleteS3Bucket(
@@ -103,9 +100,7 @@ export async function doesBucketExist(
     try {
         await headS3Bucket(client, params);
     } catch (err) {
-        const {
-            httpStatusCode = 400
-        } = (err as S3ClientResponse.S3ErrorExceptions).$metadata ?? {};
+        const { httpStatusCode } = (err as S3ClientResponse.S3ErrorExceptions).$metadata ?? {};
 
         if (httpStatusCode === 404) {
             return false;
