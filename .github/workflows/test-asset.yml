@@ -9,23 +9,5 @@ on:
 
 jobs:
   call-asset-test-workflow:
-    # TODO: update to SHA
-    uses: terascope/workflows/.github/workflows/asset-test.yml@main
+    uses: terascope/workflows/.github/workflows/asset-test.yml@42e888b
     secrets: inherit
-
-  # test-macos:
-  #   runs-on: macos-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Use Node.js
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 18
-  #     - run: yarn setup
-  #     - run: yarn lint
-  #     # TODO: Ideally we'd be able to at least run unit tests that don't require docker.
-  #     #- run: yarn test:all
-  #     - run: yarn global add teraslice-cli
-  #     - run: teraslice-cli -v
-  #     - run: teraslice-cli assets build
-  #     - run: ls -l build/
