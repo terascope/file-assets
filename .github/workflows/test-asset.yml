@@ -11,6 +11,7 @@ jobs:
   call-asset-test-workflow:
     # TODO: update to SHA
     uses: terascope/workflows/.github/workflows/asset-test.yml@main
+    secrets: inherit
 
   # test-macos:
   #   runs-on: macos-latest
