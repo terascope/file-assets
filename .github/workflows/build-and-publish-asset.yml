@@ -1,69 +1,11 @@
-# NOTE: There are no tests in this publish workflow, which means it assumes that
-# the master branch has been tested.  The test-asset.yml should include:
-#   push:
-#     branches: [ master ]
-#   pull_request:
-#     branches: [ master ]
-# which is meant to test on PRs to master and and push to master.
-
 name: Build and Publish Teraslice Asset
 run-name: ${{ github.actor }} is building and publishing the Teraslice Asset
 on:
+  workflow_dispatch:
   release:
     types: [published]
 
 jobs:
-  asset-build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # NOTE: Hard Coded Node Version array, should match array in test-asset.yml
-        # should this target explicit Node versions?
-        node-version: [14.x, 16.x, 18.x]
-    steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: yarn setup
-      - run: yarn build
-      - run: yarn global add teraslice-cli
-      - run: teraslice-cli -v
-      - run: teraslice-cli assets build
-      - run: ls -l ./build/
-      - run: sha256sum ./build/*
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: teraslice-asset
-          path: ./build
-
-  # Asset Upload and NPM Publish should be done only after builds from all Node
-  # versions have completed.
-  asset-upload:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    needs: asset-build
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          # NOTE: Hard Coded Node Version
-          node-version: '18.x'
-          registry-url: 'https://registry.npmjs.org'
-      - run: yarn setup
-      - run: ./scripts/publish.sh
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Download assets from Teraslice Asset Build
-        uses: actions/download-artifact@v3
-        with:
-          name: teraslice-asset
-          path: ./build/
-      - run: ls -l ./build/
-      - name: Upload Assets to Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: ./build/*.zip
+  call-asset-build:
+    uses: terascope/workflows/.github/workflows/asset-build-and-publish.yml@42e888b5058dd6d66d93707331ccf9a1e9315734
+    secrets: inherit
