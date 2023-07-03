@@ -23,7 +23,7 @@
     "author": "Terascope, LLC <info@terascope.io>",
     "license": "MIT",
     "dependencies": {
-        "@aws-sdk/client-s3": "^3.315.0",
+        "@aws-sdk/client-s3": "^3.363.0",
         "@aws-sdk/node-http-handler": "^3.310.0",
         "@terascope/utils": "^0.45.5",
         "csvtojson": "^2.0.10",
