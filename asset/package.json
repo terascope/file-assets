@@ -1,6 +1,6 @@
 {
     "name": "file",
-    "version": "2.6.0",
+    "version": "2.6.1",
     "description": "A set of processors for working with files",
     "private": true,
     "workspaces": {
