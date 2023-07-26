@@ -1,6 +1,6 @@
 {
     "name": "file-assets-bundle",
-    "version": "2.6.1",
+    "version": "2.6.2",
     "description": "A set of processors for working with files",
     "repository": "https://github.com/terascope/file-assets.git",
     "author": "Terascope, LLC <info@terascope.io>",
@@ -28,7 +28,7 @@
     "dependencies": {},
     "devDependencies": {
         "@terascope/eslint-config": "^0.7.1",
-        "@terascope/file-asset-apis": "^0.7.1",
+        "@terascope/file-asset-apis": "^0.7.2",
         "@terascope/job-components": "^0.58.5",
         "@terascope/scripts": "^0.50.7",
         "@types/fs-extra": "^11.0.1",
