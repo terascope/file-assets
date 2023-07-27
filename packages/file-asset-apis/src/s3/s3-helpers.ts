@@ -3,7 +3,7 @@ import {
     CreateBucketCommand,
     DeleteBucketCommand, DeleteObjectCommand, DeleteObjectsCommand,
     GetObjectCommand, HeadBucketCommand,
-    ListBucketsCommand, ListObjectsV2Command,
+    ListBucketsCommand, ListObjectsV2Command, ObjectIdentifier,
     PutObjectCommand, PutObjectTaggingCommand,
     CreateMultipartUploadCommand, UploadPartCommand,
     CompleteMultipartUploadCommand, AbortMultipartUploadCommand,
@@ -67,8 +67,18 @@ export async function deleteAllS3Objects(
     params: S3ClientParams.ListObjectsV2Request
 ): Promise<void> {
     const list = await listS3Objects(client, params);
-    const objects = list.Contents?.map((obj) => ({ Key: obj.Key! }));
-    await deleteS3Objects(client, { Bucket: params.Bucket, Delete: { Objects: objects } });
+    if (!list.Contents?.length) return;
+
+    const objects: ObjectIdentifier[] = [];
+    list.Contents?.forEach((obj) => {
+        if (!obj.Key) return;
+        objects.push({ Key: obj.Key });
+    });
+
+    await deleteS3Objects(client, {
+        Bucket: params.Bucket,
+        Delete: { Objects: objects }
+    });
 
     if (list.NextContinuationToken) {
         return deleteAllS3Objects(
