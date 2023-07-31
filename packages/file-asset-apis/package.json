@@ -1,6 +1,6 @@
 {
     "name": "@terascope/file-asset-apis",
-    "version": "0.9.1",
+    "version": "0.10.1",
     "description": "file reader and sender apis",
     "publishConfig": {
         "access": "public"
@@ -23,9 +23,9 @@
     "author": "Terascope, LLC <info@terascope.io>",
     "license": "MIT",
     "dependencies": {
-        "@aws-sdk/client-s3": "^3.315.0",
-        "@aws-sdk/node-http-handler": "^3.310.0",
-        "@terascope/utils": "^0.45.5",
+        "@aws-sdk/client-s3": "^3.378.0",
+        "@aws-sdk/node-http-handler": "^3.374.0",
+        "@terascope/utils": "^0.46.0",
         "csvtojson": "^2.0.10",
         "fs-extra": "^11.1.1",
         "json2csv": "5.0.7",
@@ -34,12 +34,12 @@
     },
     "peerDependencies": {},
     "devDependencies": {
-        "@terascope/scripts": "^0.50.7",
-        "@types/jest": "^29.5.0",
-        "jest": "^29.5.0",
-        "jest-extended": "^3.2.4",
+        "@terascope/scripts": "^0.53.1",
+        "@types/jest": "^29.5.3",
+        "jest": "^29.6.2",
+        "jest-extended": "^4.0.0",
         "jest-fixtures": "^0.6.0",
-        "ts-jest": "^29.1.0"
+        "ts-jest": "^29.1.1"
     },
     "engines": {
         "node": ">=14.17.0"
