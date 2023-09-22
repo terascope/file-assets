@@ -20,10 +20,10 @@
         "lint:fix": "yarn lint --fix",
         "publish:changed": "./scripts/publish.sh",
         "setup": "yarn && yarn build --force",
-        "test": "ts-scripts test . --",
-        "test:all": "yarn workspaces run test",
-        "test:debug": "ts-scripts test --debug . --",
-        "test:watch": "ts-scripts test --watch . --"
+        "test": "ts-scripts test asset --",
+        "test:all": "ts-scripts test",
+        "test:debug": "ts-scripts test --debug asset --",
+        "test:watch": "ts-scripts test --watch asset --"
     },
     "dependencies": {},
     "devDependencies": {
