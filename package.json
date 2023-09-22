@@ -8,8 +8,7 @@
     "private": true,
     "workspaces": [
         "packages/*",
-        "asset",
-        "."
+        "asset"
     ],
     "scripts": {
         "asset:build": "yarn && yarn run build",
