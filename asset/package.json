@@ -1,17 +1,23 @@
 {
     "name": "file",
+    "displayName": "Asset",
     "version": "2.7.1",
-    "description": "A set of processors for working with files",
     "private": true,
+    "description": "A set of processors for working with files",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/terascope/file-assets.git"
+    },
+    "license": "MIT",
     "workspaces": {
         "nohoist": [
             "**"
         ]
     },
     "scripts": {
-        "test": "yarn --cwd ../ test",
         "build": "tsc --project tsconfig.json",
-        "build:watch": "yarn build --watch"
+        "build:watch": "yarn build --watch",
+        "test": "yarn --cwd ../ test"
     },
     "dependencies": {
         "@terascope/file-asset-apis": "^0.10.1",
@@ -23,9 +29,9 @@
         "node-gzip": "^1.1.2"
     },
     "devDependencies": {},
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/terascope/file-assets.git"
+    "engines": {
+        "node": ">=14.17.0",
+        "yarn": ">=1.22.19"
     },
-    "license": "MIT"
+    "terascope": {}
 }

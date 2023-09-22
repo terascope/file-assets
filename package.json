@@ -1,11 +1,12 @@
 {
     "name": "file-assets-bundle",
+    "displayName": "File Assets Bundle",
     "version": "2.7.1",
+    "private": true,
     "description": "A set of processors for working with files",
     "repository": "https://github.com/terascope/file-assets.git",
-    "author": "Terascope, LLC <info@terascope.io>",
     "license": "MIT",
-    "private": true,
+    "author": "Terascope, LLC <info@terascope.io>",
     "workspaces": [
         "packages/*",
         "asset"
@@ -17,12 +18,12 @@
         "build:watch": "tsc --build --watch",
         "lint": "eslint --ignore-path .gitignore --ext .js,.ts .",
         "lint:fix": "yarn lint --fix",
+        "publish:changed": "./scripts/publish.sh",
         "setup": "yarn && yarn build --force",
         "test": "ts-scripts test . --",
         "test:all": "yarn workspaces run test",
-        "test:watch": "ts-scripts test --watch . --",
         "test:debug": "ts-scripts test --debug . --",
-        "publish:changed": "./scripts/publish.sh"
+        "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {},
     "devDependencies": {
@@ -48,7 +49,8 @@
         "typescript": "~4.9.5"
     },
     "engines": {
-        "node": ">=14.17.0"
+        "node": ">=14.17.0",
+        "yarn": ">=1.22.19"
     },
     "terascope": {
         "root": true,
