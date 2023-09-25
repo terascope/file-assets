@@ -1,36 +1,38 @@
 {
     "name": "file-assets-bundle",
+    "displayName": "File Assets Bundle",
     "version": "2.7.1",
+    "private": true,
     "description": "A set of processors for working with files",
     "repository": "https://github.com/terascope/file-assets.git",
-    "author": "Terascope, LLC <info@terascope.io>",
     "license": "MIT",
-    "private": true,
+    "author": "Terascope, LLC <info@terascope.io>",
     "workspaces": [
         "packages/*",
-        "asset",
-        "."
+        "asset"
     ],
     "scripts": {
         "asset:build": "yarn && yarn run build",
         "asset:post-build": "./scripts/copy-links.sh",
         "build": "tsc --build",
         "build:watch": "tsc --build --watch",
+        "bump": "ts-scripts bump",
+        "bump-asset": "ts-scripts bump-asset",
         "lint": "eslint --ignore-path .gitignore --ext .js,.ts .",
         "lint:fix": "yarn lint --fix",
+        "publish:changed": "./scripts/publish.sh",
         "setup": "yarn && yarn build --force",
-        "test": "ts-scripts test . --",
-        "test:all": "yarn workspaces run test",
-        "test:watch": "ts-scripts test --watch . --",
-        "test:debug": "ts-scripts test --debug . --",
-        "publish:changed": "./scripts/publish.sh"
+        "test": "ts-scripts test asset --",
+        "test:all": "ts-scripts test",
+        "test:debug": "ts-scripts test --debug asset --",
+        "test:watch": "ts-scripts test --watch asset --"
     },
     "dependencies": {},
     "devDependencies": {
         "@terascope/eslint-config": "^0.7.1",
         "@terascope/file-asset-apis": "^0.10.1",
         "@terascope/job-components": "^0.59.0",
-        "@terascope/scripts": "^0.53.1",
+        "@terascope/scripts": "0.58.0",
         "@types/fs-extra": "^11.0.2",
         "@types/jest": "^29.5.5",
         "@types/json2csv": "^5.0.3",
@@ -49,7 +51,8 @@
         "typescript": "~4.9.5"
     },
     "engines": {
-        "node": ">=14.17.0"
+        "node": ">=14.17.0",
+        "yarn": ">=1.22.19"
     },
     "terascope": {
         "root": true,
