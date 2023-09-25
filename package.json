@@ -16,6 +16,8 @@
         "asset:post-build": "./scripts/copy-links.sh",
         "build": "tsc --build",
         "build:watch": "tsc --build --watch",
+        "bump": "ts-scripts bump",
+        "bump-asset": "ts-scripts bump-asset",
         "lint": "eslint --ignore-path .gitignore --ext .js,.ts .",
         "lint:fix": "yarn lint --fix",
         "publish:changed": "./scripts/publish.sh",
