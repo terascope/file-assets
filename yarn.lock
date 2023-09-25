@@ -2170,10 +2170,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-5.1.2.tgz#07508b45797cb81ec3f273011b054cd0755eddca"
   integrity sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==
 
-"@types/node-gzip@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@types/node-gzip/-/node-gzip-1.1.0.tgz#99a7dfab7c0eec545658f3d736e8d6939ed7161e"
-  integrity sha512-j7cGb6HIOZbDx3sqe9/9VAPeSvyt143yu5k35gzRXE3mxEgK6BOZ6BAiJ3ToXBcJqLzL9Cr53dav21jlp3f9gw==
+"@types/node-gzip@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@types/node-gzip/-/node-gzip-1.1.1.tgz#c3d03af656060e4e5b83502fe61c2031ff044437"
+  integrity sha512-jVt+sH0z9Jv/tGYTKt2ZK2fEx+Ab05LPpFA/kAULMkyrt2poqOXVdZnWvpKpHlsXOul4qTXzwcs/5mce9sDDFw==
   dependencies:
     "@types/node" "*"
 
