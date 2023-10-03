@@ -26,8 +26,7 @@ This asset bundle requires a running Teraslice cluster, you can find the documen
 yarn global add teraslice-cli
 
 # Step 2:
-# FIXME: this should be accurate
-teraslice-cli assets deploy \<cluster alias\> terascope/file-assets
+teraslice-cli assets deploy clusterAlias terascope/file-assets
 ```
 
 **IMPORTANT:** Additionally make sure have installed the required [connectors](#connectors).
