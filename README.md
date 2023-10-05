@@ -29,18 +29,16 @@ yarn global add teraslice-cli
 teraslice-cli assets deploy clusterAlias terascope/file-assets
 ```
 
-**IMPORTANT:** Additionally make sure have installed the required [connectors](#connectors).
-
 ## Connectors
 ### S3 Connector
 
 **Configuration:**
 
-The terafoundation level S3 configuration is as follows:
+The S3 connector configuration, in your Teraslice configuration file, includes the following parameters:
 
 | Configuration | Description | Type |  Notes |
 | --------- | -------- | ------ | ------ |
-| endpoint | Target S3 endpoint | String | defaults to `127.0.0.1:80`
+| endpoint | Target S3 HTTP endpoint, must be URL | String | optional, defaults to `http://127.0.0.1:80` |
 | accessKeyId | S3 access key ID | String | required |
 | secretAccessKey | S3 secret access key | String | required |
 | region | AWS Region where bucket is located | String | optional, defaults to `us-east-1` |
@@ -49,7 +47,7 @@ The terafoundation level S3 configuration is as follows:
 | sslEnabled | Flag to enable/disable SSL communication | Boolean | optional, defaults to `true` |
 | certLocation | Location of ssl cert | String | Must be provided if `sslEnabled` is true |
 | forcePathStyle | Whether to force path style URLs for S3 objects | Boolean | optional, defaults to `false` |
-| bucketEndpoint | ?????????????? | Boolean | optional, defaults to `false` |
+| bucketEndpoint | Whether to use the bucket name as the endpoint for this request | Boolean | optional, defaults to `false` |
 
 **Terafoundation S3 configuration example:**
 
