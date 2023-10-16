@@ -20,7 +20,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@aws-sdk/client-s3": "^3.409.0",
+        "@aws-sdk/client-s3": "^3.428.0",
         "@aws-sdk/node-http-handler": "^3.374.0",
         "@terascope/utils": "^0.51.0",
         "csvtojson": "^2.0.10",
