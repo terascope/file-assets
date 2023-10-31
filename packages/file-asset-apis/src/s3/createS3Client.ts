@@ -76,5 +76,10 @@ export async function createS3Client(
         };
     }
 
+    // specified in terafoundation connector config but is now maxAttempts
+    if (!has(config, 'maxAttempts') && has(config, 'maxRetries')) {
+        config.maxAttempts = (config as any).maxRetries;
+    }
+
     return new BaseClient(config);
 }
