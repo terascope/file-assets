@@ -29,10 +29,10 @@
     },
     "dependencies": {},
     "devDependencies": {
-        "@terascope/eslint-config": "^0.7.1",
+        "@terascope/eslint-config": "^0.8.0",
         "@terascope/file-asset-apis": "^0.10.2",
         "@terascope/job-components": "^0.64.0",
-        "@terascope/scripts": "0.59.0",
+        "@terascope/scripts": "0.60.1",
         "@types/fs-extra": "^11.0.2",
         "@types/jest": "^29.5.7",
         "@types/json2csv": "^5.0.3",
