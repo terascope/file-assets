@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import { Agent, AgentOptions as HttpsAgentOptions } from 'https';
 import { S3Client as BaseClient } from '@aws-sdk/client-s3';
-import { NodeHttpHandler, NodeHttpHandlerOptions } from '@aws-sdk/node-http-handler';
+import { NodeHttpHandler, NodeHttpHandlerOptions } from '@smithy/node-http-handler';
 import type { S3ClientConfig as baseConfig } from '@aws-sdk/client-s3';
 import {
     debugLogger, has, isEmpty, isNumber
