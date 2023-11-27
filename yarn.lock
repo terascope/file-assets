@@ -1832,10 +1832,10 @@
     datemath-parser "^1.0.6"
     uuid "^9.0.0"
 
-"@terascope/scripts@^0.60.1":
-  version "0.60.1"
-  resolved "https://registry.yarnpkg.com/@terascope/scripts/-/scripts-0.60.1.tgz#ab790c3430909596d710c4d0b261f14d6733d0ec"
-  integrity sha512-YgrttsNIrF3xSGOUmdi1W8Ht+uApbOvvyYZH0hjzXhArKjmuhNv+26X8zSDahUF/+YQmCiamrWZnPxuugr71cA==
+"@terascope/scripts@^0.60.2":
+  version "0.60.2"
+  resolved "https://registry.yarnpkg.com/@terascope/scripts/-/scripts-0.60.2.tgz#ac11f7d9b3d1671e5a0866ade0a1143dfbad6208"
+  integrity sha512-iRKX8JRgx4bCcOCG9Urfj4CANzsx4uPdN+tnISyLL8S2roeRGuArs/3oyxx6NwMCxlEqJ5/TKm+80d5BjJSq3w==
   dependencies:
     "@terascope/utils" "^0.51.0"
     codecov "^3.8.3"
@@ -7244,20 +7244,7 @@ yargs-parser@^21.0.1, yargs-parser@^21.1.1:
   resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-21.1.1.tgz#9096bceebf990d21bb31fa9516e0ede294a77d35"
   integrity sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==
 
-yargs@^17.2.1, yargs@^17.3.1:
-  version "17.7.1"
-  resolved "https://registry.yarnpkg.com/yargs/-/yargs-17.7.1.tgz#34a77645201d1a8fc5213ace787c220eabbd0967"
-  integrity sha512-cwiTb08Xuv5fqF4AovYacTFNxk62th7LKJ6BL9IGUpTJrWoU7/7WdQGTP2SjKf1dUNBGzDd28p/Yfs/GI6JrLw==
-  dependencies:
-    cliui "^8.0.1"
-    escalade "^3.1.1"
-    get-caller-file "^2.0.5"
-    require-directory "^2.1.1"
-    string-width "^4.2.3"
-    y18n "^5.0.5"
-    yargs-parser "^21.1.1"
-
-yargs@^17.7.2:
+yargs@^17.2.1, yargs@^17.3.1, yargs@^17.7.2:
   version "17.7.2"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-17.7.2.tgz#991df39aca675a192b816e1e0363f9d75d2aa269"
   integrity sha512-7dSzzRQ++CKnNI/krKnYRV7JKKPUXMEh61soaHKg9mrWEhzFWhFnxPxGl+69cD1Ou63C13NUPCnmIcrvqCuM6w==
