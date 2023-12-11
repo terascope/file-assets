@@ -21,7 +21,7 @@
     },
     "dependencies": {
         "@terascope/file-asset-apis": "^0.10.2",
-        "@terascope/job-components": "^0.64.0",
+        "@terascope/job-components": "^0.65.0",
         "csvtojson": "^2.0.10",
         "fs-extra": "^11.1.1",
         "json2csv": "5.0.7",
