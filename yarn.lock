@@ -1846,25 +1846,25 @@
     progress "^2.0.3"
     yargs "^17.2.1"
 
-"@terascope/job-components@^0.64.0":
-  version "0.64.0"
-  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.64.0.tgz#667522ffec485ca71e4037b902a1c0a0924c2243"
-  integrity sha512-ScxcgNt+kvsrlOm8FhnmqpAvj5ozowiuDMenrk1zvBytkwc7gl20WQqWDQs6ilLSkBB3I9T4YT4laGwQbtoYNg==
+"@terascope/job-components@^0.65.0":
+  version "0.65.0"
+  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.65.0.tgz#fc9d6685244c97938fa5a8322da80ea3485783dd"
+  integrity sha512-aL+gqLT670bSfz0X5XqTZI7evw7RAtyOOHt0iDcXdw1UeQfEAUe1wlO3Zfa/z91EYyuDfyJawM12XGAkgvXhLA==
   dependencies:
-    "@terascope/utils" "^0.51.0"
+    "@terascope/utils" "^0.52.0"
     convict "^6.2.4"
     convict-format-with-moment "^6.2.0"
     convict-format-with-validator "^6.2.0"
     datemath-parser "^1.0.6"
     uuid "^9.0.0"
 
-"@terascope/scripts@^0.62.0":
-  version "0.62.0"
-  resolved "https://registry.yarnpkg.com/@terascope/scripts/-/scripts-0.62.0.tgz#be589aea17c0a6ed4e0c48cf8faf8d3f0160ec88"
-  integrity sha512-mDtvRnf7wAYDYB+QzaJ63S3eS4oR/EErh0gaVR8lVC3nyUmh66tXNem8jaQQVu8eBiegGST5v1qWrw/2ZaMJFg==
+"@terascope/scripts@^0.63.0":
+  version "0.63.0"
+  resolved "https://registry.yarnpkg.com/@terascope/scripts/-/scripts-0.63.0.tgz#8d675b23c39abe8e8475a7b11736fb48b6711a4a"
+  integrity sha512-UYu6XtqMY50Ao9hYcizR+U7ixLAWX1gL0LA0mrJDHar5LbQkxI0+HOgkXktG2MvFGgb59BtqwyQmKpAT63X0Fw==
   dependencies:
     "@kubernetes/client-node" "^0.20.0"
-    "@terascope/utils" "^0.51.0"
+    "@terascope/utils" "^0.52.0"
     codecov "^3.8.3"
     execa "^5.1.0"
     fs-extra "^11.1.1"
@@ -1893,17 +1893,17 @@
   dependencies:
     bluebird "^3.7.2"
 
-"@terascope/types@^0.11.2":
-  version "0.11.2"
-  resolved "https://registry.yarnpkg.com/@terascope/types/-/types-0.11.2.tgz#8439b04ba4c5d8357d00a7e20a831f4864ae4c81"
-  integrity sha512-oWrKZYm5HsZc2bCxirPnnYD6yu5wW74W7OTKD7Vm38KI/8TcfZPlr/U+gBwocQGVJrBM9jg0+jcjaxudLjfXiw==
+"@terascope/types@^0.12.0":
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/@terascope/types/-/types-0.12.0.tgz#937ae7ae53965a3cb19eccbeac83d64fd00f4f2d"
+  integrity sha512-6jFvN3ESEJ6YzB+S618qRAkQq0I1QCVcDX1Wcm5E1sZTMRIoseG39I3paM+bkawAoOTkG5DqruLXLgg6BIwUtQ==
 
-"@terascope/utils@^0.51.0":
-  version "0.51.0"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.51.0.tgz#ff48164dd4e3afa501517fdaac4fa2ac1f4a5323"
-  integrity sha512-PneoBPGLZJvsRU8edQG0IISzNj3aKB1SZc2wPJW2jn30cGEyU+lltebDYtS2A204c98duslRD4u7npb6byecAw==
+"@terascope/utils@^0.52.0":
+  version "0.52.0"
+  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.52.0.tgz#b47ea5cc6f8643009b3e7c1ab126fc312399ab68"
+  integrity sha512-SPdMznXvzBGXK8UF2STGFqGR81R9hoV6NOl1821jqyYFmFJq66p3CadyUuHCDvtoK23Qfk63/xUJjLo1m10Dwg==
   dependencies:
-    "@terascope/types" "^0.11.2"
+    "@terascope/types" "^0.12.0"
     "@turf/bbox" "^6.4.0"
     "@turf/bbox-polygon" "^6.4.0"
     "@turf/boolean-contains" "^6.4.0"
@@ -2221,10 +2221,10 @@
   dependencies:
     "@types/istanbul-lib-report" "*"
 
-"@types/jest@^29.5.10":
-  version "29.5.10"
-  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-29.5.10.tgz#a10fc5bab9e426081c12b2ef73d24d4f0c9b7f50"
-  integrity sha512-tE4yxKEphEyxj9s4inideLHktW/x6DwesIwWZ9NN1FKf9zbJYsnhBoA9vrHA/IuIOKwPa5PcFBNV4lpMIOEzyQ==
+"@types/jest@^29.5.11":
+  version "29.5.11"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-29.5.11.tgz#0c13aa0da7d0929f078ab080ae5d4ced80fa2f2c"
+  integrity sha512-S2mHmYIVe13vrm6q4kN6fLYYAka15ALQki/vgDC3mIukEOx8WJlv0kQPM+d4w8Gp6u0uSdKND04IlTXBv0rwnQ==
   dependencies:
     expect "^29.0.0"
     pretty-format "^29.0.0"
