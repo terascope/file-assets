@@ -1830,10 +1830,10 @@
     datemath-parser "^1.0.6"
     uuid "^9.0.0"
 
-"@terascope/scripts@^0.67.0":
-  version "0.67.0"
-  resolved "https://registry.yarnpkg.com/@terascope/scripts/-/scripts-0.67.0.tgz#1ec3eeadd7539db3cf2e7a92d38af9306a0a19ff"
-  integrity sha512-rB+cPMl/HVyDpqvABMUdKTvzwlp9GtEwC2xTTGKK94+sjYJz6vHXkJF1In3LO+8f4UfB1YM5CGWbx+wjN8pVUQ==
+"@terascope/scripts@^0.68.0":
+  version "0.68.0"
+  resolved "https://registry.yarnpkg.com/@terascope/scripts/-/scripts-0.68.0.tgz#51f9bbb7cbe847ad8380011fbc321f789fb6ea12"
+  integrity sha512-60SALoDC4esiANUrdxHLgnw4vmFY8Xa+1MzFE4+tBBzo/WGX6gOq12cijd0BTC0+kN2Y5muXWs+a8AdURto64A==
   dependencies:
     "@kubernetes/client-node" "^0.20.0"
     "@terascope/utils" "^0.53.0"
