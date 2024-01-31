@@ -1,17 +1,21 @@
 import 'jest-extended';
+import { mockClient } from 'aws-sdk-client-mock';
 import { Readable } from 'stream';
 import type { CreateBucketOutput, S3Client } from '@aws-sdk/client-s3';
+import { S3Client as MClient, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { makeClient, cleanupBucket } from './helpers';
 import * as s3Helpers from '../../src/s3/s3-helpers';
 
 describe('S3 Helpers', () => {
     const bucketName = 's3-test-helpers-bucket';
+    const retryBucket = 'retry-helper-bucket';
     let bucket: CreateBucketOutput;
     let client: S3Client;
 
     beforeAll(async () => {
         client = await makeClient();
         await cleanupBucket(client, bucketName);
+        await cleanupBucket(client, retryBucket);
         bucket = await s3Helpers.createS3Bucket(client, { Bucket: bucketName });
     });
 
@@ -125,6 +129,56 @@ describe('S3 Helpers', () => {
                 }
             });
             expect(deleted).toBeTruthy();
+        });
+    });
+
+    describe('retry function wrapper', () => {
+        beforeAll(async () => {
+            client = await makeClient();
+
+            await cleanupBucket(client, retryBucket);
+
+            bucket = await s3Helpers.createS3Bucket(client, { Bucket: retryBucket });
+
+            const foo: any = Buffer.from(JSON.stringify({ foo: 'foo' }));
+            const bar: any = Buffer.from(JSON.stringify({ bar: 'bar' }));
+
+            await Promise.all([
+                s3Helpers.putS3Object(client, { Bucket: retryBucket, Key: 'some', Body: foo }),
+                s3Helpers.putS3Object(client, { Bucket: retryBucket, Key: 'thing', Body: bar }),
+            ]);
+        });
+
+        afterAll(async () => {
+            await cleanupBucket(client, retryBucket);
+        });
+
+        it('should return results if no error', async () => {
+            const list = await s3Helpers.s3RequestWithRetry(
+                s3Helpers.listS3Objects,
+                client,
+                { Bucket: retryBucket }
+            ) as any;
+
+            expect(list.Contents?.length).toBe(2);
+        });
+
+        it('should retry if first request does not succeed', async () => {
+            const s3Mock = mockClient(MClient);
+
+            s3Mock.on(ListObjectsV2Command)
+                .rejectsOnce({ message: 'EAI_AGAIN', Code: '400', Type: 'EAI_AGAIN' })
+                .resolvesOnce({ Contents: [{ Key: 'foo', Size: 1000 }] });
+
+            const list = await s3Helpers.s3RequestWithRetry(
+                s3Helpers.listS3Objects,
+                client,
+                { Bucket: retryBucket }
+            ) as any;
+
+            expect(list.Contents?.length).toBe(1);
+
+            s3Mock.restore();
         });
     });
 });

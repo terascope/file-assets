@@ -1,8 +1,8 @@
 import { Logger } from '@terascope/utils';
-import type { S3Client } from './client-types';
+import type { S3Client, S3ClientResponse } from './client-types';
 import { FileSlice, ReaderConfig } from '../interfaces';
 import { ChunkedFileReader, parsePath } from '../base';
-import { getS3Object } from './s3-helpers';
+import { getS3Object, s3RequestWithRetry } from './s3-helpers';
 
 export class S3Fetcher extends ChunkedFileReader {
     protected client: S3Client;
@@ -26,14 +26,27 @@ export class S3Fetcher extends ChunkedFileReader {
     */
     protected async fetch(slice: FileSlice): Promise<string> {
         const { offset, length } = slice;
-        const results = await getS3Object(this.client, {
-            Bucket: this.bucket,
-            Key: slice.path,
-            // We need to subtract 1 from the range in order to avoid collecting an extra byte.
-            // i.e. Requesting only the first byte of a file has a `length` of `1`, but the
-            //   request would be for `bytes=0-0`
-            Range: `bytes=${offset}-${offset + length - 1}`
-        });
+        // const results = await getS3Object(this.client, {
+        //     Bucket: this.bucket,
+        //     Key: slice.path,
+        //     // We need to subtract 1 from the range in order to avoid collecting an extra byte.
+        //     // i.e. Requesting only the first byte of a file has a `length` of `1`, but the
+        //     //   request would be for `bytes=0-0`
+        //     Range: `bytes=${offset}-${offset + length - 1}`
+        // });
+
+        const results = await s3RequestWithRetry(
+            getS3Object,
+            this.client,
+            {
+                Bucket: this.bucket,
+                Key: slice.path,
+                // We need to subtract 1 from the range in order to avoid collecting an extra byte.
+                // i.e. Requesting only the first byte of a file has a `length` of `1`, but the
+                //   request would be for `bytes=0-0`
+                Range: `bytes=${offset}-${offset + length - 1}`
+            }
+        ) as S3ClientResponse.GetObjectOutput;
 
         const body = results.Body;
 

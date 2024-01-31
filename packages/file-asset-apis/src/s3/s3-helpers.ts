@@ -9,23 +9,24 @@ import {
     CompleteMultipartUploadCommand, AbortMultipartUploadCommand,
 } from '@aws-sdk/client-s3';
 
-import { TSError, pDelay } from '@terascope/utils';
+import { TSError, pDelay, AnyObject } from '@terascope/utils';
 import { S3ClientParams, S3ClientResponse } from './client-types';
 
-type S3RetryParams = S3ClientParams.ListObjectsV2Request;
-type S3RetryResponse = S3ClientResponse.ListObjectsV2Output;
+type S3RetryResponse = S3ClientResponse.ListObjectsV2Output | S3ClientResponse.GetObjectOutput;
 
 export async function s3RequestWithRetry(
-    func: (client: S3Client, params: S3RetryParams) => Promise<S3RetryResponse>,
+    func: (client: S3Client, params: any) => Promise<S3RetryResponse>,
     client: S3Client,
-    params: S3RetryParams,
+    params: AnyObject,
     attempts = 1
 ): Promise<S3RetryResponse> {
     try {
-        return func(client, params);
+        const results = await func(client, params);
+
+        return results;
     } catch (e: unknown) {
-        if ((e as Error).message.includes('EAI_AGAIN') && attempts < 4) {
-            await pDelay(1000);
+        if (attempts < 4) {
+            await pDelay(1000 * attempts);
             return s3RequestWithRetry(func, client, params);
         }
 
