@@ -50,14 +50,31 @@ describe('S3 Helpers', () => {
 
         it('should list buckets', async () => {
             const list = await s3Helpers.listS3Buckets(client);
-            expect(list.Buckets?.length).toBe(2);
+            // possible crossover form other tests that create buckets
+            // but there should be at least 2 buckets from this test suite
+            expect(list.Buckets?.length).toBeGreaterThanOrEqual(2);
+
+            const bucketNames = list.Buckets!.map((b) => b.Name);
+
+            // ensure otherBucketName exists
+            expect(bucketNames.includes(otherBucketName)).toBeTrue();
+
+            // ensure bucketName exists
+            expect(bucketNames.includes(bucketName)).toBeTrue();
         });
 
         it('should delete bucket', async () => {
             await s3Helpers.deleteS3Bucket(client, { Bucket: otherBucketName });
-            // list should go from 2 to 1 since deleted 1
+
             const list = await s3Helpers.listS3Buckets(client);
-            expect(list.Buckets?.length).toBe(1);
+
+            const bucketNames = list.Buckets!.map((b) => b.Name);
+
+            // ensure otherBucketName is deleted
+            expect(bucketNames.includes(otherBucketName)).toBeFalse();
+
+            // ensure bucketName still exists
+            expect(bucketNames.includes(bucketName)).toBeTrue();
         });
     });
 
