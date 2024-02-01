@@ -13,11 +13,15 @@ import { TSError, pDelay, AnyObject } from '@terascope/utils';
 import { S3ClientParams, S3ClientResponse } from './client-types';
 
 type S3RetryResponse = S3ClientResponse.ListObjectsV2Output | S3ClientResponse.GetObjectOutput;
+type S3RetryParams = S3ClientParams.ListObjectsV2Request | S3ClientParams.GetObjectRequest;
 
 export async function s3RequestWithRetry(
-    func: (client: S3Client, params: any) => Promise<S3RetryResponse>,
     client: S3Client,
-    params: AnyObject,
+    func: (
+        client: S3Client,
+        params: any
+    ) => Promise<S3RetryResponse>,
+    params: S3RetryParams,
     attempts = 1
 ): Promise<S3RetryResponse> {
     try {
@@ -29,15 +33,15 @@ export async function s3RequestWithRetry(
         // check if it's an aws issue
         if ((e as AnyObject).$metadata?.httpStatusCode === 503
             || (e as AnyObject).$metadata?.httpStatusCode === 500
-            // check if it's a general server error
+            // check if it's a server error
             || (e as Error).message.includes('ENOTFOUND')
             || (e as Error).message.includes('EAI_AGAIN')) {
             retry = true;
         }
 
         if (retry && attempts < 4) {
-            await pDelay(1000 * attempts);
-            return s3RequestWithRetry(func, client, params, attempts + 1);
+            await pDelay(250 * attempts);
+            return s3RequestWithRetry(client, func, params, attempts + 1);
         }
 
         throw new TSError(e);

@@ -36,8 +36,8 @@ export class S3Fetcher extends ChunkedFileReader {
         // });
 
         const results = await s3RequestWithRetry(
-            getS3Object,
             this.client,
+            getS3Object,
             {
                 Bucket: this.bucket,
                 Key: slice.path,

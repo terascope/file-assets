@@ -31,8 +31,8 @@ export class S3Slicer {
         // });
 
         const data = await s3RequestWithRetry(
-            listS3Objects,
             this.client,
+            listS3Objects,
             {
                 Bucket: this.bucket,
                 Prefix: this.prefix,

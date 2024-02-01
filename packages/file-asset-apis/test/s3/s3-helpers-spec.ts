@@ -172,28 +172,95 @@ describe('S3 Helpers', () => {
 
         it('should return results if no error', async () => {
             const list = await s3Helpers.s3RequestWithRetry(
-                s3Helpers.listS3Objects,
                 client,
+                s3Helpers.listS3Objects,
                 { Bucket: retryBucket }
             ) as any;
 
             expect(list.Contents?.length).toBe(2);
         });
 
-        it('should retry if first request does not succeed', async () => {
+        it('should retry if initial attempt has a dns server error', async () => {
             const s3Mock = mockClient(MClient);
 
             s3Mock.on(ListObjectsV2Command)
-                .rejectsOnce({ message: 'EAI_AGAIN', Code: '400', Type: 'EAI_AGAIN' })
+                .rejectsOnce({ message: 'getaddrinfo EAI_AGAIN some.domain.com', Code: '500' })
                 .resolvesOnce({ Contents: [{ Key: 'foo', Size: 1000 }] });
 
             const list = await s3Helpers.s3RequestWithRetry(
-                s3Helpers.listS3Objects,
                 client,
+                s3Helpers.listS3Objects,
                 { Bucket: retryBucket }
             ) as any;
 
             expect(list.Contents?.length).toBe(1);
+            s3Mock.restore();
+        });
+
+        it('should retry if initial attempt has an aws retryable error', async () => {
+            const s3Mock = mockClient(MClient);
+
+            s3Mock.on(ListObjectsV2Command)
+                .rejectsOnce({
+                    $metadata: {
+                        httpStatusCode: 503,
+                        requestId: '17AFCE370C8A6960',
+                        extendedRequestId: undefined,
+                        cfId: undefined,
+                        attempts: 1,
+                        totalRetryDelay: 0
+                    },
+                    Code: 'SLOW DOWN'
+                })
+                .resolvesOnce({ Contents: [{ Key: 'foo', Size: 1000 }] });
+
+            const list = await s3Helpers.s3RequestWithRetry(
+                client,
+                s3Helpers.listS3Objects,
+                { Bucket: retryBucket }
+            ) as any;
+
+            expect(list.Contents?.length).toBe(1);
+
+            s3Mock.restore();
+        });
+
+        it('should throw an error if error code is permanent', async () => {
+            const s3Mock = mockClient(MClient);
+
+            s3Mock.on(ListObjectsV2Command)
+                .rejectsOnce({
+                    $metadata: {
+                        httpStatusCode: 404,
+                        requestId: '17AFCE370C8A6960',
+                        extendedRequestId: undefined,
+                        cfId: undefined,
+                        attempts: 1,
+                        totalRetryDelay: 0
+                    },
+                    Code: 'Bucket Does Not Exist'
+                });
+
+            await expect(s3Helpers.s3RequestWithRetry(
+                client,
+                s3Helpers.listS3Objects,
+                { Bucket: retryBucket }
+            )).rejects.toThrow();
+
+            s3Mock.restore();
+        });
+
+        it('should throw an error after3 retry attempts', async () => {
+            const s3Mock = mockClient(MClient);
+
+            s3Mock.on(ListObjectsV2Command)
+                .rejects({ message: 'getaddrinfo EAI_AGAIN some.domain.com', Code: '500' });
+
+            await expect(s3Helpers.s3RequestWithRetry(
+                client,
+                s3Helpers.listS3Objects,
+                { Bucket: retryBucket }
+            )).rejects.toThrow();
 
             s3Mock.restore();
         });
