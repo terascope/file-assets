@@ -14,6 +14,16 @@ import { S3ClientParams, S3ClientResponse } from './client-types';
 
 type S3RetryResponse = S3ClientResponse.ListObjectsV2Output | S3ClientResponse.GetObjectOutput;
 
+/**
+ *
+ * InternalError An internal error occurred. Try again. 500 Internal Server Error Server
+ * ServiceUnavailable Service is unable to handle request. 503 Service Unavailable
+ * SlowDown Please reduce your request rate. 503 Slow Down Server
+  * 503 SlowDown Slow Down 503 Slow Down
+  * InternalErrors
+An internal server error occurred.
+ */
+
 export async function s3RequestWithRetry(
     func: (client: S3Client, params: any) => Promise<S3RetryResponse>,
     client: S3Client,
@@ -27,7 +37,7 @@ export async function s3RequestWithRetry(
     } catch (e: unknown) {
         if (attempts < 4) {
             await pDelay(1000 * attempts);
-            return s3RequestWithRetry(func, client, params);
+            return s3RequestWithRetry(func, client, params, attempts + 1);
         }
 
         throw new TSError(e);
