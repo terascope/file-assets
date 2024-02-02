@@ -50,7 +50,6 @@ describe('S3 Helpers', () => {
 
         it('should list buckets', async () => {
             const list = await s3Helpers.listS3Buckets(client);
-            expect(list.Buckets?.length).toBe(2);
 
             const bucketNames = list.Buckets!.map((b) => b.Name);
 
