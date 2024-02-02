@@ -15,13 +15,31 @@ import { S3ClientParams, S3ClientResponse } from './client-types';
 type S3RetryResponse = S3ClientResponse.ListObjectsV2Output | S3ClientResponse.GetObjectOutput;
 type S3RetryParams = S3ClientParams.ListObjectsV2Request | S3ClientParams.GetObjectRequest;
 
-export async function s3RequestWithRetry<P extends S3RetryParams>(
+export async function s3RequestWithRetry(
     client: S3Client,
     func: (
         client: S3Client,
-        params: P
+        params: S3ClientParams.GetObjectRequest
+    ) => Promise<S3ClientResponse.GetObjectOutput>,
+    params: S3ClientParams.GetObjectRequest,
+    attempts?: number
+): Promise<S3ClientResponse.GetObjectOutput>
+export async function s3RequestWithRetry(
+    client: S3Client,
+    func: (
+        client: S3Client,
+        params: S3ClientParams.ListObjectsV2Request
+    ) => Promise<S3ClientResponse.ListObjectsV2Output>,
+    params: S3ClientParams.ListObjectsV2Request,
+    attempts?: number
+): Promise<S3ClientResponse.ListObjectsV2Output>
+export async function s3RequestWithRetry(
+    client: S3Client,
+    func: (
+        client: S3Client,
+        params: any
     ) => Promise<S3RetryResponse>,
-    params: P,
+    params: S3RetryParams,
     attempts = 1
 ): Promise<S3RetryResponse> {
     try {

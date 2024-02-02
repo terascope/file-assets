@@ -50,9 +50,7 @@ describe('S3 Helpers', () => {
 
         it('should list buckets', async () => {
             const list = await s3Helpers.listS3Buckets(client);
-            // possible crossover form other tests that create buckets
-            // but there should be at least 2 buckets from this test suite
-            expect(list.Buckets?.length).toBeGreaterThanOrEqual(2);
+            expect(list.Buckets?.length).toBe(2);
 
             const bucketNames = list.Buckets!.map((b) => b.Name);
 
@@ -250,7 +248,7 @@ describe('S3 Helpers', () => {
             s3Mock.restore();
         });
 
-        it('should throw an error after3 retry attempts', async () => {
+        it('should throw an error after 3 retry attempts', async () => {
             const s3Mock = mockClient(MClient);
 
             s3Mock.on(ListObjectsV2Command)
