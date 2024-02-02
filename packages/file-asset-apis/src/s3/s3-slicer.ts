@@ -24,15 +24,15 @@ export class S3Slicer {
     }
 
     private async getObjects(): Promise<FileSlice[]> {
-        const data = await s3RequestWithRetry(
-            this.client,
-            listS3Objects,
-            {
+        const data = await s3RequestWithRetry({
+            client: this.client,
+            func: listS3Objects,
+            params: {
                 Bucket: this.bucket,
                 Prefix: this.prefix,
                 ContinuationToken: this._nextToken
             }
-        );
+        });
 
         if (!data.Contents?.length) {
             // Returning an empty array will signal to the slicer that it is done

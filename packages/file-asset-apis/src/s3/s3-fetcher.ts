@@ -27,17 +27,18 @@ export class S3Fetcher extends ChunkedFileReader {
     protected async fetch(slice: FileSlice): Promise<string> {
         const { offset, length } = slice;
         const results = await s3RequestWithRetry(
-            this.client,
-            getS3Object,
             {
-                Bucket: this.bucket,
-                Key: slice.path,
-                // We need to subtract 1 from the range in order to avoid collecting an extra byte.
-                // i.e. Requesting only the first byte of a file has a `length` of `1`, but the
-                //   request would be for `bytes=0-0`
-                Range: `bytes=${offset}-${offset + length - 1}`
-            }
-        );
+                client: this.client,
+                func: getS3Object,
+                params: {
+                    Bucket: this.bucket,
+                    Key: slice.path,
+                    // We need to subtract 1 from the range to avoid collecting an extra byte.
+                    // i.e. Requesting only the first byte of a file has a `length` of `1`, but the
+                    //   request would be for `bytes=0-0`
+                    Range: `bytes=${offset}-${offset + length - 1}`
+                }
+            });
 
         const body = results.Body;
 

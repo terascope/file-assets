@@ -10,38 +10,26 @@ import {
 } from '@aws-sdk/client-s3';
 
 import { TSError, pDelay, AnyObject } from '@terascope/utils';
-import { S3ClientParams, S3ClientResponse } from './client-types';
-
-type S3RetryResponse = S3ClientResponse.ListObjectsV2Output | S3ClientResponse.GetObjectOutput;
-type S3RetryParams = S3ClientParams.ListObjectsV2Request | S3ClientParams.GetObjectRequest;
+import { S3ClientParams, S3ClientResponse, S3RetryRequest } from './client-types';
 
 export async function s3RequestWithRetry(
-    client: S3Client,
-    func: (
-        client: S3Client,
-        params: S3ClientParams.GetObjectRequest
-    ) => Promise<S3ClientResponse.GetObjectOutput>,
-    params: S3ClientParams.GetObjectRequest,
+    retryArgs: S3RetryRequest.GetObjectWithRetry,
     attempts?: number
 ): Promise<S3ClientResponse.GetObjectOutput>
 export async function s3RequestWithRetry(
-    client: S3Client,
-    func: (
-        client: S3Client,
-        params: S3ClientParams.ListObjectsV2Request
-    ) => Promise<S3ClientResponse.ListObjectsV2Output>,
-    params: S3ClientParams.ListObjectsV2Request,
+    retryArgs: S3RetryRequest.ListObjectsWithRetry,
     attempts?: number
 ): Promise<S3ClientResponse.ListObjectsV2Output>
 export async function s3RequestWithRetry(
-    client: S3Client,
-    func: (
-        client: S3Client,
-        params: any
-    ) => Promise<S3RetryResponse>,
-    params: S3RetryParams,
+    retryArgs: S3RetryRequest.RetryArgs,
     attempts = 1
-): Promise<S3RetryResponse> {
+): Promise<S3RetryRequest.S3RetryResponse> {
+    const {
+        client,
+        func,
+        params
+    } = retryArgs;
+
     try {
         const results = await func(client, params);
 
@@ -59,7 +47,7 @@ export async function s3RequestWithRetry(
 
         if (retry && attempts < 4) {
             await pDelay(250 * attempts);
-            return s3RequestWithRetry(client, func, params, attempts + 1);
+            return s3RequestWithRetry(retryArgs, attempts + 1);
         }
 
         throw new TSError(e);

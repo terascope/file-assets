@@ -169,11 +169,11 @@ describe('S3 Helpers', () => {
         });
 
         it('should return results if no error', async () => {
-            const list = await s3Helpers.s3RequestWithRetry(
+            const list = await s3Helpers.s3RequestWithRetry({
                 client,
-                s3Helpers.listS3Objects,
-                { Bucket: retryBucket }
-            ) as any;
+                func: s3Helpers.listS3Objects,
+                params: { Bucket: retryBucket }
+            }) as any;
 
             expect(list.Contents?.length).toBe(2);
         });
@@ -185,11 +185,11 @@ describe('S3 Helpers', () => {
                 .rejectsOnce({ message: 'getaddrinfo EAI_AGAIN some.domain.com', Code: '500' })
                 .resolvesOnce({ Contents: [{ Key: 'foo', Size: 1000 }] });
 
-            const list = await s3Helpers.s3RequestWithRetry(
+            const list = await s3Helpers.s3RequestWithRetry({
                 client,
-                s3Helpers.listS3Objects,
-                { Bucket: retryBucket }
-            ) as any;
+                func: s3Helpers.listS3Objects,
+                params: { Bucket: retryBucket }
+            }) as any;
 
             expect(list.Contents?.length).toBe(1);
             s3Mock.restore();
@@ -212,11 +212,11 @@ describe('S3 Helpers', () => {
                 })
                 .resolvesOnce({ Contents: [{ Key: 'foo', Size: 1000 }] });
 
-            const list = await s3Helpers.s3RequestWithRetry(
+            const list = await s3Helpers.s3RequestWithRetry({
                 client,
-                s3Helpers.listS3Objects,
-                { Bucket: retryBucket }
-            ) as any;
+                func: s3Helpers.listS3Objects,
+                params: { Bucket: retryBucket }
+            }) as any;
 
             expect(list.Contents?.length).toBe(1);
 
@@ -239,11 +239,12 @@ describe('S3 Helpers', () => {
                     Code: 'Bucket Does Not Exist'
                 });
 
-            await expect(s3Helpers.s3RequestWithRetry(
+            await expect(s3Helpers.s3RequestWithRetry({
                 client,
-                s3Helpers.listS3Objects,
-                { Bucket: retryBucket }
-            )).rejects.toThrow();
+                func: s3Helpers.listS3Objects,
+                params: { Bucket: retryBucket }
+
+            })).rejects.toThrow();
 
             s3Mock.restore();
         });
@@ -254,11 +255,11 @@ describe('S3 Helpers', () => {
             s3Mock.on(ListObjectsV2Command)
                 .rejects({ message: 'getaddrinfo EAI_AGAIN some.domain.com', Code: '500' });
 
-            await expect(s3Helpers.s3RequestWithRetry(
+            await expect(s3Helpers.s3RequestWithRetry({
                 client,
-                s3Helpers.listS3Objects,
-                { Bucket: retryBucket }
-            )).rejects.toThrow();
+                func: s3Helpers.listS3Objects,
+                params: { Bucket: retryBucket }
+            })).rejects.toThrow();
 
             s3Mock.restore();
         });
