@@ -9,8 +9,50 @@ import {
     CompleteMultipartUploadCommand, AbortMultipartUploadCommand,
 } from '@aws-sdk/client-s3';
 
-import { TSError } from '@terascope/utils';
-import { S3ClientParams, S3ClientResponse } from './client-types';
+import { TSError, pDelay, AnyObject } from '@terascope/utils';
+import { S3ClientParams, S3ClientResponse, S3RetryRequest } from './client-types';
+
+export async function s3RequestWithRetry(
+    retryArgs: S3RetryRequest.GetObjectWithRetry,
+    attempts?: number
+): Promise<S3ClientResponse.GetObjectOutput>
+export async function s3RequestWithRetry(
+    retryArgs: S3RetryRequest.ListObjectsWithRetry,
+    attempts?: number
+): Promise<S3ClientResponse.ListObjectsV2Output>
+export async function s3RequestWithRetry(
+    retryArgs: S3RetryRequest.RetryArgs,
+    attempts = 1
+): Promise<S3RetryRequest.S3RetryResponse> {
+    const {
+        client,
+        func,
+        params
+    } = retryArgs;
+
+    try {
+        const results = await func(client, params);
+
+        return results;
+    } catch (e: unknown) {
+        let retry = false;
+        // check if it's an aws issue
+        if ((e as AnyObject).$metadata?.httpStatusCode === 503
+            || (e as AnyObject).$metadata?.httpStatusCode === 500
+            // check if it's a server error
+            || (e as Error).message.includes('ENOTFOUND')
+            || (e as Error).message.includes('EAI_AGAIN')) {
+            retry = true;
+        }
+
+        if (retry && attempts < 4) {
+            await pDelay(250 * attempts);
+            return s3RequestWithRetry(retryArgs, attempts + 1);
+        }
+
+        throw new TSError(e);
+    }
+}
 
 export async function getS3Object(
     client: S3Client,

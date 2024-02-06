@@ -2,7 +2,7 @@ import { flatten, Logger } from '@terascope/utils';
 import type { S3Client } from './client-types';
 import { segmentFile, parsePath, canReadFile } from '../base';
 import { SliceConfig, FileSlice, FileSliceConfig } from '../interfaces';
-import { listS3Objects } from './s3-helpers';
+import { listS3Objects, s3RequestWithRetry } from './s3-helpers';
 
 export class S3Slicer {
     readonly sliceConfig: SliceConfig;
@@ -24,10 +24,14 @@ export class S3Slicer {
     }
 
     private async getObjects(): Promise<FileSlice[]> {
-        const data = await listS3Objects(this.client, {
-            Bucket: this.bucket,
-            Prefix: this.prefix,
-            ContinuationToken: this._nextToken
+        const data = await s3RequestWithRetry({
+            client: this.client,
+            func: listS3Objects,
+            params: {
+                Bucket: this.bucket,
+                Prefix: this.prefix,
+                ContinuationToken: this._nextToken
+            }
         });
 
         if (!data.Contents?.length) {
