@@ -1884,17 +1884,17 @@
     progress "^2.0.3"
     yargs "^17.2.1"
 
-"@terascope/job-components@^0.66.0":
-  version "0.66.0"
-  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.66.0.tgz#e4aec4f325c5373315ea81df9939b8cdc5628dbd"
-  integrity sha512-76AfRqRQomKKBvkxcT7lJhq0PWPMQaegi44bBPvNmRTtigEHzTo0n0nluQ5r7CUUQI3rOLOzr42Xy+2pxwRpMQ==
+"@terascope/job-components@^0.66.1":
+  version "0.66.1"
+  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.66.1.tgz#a5f9dcb168026c9059dd42891c245c5a5f8dcea7"
+  integrity sha512-JRQgGVyDkcki7m99NdmuBAXkT2m2jhAzbvTIOAwTCLYSL/tjsiLppeUn4M/MZFGMKqzmHOEMGRmIdizkpXh9rQ==
   dependencies:
-    "@terascope/utils" "^0.53.0"
+    "@terascope/utils" "^0.53.1"
     convict "^6.2.4"
     convict-format-with-moment "^6.2.0"
     convict-format-with-validator "^6.2.0"
     datemath-parser "^1.0.6"
-    uuid "^9.0.0"
+    uuid "^9.0.1"
 
 "@terascope/scripts@^0.70.0":
   version "0.70.0"
@@ -7542,10 +7542,10 @@ uuid@^8.0.0, uuid@^8.3.2:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
 
-uuid@^9.0.0:
-  version "9.0.0"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-9.0.0.tgz#592f550650024a38ceb0c562f2f6aa435761efb5"
-  integrity sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==
+uuid@^9.0.1:
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-9.0.1.tgz#e188d4c8853cc722220392c424cd637f32293f30"
+  integrity sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==
 
 v8-to-istanbul@^9.0.1:
   version "9.1.0"
