@@ -2,12 +2,12 @@ import {
     ListObjectsV2Request,
     GetObjectRequest,
     ListObjectsV2Output,
-    GetObjectOutput,
+    GetObjectCommandOutput,
     S3Client
 } from '@aws-sdk/client-s3';
 
 export type S3RetryParams = ListObjectsV2Request | GetObjectRequest;
-export type S3RetryResponse = ListObjectsV2Output | GetObjectOutput;
+export type S3RetryResponse = ListObjectsV2Output | GetObjectCommandOutput;
 
 export type RetryArgs = {
     client: S3Client,
@@ -23,6 +23,6 @@ export type ListObjectsWithRetry = {
 
 export type GetObjectWithRetry = {
     client: S3Client,
-    func: (client: S3Client, params: GetObjectRequest) => Promise<GetObjectOutput>,
+    func: (client: S3Client, params: GetObjectRequest) => Promise<GetObjectCommandOutput>,
     params: GetObjectRequest
 };

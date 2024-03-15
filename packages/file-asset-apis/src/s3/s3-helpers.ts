@@ -15,7 +15,7 @@ import { S3ClientParams, S3ClientResponse, S3RetryRequest } from './client-types
 export async function s3RequestWithRetry(
     retryArgs: S3RetryRequest.GetObjectWithRetry,
     attempts?: number
-): Promise<S3ClientResponse.GetObjectOutput>
+): Promise<S3ClientResponse.GetObjectCommandOutput>
 export async function s3RequestWithRetry(
     retryArgs: S3RetryRequest.ListObjectsWithRetry,
     attempts?: number
@@ -57,7 +57,7 @@ export async function s3RequestWithRetry(
 export async function getS3Object(
     client: S3Client,
     params: S3ClientParams.GetObjectRequest
-): Promise<S3ClientResponse.GetObjectOutput> {
+): Promise<S3ClientResponse.GetObjectCommandOutput> {
     const command = new GetObjectCommand(params);
     return client.send(command);
 }

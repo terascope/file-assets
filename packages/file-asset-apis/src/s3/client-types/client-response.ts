@@ -4,7 +4,6 @@ export type S3Error = _Error;
 export type S3ErrorExceptions = S3ServiceException;
 
 export {
-    GetObjectOutput,
     ListObjectsV2Output,
     PutObjectOutput,
     PutObjectTaggingOutput,
@@ -12,5 +11,6 @@ export {
     DeleteObjectsOutput,
     ListBucketsOutput,
     CreateBucketOutput,
+    GetObjectCommandOutput,
     CompletedPart,
 } from '@aws-sdk/client-s3';

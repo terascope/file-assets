@@ -45,7 +45,6 @@ export class S3Fetcher extends ChunkedFileReader {
         if (body === undefined) {
             throw new Error('Missing body from s3 get object request');
         }
-        // @ts-expect-error, their types do not list added apis
         const data = await body.transformToByteArray();
 
         return this.compressor.decompress(Buffer.from(data));
