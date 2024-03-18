@@ -4,6 +4,9 @@ export type S3Error = _Error;
 export type S3ErrorExceptions = S3ServiceException;
 
 export {
+    BucketAlreadyExists,
+    BucketAlreadyOwnedByYou,
+    NoSuchKey,
     ListObjectsV2Output,
     PutObjectTaggingOutput,
     DeleteObjectOutput,
