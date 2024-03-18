@@ -129,7 +129,11 @@ describe('S3 Helpers', () => {
         // added s3-large-spec.ts to show how to use listS3Objects w/ continuation token
 
         it('should list delete an object', async () => {
-            const deleted = await s3Helpers.deleteS3Object(client, { Bucket: bucketName, Key: 'bad' });
+            const deleted = await s3Helpers.s3RequestWithRetry({
+                client,
+                func: s3Helpers.deleteS3Object,
+                params: { Bucket: bucketName, Key: 'bad' }
+            });
             expect(deleted).toBeTruthy();
         });
 
@@ -158,8 +162,16 @@ describe('S3 Helpers', () => {
             const bar: any = Buffer.from(JSON.stringify({ bar: 'bar' }));
 
             await Promise.all([
-                s3Helpers.putS3Object(client, { Bucket: retryBucket, Key: 'some', Body: foo }),
-                s3Helpers.putS3Object(client, { Bucket: retryBucket, Key: 'thing', Body: bar }),
+                s3Helpers.s3RequestWithRetry({
+                    client,
+                    func: s3Helpers.putS3Object,
+                    params: { Bucket: retryBucket, Key: 'some', Body: foo }
+                }),
+                s3Helpers.s3RequestWithRetry({
+                    client,
+                    func: s3Helpers.putS3Object,
+                    params: { Bucket: retryBucket, Key: 'thing', Body: bar }
+                })
             ]);
         });
 
