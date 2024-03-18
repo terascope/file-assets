@@ -21,6 +21,10 @@ export async function s3RequestWithRetry(
     attempts?: number
 ): Promise<S3ClientResponse.PutObjectCommandOutput>
 export async function s3RequestWithRetry(
+    retryArgs: S3RetryRequest.DeleteObjectWithRetry,
+    attempts?: number
+): Promise<S3ClientResponse.DeleteObjectOutput>
+export async function s3RequestWithRetry(
     retryArgs: S3RetryRequest.ListObjectsWithRetry,
     attempts?: number
 ): Promise<S3ClientResponse.ListObjectsV2Output>
