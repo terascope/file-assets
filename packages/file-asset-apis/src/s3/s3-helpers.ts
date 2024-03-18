@@ -17,6 +17,10 @@ export async function s3RequestWithRetry(
     attempts?: number
 ): Promise<S3ClientResponse.GetObjectCommandOutput>
 export async function s3RequestWithRetry(
+    retryArgs: S3RetryRequest.PutObjectWithRetry,
+    attempts?: number
+): Promise<S3ClientResponse.PutObjectCommandOutput>
+export async function s3RequestWithRetry(
     retryArgs: S3RetryRequest.ListObjectsWithRetry,
     attempts?: number
 ): Promise<S3ClientResponse.ListObjectsV2Output>
@@ -73,7 +77,7 @@ export async function listS3Objects(
 export async function putS3Object(
     client: S3Client,
     params: S3ClientParams.PutObjectRequest
-): Promise<S3ClientResponse.PutObjectOutput> {
+): Promise<S3ClientResponse.PutObjectCommandOutput> {
     const command = new PutObjectCommand(params);
     return client.send(command);
 }
