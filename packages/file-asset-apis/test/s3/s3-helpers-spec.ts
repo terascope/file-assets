@@ -129,11 +129,7 @@ describe('S3 Helpers', () => {
         // added s3-large-spec.ts to show how to use listS3Objects w/ continuation token
 
         it('should list delete an object', async () => {
-            const deleted = await s3Helpers.s3RequestWithRetry({
-                client,
-                func: s3Helpers.deleteS3Object,
-                params: { Bucket: bucketName, Key: 'bad' }
-            });
+            const deleted = await s3Helpers.deleteS3Object(client, { Bucket: bucketName, Key: 'bad' });
             expect(deleted).toBeTruthy();
         });
 
@@ -162,16 +158,8 @@ describe('S3 Helpers', () => {
             const bar: any = Buffer.from(JSON.stringify({ bar: 'bar' }));
 
             await Promise.all([
-                s3Helpers.s3RequestWithRetry({
-                    client,
-                    func: s3Helpers.putS3Object,
-                    params: { Bucket: retryBucket, Key: 'some', Body: foo }
-                }),
-                s3Helpers.s3RequestWithRetry({
-                    client,
-                    func: s3Helpers.putS3Object,
-                    params: { Bucket: retryBucket, Key: 'thing', Body: bar }
-                })
+                s3Helpers.putS3Object(client, { Bucket: retryBucket, Key: 'some', Body: foo }),
+                s3Helpers.putS3Object(client, { Bucket: retryBucket, Key: 'thing', Body: bar })
             ]);
         });
 
@@ -273,6 +261,35 @@ describe('S3 Helpers', () => {
             })).rejects.toThrow();
 
             s3Mock.restore();
+        });
+
+        it('should put, get, and delete with retry wrapper applied', async () => {
+            const data: any = Buffer.from(JSON.stringify({ testKey: 'string data' }));
+            /// Put Object with retry wrapper
+            const putOutput = await s3Helpers.s3RequestWithRetry({
+                client,
+                func: s3Helpers.putS3Object,
+                params: { Bucket: retryBucket, Key: 'testKeyWrapper', Body: data }
+            });
+            expect(putOutput.$metadata.httpStatusCode).toBe(200);
+
+            /// Get Object with retry wrapper
+            const getOutput = await s3Helpers.s3RequestWithRetry({
+                client,
+                func: s3Helpers.getS3Object,
+                params: { Bucket: retryBucket, Key: 'testKeyWrapper' }
+            });
+            const stringData = await getOutput.Body?.transformToString();
+            const result = await JSON.parse(stringData as string);
+            expect(result.testKey).toBe('string data');
+
+            /// Delete Object with retry wrapper
+            const deleteOutput = await s3Helpers.s3RequestWithRetry({
+                client,
+                func: s3Helpers.deleteS3Object,
+                params: { Bucket: retryBucket, Key: 'testKeyWrapper' }
+            });
+            expect(deleteOutput).toBeTruthy();
         });
     });
 });
