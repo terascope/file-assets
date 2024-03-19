@@ -43,12 +43,11 @@ export async function cleanupBucket(
 }
 
 export async function getBodyFromResults(
-    results: S3ClientResponse.GetObjectOutput
+    results: S3ClientResponse.GetObjectCommandOutput
 ): Promise<Buffer> {
     if (!results.Body) {
         throw new Error('Missing body from s3 results');
     }
-    // @ts-expect-error
     const data = await results.Body.transformToByteArray();
 
     return Buffer.from(data);

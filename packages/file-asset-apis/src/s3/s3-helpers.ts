@@ -15,11 +15,19 @@ import { S3ClientParams, S3ClientResponse, S3RetryRequest } from './client-types
 export async function s3RequestWithRetry(
     retryArgs: S3RetryRequest.GetObjectWithRetry,
     attempts?: number
-): Promise<S3ClientResponse.GetObjectOutput>
+): Promise<S3ClientResponse.GetObjectCommandOutput>
+export async function s3RequestWithRetry(
+    retryArgs: S3RetryRequest.PutObjectWithRetry,
+    attempts?: number
+): Promise<S3ClientResponse.PutObjectCommandOutput>
+export async function s3RequestWithRetry(
+    retryArgs: S3RetryRequest.DeleteObjectWithRetry,
+    attempts?: number
+): Promise<S3ClientResponse.DeleteObjectCommandOutput>
 export async function s3RequestWithRetry(
     retryArgs: S3RetryRequest.ListObjectsWithRetry,
     attempts?: number
-): Promise<S3ClientResponse.ListObjectsV2Output>
+): Promise<S3ClientResponse.ListObjectsV2CommandOutput>
 export async function s3RequestWithRetry(
     retryArgs: S3RetryRequest.RetryArgs,
     attempts = 1
@@ -57,7 +65,7 @@ export async function s3RequestWithRetry(
 export async function getS3Object(
     client: S3Client,
     params: S3ClientParams.GetObjectRequest
-): Promise<S3ClientResponse.GetObjectOutput> {
+): Promise<S3ClientResponse.GetObjectCommandOutput> {
     const command = new GetObjectCommand(params);
     return client.send(command);
 }
@@ -65,7 +73,7 @@ export async function getS3Object(
 export async function listS3Objects(
     client: S3Client,
     params: S3ClientParams.ListObjectsV2Request,
-): Promise<S3ClientResponse.ListObjectsV2Output> {
+): Promise<S3ClientResponse.ListObjectsV2CommandOutput> {
     const command = new ListObjectsV2Command(params);
     return client.send(command);
 }
@@ -73,7 +81,7 @@ export async function listS3Objects(
 export async function putS3Object(
     client: S3Client,
     params: S3ClientParams.PutObjectRequest
-): Promise<S3ClientResponse.PutObjectOutput> {
+): Promise<S3ClientResponse.PutObjectCommandOutput> {
     const command = new PutObjectCommand(params);
     return client.send(command);
 }
@@ -81,7 +89,7 @@ export async function putS3Object(
 export async function tagS3Object(
     client: S3Client,
     params: S3ClientParams.PutObjectTaggingRequest
-): Promise<S3ClientResponse.PutObjectTaggingOutput> {
+): Promise<S3ClientResponse.PutObjectTaggingCommandOutput> {
     const command = new PutObjectTaggingCommand(params);
     return client.send(command);
 }
@@ -89,7 +97,7 @@ export async function tagS3Object(
 export async function deleteS3Object(
     client: S3Client,
     params: S3ClientParams.DeleteObjectRequest
-): Promise<S3ClientResponse.DeleteObjectOutput> {
+): Promise<S3ClientResponse.DeleteObjectCommandOutput> {
     const command = new DeleteObjectCommand(params);
     return client.send(command);
 }
@@ -98,7 +106,7 @@ export async function deleteS3Object(
 export async function deleteS3Objects(
     client: S3Client,
     params: S3ClientParams.DeleteObjectsRequest,
-): Promise<S3ClientResponse.DeleteObjectsOutput> {
+): Promise<S3ClientResponse.DeleteObjectsCommandOutput> {
     const command = new DeleteObjectsCommand(params);
     return client.send(command);
 }
@@ -167,7 +175,7 @@ export async function doesBucketExist(
 
 export async function listS3Buckets(
     client: S3Client,
-): Promise<S3ClientResponse.ListBucketsOutput> {
+): Promise<S3ClientResponse.ListBucketsCommandOutput> {
     const command = new ListBucketsCommand({});
     return client.send(command);
 }
@@ -175,7 +183,7 @@ export async function listS3Buckets(
 export async function createS3Bucket(
     client: S3Client,
     params: S3ClientParams.CreateBucketRequest
-): Promise<S3ClientResponse.CreateBucketOutput> {
+): Promise<S3ClientResponse.CreateBucketCommandOutput> {
     const command = new CreateBucketCommand(params);
     return client.send(command);
 }
