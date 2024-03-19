@@ -1,19 +1,20 @@
 import {
     ListObjectsV2Request,
-    ListObjectsV2Output,
+    ListObjectsV2CommandOutput,
     GetObjectRequest,
     GetObjectCommandOutput,
     PutObjectCommandOutput,
     PutObjectRequest,
     DeleteObjectRequest,
-    DeleteObjectOutput,
+    DeleteObjectCommandOutput,
     S3Client
 } from '@aws-sdk/client-s3';
 
 export type S3RetryParams =
     ListObjectsV2Request | GetObjectRequest | DeleteObjectRequest | PutObjectRequest;
 export type S3RetryResponse =
-    ListObjectsV2Output | GetObjectCommandOutput | PutObjectCommandOutput | DeleteObjectOutput;
+    ListObjectsV2CommandOutput | GetObjectCommandOutput |
+    PutObjectCommandOutput | DeleteObjectCommandOutput;
 
 export type RetryArgs = {
     client: S3Client,
@@ -23,7 +24,7 @@ export type RetryArgs = {
 
 export type ListObjectsWithRetry = {
     client: S3Client,
-    func: (client: S3Client, params: ListObjectsV2Request) => Promise<ListObjectsV2Output>,
+    func: (client: S3Client, params: ListObjectsV2Request) => Promise<ListObjectsV2CommandOutput>,
     params: ListObjectsV2Request
 };
 
@@ -41,6 +42,6 @@ export type PutObjectWithRetry = {
 
 export type DeleteObjectWithRetry = {
     client: S3Client,
-    func: (client: S3Client, params: DeleteObjectRequest) => Promise<DeleteObjectOutput>,
+    func: (client: S3Client, params: DeleteObjectRequest) => Promise<DeleteObjectCommandOutput>,
     params: DeleteObjectRequest
 };
