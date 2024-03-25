@@ -1897,13 +1897,13 @@
     datemath-parser "^1.0.6"
     uuid "^9.0.1"
 
-"@terascope/scripts@^0.72.2":
-  version "0.72.2"
-  resolved "https://registry.yarnpkg.com/@terascope/scripts/-/scripts-0.72.2.tgz#a9f5735fa2e7d43249ef8b9e9ae2fe7cbc044896"
-  integrity sha512-ebgKXXfnvxsbQr3prlpcz6rN9WWiUDBe4xjke2/KJBcSeiEHzbiOu7tGtc0JvKZ55akWcnfUrldUXW8hrpzmRQ==
+"@terascope/scripts@^0.73.0":
+  version "0.73.0"
+  resolved "https://registry.yarnpkg.com/@terascope/scripts/-/scripts-0.73.0.tgz#f7f8aee7724414e17b66a39f75b63c115d32a032"
+  integrity sha512-cf7j96tbuu3Fq3yyerj3HqQRLDd2+9rplztnc9+1c5n6k6UDKNdtu5vx9weqTs9yyluiWCAtUvzpUMc8NjV1iA==
   dependencies:
     "@kubernetes/client-node" "^0.20.0"
-    "@terascope/utils" "^0.55.0"
+    "@terascope/utils" "^0.56.0"
     codecov "^3.8.3"
     execa "^5.1.0"
     fs-extra "^11.2.0"
