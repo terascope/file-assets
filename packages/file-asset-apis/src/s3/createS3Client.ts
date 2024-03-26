@@ -21,7 +21,8 @@ export async function createS3Client(
     config: S3ClientConfig,
     logger = debugLogger('s3-client')
 ): Promise<S3Client> {
-    logger.info(`Using S3 endpoint: ${config.endpoint}`);
+    // logger.debug(`====> config:\n${JSON.stringify(config, null, 2)}`);
+    // logger.info(`Using S3 endpoint: ${config.endpoint}`);
 
     // The aws v3 client logs every request and its metadata, it is too intrusive
     // so should only be used in trace mode otherwise it will log the body request
@@ -30,6 +31,18 @@ export async function createS3Client(
         config.logger = logger;
     }
 
+    const finalConfig = await genS3ClientConfig(config);
+    logger.debug(`====> finalConfig:\n${JSON.stringify(finalConfig, null, 2)}`);
+    return new BaseClient(finalConfig);
+}
+
+/**
+ * given the terafoundation S3 connector configuration, generate the AWS S3
+ * client configuration object
+ * @param {S3ClientConfig} config terafoundation S3 connector configuration object
+ * @returns AWS S3 client configuration object
+ */
+export async function genS3ClientConfig(config: S3ClientConfig) {
     let httpOptions = Object.assign(
         config.httpOptions || {}
     );
@@ -63,6 +76,7 @@ export async function createS3Client(
         ...!isEmpty(httpOptions) && new Agent(httpOptions)
     };
 
+    // console.log(`requestHandlerOptions: ${JSON.stringify(requestHandlerOptions, null, 2)}`);
     if (!isEmpty(requestHandlerOptions)) {
         config.requestHandler = new NodeHttpHandler(requestHandlerOptions);
     }
@@ -80,6 +94,5 @@ export async function createS3Client(
     if (!has(config, 'maxAttempts') && has(config, 'maxRetries')) {
         config.maxAttempts = (config as any).maxRetries;
     }
-
-    return new BaseClient(config);
+    return config;
 }
