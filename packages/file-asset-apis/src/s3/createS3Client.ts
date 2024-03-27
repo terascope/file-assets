@@ -4,7 +4,6 @@ import { S3Client as BaseClient } from '@aws-sdk/client-s3';
 import { NodeHttpHandler, NodeHttpHandlerOptions } from '@smithy/node-http-handler';
 import type { S3ClientConfig as baseS3Config } from '@aws-sdk/client-s3';
 import {
-    cloneDeep,
     debugLogger, has, isEmpty, isNumber
 } from '@terascope/utils';
 import type { S3Client } from './client-types';
