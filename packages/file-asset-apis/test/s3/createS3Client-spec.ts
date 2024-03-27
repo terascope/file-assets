@@ -3,6 +3,7 @@ import path from 'path';
 import {
     addCertsIfSSLEnabled,
     addRequestHandler,
+    createRequestHandlerOptions,
     genS3ClientConfig,
     mapMaxRetriesToMaxAttempts,
     moveCredentialsIntoObject,
@@ -164,8 +165,51 @@ describe('createS3Client', () => {
         });
     });
 
-    describe('addRequestHandler', () => {
-        it('should return original config if httpOptions is empty', async () => {
+    describe('createHandlerOptions', () => {
+        it('should return an empty object if there are no httpOptions or handlerOptions', async () => {
+            const startConfig = {
+                endpoint: 'https://127.0.0.1:49000',
+                accessKeyId: 'minioadmin',
+                secretAccessKey: 'minioadmin',
+                region: 'us-east-1',
+                maxRetries: 3,
+                maxRedirects: 10,
+                sslEnabled: true,
+                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
+                forcePathStyle: true,
+                bucketEndpoint: false
+            };
+
+            const result = createRequestHandlerOptions(startConfig);
+            expect(result).toEqual({});
+        });
+
+        it('should return requestHandlerOptions with requestTimeout and connectionTimeout if handlerOptions specified', async () => {
+            const startConfig = {
+                endpoint: 'https://127.0.0.1:49000',
+                accessKeyId: 'minioadmin',
+                secretAccessKey: 'minioadmin',
+                region: 'us-east-1',
+                maxRetries: 3,
+                maxRedirects: 10,
+                handlerOptions: {
+                    requestTimeout: 30000,
+                    connectionTimeout: 30000
+                },
+                sslEnabled: true,
+                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
+                forcePathStyle: true,
+                bucketEndpoint: false,
+            };
+
+            const result = createRequestHandlerOptions(startConfig);
+            expect(result).toEqual({
+                requestTimeout: 30000,
+                connectionTimeout: 30000
+            });
+        });
+
+        it('should return requestHandlerOptions with an Agent if httpOptions specified', async () => {
             const startConfig = {
                 endpoint: 'https://127.0.0.1:49000',
                 accessKeyId: 'minioadmin',
@@ -177,14 +221,90 @@ describe('createS3Client', () => {
                 certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
                 forcePathStyle: true,
                 bucketEndpoint: false,
-                httpOptions: {}
+                httpOptions: {
+                    rejectUnauthorized: true,
+                    ca: ['some buffer']
+                }
             };
 
-            const result = await addRequestHandler(startConfig);
+            const result = createRequestHandlerOptions(startConfig);
+            expect(result).toEqual({
+                httpsAgent: expect.objectContaining({
+                    options: {
+                        rejectUnauthorized: true,
+                        ca: ['some buffer'],
+                        noDelay: true,
+                        path: null
+                    }
+                })
+            });
+        });
+
+        it('should return requestHandlerOptions with requestTimeout, connectionTimeout, and options if handlerOptions and httpOptions specified', async () => {
+            const startConfig = {
+                endpoint: 'https://127.0.0.1:49000',
+                accessKeyId: 'minioadmin',
+                secretAccessKey: 'minioadmin',
+                region: 'us-east-1',
+                maxRetries: 3,
+                maxRedirects: 10,
+                handlerOptions: {
+                    requestTimeout: 30000,
+                    connectionTimeout: 30000
+                },
+                sslEnabled: true,
+                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
+                forcePathStyle: true,
+                bucketEndpoint: false,
+                httpOptions: {
+                    rejectUnauthorized: true,
+                    ca: ['some buffer']
+                }
+            };
+
+            const result = createRequestHandlerOptions(startConfig);
+            expect(result).toEqual({
+                requestTimeout: 30000,
+                connectionTimeout: 30000,
+                httpsAgent: expect.objectContaining({
+                    options: {
+                        rejectUnauthorized: true,
+                        ca: ['some buffer'],
+                        noDelay: true,
+                        path: null
+                    }
+                })
+            });
+        });
+    });
+
+    describe('addRequestHandler', () => {
+        it('should return original config if requestHandlerOptions is an empty object', async () => {
+            const startConfig = {
+                endpoint: 'https://127.0.0.1:49000',
+                accessKeyId: 'minioadmin',
+                secretAccessKey: 'minioadmin',
+                region: 'us-east-1',
+                maxRetries: 3,
+                maxRedirects: 10,
+                sslEnabled: true,
+                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
+                forcePathStyle: true,
+                bucketEndpoint: false
+            };
+
+            const result = addRequestHandler(startConfig, {});
             expect(result).toEqual(startConfig);
         });
 
-        it('should return config with requestHandler if httpOptions has values', async () => {
+        it('should return config with requestHandler if requestHandlerOptions has values', async () => {
+            const requestHandlerOptions = {
+                requestTimeout: 30000,
+                connectionTimeout: 30000,
+                rejectUnauthorized: true,
+                ca: []
+            };
+
             const startConfig = {
                 endpoint: 'https://127.0.0.1:49000',
                 accessKeyId: 'minioadmin',
@@ -232,7 +352,7 @@ describe('createS3Client', () => {
                 },
             };
 
-            const result = await addRequestHandler(startConfig);
+            const result = addRequestHandler(startConfig, requestHandlerOptions);
             expect(result).toEqual(endConfig);
         });
     });
