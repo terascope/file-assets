@@ -43,36 +43,36 @@ export async function createS3Client(
  * @returns {Promise<baseS3Config>} AWS S3 client BASE configuration object
  */
 export async function genS3ClientConfig(startConfig: S3ClientConfig): Promise<baseS3Config> {
-    let intermediateConfig = await addCertsIfSSLEnabled(startConfig);
-    intermediateConfig = addRequestHandler(intermediateConfig);
-    intermediateConfig = moveCredentialsIntoObject(intermediateConfig);
-    intermediateConfig = mapMaxRetriesToMaxAttempts(intermediateConfig);
-    const finalConfig = removeExtendedConfigKeys(intermediateConfig);
-    return finalConfig;
+    let config = await addCertsIfSSLEnabled(startConfig);
+    const requestHandlerOptions = createRequestHandlerOptions(config);
+    config = addRequestHandler(config, requestHandlerOptions);
+    config = moveCredentialsIntoObject(config);
+    config = mapMaxRetriesToMaxAttempts(config);
+    return removeExtendedConfigKeys(config);
 }
 
 /**
  * Given the terafoundation S3 connector configuration, if sslEnabled is true,
  * add CA certs and 'rejectUnauthorized: true' to httpOptions.
- * @param {S3ClientConfig} startConfig terafoundation S3 connector configuration object
+ * @param {S3ClientConfig} config terafoundation S3 connector configuration object
  * @returns {Promise<S3ClientConfig>} AWS S3 client EXTENDED configuration object
  */
-export async function addCertsIfSSLEnabled(startConfig: S3ClientConfig): Promise<S3ClientConfig> {
+export async function addCertsIfSSLEnabled(config: S3ClientConfig): Promise<S3ClientConfig> {
     // pull certLocation from env
     // https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/node-registering-certs.html
     // Instead of updating the client, we can just update the config before creating the client
 
     let newOptions: HttpsAgentOptions = Object.assign(
-        startConfig.httpOptions || {}
+        config.httpOptions || {}
     );
 
-    if (startConfig.sslEnabled) {
-        const certPath = startConfig.certLocation ?? '/etc/ssl/certs/ca-certificates.crt';
+    if (config.sslEnabled) {
+        const certPath = config.certLocation ?? '/etc/ssl/certs/ca-certificates.crt';
         const pathFound = await fs.exists(certPath);
 
         if (!pathFound) {
             throw new Error(
-                `No cert path was found in config.certLocation: "${startConfig.certLocation}" or in default "/etc/ssl/certs/ca-certificates.crt" location`
+                `No cert path was found in config.certLocation: "${config.certLocation}" or in default "/etc/ssl/certs/ca-certificates.crt" location`
             );
         }
         // Assumes all certs needed are in a single bundle
@@ -85,51 +85,59 @@ export async function addCertsIfSSLEnabled(startConfig: S3ClientConfig): Promise
         };
     }
 
-    const endConfig = cloneDeep(startConfig);
-    endConfig.httpOptions = newOptions;
-    return endConfig;
+    config.httpOptions = newOptions;
+    return config;
 }
 
 /**
- * Given the terafoundation S3 connector configuration, create a
- * NodeHttpHandler and add it to the config
+ * Given the terafoundation S3 connector configuration, create NodeHttpHandlerOptions
  * @param {S3ClientConfig} startConfig terafoundation S3 connector configuration object
- * @returns {Promise<S3ClientConfig>} AWS S3 client EXTENDED configuration object
+ * @returns {NodeHttpHandlerOptions} NodeHttpHandlerOptions
  */
-export function addRequestHandler(startConfig: S3ClientConfig): S3ClientConfig {
+export function createRequestHandlerOptions(startConfig: S3ClientConfig): NodeHttpHandlerOptions {
     const { connectionTimeout, requestTimeout } = startConfig.handlerOptions || {};
-    const requestHandlerOptions = {
+    return {
         ...isNumber(connectionTimeout) && { connectionTimeout },
         ...isNumber(requestTimeout) && { requestTimeout },
         ...!isEmpty(startConfig.httpOptions) && { httpsAgent: new Agent(startConfig.httpOptions) }
     };
+}
+
+/**
+ * Given the terafoundation S3 connector configuration and NodeHttpHandlerOptions,
+ * create a NodeHttpHandler and add it to the config
+ * @param {S3ClientConfig} config terafoundation S3 connector configuration object
+ * @returns {S3ClientConfig} AWS S3 client EXTENDED configuration object
+ */
+export function addRequestHandler(
+    config: S3ClientConfig,
+    requestHandlerOptions: NodeHttpHandlerOptions
+): S3ClientConfig {
     if (!isEmpty(requestHandlerOptions)) {
-        const endConfig = cloneDeep(startConfig);
-        endConfig.requestHandler = new NodeHttpHandler(requestHandlerOptions);
-        return endConfig;
+        config.requestHandler = new NodeHttpHandler(requestHandlerOptions);
+        return config;
     }
-    return startConfig;
+    return config;
 }
 
 /**
  * Given the terafoundation S3 connector configuration, if accessKeyId and
  * secretAccessKey are unique top level keys, move them into a credentials object.
  * The S3 connector config is specified in an old style that is no longer supported.
- * @param {S3ClientConfig} startConfig terafoundation S3 connector configuration object
- * @returns {Promise<S3ClientConfig>} AWS S3 client EXTENDED configuration object
+ * @param {S3ClientConfig} config terafoundation S3 connector configuration object
+ * @returns {S3ClientConfig} AWS S3 client EXTENDED configuration object
  */
-export function moveCredentialsIntoObject(startConfig: S3ClientConfig): S3ClientConfig {
-    const endConfig = cloneDeep(startConfig);
-    if (!has(startConfig, 'credentials') && has(startConfig, 'accessKeyId') && has(startConfig, 'secretAccessKey')) {
-        const { accessKeyId = '', secretAccessKey = '' } = startConfig;
-        endConfig.credentials = {
+export function moveCredentialsIntoObject(config: S3ClientConfig): S3ClientConfig {
+    if (!has(config, 'credentials') && has(config, 'accessKeyId') && has(config, 'secretAccessKey')) {
+        const { accessKeyId = '', secretAccessKey = '' } = config;
+        config.credentials = {
             accessKeyId,
             secretAccessKey
         };
-        delete endConfig.accessKeyId;
-        delete endConfig.secretAccessKey;
+        delete config.accessKeyId;
+        delete config.secretAccessKey;
     }
-    return endConfig;
+    return config;
 }
 
 /**
@@ -137,29 +145,27 @@ export function moveCredentialsIntoObject(startConfig: S3ClientConfig): S3Client
  * copy its value into the maxAttempts key and remove matRetries
  * MaxRetries is the key name in terafoundation connector config but the S3 client
  * renamed the key to maxAttempts.
- * @param {S3ClientConfig} startConfig terafoundation S3 connector configuration object
- * @returns {Promise<S3ClientConfig>} AWS S3 client EXTENDED configuration object
+ * @param {S3ClientConfig} config terafoundation S3 connector configuration object
+ * @returns {S3ClientConfig} AWS S3 client EXTENDED configuration object
  */
-export function mapMaxRetriesToMaxAttempts(startConfig: S3ClientConfig): S3ClientConfig {
-    const endConfig = cloneDeep(startConfig);
-    if (!has(startConfig, 'maxAttempts') && has(startConfig, 'maxRetries')) {
-        endConfig.maxAttempts = (startConfig as any).maxRetries;
+export function mapMaxRetriesToMaxAttempts(config: S3ClientConfig): S3ClientConfig {
+    if (!has(config, 'maxAttempts') && has(config, 'maxRetries')) {
+        config.maxAttempts = (config as any).maxRetries;
     }
-    delete (endConfig as any).maxRetries;
-    return endConfig;
+    delete (config as any).maxRetries;
+    return config;
 }
 
 /**
  * Given the terafoundation S3 connector configuration, remove all extended keys
  * that belong solely to the S3ClientConfig class
- * @param {S3ClientConfig} startConfig terafoundation S3 connector configuration object
- * @returns {Promise<S3ClientConfig>} AWS S3 client BASE configuration object
+ * @param {S3ClientConfig} config terafoundation S3 connector configuration object
+ * @returns {S3ClientConfig} AWS S3 client BASE configuration object
  */
-export function removeExtendedConfigKeys(startConfig: S3ClientConfig): baseS3Config {
-    const endConfig = cloneDeep(startConfig);
-    delete endConfig.sslEnabled;
-    delete endConfig.certLocation;
-    delete endConfig.httpOptions;
-    delete endConfig.handlerOptions;
-    return endConfig;
+export function removeExtendedConfigKeys(config: S3ClientConfig): baseS3Config {
+    delete config.sslEnabled;
+    delete config.certLocation;
+    delete config.httpOptions;
+    delete config.handlerOptions;
+    return config;
 }
