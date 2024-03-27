@@ -49,13 +49,8 @@ describe('createS3Client', () => {
     describe('addCertsIfSSLEnabled', () => {
         it('should throw an error if sslEnabled is true and certLocation is an invalid path', async () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
-                accessKeyId: 'minioadmin',
-                secretAccessKey: 'minioadmin',
-                region: 'us-east-1',
                 sslEnabled: true,
-                certLocation: 'invalid/path/fakeCert.pem',
-                forcePathStyle: true
+                certLocation: 'invalid/path/fakeCert.pem'
             };
 
             await expect(addCertsIfSSLEnabled(startConfig))
@@ -64,29 +59,13 @@ describe('createS3Client', () => {
 
         it('should return config with empty httpOptions if key did not exist and sslEnabled is false', async () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
-                accessKeyId: 'minioadmin',
-                secretAccessKey: 'minioadmin',
-                region: 'us-east-1',
-                maxRetries: 3,
-                maxRedirects: 10,
                 sslEnabled: false,
                 certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false
             };
 
             const endConfig = {
-                endpoint: 'https://127.0.0.1:49000',
-                accessKeyId: 'minioadmin',
-                secretAccessKey: 'minioadmin',
-                region: 'us-east-1',
-                maxRetries: 3,
-                maxRedirects: 10,
                 sslEnabled: false,
                 certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
                 httpOptions: {}
             };
 
@@ -94,65 +73,27 @@ describe('createS3Client', () => {
             expect(result).toEqual(endConfig);
         });
 
-        it('should return config with copied httpOptions if sslEnabled is false', async () => {
+        it('should not change httpOptions if sslEnabled is false', async () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
-                accessKeyId: 'minioadmin',
-                secretAccessKey: 'minioadmin',
-                region: 'us-east-1',
-                maxRetries: 3,
-                maxRedirects: 10,
                 sslEnabled: false,
                 certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
-                httpOptions: { maxCachedSessions: 3 }
-            };
-
-            const finalConfig = {
-                endpoint: 'https://127.0.0.1:49000',
-                accessKeyId: 'minioadmin',
-                secretAccessKey: 'minioadmin',
-                region: 'us-east-1',
-                maxRetries: 3,
-                maxRedirects: 10,
-                sslEnabled: false,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
                 httpOptions: { maxCachedSessions: 3 }
             };
 
             const result = await addCertsIfSSLEnabled(startConfig);
-            expect(result).toEqual(finalConfig);
+            expect(result).toEqual(startConfig);
         });
 
         it('should return a config with updated httpOptions if sslEnabled is true', async () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
-                accessKeyId: 'minioadmin',
-                secretAccessKey: 'minioadmin',
-                region: 'us-east-1',
-                maxRetries: 3,
-                maxRedirects: 10,
                 sslEnabled: true,
                 certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
                 httpOptions: { maxCachedSessions: 3 }
             };
 
             const finalConfig = {
-                endpoint: 'https://127.0.0.1:49000',
-                accessKeyId: 'minioadmin',
-                secretAccessKey: 'minioadmin',
-                region: 'us-east-1',
-                maxRetries: 3,
-                maxRedirects: 10,
                 sslEnabled: true,
                 certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
                 httpOptions: {
                     maxCachedSessions: 3,
                     rejectUnauthorized: true,
@@ -168,16 +109,8 @@ describe('createS3Client', () => {
     describe('createHandlerOptions', () => {
         it('should return an empty object if there are no httpOptions or handlerOptions', async () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
-                accessKeyId: 'minioadmin',
-                secretAccessKey: 'minioadmin',
-                region: 'us-east-1',
-                maxRetries: 3,
-                maxRedirects: 10,
-                sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false
+                handlerOptions: {},
+                httpOptions: {}
             };
 
             const result = createRequestHandlerOptions(startConfig);
@@ -186,20 +119,10 @@ describe('createS3Client', () => {
 
         it('should return requestHandlerOptions with requestTimeout and connectionTimeout if handlerOptions specified', async () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
-                accessKeyId: 'minioadmin',
-                secretAccessKey: 'minioadmin',
-                region: 'us-east-1',
-                maxRetries: 3,
-                maxRedirects: 10,
                 handlerOptions: {
                     requestTimeout: 30000,
                     connectionTimeout: 30000
                 },
-                sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
             };
 
             const result = createRequestHandlerOptions(startConfig);
@@ -211,16 +134,6 @@ describe('createS3Client', () => {
 
         it('should return requestHandlerOptions with an Agent if httpOptions specified', async () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
-                accessKeyId: 'minioadmin',
-                secretAccessKey: 'minioadmin',
-                region: 'us-east-1',
-                maxRetries: 3,
-                maxRedirects: 10,
-                sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
                 httpOptions: {
                     rejectUnauthorized: true,
                     ca: ['some buffer']
@@ -242,20 +155,10 @@ describe('createS3Client', () => {
 
         it('should return requestHandlerOptions with requestTimeout, connectionTimeout, and options if handlerOptions and httpOptions specified', async () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
-                accessKeyId: 'minioadmin',
-                secretAccessKey: 'minioadmin',
-                region: 'us-east-1',
-                maxRetries: 3,
-                maxRedirects: 10,
                 handlerOptions: {
                     requestTimeout: 30000,
                     connectionTimeout: 30000
                 },
-                sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
                 httpOptions: {
                     rejectUnauthorized: true,
                     ca: ['some buffer']
@@ -285,12 +188,8 @@ describe('createS3Client', () => {
                 accessKeyId: 'minioadmin',
                 secretAccessKey: 'minioadmin',
                 region: 'us-east-1',
-                maxRetries: 3,
-                maxRedirects: 10,
                 sslEnabled: true,
                 certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false
             };
 
             const result = addRequestHandler(startConfig, {});
@@ -309,42 +208,12 @@ describe('createS3Client', () => {
                 endpoint: 'https://127.0.0.1:49000',
                 accessKeyId: 'minioadmin',
                 secretAccessKey: 'minioadmin',
-                region: 'us-east-1',
-                handlerOptions: {
-                    requestTimeout: 30000,
-                    connectionTimeout: 30000
-                },
-                maxRetries: 3,
-                maxRedirects: 10,
-                sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
-                httpOptions: {
-                    rejectUnauthorized: true,
-                    ca: []
-                }
             };
 
             const endConfig = {
                 endpoint: 'https://127.0.0.1:49000',
                 accessKeyId: 'minioadmin',
                 secretAccessKey: 'minioadmin',
-                region: 'us-east-1',
-                handlerOptions: {
-                    requestTimeout: 30000,
-                    connectionTimeout: 30000
-                },
-                maxRetries: 3,
-                maxRedirects: 10,
-                sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
-                httpOptions: {
-                    rejectUnauthorized: true,
-                    ca: []
-                },
                 requestHandler: {
                     metadata: { handlerProtocol: 'http/1.1' },
                     configProvider: expect.toBeObject(),
@@ -360,20 +229,8 @@ describe('createS3Client', () => {
     describe('moveCredentialsIntoObject', () => {
         it('should return original config if credentials key defined', () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
                 accessKeyId: 'minioadmin',
                 secretAccessKey: 'minioadmin',
-                region: 'us-east-1',
-                maxRetries: 3,
-                maxRedirects: 10,
-                sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
-                httpOptions: {
-                    rejectUnauthorized: true,
-                    ca: []
-                },
                 credentials: { accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin' }
             };
             const result = moveCredentialsIntoObject(startConfig);
@@ -382,19 +239,7 @@ describe('createS3Client', () => {
 
         it('should return original config if credentials secretAccessKey not defined', () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
                 accessKeyId: 'minioadmin',
-                region: 'us-east-1',
-                maxRetries: 3,
-                maxRedirects: 10,
-                sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
-                httpOptions: {
-                    rejectUnauthorized: true,
-                    ca: []
-                }
             };
             const result = moveCredentialsIntoObject(startConfig);
             expect(result).toEqual(startConfig);
@@ -402,19 +247,7 @@ describe('createS3Client', () => {
 
         it('should return original config if credentials accessKeyId not defined', () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
                 secretAccessKey: 'minioadmin',
-                region: 'us-east-1',
-                maxRetries: 3,
-                maxRedirects: 10,
-                sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
-                httpOptions: {
-                    rejectUnauthorized: true,
-                    ca: []
-                }
             };
             const result = moveCredentialsIntoObject(startConfig);
             expect(result).toEqual(startConfig);
@@ -422,35 +255,11 @@ describe('createS3Client', () => {
 
         it('should return config with credentials object', () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
                 accessKeyId: 'minioadmin',
                 secretAccessKey: 'minioadmin',
-                region: 'us-east-1',
-                maxRetries: 3,
-                maxRedirects: 10,
-                sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
-                httpOptions: {
-                    rejectUnauthorized: true,
-                    ca: []
-                }
             };
 
             const endConfig = {
-                endpoint: 'https://127.0.0.1:49000',
-                region: 'us-east-1',
-                maxRetries: 3,
-                maxRedirects: 10,
-                sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
-                httpOptions: {
-                    rejectUnauthorized: true,
-                    ca: []
-                },
                 credentials: { accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin' }
             };
             const result = moveCredentialsIntoObject(startConfig);
@@ -461,36 +270,12 @@ describe('createS3Client', () => {
     describe('mapMaxRetriesToMaxAttempts', () => {
         it('should remove maxRetries if both maxRetries and maxAttempts defined', async () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
-                region: 'us-east-1',
                 maxRetries: 3,
                 maxAttempts: 4,
-                maxRedirects: 10,
-                sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
-                httpOptions: {
-                    rejectUnauthorized: true,
-                    ca: []
-                },
-                credentials: { accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin' }
             };
 
             const endConfig = {
-                endpoint: 'https://127.0.0.1:49000',
-                region: 'us-east-1',
                 maxAttempts: 4,
-                maxRedirects: 10,
-                sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
-                httpOptions: {
-                    rejectUnauthorized: true,
-                    ca: []
-                },
-                credentials: { accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin' }
             };
 
             const result = mapMaxRetriesToMaxAttempts(startConfig);
@@ -501,33 +286,13 @@ describe('createS3Client', () => {
             const startConfig = {
                 endpoint: 'https://127.0.0.1:49000',
                 region: 'us-east-1',
-                maxRetries: 3,
-                maxRedirects: 10,
-                sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
-                httpOptions: {
-                    rejectUnauthorized: true,
-                    ca: []
-                },
-                credentials: { accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin' }
+                maxRetries: 3
             };
 
             const endConfig = {
                 endpoint: 'https://127.0.0.1:49000',
                 region: 'us-east-1',
-                maxAttempts: 3,
-                maxRedirects: 10,
-                sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
-                httpOptions: {
-                    rejectUnauthorized: true,
-                    ca: []
-                },
-                credentials: { accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin' }
+                maxAttempts: 3
             };
             const result = mapMaxRetriesToMaxAttempts(startConfig);
             expect(result).toEqual(endConfig);
@@ -537,14 +302,8 @@ describe('createS3Client', () => {
     describe('removeExtendedConfigKeys', () => {
         it('should remove keys that are invalid for baseS3Config', async () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
-                region: 'us-east-1',
-                maxAttempts: 3,
-                maxRedirects: 10,
                 sslEnabled: true,
                 certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
-                forcePathStyle: true,
-                bucketEndpoint: false,
                 httpOptions: {
                     rejectUnauthorized: true,
                     ca: []
@@ -552,18 +311,10 @@ describe('createS3Client', () => {
                 handlerOptions: {
                     requestTimeout: 30000,
                     connectionTimeout: 30000
-                },
-                credentials: { accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin' }
+                }
             };
 
             const endConfig = {
-                endpoint: 'https://127.0.0.1:49000',
-                region: 'us-east-1',
-                maxAttempts: 3,
-                maxRedirects: 10,
-                forcePathStyle: true,
-                bucketEndpoint: false,
-                credentials: { accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin' }
             };
             const result = removeExtendedConfigKeys(startConfig);
             expect(result).toEqual(endConfig);
