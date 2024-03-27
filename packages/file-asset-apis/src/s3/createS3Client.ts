@@ -134,7 +134,7 @@ export function moveCredentialsIntoObject(startConfig: S3ClientConfig): S3Client
 
 /**
  * Given the terafoundation S3 connector configuration, if maxRetries is specified
- * copy its value into the maxAttempts key
+ * copy its value into the maxAttempts key and remove matRetries
  * MaxRetries is the key name in terafoundation connector config but the S3 client
  * renamed the key to maxAttempts.
  * @param {S3ClientConfig} startConfig terafoundation S3 connector configuration object
@@ -144,8 +144,8 @@ export function mapMaxRetriesToMaxAttempts(startConfig: S3ClientConfig): S3Clien
     const endConfig = cloneDeep(startConfig);
     if (!has(startConfig, 'maxAttempts') && has(startConfig, 'maxRetries')) {
         endConfig.maxAttempts = (startConfig as any).maxRetries;
-        delete (endConfig as any).maxRetries;
     }
+    delete (endConfig as any).maxRetries;
     return endConfig;
 }
 
