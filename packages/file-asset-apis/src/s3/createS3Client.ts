@@ -2,17 +2,17 @@ import fs from 'fs-extra';
 import { Agent, AgentOptions as HttpsAgentOptions } from 'https';
 import { S3Client as BaseClient } from '@aws-sdk/client-s3';
 import { NodeHttpHandler, NodeHttpHandlerOptions } from '@smithy/node-http-handler';
-import type { S3ClientConfig as baseConfig } from '@aws-sdk/client-s3';
+import type { S3ClientConfig as baseS3Config } from '@aws-sdk/client-s3';
 import {
     debugLogger, has, isEmpty, isNumber
 } from '@terascope/utils';
 import type { S3Client } from './client-types';
 
-export interface S3ClientConfig extends baseConfig {
+export interface S3ClientConfig extends baseS3Config {
     sslEnabled?: boolean,
     certLocation?: string,
     httpOptions?: HttpsAgentOptions,
-    handlerOptions?: Pick<NodeHttpHandlerOptions, 'requestTimeout'|'connectionTimeout'>,
+    handlerOptions?: Pick<NodeHttpHandlerOptions, 'requestTimeout' | 'connectionTimeout'>,
     secretAccessKey?: string,
     accessKeyId?: string
 }
@@ -30,13 +30,41 @@ export async function createS3Client(
         config.logger = logger;
     }
 
-    let httpOptions = Object.assign(
-        config.httpOptions || {}
-    );
+    const finalConfig: baseS3Config = await genS3ClientConfig(config);
+    logger.debug(`createS3Client finalConfig:\n${JSON.stringify(finalConfig, null, 2)}`);
+    return new BaseClient(finalConfig);
+}
 
+/**
+ * Given the terafoundation S3 connector configuration, generate the AWS S3
+ * client configuration object
+ * @param {S3ClientConfig} startConfig terafoundation S3 connector configuration object
+ * @returns {Promise<baseS3Config>} AWS S3 client BASE configuration object
+ */
+export async function genS3ClientConfig(startConfig: S3ClientConfig): Promise<baseS3Config> {
+    let config = await addCertsIfSSLEnabled(startConfig);
+    const requestHandlerOptions = createRequestHandlerOptions(config);
+    config = addRequestHandler(config, requestHandlerOptions);
+    config = moveCredentialsIntoObject(config);
+    config = mapMaxRetriesToMaxAttempts(config);
+    return removeExtendedConfigKeys(config);
+}
+
+/**
+ * Given the terafoundation S3 connector configuration, if sslEnabled is true,
+ * add CA certs and 'rejectUnauthorized: true' to httpOptions.
+ * @param {S3ClientConfig} config terafoundation S3 connector configuration object
+ * @returns {Promise<S3ClientConfig>} AWS S3 client EXTENDED configuration object
+ */
+export async function addCertsIfSSLEnabled(config: S3ClientConfig): Promise<S3ClientConfig> {
     // pull certLocation from env
     // https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/node-registering-certs.html
     // Instead of updating the client, we can just update the config before creating the client
+
+    let newOptions: HttpsAgentOptions = Object.assign(
+        config.httpOptions || {}
+    );
+
     if (config.sslEnabled) {
         const certPath = config.certLocation ?? '/etc/ssl/certs/ca-certificates.crt';
         const pathFound = await fs.exists(certPath);
@@ -49,37 +77,94 @@ export async function createS3Client(
         // Assumes all certs needed are in a single bundle
         const certs = await fs.readFile(certPath);
 
-        httpOptions = {
-            ...httpOptions,
+        newOptions = {
+            ...newOptions,
             rejectUnauthorized: true,
             ca: [certs]
         };
     }
 
-    const { connectionTimeout, requestTimeout } = config.handlerOptions || {};
-    const requestHandlerOptions = {
+    config.httpOptions = newOptions;
+    return config;
+}
+
+/**
+ * Given the terafoundation S3 connector configuration, create NodeHttpHandlerOptions
+ * @param {S3ClientConfig} startConfig terafoundation S3 connector configuration object
+ * @returns {NodeHttpHandlerOptions} NodeHttpHandlerOptions
+ */
+export function createRequestHandlerOptions(startConfig: S3ClientConfig): NodeHttpHandlerOptions {
+    const { connectionTimeout, requestTimeout } = startConfig.handlerOptions || {};
+    return {
         ...isNumber(connectionTimeout) && { connectionTimeout },
         ...isNumber(requestTimeout) && { requestTimeout },
-        ...!isEmpty(httpOptions) && new Agent(httpOptions)
+        ...!isEmpty(startConfig.httpOptions) && { httpsAgent: new Agent(startConfig.httpOptions) }
     };
+}
 
+/**
+ * Given the terafoundation S3 connector configuration and NodeHttpHandlerOptions,
+ * create a NodeHttpHandler and add it to the config
+ * @param {S3ClientConfig} config terafoundation S3 connector configuration object
+ * @returns {S3ClientConfig} AWS S3 client EXTENDED configuration object
+ */
+export function addRequestHandler(
+    config: S3ClientConfig,
+    requestHandlerOptions: NodeHttpHandlerOptions
+): S3ClientConfig {
     if (!isEmpty(requestHandlerOptions)) {
         config.requestHandler = new NodeHttpHandler(requestHandlerOptions);
+        return config;
     }
+    return config;
+}
 
-    // config specified old style, need to move top level values into credentials
+/**
+ * Given the terafoundation S3 connector configuration, if accessKeyId and
+ * secretAccessKey are unique top level keys, move them into a credentials object.
+ * The S3 connector config is specified in an old style that is no longer supported.
+ * @param {S3ClientConfig} config terafoundation S3 connector configuration object
+ * @returns {S3ClientConfig} AWS S3 client EXTENDED configuration object
+ */
+export function moveCredentialsIntoObject(config: S3ClientConfig): S3ClientConfig {
     if (!has(config, 'credentials') && has(config, 'accessKeyId') && has(config, 'secretAccessKey')) {
         const { accessKeyId = '', secretAccessKey = '' } = config;
         config.credentials = {
             accessKeyId,
             secretAccessKey
         };
+        delete config.accessKeyId;
+        delete config.secretAccessKey;
     }
+    return config;
+}
 
-    // specified in terafoundation connector config but is now maxAttempts
+/**
+ * Given the terafoundation S3 connector configuration, if maxRetries is specified
+ * copy its value into the maxAttempts key and remove matRetries
+ * MaxRetries is the key name in terafoundation connector config but the S3 client
+ * renamed the key to maxAttempts.
+ * @param {S3ClientConfig} config terafoundation S3 connector configuration object
+ * @returns {S3ClientConfig} AWS S3 client EXTENDED configuration object
+ */
+export function mapMaxRetriesToMaxAttempts(config: S3ClientConfig): S3ClientConfig {
     if (!has(config, 'maxAttempts') && has(config, 'maxRetries')) {
         config.maxAttempts = (config as any).maxRetries;
     }
+    delete (config as any).maxRetries;
+    return config;
+}
 
-    return new BaseClient(config);
+/**
+ * Given the terafoundation S3 connector configuration, remove all extended keys
+ * that belong solely to the S3ClientConfig class
+ * @param {S3ClientConfig} config terafoundation S3 connector configuration object
+ * @returns {S3ClientConfig} AWS S3 client BASE configuration object
+ */
+export function removeExtendedConfigKeys(config: S3ClientConfig): baseS3Config {
+    delete config.sslEnabled;
+    delete config.certLocation;
+    delete config.httpOptions;
+    delete config.handlerOptions;
+    return config;
 }
