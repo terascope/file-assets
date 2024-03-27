@@ -60,7 +60,7 @@ export async function createS3Client(
     const requestHandlerOptions = {
         ...isNumber(connectionTimeout) && { connectionTimeout },
         ...isNumber(requestTimeout) && { requestTimeout },
-        ...!isEmpty(httpOptions) && new Agent(httpOptions)
+        ...!isEmpty(httpOptions) && { httpsAgent: new Agent(httpOptions) }
     };
 
     if (!isEmpty(requestHandlerOptions)) {
