@@ -1,10 +1,8 @@
 import fs from 'fs-extra';
 import { Agent, AgentOptions as HttpsAgentOptions } from 'https';
-import { S3Client } from '@aws-sdk/client-s3';
+import { S3Client, S3ClientConfig } from '@aws-sdk/client-s3';
 import { NodeHttpHandler, NodeHttpHandlerOptions } from '@smithy/node-http-handler';
-import type { S3ClientConfig } from '@aws-sdk/client-s3';
 import { debugLogger } from '@terascope/utils';
-// import type { S3Client } from './client-types';
 
 export interface S3ConnectionConfig {
     endpoint: string,
@@ -18,7 +16,7 @@ export interface S3ConnectionConfig {
     certLocation?: string,
 }
 
-export interface Credentials {
+export interface S3ClientCredentials {
     accessKeyId: string;
     secretAccessKey: string;
 }
@@ -51,12 +49,11 @@ export async function createS3Client(
 export async function genS3ClientConfig(
     connectionConfig: S3ConnectionConfig
 ): Promise<S3ClientConfig> {
-    const {
-        endpoint, region, forcePathStyle, bucketEndpoint
-    } = connectionConfig;
-
     const clientConfig: S3ClientConfig = {
-        endpoint, region, forcePathStyle, bucketEndpoint
+        endpoint: connectionConfig.endpoint,
+        region: connectionConfig.region,
+        forcePathStyle: connectionConfig.forcePathStyle,
+        bucketEndpoint: connectionConfig.bucketEndpoint
     };
 
     if (connectionConfig.maxRetries) {
@@ -126,11 +123,11 @@ export function createRequestHandlerOptions(
  * containing accessKeyId and secretAccessKey.
  * The S3 connection config uses the S3Client V2 style that is no longer supported.
  * @param {S3ConnectionConfig} connectionConfig terafoundation S3 connection configuration object
- * @returns {Credentials}
+ * @returns {S3ClientCredentials}
  */
 export function createCredentialsObject(
     connectionConfig: S3ConnectionConfig
-): Credentials {
+): S3ClientCredentials {
     if (!connectionConfig.accessKeyId) {
         throw new Error('S3 accessKeyId must be defined in S3ConnectionConfig');
     }
