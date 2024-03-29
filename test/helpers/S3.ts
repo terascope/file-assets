@@ -15,11 +15,9 @@ const logger = debugLogger('s3_tests');
 export async function makeClient() {
     return createS3Client({
         endpoint: s3Config.MINIO_HOST,
-        credentials: {
-            accessKeyId: s3Config.MINIO_ACCESS_KEY,
-            secretAccessKey: s3Config.MINIO_SECRET_KEY,
-        },
-        maxAttempts: 4,
+        accessKeyId: s3Config.MINIO_ACCESS_KEY,
+        secretAccessKey: s3Config.MINIO_SECRET_KEY,
+        maxRetries: 4,
         forcePathStyle: true,
         sslEnabled: false,
         region: 'us-east-1'

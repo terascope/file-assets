@@ -17,11 +17,9 @@ export { MINIO_HOST, MINIO_ACCESS_KEY, MINIO_SECRET_KEY };
 export async function makeClient() {
     return createS3Client({
         endpoint: MINIO_HOST,
-        credentials: {
-            accessKeyId: MINIO_ACCESS_KEY,
-            secretAccessKey: MINIO_SECRET_KEY,
-        },
-        maxAttempts: 4,
+        accessKeyId: MINIO_ACCESS_KEY,
+        secretAccessKey: MINIO_SECRET_KEY,
+        maxRetries: 4,
         forcePathStyle: true,
         sslEnabled: false,
         region: 'us-east-1'
