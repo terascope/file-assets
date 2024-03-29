@@ -106,6 +106,12 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
             try {
                 await createS3Bucket(this.client, params);
             } catch (err) {
+                // Unclear TypeError when trying to connect to a secure S3 bucket over http
+                if (err instanceof TypeError && err.message.includes('Cannot read properties of undefined (reading \'#text\')')) {
+                    throw new TSError(err, {
+                        reason: `Failure connecting to secure bucket ${this.path} from an http endpoint`
+                    });
+                }
                 throw new TSError(err, {
                     reason: `Failure to setup bucket ${this.path}`
                 });
