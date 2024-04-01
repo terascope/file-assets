@@ -1885,25 +1885,25 @@
     progress "^2.0.3"
     yargs "^17.2.1"
 
-"@terascope/job-components@^0.69.0":
-  version "0.69.0"
-  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.69.0.tgz#5c5cd8c1cba79c8840b86b2cb50d14dfc8ccd763"
-  integrity sha512-LFLK0LN0VXQN6F/ZoGHfKdaBv+J5l+XD71RMnhZuGiAdJaYWBfnUyxlWbvbUF2Y+3hyXLhl0WvEUeoWdijLv6Q==
+"@terascope/job-components@^0.70.0":
+  version "0.70.0"
+  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.70.0.tgz#46a38ba5ba8c2f58711ae6e7d821db9c1c7751ac"
+  integrity sha512-ML+P2MbX+lr/APaeviDEy8CC8Ave4aBYoLG+Xh58jvlXWGlJASDcMRnssxkWimLt5jvcfzBieezheL6SYtJTNg==
   dependencies:
-    "@terascope/utils" "^0.56.0"
+    "@terascope/utils" "^0.57.0"
     convict "^6.2.4"
     convict-format-with-moment "^6.2.0"
     convict-format-with-validator "^6.2.0"
     datemath-parser "^1.0.6"
     uuid "^9.0.1"
 
-"@terascope/scripts@^0.73.0":
-  version "0.73.0"
-  resolved "https://registry.yarnpkg.com/@terascope/scripts/-/scripts-0.73.0.tgz#f7f8aee7724414e17b66a39f75b63c115d32a032"
-  integrity sha512-cf7j96tbuu3Fq3yyerj3HqQRLDd2+9rplztnc9+1c5n6k6UDKNdtu5vx9weqTs9yyluiWCAtUvzpUMc8NjV1iA==
+"@terascope/scripts@^0.74.0":
+  version "0.74.0"
+  resolved "https://registry.yarnpkg.com/@terascope/scripts/-/scripts-0.74.0.tgz#08e3a6f83683f419c58983a5d4e91dfa4f32ca9c"
+  integrity sha512-zw0QnABvep8aOvaogW0BN9KuaVMOOwdG0P9PhFDG9ZYneFnD9U5PxmOH8gnaWKW4BcZHRx/+Bg/0TE+uArFWlQ==
   dependencies:
     "@kubernetes/client-node" "^0.20.0"
-    "@terascope/utils" "^0.56.0"
+    "@terascope/utils" "^0.57.0"
     codecov "^3.8.3"
     execa "^5.1.0"
     fs-extra "^11.2.0"
@@ -1938,10 +1938,10 @@
   resolved "https://registry.yarnpkg.com/@terascope/types/-/types-0.15.0.tgz#820d6aa9fd76bdedfaad0e5b1cc5b77b5490b8dd"
   integrity sha512-z5mfmFOXMEjq6S3WZANXBIEeM7FK/XSON+9kR6RX7GNHW/a6qNif9pSIAARQz4420JoYDliccSLJX9v0r6DfKg==
 
-"@terascope/utils@^0.56.0":
-  version "0.56.0"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.56.0.tgz#f325a6074dd140aa7446761a2716cbf32583db94"
-  integrity sha512-AbgBj0qliwtPMlHyL1Kng24dzoznBcfACIV98/5l9DQBDDB9zTHwPtDYAaKlFA3GYynl+7Anlm+ffUXll3M2eA==
+"@terascope/utils@^0.57.0":
+  version "0.57.0"
+  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.57.0.tgz#2395eadff80fe5193e7bc5724cf4a4ffa044fc61"
+  integrity sha512-YDnG9ouWCt3JJLD5NsxsEqABHgPdMZiZ2cwKDPjoqxpLBjgMWlsl0D7/0xOBWVg/RzVIwbWBk3xnLKY8ivocKw==
   dependencies:
     "@terascope/types" "^0.15.0"
     "@turf/bbox" "^6.4.0"
