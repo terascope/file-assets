@@ -200,7 +200,7 @@ describe('createS3Client', () => {
                 region: 'us-east-1',
                 accessKeyId: 'minioadmin',
             };
-            expect(() => createCredentialsObject(startConfig)).toThrow('S3 secretAccessKey must be defined in S3ConnectionConfig');
+            expect(() => createCredentialsObject(startConfig)).toThrow('S3 secretAccessKey must be defined in S3ClientConfig');
         });
 
         it('should throw error if accessKeyId not defined', () => {
@@ -209,7 +209,7 @@ describe('createS3Client', () => {
                 region: 'us-east-1',
                 secretAccessKey: 'minioadmin',
             };
-            expect(() => createCredentialsObject(startConfig)).toThrow('S3 accessKeyId must be defined in S3ConnectionConfig');
+            expect(() => createCredentialsObject(startConfig)).toThrow('S3 accessKeyId must be defined in S3ClientConfig');
         });
 
         it('should return config with credentials object', () => {
