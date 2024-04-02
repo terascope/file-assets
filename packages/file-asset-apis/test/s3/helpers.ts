@@ -21,7 +21,7 @@ export async function makeClient() {
             accessKeyId: MINIO_ACCESS_KEY,
             secretAccessKey: MINIO_SECRET_KEY,
         },
-        maxRetries: 4,
+        maxAttempts: 4,
         forcePathStyle: true,
         sslEnabled: false,
         region: 'us-east-1'
