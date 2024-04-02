@@ -63,7 +63,9 @@ export async function genFinalS3ClientConfig(config: S3ClientConfig): Promise<Ba
         throw new Error(`S3 endpoint ${config.endpoint} cannot be https if sslEnabled is false`);
     }
 
-    config.credentials = createCredentialsObject(config);
+    if (!config.credentials) {
+        config.credentials = createCredentialsObject(config);
+    }
 
     return config;
 }
