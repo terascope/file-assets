@@ -4,7 +4,7 @@ import {
     createCredentialsObject,
     createHttpOptions,
     createRequestHandlerOptions,
-    genS3ClientConfig,
+    genFinalS3ClientConfig,
 } from '../../src/s3/createS3Client';
 
 describe('createS3Client', () => {
@@ -22,14 +22,19 @@ describe('createS3Client', () => {
                 bucketEndpoint: false
             };
 
-            const result = await genS3ClientConfig(startConfig);
+            const result = await genFinalS3ClientConfig(startConfig);
             expect(result).toEqual(
                 {
                     endpoint: 'https://127.0.0.1:49000',
+                    accessKeyId: 'minioadmin',
+                    secretAccessKey: 'minioadmin',
                     region: 'us-east-1',
-                    maxAttempts: 3,
+                    maxRetries: 3,
+                    sslEnabled: true,
+                    certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
                     forcePathStyle: true,
                     bucketEndpoint: false,
+                    maxAttempts: 3,
                     requestHandler: {
                         metadata: { handlerProtocol: 'http/1.1' },
                         configProvider: expect.toBeObject(),
@@ -52,14 +57,19 @@ describe('createS3Client', () => {
                 bucketEndpoint: false
             };
 
-            const result = await genS3ClientConfig(startConfig);
+            const result = await genFinalS3ClientConfig(startConfig);
             expect(result).toEqual(
                 {
                     endpoint: 'http://127.0.0.1:49000',
+                    accessKeyId: 'minioadmin',
+                    secretAccessKey: 'minioadmin',
                     region: 'us-east-1',
-                    maxAttempts: 3,
+                    maxRetries: 3,
+                    sslEnabled: false,
+                    certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
                     forcePathStyle: true,
                     bucketEndpoint: false,
+                    maxAttempts: 3,
                     credentials: { accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin' }
                 });
         });
@@ -77,7 +87,7 @@ describe('createS3Client', () => {
                 bucketEndpoint: false
             };
 
-            await expect(() => genS3ClientConfig(startConfig)).rejects.toThrow(`S3 endpoint ${startConfig.endpoint} cannot be https if sslEnabled is false`);
+            await expect(() => genFinalS3ClientConfig(startConfig)).rejects.toThrow(`S3 endpoint ${startConfig.endpoint} cannot be https if sslEnabled is false`);
         });
 
         it('should throw error if sslEnabled is true and endpoint is http', async () => {
@@ -93,7 +103,7 @@ describe('createS3Client', () => {
                 bucketEndpoint: false
             };
 
-            await expect(() => genS3ClientConfig(startConfig))
+            await expect(() => genFinalS3ClientConfig(startConfig))
                 .rejects.toThrow(`S3 endpoint ${startConfig.endpoint} must be https if sslEnabled`);
         });
     });
