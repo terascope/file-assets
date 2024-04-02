@@ -121,10 +121,10 @@ export function createCredentialsObject(
     config: S3ClientConfig
 ): S3ClientCredentials {
     if (!config.accessKeyId) {
-        throw new Error('S3 accessKeyId must be defined in S3ConnectionConfig');
+        throw new Error('S3 accessKeyId must be defined in S3ClientConfig');
     }
     if (!config.secretAccessKey) {
-        throw new Error('S3 secretAccessKey must be defined in S3ConnectionConfig');
+        throw new Error('S3 secretAccessKey must be defined in S3ClientConfig');
     }
     const { accessKeyId, secretAccessKey } = config;
     return {
