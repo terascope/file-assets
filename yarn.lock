@@ -1885,10 +1885,10 @@
     progress "^2.0.3"
     yargs "^17.2.1"
 
-"@terascope/job-components@^0.70.0":
-  version "0.70.0"
-  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.70.0.tgz#46a38ba5ba8c2f58711ae6e7d821db9c1c7751ac"
-  integrity sha512-ML+P2MbX+lr/APaeviDEy8CC8Ave4aBYoLG+Xh58jvlXWGlJASDcMRnssxkWimLt5jvcfzBieezheL6SYtJTNg==
+"@terascope/job-components@^0.71.0":
+  version "0.71.0"
+  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.71.0.tgz#f52c2fab2bcae2b13e66cc7f62309aac08299cfc"
+  integrity sha512-+WfrQUw9GCsAEFxCCBx7bAfbt9CXi8SlVV9bVBxu4pctHI/Y45swkLgr0WpmueWGgTL43cT7HQII9TrUrI8xYg==
   dependencies:
     "@terascope/utils" "^0.57.0"
     convict "^6.2.4"
@@ -1897,10 +1897,10 @@
     datemath-parser "^1.0.6"
     uuid "^9.0.1"
 
-"@terascope/scripts@^0.74.0":
-  version "0.74.0"
-  resolved "https://registry.yarnpkg.com/@terascope/scripts/-/scripts-0.74.0.tgz#08e3a6f83683f419c58983a5d4e91dfa4f32ca9c"
-  integrity sha512-zw0QnABvep8aOvaogW0BN9KuaVMOOwdG0P9PhFDG9ZYneFnD9U5PxmOH8gnaWKW4BcZHRx/+Bg/0TE+uArFWlQ==
+"@terascope/scripts@^0.75.1":
+  version "0.75.1"
+  resolved "https://registry.yarnpkg.com/@terascope/scripts/-/scripts-0.75.1.tgz#a42833700d1b48d45961202082687f2b118eabe3"
+  integrity sha512-mkEXBRHrEKOwZcE/uwodyE+Gfx/qt3hrcuLSZI+35QKx04tElHDf2ns80sI2vStZIVuAdkPNX705m9IfRKhP4g==
   dependencies:
     "@kubernetes/client-node" "^0.20.0"
     "@terascope/utils" "^0.57.0"
