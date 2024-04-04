@@ -1,4 +1,4 @@
-import fs from 'fs-extra';
+import fs from 'fs';
 import { Agent, AgentOptions as HttpsAgentOptions } from 'https';
 import { S3Client as BaseClient } from '@aws-sdk/client-s3';
 import { NodeHttpHandler, NodeHttpHandlerOptions } from '@smithy/node-http-handler';
@@ -11,6 +11,8 @@ import type { S3Client } from './client-types';
 export interface S3ClientConfig extends BaseConfig {
     sslEnabled?: boolean,
     certLocation?: string,
+    caCertificate?: string,
+    globalCaCertificate?: string,
     secretAccessKey?: string,
     accessKeyId?: string,
     maxRetries?: number
@@ -82,20 +84,31 @@ export async function createHttpOptions(
     // https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/node-registering-certs.html
     // Instead of updating the client, we can just update the config before creating the client
 
-    const certPath = config.certLocation ?? '/etc/ssl/certs/ca-certificates.crt';
-    const pathFound = await fs.exists(certPath);
+    const defaultCertsPath = '/etc/ssl/certs/ca-certificates.crt';
+    const pathFound = await fs.existsSync(defaultCertsPath);
+    const allCerts = [];
 
-    if (!pathFound) {
+    if (pathFound) {
+        allCerts.push(await fs.readFileSync(defaultCertsPath));
+    }
+
+    if (config.caCertificate) {
+        allCerts.push(config.caCertificate);
+    }
+
+    if (config.globalCaCertificate) {
+        allCerts.push(config.globalCaCertificate);
+    }
+
+    if (allCerts.length === 0) {
         throw new Error(
-            `No cert path was found in config.certLocation: "${config.certLocation}" or in default "/etc/ssl/certs/ca-certificates.crt" location`
+            'No cert was provided by config.globalCaCertificate, config.caCertificate, or in default "/etc/ssl/certs/ca-certificates.crt" location'
         );
     }
-    // Assumes all certs needed are in a single bundle
-    const certs = await fs.readFile(certPath);
 
     return {
         rejectUnauthorized: true,
-        ca: [certs]
+        ca: allCerts
     };
 }
 

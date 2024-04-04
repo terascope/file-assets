@@ -17,7 +17,11 @@ describe('createS3Client', () => {
                 region: 'us-east-1',
                 maxRetries: 3,
                 sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
+                caCertificate: '-----BEGIN CERTIFICATE-----\n'
+                    + 'MIICGTCCAZ+gAwIBAgIQCeCTZaz32ci5PhwLBCou8zAKBggqhkjOPQQDAzBOMQsw\n'
+                    + '...\n'
+                    + 'DXZDjC5Ty3zfDBeWUA==\n'
+                    + '-----END CERTIFICATE-----',
                 forcePathStyle: true,
                 bucketEndpoint: false
             };
@@ -31,7 +35,11 @@ describe('createS3Client', () => {
                     region: 'us-east-1',
                     maxRetries: 3,
                     sslEnabled: true,
-                    certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
+                    caCertificate: '-----BEGIN CERTIFICATE-----\n'
+                        + 'MIICGTCCAZ+gAwIBAgIQCeCTZaz32ci5PhwLBCou8zAKBggqhkjOPQQDAzBOMQsw\n'
+                        + '...\n'
+                        + 'DXZDjC5Ty3zfDBeWUA==\n'
+                        + '-----END CERTIFICATE-----',
                     forcePathStyle: true,
                     bucketEndpoint: false,
                     maxAttempts: 3,
@@ -109,15 +117,14 @@ describe('createS3Client', () => {
 
         it('should accept credentials object', async () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
+                endpoint: 'http://127.0.0.1:49000',
                 credentials: {
                     accessKeyId: 'minioadmin',
                     secretAccessKey: 'minioadmin'
                 },
                 region: 'us-east-1',
                 maxRetries: 3,
-                sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
+                sslEnabled: false,
                 forcePathStyle: true,
                 bucketEndpoint: false
             };
@@ -125,49 +132,109 @@ describe('createS3Client', () => {
             const result = await genFinalS3ClientConfig(startConfig);
             expect(result).toEqual(
                 {
-                    endpoint: 'https://127.0.0.1:49000',
+                    endpoint: 'http://127.0.0.1:49000',
                     region: 'us-east-1',
                     maxRetries: 3,
-                    sslEnabled: true,
-                    certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
+                    sslEnabled: false,
                     forcePathStyle: true,
                     bucketEndpoint: false,
                     maxAttempts: 3,
-                    requestHandler: {
-                        metadata: { handlerProtocol: 'http/1.1' },
-                        configProvider: expect.toBeObject(),
-                        socketWarningTimestamp: 0
-                    },
                     credentials: { accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin' }
                 });
         });
     });
 
     describe('createHttpOptions', () => {
-        it('should throw an error if certLocation is an invalid path', async () => {
+        it('should throw an error if caCertificate, globalCaCertificate, and "/etc/ssl/certs/ca-certificates.crt" are empty', async () => {
             const startConfig = {
                 endpoint: 'https://127.0.0.1:49000',
                 region: 'us-east-1',
                 sslEnabled: true,
-                certLocation: 'invalid/path/fakeCert.pem'
             };
 
             await expect(createHttpOptions(startConfig))
-                .rejects.toThrow(`No cert path was found in config.certLocation: "${startConfig.certLocation}" or in default "/etc/ssl/certs/ca-certificates.crt" location`);
+                .rejects.toThrow('No cert was provided by config.globalCaCertificate, config.caCertificate, or in default "/etc/ssl/certs/ca-certificates.crt" location');
         });
 
-        it('should return an httpOptions with certs if sslEnabled is true', async () => {
+        it('should return an httpOptions with caCertificate copied into array', async () => {
             const startConfig = {
                 endpoint: 'https://127.0.0.1:49000',
                 region: 'us-east-1',
-                sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem')
+                caCertificate: '-----BEGIN CERTIFICATE-----\n'
+                + 'MIICGTCCAZ+gAwIBAgIQCeCTZaz32ci5PhwLBCou8zAKBggqhkjOPQQDAzBOMQsw\n'
+                + '...\n'
+                + 'DXZDjC5Ty3zfDBeWUA==\n'
+                + '-----END CERTIFICATE-----',
             };
 
             const result = await createHttpOptions(startConfig);
             expect(result).toEqual({
                 rejectUnauthorized: true,
-                ca: expect.toBeArray()
+                ca: expect.toContainValue(
+                    '-----BEGIN CERTIFICATE-----\n'
+                    + 'MIICGTCCAZ+gAwIBAgIQCeCTZaz32ci5PhwLBCou8zAKBggqhkjOPQQDAzBOMQsw\n'
+                    + '...\n'
+                    + 'DXZDjC5Ty3zfDBeWUA==\n'
+                    + '-----END CERTIFICATE-----'
+                )
+            });
+        });
+
+        it('should return an httpOptions with globalCaCertificate copied into array', async () => {
+            const startConfig = {
+                endpoint: 'https://127.0.0.1:49000',
+                region: 'us-east-1',
+                globalCaCertificate: '-----BEGIN CERTIFICATE-----\n'
+                    + 'MIICUDCCAdoCBDaM1tYwDQYJKoZIhvcNAQEEBQAwgY8xCzAJBgNVBAYTAlVTMRMw\n'
+                    + '...\n'
+                    + 'iKlsPBRbNdq5cNIuIfPS8emrYMs=\n'
+                    + '-----END CERTIFICATE-----',
+            };
+
+            const result = await createHttpOptions(startConfig);
+            expect(result).toEqual({
+                rejectUnauthorized: true,
+                ca: expect.toContainValue(
+                    '-----BEGIN CERTIFICATE-----\n'
+                    + 'MIICUDCCAdoCBDaM1tYwDQYJKoZIhvcNAQEEBQAwgY8xCzAJBgNVBAYTAlVTMRMw\n'
+                    + '...\n'
+                    + 'iKlsPBRbNdq5cNIuIfPS8emrYMs=\n'
+                    + '-----END CERTIFICATE-----'
+                )
+            });
+        });
+
+        it('should return an httpOptions with multiple certs', async () => {
+            const startConfig = {
+                endpoint: 'https://127.0.0.1:49000',
+                region: 'us-east-1',
+                caCertificate: '-----BEGIN CERTIFICATE-----\n'
+                    + 'MIICGTCCAZ+gAwIBAgIQCeCTZaz32ci5PhwLBCou8zAKBggqhkjOPQQDAzBOMQsw\n'
+                    + '...\n'
+                    + 'DXZDjC5Ty3zfDBeWUA==\n'
+                    + '-----END CERTIFICATE-----',
+                globalCaCertificate: '-----BEGIN CERTIFICATE-----\n'
+                    + 'MIICUDCCAdoCBDaM1tYwDQYJKoZIhvcNAQEEBQAwgY8xCzAJBgNVBAYTAlVTMRMw\n'
+                    + '...\n'
+                    + 'iKlsPBRbNdq5cNIuIfPS8emrYMs=\n'
+                    + '-----END CERTIFICATE-----',
+            };
+
+            const result = await createHttpOptions(startConfig);
+            expect(result).toEqual({
+                rejectUnauthorized: true,
+                ca: expect.toContainValues([
+                    '-----BEGIN CERTIFICATE-----\n'
+                    + 'MIICGTCCAZ+gAwIBAgIQCeCTZaz32ci5PhwLBCou8zAKBggqhkjOPQQDAzBOMQsw\n'
+                    + '...\n'
+                    + 'DXZDjC5Ty3zfDBeWUA==\n'
+                    + '-----END CERTIFICATE-----',
+                    '-----BEGIN CERTIFICATE-----\n'
+                    + 'MIICUDCCAdoCBDaM1tYwDQYJKoZIhvcNAQEEBQAwgY8xCzAJBgNVBAYTAlVTMRMw\n'
+                    + '...\n'
+                    + 'iKlsPBRbNdq5cNIuIfPS8emrYMs=\n'
+                    + '-----END CERTIFICATE-----'
+                ])
             });
         });
     });
@@ -176,7 +243,11 @@ describe('createS3Client', () => {
         it('should return requestHandlerOptions with an Agent', async () => {
             const httpOptions = {
                 rejectUnauthorized: true,
-                ca: ['some buffer']
+                ca: ['-----BEGIN CERTIFICATE-----\n'
+                + 'MIICUDCCAdoCBDaM1tYwDQYJKoZIhvcNAQEEBQAwgY8xCzAJBgNVBAYTAlVTMRMw\n'
+                + '...\n'
+                + 'iKlsPBRbNdq5cNIuIfPS8emrYMs=\n'
+                + '-----END CERTIFICATE-----']
             };
 
             const result = createRequestHandlerOptions(httpOptions);
@@ -184,7 +255,11 @@ describe('createS3Client', () => {
                 httpsAgent: expect.objectContaining({
                     options: {
                         rejectUnauthorized: true,
-                        ca: ['some buffer'],
+                        ca: ['-----BEGIN CERTIFICATE-----\n'
+                        + 'MIICUDCCAdoCBDaM1tYwDQYJKoZIhvcNAQEEBQAwgY8xCzAJBgNVBAYTAlVTMRMw\n'
+                        + '...\n'
+                        + 'iKlsPBRbNdq5cNIuIfPS8emrYMs=\n'
+                        + '-----END CERTIFICATE-----'],
                         noDelay: true,
                         path: null
                     }
