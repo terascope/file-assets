@@ -93,6 +93,8 @@ export async function createHttpOptions(
         const certPathFound = await fs.existsSync(config.certLocation);
         if (certPathFound) {
             allCerts.push(await fs.readFileSync(config.certLocation, 'ascii'));
+        } else {
+            throw new Error(`No cert path was found in config.certLocation: "${config.certLocation}"`);
         }
     }
 

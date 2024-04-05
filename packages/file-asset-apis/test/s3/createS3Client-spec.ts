@@ -60,7 +60,6 @@ describe('createS3Client', () => {
                 region: 'us-east-1',
                 maxRetries: 3,
                 sslEnabled: false,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
                 forcePathStyle: true,
                 bucketEndpoint: false
             };
@@ -74,7 +73,6 @@ describe('createS3Client', () => {
                     region: 'us-east-1',
                     maxRetries: 3,
                     sslEnabled: false,
-                    certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
                     forcePathStyle: true,
                     bucketEndpoint: false,
                     maxAttempts: 3,
@@ -90,7 +88,6 @@ describe('createS3Client', () => {
                 region: 'us-east-1',
                 maxRetries: 3,
                 sslEnabled: false,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
                 forcePathStyle: true,
                 bucketEndpoint: false
             };
@@ -145,6 +142,47 @@ describe('createS3Client', () => {
     });
 
     describe('createHttpOptions', () => {
+        it('should throw an error if certLocation is an invalid path', async () => {
+            const startConfig = {
+                endpoint: 'https://127.0.0.1:49000',
+                region: 'us-east-1',
+                sslEnabled: true,
+                certLocation: 'invalid/path/fakeCert.pem'
+            };
+
+            await expect(createHttpOptions(startConfig))
+                .rejects.toThrow(`No cert path was found in config.certLocation: "${startConfig.certLocation}"`);
+        });
+
+        it('should return an httpOptions with contents of certLocation copied into array[0]', async () => {
+            const startConfig = {
+                endpoint: 'http://127.0.0.1:49000',
+                accessKeyId: 'minioadmin',
+                secretAccessKey: 'minioadmin',
+                region: 'us-east-1',
+                maxRetries: 3,
+                sslEnabled: true,
+                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
+                forcePathStyle: true,
+                bucketEndpoint: false
+            };
+
+            const result = await createHttpOptions(startConfig);
+            expect(result).toEqual({
+                rejectUnauthorized: true,
+                ca: expect.toBeArray()
+            });
+            if (result.ca) {
+                expect(result.ca[0]).toContain(
+                    '-----BEGIN CERTIFICATE-----\n'
+                    + 'MIICGTCCAZ+gAwIBAgIQCeCTZaz32ci5PhwLBCou8zAKBggqhkjOPQQDAzBOMQsw\n'
+                    + '...\n'
+                    + 'DXZDjC5Ty3zfDBeWUA==\n'
+                    + '-----END CERTIFICATE-----'
+                );
+            }
+        });
+
         it('should return an httpOptions with caCertificate copied into array[0]', async () => {
             const startConfig = {
                 endpoint: 'https://127.0.0.1:49000',
