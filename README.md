@@ -43,9 +43,9 @@ The S3 connector configuration, in your Teraslice configuration file, includes t
 | secretAccessKey | S3 secret access key | String | required |
 | region | AWS Region where bucket is located | String | optional, defaults to `us-east-1` |
 | maxRetries | Maximum retry attempts | Number | optional, defaults to `3` |
-| maxRedirects | Maximum redirects allowed | Number | optional, defaults to `10` |
 | sslEnabled | Flag to enable/disable SSL communication | Boolean | optional, defaults to `true` |
-| certLocation | Location of ssl cert | String | Must be provided if `sslEnabled` is true |
+| caCertificate | A string containing a single or multiple ca certificates | String | optional, defaults to ' ' |
+| certLocation | DEPRECATED - use caCertificate. Location of ssl cert | String | optional, defaults to ' ' |
 | forcePathStyle | Whether to force path style URLs for S3 objects | Boolean | optional, defaults to `false` |
 | bucketEndpoint | Whether to use the bucket name as the endpoint for this request | Boolean | optional, defaults to `false` |
 
