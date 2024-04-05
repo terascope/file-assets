@@ -60,7 +60,13 @@ terafoundation:
                 accessKeyId: "yourId"
                 secretAccessKey: "yourPassword"
                 forcePathStyle: true
-                sslEnabled: false
+                sslEnabled: true
+                caCertificate: |
+                    -----BEGIN CERTIFICATE-----
+                    MIICGTCCAZ+gAwIBAgIQCeCTZaz32ci5PhwLBCou8zAKBggqhkjOPQQDAzBOMQs
+                    ...
+                    DXZDjC5Ty3zfDBeWUA==
+                    -----END CERTIFICATE-----
 ```
 
 ## Development
