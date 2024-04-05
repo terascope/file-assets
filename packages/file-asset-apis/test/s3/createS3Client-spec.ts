@@ -145,42 +145,34 @@ describe('createS3Client', () => {
     });
 
     describe('createHttpOptions', () => {
-        it('should throw an error if caCertificate, globalCaCertificate, and "/etc/ssl/certs/ca-certificates.crt" are empty', async () => {
-            const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
-                region: 'us-east-1',
-                sslEnabled: true,
-            };
-
-            await expect(createHttpOptions(startConfig))
-                .rejects.toThrow('No cert was provided by config.globalCaCertificate, config.caCertificate, or in default "/etc/ssl/certs/ca-certificates.crt" location');
-        });
-
-        it('should return an httpOptions with caCertificate copied into array', async () => {
+        it('should return an httpOptions with caCertificate copied into array[0]', async () => {
             const startConfig = {
                 endpoint: 'https://127.0.0.1:49000',
                 region: 'us-east-1',
                 caCertificate: '-----BEGIN CERTIFICATE-----\n'
-                + 'MIICGTCCAZ+gAwIBAgIQCeCTZaz32ci5PhwLBCou8zAKBggqhkjOPQQDAzBOMQsw\n'
-                + '...\n'
-                + 'DXZDjC5Ty3zfDBeWUA==\n'
-                + '-----END CERTIFICATE-----',
+                    + 'MIICGTCCAZ+gAwIBAgIQCeCTZaz32ci5PhwLBCou8zAKBggqhkjOPQQDAzBOMQsw\n'
+                    + '...\n'
+                    + 'DXZDjC5Ty3zfDBeWUA==\n'
+                    + '-----END CERTIFICATE-----',
             };
 
             const result = await createHttpOptions(startConfig);
             expect(result).toEqual({
                 rejectUnauthorized: true,
-                ca: expect.toContainValue(
+                ca: expect.toBeArray()
+            });
+            if (result.ca) {
+                expect(result.ca[0]).toEqual(
                     '-----BEGIN CERTIFICATE-----\n'
                     + 'MIICGTCCAZ+gAwIBAgIQCeCTZaz32ci5PhwLBCou8zAKBggqhkjOPQQDAzBOMQsw\n'
                     + '...\n'
                     + 'DXZDjC5Ty3zfDBeWUA==\n'
                     + '-----END CERTIFICATE-----'
-                )
-            });
+                );
+            }
         });
 
-        it('should return an httpOptions with globalCaCertificate copied into array', async () => {
+        it('should return an httpOptions with globalCaCertificate copied into array[0]', async () => {
             const startConfig = {
                 endpoint: 'https://127.0.0.1:49000',
                 region: 'us-east-1',
@@ -194,17 +186,20 @@ describe('createS3Client', () => {
             const result = await createHttpOptions(startConfig);
             expect(result).toEqual({
                 rejectUnauthorized: true,
-                ca: expect.toContainValue(
+                ca: expect.toBeArray()
+            });
+            if (result.ca) {
+                expect(result.ca[0]).toEqual(
                     '-----BEGIN CERTIFICATE-----\n'
                     + 'MIICUDCCAdoCBDaM1tYwDQYJKoZIhvcNAQEEBQAwgY8xCzAJBgNVBAYTAlVTMRMw\n'
                     + '...\n'
                     + 'iKlsPBRbNdq5cNIuIfPS8emrYMs=\n'
                     + '-----END CERTIFICATE-----'
-                )
-            });
+                );
+            }
         });
 
-        it('should return an httpOptions with multiple certs', async () => {
+        it('should return an httpOptions with multiple certs in right order', async () => {
             const startConfig = {
                 endpoint: 'https://127.0.0.1:49000',
                 region: 'us-east-1',
@@ -223,19 +218,24 @@ describe('createS3Client', () => {
             const result = await createHttpOptions(startConfig);
             expect(result).toEqual({
                 rejectUnauthorized: true,
-                ca: expect.toContainValues([
+                ca: expect.toBeArray()
+            });
+            if (result.ca) {
+                expect(result.ca[0]).toEqual(
                     '-----BEGIN CERTIFICATE-----\n'
                     + 'MIICGTCCAZ+gAwIBAgIQCeCTZaz32ci5PhwLBCou8zAKBggqhkjOPQQDAzBOMQsw\n'
                     + '...\n'
                     + 'DXZDjC5Ty3zfDBeWUA==\n'
-                    + '-----END CERTIFICATE-----',
+                    + '-----END CERTIFICATE-----'
+                );
+                expect(result.ca[1]).toEqual(
                     '-----BEGIN CERTIFICATE-----\n'
                     + 'MIICUDCCAdoCBDaM1tYwDQYJKoZIhvcNAQEEBQAwgY8xCzAJBgNVBAYTAlVTMRMw\n'
                     + '...\n'
                     + 'iKlsPBRbNdq5cNIuIfPS8emrYMs=\n'
                     + '-----END CERTIFICATE-----'
-                ])
-            });
+                );
+            }
         });
     });
 
@@ -244,10 +244,10 @@ describe('createS3Client', () => {
             const httpOptions = {
                 rejectUnauthorized: true,
                 ca: ['-----BEGIN CERTIFICATE-----\n'
-                + 'MIICUDCCAdoCBDaM1tYwDQYJKoZIhvcNAQEEBQAwgY8xCzAJBgNVBAYTAlVTMRMw\n'
-                + '...\n'
-                + 'iKlsPBRbNdq5cNIuIfPS8emrYMs=\n'
-                + '-----END CERTIFICATE-----']
+                    + 'MIICUDCCAdoCBDaM1tYwDQYJKoZIhvcNAQEEBQAwgY8xCzAJBgNVBAYTAlVTMRMw\n'
+                    + '...\n'
+                    + 'iKlsPBRbNdq5cNIuIfPS8emrYMs=\n'
+                    + '-----END CERTIFICATE-----']
             };
 
             const result = createRequestHandlerOptions(httpOptions);
@@ -256,10 +256,10 @@ describe('createS3Client', () => {
                     options: {
                         rejectUnauthorized: true,
                         ca: ['-----BEGIN CERTIFICATE-----\n'
-                        + 'MIICUDCCAdoCBDaM1tYwDQYJKoZIhvcNAQEEBQAwgY8xCzAJBgNVBAYTAlVTMRMw\n'
-                        + '...\n'
-                        + 'iKlsPBRbNdq5cNIuIfPS8emrYMs=\n'
-                        + '-----END CERTIFICATE-----'],
+                            + 'MIICUDCCAdoCBDaM1tYwDQYJKoZIhvcNAQEEBQAwgY8xCzAJBgNVBAYTAlVTMRMw\n'
+                            + '...\n'
+                            + 'iKlsPBRbNdq5cNIuIfPS8emrYMs=\n'
+                            + '-----END CERTIFICATE-----'],
                         noDelay: true,
                         path: null
                     }

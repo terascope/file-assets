@@ -1,4 +1,5 @@
 import fs from 'fs';
+import tls from 'tls';
 import { Agent, AgentOptions as HttpsAgentOptions } from 'https';
 import { S3Client as BaseClient } from '@aws-sdk/client-s3';
 import { NodeHttpHandler, NodeHttpHandlerOptions } from '@smithy/node-http-handler';
@@ -84,12 +85,15 @@ export async function createHttpOptions(
     // https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/node-registering-certs.html
     // Instead of updating the client, we can just update the config before creating the client
 
-    const defaultCertsPath = '/etc/ssl/certs/ca-certificates.crt';
-    const pathFound = await fs.existsSync(defaultCertsPath);
-    const allCerts = [];
+    const allCerts: string[] = [];
+    const defaultCerts = tls.rootCertificates;
 
-    if (pathFound) {
-        allCerts.push(await fs.readFileSync(defaultCertsPath));
+    // Deprecated
+    if (config.certLocation) {
+        const certPathFound = await fs.existsSync(config.certLocation);
+        if (certPathFound) {
+            allCerts.push(await fs.readFileSync(config.certLocation, 'ascii'));
+        }
     }
 
     if (config.caCertificate) {
@@ -100,11 +104,7 @@ export async function createHttpOptions(
         allCerts.push(config.globalCaCertificate);
     }
 
-    if (allCerts.length === 0) {
-        throw new Error(
-            'No cert was provided by config.globalCaCertificate, config.caCertificate, or in default "/etc/ssl/certs/ca-certificates.crt" location'
-        );
-    }
+    allCerts.push(...defaultCerts);
 
     return {
         rejectUnauthorized: true,
