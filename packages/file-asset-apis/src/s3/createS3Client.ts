@@ -1,4 +1,5 @@
-import fs from 'fs-extra';
+import fs from 'fs';
+import tls from 'tls';
 import { Agent, AgentOptions as HttpsAgentOptions } from 'https';
 import { S3Client as BaseClient } from '@aws-sdk/client-s3';
 import { NodeHttpHandler, NodeHttpHandlerOptions } from '@smithy/node-http-handler';
@@ -11,6 +12,8 @@ import type { S3Client } from './client-types';
 export interface S3ClientConfig extends BaseConfig {
     sslEnabled?: boolean,
     certLocation?: string,
+    caCertificate?: string,
+    globalCaCertificate?: string,
     secretAccessKey?: string,
     accessKeyId?: string,
     maxRetries?: number
@@ -82,20 +85,32 @@ export async function createHttpOptions(
     // https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/node-registering-certs.html
     // Instead of updating the client, we can just update the config before creating the client
 
-    const certPath = config.certLocation ?? '/etc/ssl/certs/ca-certificates.crt';
-    const pathFound = await fs.exists(certPath);
+    const terafoundationCerts: string[] = [];
+    const defaultNodeCerts = tls.rootCertificates;
 
-    if (!pathFound) {
-        throw new Error(
-            `No cert path was found in config.certLocation: "${config.certLocation}" or in default "/etc/ssl/certs/ca-certificates.crt" location`
-        );
+    // Deprecated
+    if (config.certLocation) {
+        const certPathFound = await fs.existsSync(config.certLocation);
+        if (certPathFound) {
+            terafoundationCerts.push(await fs.readFileSync(config.certLocation, 'ascii'));
+        } else {
+            throw new Error(`No cert path was found in config.certLocation: "${config.certLocation}"`);
+        }
     }
-    // Assumes all certs needed are in a single bundle
-    const certs = await fs.readFile(certPath);
+
+    if (config.caCertificate) {
+        terafoundationCerts.push(config.caCertificate);
+    }
+
+    if (config.globalCaCertificate) {
+        terafoundationCerts.push(config.globalCaCertificate);
+    }
+
+    const allCerts: string[] = terafoundationCerts.concat(defaultNodeCerts);
 
     return {
         rejectUnauthorized: true,
-        ca: [certs]
+        ca: allCerts
     };
 }
 
