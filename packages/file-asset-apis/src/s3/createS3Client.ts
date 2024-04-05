@@ -85,28 +85,28 @@ export async function createHttpOptions(
     // https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/node-registering-certs.html
     // Instead of updating the client, we can just update the config before creating the client
 
-    const allCerts: string[] = [];
-    const defaultCerts = tls.rootCertificates;
+    const terafoundationCerts: string[] = [];
+    const defaultNodeCerts = tls.rootCertificates;
 
     // Deprecated
     if (config.certLocation) {
         const certPathFound = await fs.existsSync(config.certLocation);
         if (certPathFound) {
-            allCerts.push(await fs.readFileSync(config.certLocation, 'ascii'));
+            terafoundationCerts.push(await fs.readFileSync(config.certLocation, 'ascii'));
         } else {
             throw new Error(`No cert path was found in config.certLocation: "${config.certLocation}"`);
         }
     }
 
     if (config.caCertificate) {
-        allCerts.push(config.caCertificate);
+        terafoundationCerts.push(config.caCertificate);
     }
 
     if (config.globalCaCertificate) {
-        allCerts.push(config.globalCaCertificate);
+        terafoundationCerts.push(config.globalCaCertificate);
     }
 
-    allCerts.push(...defaultCerts);
+    const allCerts: string[] = terafoundationCerts.concat(defaultNodeCerts);
 
     return {
         rejectUnauthorized: true,
