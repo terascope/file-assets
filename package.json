@@ -46,7 +46,7 @@
         "lz4-asm": "^0.4.2",
         "node-gzip": "^1.1.2",
         "node-notifier": "^10.0.1",
-        "teraslice-test-harness": "^0.29.0",
+        "teraslice-test-harness": "^0.30.0",
         "ts-jest": "^29.1.2",
         "typescript": "~5.2.2"
     },
