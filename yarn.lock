@@ -1902,19 +1902,19 @@
     datemath-parser "^1.0.6"
     uuid "^9.0.1"
 
-"@terascope/scripts@^0.76.0":
-  version "0.76.0"
-  resolved "https://registry.yarnpkg.com/@terascope/scripts/-/scripts-0.76.0.tgz#95ce61423a7bba93cea12f76dfac7e3a1fe8467a"
-  integrity sha512-yIWVXdCVBuR89hfnJuOy0uUmQKQn+B7LEiUca7UoXCEivYdpfbrPYDvOh9KSbs08BJW4z9lNRVCIt4oTpV1S5Q==
+"@terascope/scripts@^0.77.1":
+  version "0.77.1"
+  resolved "https://registry.yarnpkg.com/@terascope/scripts/-/scripts-0.77.1.tgz#d5571e3a7c4f5cdee0b573802455bac2c1ce7888"
+  integrity sha512-zlcnb+QqK76S5TmrBEzXrvBuvnbDUdIduNxYxoOu+RN2QAp5lsU2wLMBoy4P0Hqsgu/ctnilR6Nf76805dZLOQ==
   dependencies:
     "@kubernetes/client-node" "^0.20.0"
-    "@terascope/utils" "^0.58.0"
+    "@terascope/utils" "^0.59.1"
     codecov "^3.8.3"
     execa "^5.1.0"
     fs-extra "^11.2.0"
     globby "^11.0.4"
     got "^11.8.3"
-    ip "^1.1.9"
+    ip "^2.0.1"
     js-yaml "^4.1.0"
     kafkajs "^2.2.4"
     lodash "^4.17.21"
@@ -1923,7 +1923,7 @@
     ms "^2.1.3"
     package-json "^7.0.0"
     pkg-up "^3.1.0"
-    semver "^7.6.0"
+    semver "^7.6.1"
     signale "^1.4.0"
     sort-package-json "~1.57.0"
     toposort "^2.0.2"
@@ -1938,59 +1938,12 @@
   dependencies:
     bluebird "^3.7.2"
 
-"@terascope/types@^0.16.0":
-  version "0.16.0"
-  resolved "https://registry.yarnpkg.com/@terascope/types/-/types-0.16.0.tgz#c9d69496ce2784a9d7704a7d848fb6ccf0cd627a"
-  integrity sha512-W+D0c3XuGws25nXcig3WD/bx3c3GMP9dgwF76+CryqX+l+rnvRmjM1nNWIBBGUJHSmtOAX0iX3HofUIDrH5hCQ==
-
 "@terascope/types@^0.17.1":
   version "0.17.1"
   resolved "https://registry.yarnpkg.com/@terascope/types/-/types-0.17.1.tgz#7e82d5478cdc7a13ab940f36f985fd918318fbbc"
   integrity sha512-hVVbwocV19EUY2xNo4c2eRd0i3a3+dmaJlRHHocsI/0cjxRl3jpivla62vEkMDrCqydvTis1kv2+5LmH23+c1A==
   dependencies:
     prom-client "^15.1.2"
-
-"@terascope/utils@^0.58.0":
-  version "0.58.0"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.58.0.tgz#a8f0b85a23c03e322f291a2fd7688c7625fbd2dc"
-  integrity sha512-napysCM9bVRURzUev8iHHHG9naSzY8Jsdl4jjbj3UZK1IK3hRcwRijvRyRw713W8+UFHyZfkHdCsjENxc1Os7g==
-  dependencies:
-    "@terascope/types" "^0.16.0"
-    "@turf/bbox" "^6.4.0"
-    "@turf/bbox-polygon" "^6.4.0"
-    "@turf/boolean-contains" "^6.4.0"
-    "@turf/boolean-disjoint" "^6.4.0"
-    "@turf/boolean-equal" "^6.4.0"
-    "@turf/boolean-intersects" "^6.4.0"
-    "@turf/boolean-point-in-polygon" "^6.4.0"
-    "@turf/boolean-within" "^6.4.0"
-    "@turf/circle" "^6.4.0"
-    "@turf/helpers" "^6.2.0"
-    "@turf/invariant" "^6.2.0"
-    "@turf/line-to-polygon" "^6.4.0"
-    "@types/lodash" "^4.14.202"
-    "@types/validator" "^13.11.9"
-    awesome-phonenumber "^2.70.0"
-    date-fns "^2.30.0"
-    date-fns-tz "^1.3.7"
-    datemath-parser "^1.0.6"
-    debug "^4.3.4"
-    geo-tz "^7.0.7"
-    ip-bigint "^3.0.3"
-    ip-cidr "^3.1.0"
-    ip6addr "^0.2.5"
-    ipaddr.js "^2.0.1"
-    is-cidr "^4.0.2"
-    is-ip "^3.1.0"
-    is-plain-object "^5.0.0"
-    js-string-escape "^1.0.1"
-    kind-of "^6.0.3"
-    latlon-geohash "^1.1.0"
-    lodash "^4.17.21"
-    mnemonist "^0.39.8"
-    p-map "^4.0.0"
-    shallow-clone "^3.0.1"
-    validator "^13.11.0"
 
 "@terascope/utils@^0.59.1":
   version "0.59.1"
@@ -4817,15 +4770,10 @@ ip6addr@^0.2.5:
     assert-plus "^1.0.0"
     jsprim "^2.0.2"
 
-ip@^1.1.9:
-  version "1.1.9"
-  resolved "https://registry.yarnpkg.com/ip/-/ip-1.1.9.tgz#8dfbcc99a754d07f425310b86a99546b1151e396"
-  integrity sha512-cyRxvOEpNHNtchU3Ln9KC/auJgup87llfQpQ+t5ghoC/UhL16SWzbueiCsdTnWmqAWl7LadfuwhlqmtOaqMHdQ==
-
-ipaddr.js@^2.0.1:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/ipaddr.js/-/ipaddr.js-2.1.0.tgz#2119bc447ff8c257753b196fc5f1ce08a4cdf39f"
-  integrity sha512-LlbxQ7xKzfBusov6UMi4MFpEg0m+mAm9xyNGEduwXMEDuf4WfzB/RZwMVYEd7IKGvh4IUkEXYxtAVu9T3OelJQ==
+ip@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/ip/-/ip-2.0.1.tgz#e8f3595d33a3ea66490204234b77636965307105"
+  integrity sha512-lJUL9imLTNi1ZfXT+DU6rBBdbiKGBuay9B6xGSPVjUeQwaH1RIGqef8RZkUtHioLmSNpPR5M4HVKJGm1j8FWVQ==
 
 ipaddr.js@^2.2.0:
   version "2.2.0"
@@ -6885,12 +6833,10 @@ semver@^6.0.0, semver@^6.3.0, semver@^6.3.1:
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.1.tgz#556d2ef8689146e46dcea4bfdd095f3434dffcb4"
   integrity sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==
 
-semver@^7.3.5, semver@^7.3.7, semver@^7.5.3, semver@^7.5.4, semver@^7.6.0:
-  version "7.6.0"
-  resolved "https://registry.yarnpkg.com/semver/-/semver-7.6.0.tgz#1a46a4db4bffcccd97b743b5005c8325f23d4e2d"
-  integrity sha512-EnwXhrlwXMk9gKu5/flx5sv/an57AkRplG3hTK68W7FRDN+k+OWBj65M7719OkA82XLBxrcX0KSHj+X5COhOVg==
-  dependencies:
-    lru-cache "^6.0.0"
+semver@^7.3.5, semver@^7.3.7, semver@^7.5.3, semver@^7.5.4, semver@^7.6.1:
+  version "7.6.2"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-7.6.2.tgz#1e3b34759f896e8f14d6134732ce798aeb0c6e13"
+  integrity sha512-FNAIBWCx9qcRhoHcgcJ0gvU7SN1lYU2ZXuSfl04bSC5OpvDHFyJCjdNHomPXxjQlCBU67YW64PzY7/VIEH7F2w==
 
 set-function-length@^1.1.1:
   version "1.1.1"
