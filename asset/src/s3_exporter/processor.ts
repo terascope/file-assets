@@ -17,12 +17,12 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const self = this;
         await this.context.apis.foundation.promMetrics.addGauge(
-            'records_read_from_s3',
-            'Number of records read from s3',
+            'records_processed_from_s3',
+            'Number of records written into s3',
             ['class'],
             async function collect() {
                 const labels = {
-                    class: 'S3Fetcher',
+                    class: 'S3Batcher',
                     ...context.apis.foundation.promMetrics.getDefaultLabels()
                 };
                 this.set(labels, self.getTotalProcessedS3Records());
