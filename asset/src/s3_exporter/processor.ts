@@ -18,7 +18,7 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
         await this.context.apis.foundation.promMetrics.addGauge(
             'records_written_to_s3',
             'Number of records written into s3',
-            ['op_config'],
+            ['op_name'],
             async function collect() {
                 const labels = {
                     class: 's3_exporter',
