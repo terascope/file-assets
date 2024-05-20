@@ -1953,13 +1953,13 @@
     prom-client "^15.1.2"
     uuid "^9.0.1"
 
-"@terascope/scripts@^0.77.1":
-  version "0.77.1"
-  resolved "https://registry.yarnpkg.com/@terascope/scripts/-/scripts-0.77.1.tgz#d5571e3a7c4f5cdee0b573802455bac2c1ce7888"
-  integrity sha512-zlcnb+QqK76S5TmrBEzXrvBuvnbDUdIduNxYxoOu+RN2QAp5lsU2wLMBoy4P0Hqsgu/ctnilR6Nf76805dZLOQ==
+"@terascope/scripts@^0.77.2":
+  version "0.77.2"
+  resolved "https://registry.yarnpkg.com/@terascope/scripts/-/scripts-0.77.2.tgz#4f6bea89928d6dfa754a685f8ad4e55e86ce7902"
+  integrity sha512-XWQTYhz4qYQ5N5zc3P0WQNktnwE6lMuqFHn+4WvU8wayBJtJUp6Ljvq9MTXnf7tkTclFJwBQZv+7flOwuRueiA==
   dependencies:
     "@kubernetes/client-node" "^0.20.0"
-    "@terascope/utils" "^0.59.1"
+    "@terascope/utils" "^0.59.2"
     codecov "^3.8.3"
     execa "^5.1.0"
     fs-extra "^11.2.0"
@@ -1989,19 +1989,19 @@
   dependencies:
     bluebird "^3.7.2"
 
-"@terascope/types@^0.17.1":
-  version "0.17.1"
-  resolved "https://registry.yarnpkg.com/@terascope/types/-/types-0.17.1.tgz#7e82d5478cdc7a13ab940f36f985fd918318fbbc"
-  integrity sha512-hVVbwocV19EUY2xNo4c2eRd0i3a3+dmaJlRHHocsI/0cjxRl3jpivla62vEkMDrCqydvTis1kv2+5LmH23+c1A==
+"@terascope/types@^0.17.2":
+  version "0.17.2"
+  resolved "https://registry.yarnpkg.com/@terascope/types/-/types-0.17.2.tgz#0e8d13c1249dccb0ccf63e691e253337645a205d"
+  integrity sha512-GzbxIVjFiViiULc7XK0EiAgT5yubwi2VXvp0wC3ygigTNIsqugncPub2ChpiqTx2JlVGVGJrXPSvPgPTJphYqw==
   dependencies:
     prom-client "^15.1.2"
 
-"@terascope/utils@^0.59.1":
-  version "0.59.1"
-  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.59.1.tgz#372f960c5c0fc250ed0c481be20bbd49ed6937bb"
-  integrity sha512-lIfRdTQ9nBwBDWM1VnLOjkarPWltZ2RmLvXpxPbma6Kl890mAOzdQyjXx8vi5QEgaApvVT7Ady19bTcJImD5Cw==
+"@terascope/utils@^0.59.1", "@terascope/utils@^0.59.2":
+  version "0.59.2"
+  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-0.59.2.tgz#0c987c2d307a19abe7e41036c162bc382df741a6"
+  integrity sha512-CYEfVt7PkkKFdpnnMf0sXfd6dYQdK3SsrKkCuupYvk3nPyP5q1eRzyzX4IS1/KrG3yVsqTKNHLrx8gR/UHUPOw==
   dependencies:
-    "@terascope/types" "^0.17.1"
+    "@terascope/types" "^0.17.2"
     "@turf/bbox" "^6.4.0"
     "@turf/bbox-polygon" "^6.4.0"
     "@turf/boolean-contains" "^6.4.0"
