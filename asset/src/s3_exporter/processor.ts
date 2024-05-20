@@ -5,7 +5,7 @@ import { S3SenderFactoryAPI } from '../s3_sender_api/interfaces';
 
 export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
     api!: S3Sender;
-    private s3RecordsProcessed = 0;
+    private s3RecordsWritten = 0;
 
     async initialize(): Promise<void> {
         await super.initialize();
@@ -16,25 +16,25 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const self = this;
         await this.context.apis.foundation.promMetrics.addGauge(
-            'records_processed_from_s3',
+            'records_written_from_s3',
             'Number of records written into s3',
-            ['class'],
+            ['op_config'],
             async function collect() {
                 const labels = {
-                    class: 'S3Batcher',
+                    class: 's3_exporter',
                     ...self.context.apis.foundation.promMetrics.getDefaultLabels()
                 };
-                this.set(labels, self.getTotalProcessedS3Records());
+                this.set(labels, self.getTotalWrittenS3Records());
             });
     }
 
     async onBatch(slice: DataEntity[]): Promise<DataEntity[]> {
-        this.s3RecordsProcessed += slice.length;
+        this.s3RecordsWritten += slice.length;
         await this.api.send(slice);
         return slice;
     }
 
-    getTotalProcessedS3Records(): number {
-        return this.s3RecordsProcessed;
+    getTotalWrittenS3Records(): number {
+        return this.s3RecordsWritten;
     }
 }
