@@ -20,7 +20,7 @@ export default class S3Fetcher extends Fetcher<S3ReaderConfig> {
             ['op_name'],
             async function collect() {
                 const labels = {
-                    class: 's3_reader',
+                    op_name: 's3_reader',
                     ...self.context.apis.foundation.promMetrics.getDefaultLabels()
                 };
                 this.set(labels, self.getTotalReadS3Records());

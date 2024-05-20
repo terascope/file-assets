@@ -21,7 +21,7 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
             ['op_name'],
             async function collect() {
                 const labels = {
-                    class: 's3_exporter',
+                    op_name: 's3_exporter',
                     ...self.context.apis.foundation.promMetrics.getDefaultLabels()
                 };
                 this.set(labels, self.getTotalWrittenS3Records());
