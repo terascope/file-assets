@@ -5,6 +5,7 @@ import { S3SenderFactoryAPI } from '../s3_sender_api/interfaces';
 
 export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
     api!: S3Sender;
+    private s3RecordsProcessed = 0;
 
     async initialize(): Promise<void> {
         await super.initialize();
@@ -12,10 +13,29 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
         const apiManager = this.getAPI<S3SenderFactoryAPI>(apiName);
         // this processor does not allow dynamic routing, use routed-sender operation instead
         this.api = await apiManager.create(apiName, { dynamic_routing: false });
+        const { context } = this;
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const self = this;
+        await this.context.apis.foundation.promMetrics.addGauge(
+            'records_read_from_s3',
+            'Number of records read from s3',
+            ['class'],
+            async function collect() {
+                const labels = {
+                    class: 'S3Fetcher',
+                    ...context.apis.foundation.promMetrics.getDefaultLabels()
+                };
+                this.set(labels, self.getTotalProcessedS3Records());
+            });
     }
 
     async onBatch(slice: DataEntity[]): Promise<DataEntity[]> {
+        this.s3RecordsProcessed += slice.length;
         await this.api.send(slice);
         return slice;
+    }
+
+    getTotalProcessedS3Records(): number {
+        return this.s3RecordsProcessed;
     }
 }
