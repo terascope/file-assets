@@ -12,7 +12,6 @@ export default class S3Fetcher extends Fetcher<S3ReaderConfig> {
         const apiName = this.opConfig.api_name;
         const apiManager = this.getAPI<S3ReaderFactoryAPI>(apiName);
         this.api = await apiManager.create(apiName, {} as any);
-        const { context } = this;
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const self = this;
         await this.context.apis.foundation.promMetrics.addGauge(
@@ -22,7 +21,7 @@ export default class S3Fetcher extends Fetcher<S3ReaderConfig> {
             async function collect() {
                 const labels = {
                     class: 'S3Fetcher',
-                    ...context.apis.foundation.promMetrics.getDefaultLabels()
+                    ...self.context.apis.foundation.promMetrics.getDefaultLabels()
                 };
                 this.set(labels, self.getTotalReadS3Records());
             });
