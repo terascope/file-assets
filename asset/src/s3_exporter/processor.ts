@@ -16,7 +16,7 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const self = this;
         await this.context.apis.foundation.promMetrics.addGauge(
-            'records_written_from_s3',
+            'records_written_to_s3',
             'Number of records written into s3',
             ['op_config'],
             async function collect() {
