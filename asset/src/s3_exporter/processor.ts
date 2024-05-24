@@ -1,4 +1,4 @@
-import { BatchProcessor, DataEntity } from '@terascope/job-components';
+import { BatchProcessor, DataEntity, isPromAvailable } from '@terascope/job-components';
 import { S3Sender } from '@terascope/file-asset-apis';
 import { S3ExportConfig } from './interfaces';
 import { S3SenderFactoryAPI } from '../s3_sender_api/interfaces';
@@ -15,17 +15,19 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
         this.api = await apiManager.create(apiName, { dynamic_routing: false });
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const self = this;
-        await this.context.apis.foundation.promMetrics.addGauge(
-            'records_written_to_s3',
-            'Number of records written into s3',
-            ['op_name'],
-            async function collect() {
-                const labels = {
-                    op_name: 's3_exporter',
-                    ...self.context.apis.foundation.promMetrics.getDefaultLabels()
-                };
-                this.set(labels, self.getTotalWrittenS3Records());
-            });
+        if (isPromAvailable(this.context)) {
+            await this.context.apis.foundation.promMetrics.addGauge(
+                'records_written_to_s3',
+                'Number of records written into s3',
+                ['op_name'],
+                async function collect() {
+                    const labels = {
+                        op_name: 's3_exporter',
+                        ...self.context.apis.foundation.promMetrics.getDefaultLabels()
+                    };
+                    this.set(labels, self.getTotalWrittenS3Records());
+                });
+        }
     }
 
     async onBatch(slice: DataEntity[]): Promise<DataEntity[]> {
