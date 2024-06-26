@@ -1,14 +1,14 @@
-import { EventEmitter, once } from 'events';
+import { EventEmitter, once } from 'node:events';
 import {
     Logger, pDelay, sortBy, toHumanTime
 } from '@terascope/utils';
-import type { S3Client, S3ClientResponse } from './client-types';
+import type { S3Client, S3ClientResponse } from './client-types/index.js';
 import {
     createS3MultipartUpload,
     uploadS3ObjectPart,
     finalizeS3Multipart,
     abortS3Multipart
-} from './s3-helpers';
+} from './s3-helpers.js';
 
 enum Events {
     StartDone = 'start:done',

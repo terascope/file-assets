@@ -1,10 +1,10 @@
 import 'jest-extended';
 import { mockClient } from 'aws-sdk-client-mock';
-import { Readable } from 'stream';
+import { Readable } from 'node:stream';
 import type { CreateBucketOutput, S3Client } from '@aws-sdk/client-s3';
 import { S3Client as MClient, ListObjectsV2Command } from '@aws-sdk/client-s3';
-import { makeClient, cleanupBucket } from './helpers';
-import * as s3Helpers from '../../src/s3/s3-helpers';
+import { makeClient, cleanupBucket } from './helpers.js';
+import * as s3Helpers from '../../src/s3/s3-helpers.js';
 
 describe('S3 Helpers', () => {
     const bucketName = 's3-test-helpers-bucket';

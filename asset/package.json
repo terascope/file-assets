@@ -1,9 +1,10 @@
 {
     "name": "file",
     "displayName": "Asset",
-    "version": "2.11.1",
+    "version": "3.0.0",
     "private": true,
     "description": "A set of processors for working with files",
+    "type": "module",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/terascope/file-assets.git"
@@ -20,8 +21,8 @@
         "test": "yarn --cwd ../ test"
     },
     "dependencies": {
-        "@terascope/file-asset-apis": "^0.13.0",
-        "@terascope/job-components": "^0.75.1",
+        "@terascope/file-asset-apis": "^1.0.0",
+        "@terascope/job-components": "^1.0.1",
         "csvtojson": "^2.0.10",
         "fs-extra": "^11.2.0",
         "json2csv": "5.0.7",

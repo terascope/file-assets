@@ -1,8 +1,8 @@
 import { isString } from '@terascope/utils';
-import path from 'path';
+import path from 'node:path';
 import {
     SliceConfig, FileSlice, Offsets, Format, getLineDelimiter
-} from '../interfaces';
+} from '../interfaces.js';
 
 /**
  *  Used to slice up a file based on the configuration provided, this is a

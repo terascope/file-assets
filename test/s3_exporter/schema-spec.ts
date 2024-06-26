@@ -2,21 +2,24 @@ import 'jest-extended';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
 import {
     AnyObject, APIConfig, ValidatedJobConfig,
-    TestClientConfig, Logger, DataEncoding
+    TestClientConfig, Logger, DataEncoding,
+    debugLogger
 } from '@terascope/job-components';
 import { Format } from '@terascope/file-asset-apis';
 
 describe('S3 exporter Schema', () => {
+    const logger = debugLogger('s3 test')
     let harness: WorkerTestHarness;
 
     const clientConfig: TestClientConfig = {
         type: 's3',
         config: {},
-        create(_config: any, _logger: Logger, _settings: any) {
+        async createClient(_config: any, _logger: Logger, _settings: any) {
             return {
                 client: {
                     send(_params: any) {}
-                }
+                },
+                logger
             };
         },
         endpoint: 'default'

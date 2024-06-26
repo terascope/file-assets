@@ -1,2 +1,2 @@
-export * from './hdfs-fetcher';
-export * from './hdfs-sender';
+export * from './hdfs-fetcher.js';
+export * from './hdfs-sender.js';

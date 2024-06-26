@@ -2,7 +2,7 @@ import {
     APIFactory, AnyObject, isNil, isString, getTypeOf
 } from '@terascope/job-components';
 import { FileTerasliceAPI } from '@terascope/file-asset-apis';
-import { FileReaderAPIConfig } from './interfaces';
+import { FileReaderAPIConfig } from './interfaces.js';
 
 export default class FileReaderAPI extends APIFactory<FileTerasliceAPI, FileReaderAPIConfig> {
     validateConfig(input: AnyObject): FileReaderAPIConfig {

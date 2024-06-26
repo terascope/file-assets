@@ -3,17 +3,12 @@ import 'jest-extended';
 import {
     DataEntity, debugLogger, isString, times
 } from '@terascope/utils';
-import { makeClient, cleanupBucket, getBodyFromResults } from './helpers';
+import { makeClient, cleanupBucket, getBodyFromResults } from './helpers.js';
 import {
-    Compression,
-    Format,
-    ChunkedFileSenderConfig,
-    S3Sender,
-    getS3Object,
-    Compressor,
-    listS3Buckets,
-    ChunkGenerator
-} from '../../src';
+    Compression, Format, ChunkedFileSenderConfig,
+    S3Sender, getS3Object, Compressor,
+    listS3Buckets, ChunkGenerator
+} from '../../src/index.js';
 
 jest.setTimeout(30_000);
 

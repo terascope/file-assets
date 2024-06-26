@@ -5,8 +5,8 @@ import {
     isString,
     getTypeOf
 } from '@terascope/job-components';
-import { HDFSReaderApiConfig, DEFAULT_API_NAME } from './interfaces';
-import { fileReaderSchema } from '../__lib/common-schema';
+import { HDFSReaderApiConfig, DEFAULT_API_NAME } from './interfaces.js';
+import { fileReaderSchema } from '../__lib/common-schema.js';
 
 const clonedSchema = cloneDeep(fileReaderSchema) as AnyObject;
 

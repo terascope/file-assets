@@ -1,6 +1,6 @@
 import { ConvictSchema, cloneDeep, ValidatedJobConfig } from '@terascope/job-components';
-import { S3ExporterAPIConfig, DEFAULT_API_NAME } from './interfaces';
-import { fileReaderSchema } from '../__lib/common-schema';
+import { S3ExporterAPIConfig, DEFAULT_API_NAME } from './interfaces.js';
+import { fileReaderSchema } from '../__lib/common-schema.js';
 
 const apiSchema = cloneDeep(fileReaderSchema);
 // S3 Objects cannot be appended so it must be a new object each slice

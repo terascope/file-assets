@@ -1,7 +1,7 @@
 import { ConvictSchema, ValidatedJobConfig } from '@terascope/job-components';
-import { S3ExportConfig } from './interfaces';
-import { opSchema } from '../__lib/common-schema';
-import { DEFAULT_API_NAME } from '../s3_sender_api/interfaces';
+import { S3ExportConfig } from './interfaces.js';
+import { opSchema } from '../__lib/common-schema.js';
+import { DEFAULT_API_NAME } from '../s3_sender_api/interfaces.js';
 
 export default class Schema extends ConvictSchema<S3ExportConfig> {
     validateJob(job: ValidatedJobConfig): void {

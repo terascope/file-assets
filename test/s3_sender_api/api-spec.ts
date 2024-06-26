@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity, debugLogger, TestClientConfig } from '@terascope/job-components';
 // @ts-expect-error
 import lz4init from 'lz4-asm/dist/lz4asm';
 import { ungzip } from 'node-gzip';
@@ -21,16 +21,19 @@ describe('S3 sender api', () => {
     const bucket = 's3-api-sender';
     const dirPath = '/testing/';
     const path = `${bucket}${dirPath}`;
+    const logger = debugLogger('test');
+
     let compressor: Compressor;
     let harness: WorkerTestHarness;
-    let workerId: string;
+    let workerId: number;
     let data: DataEntity[];
     let routeSlice: DataEntity[];
     const metaRoute1 = '0';
     const metaRoute2 = '1';
 
     let client: S3Client;
-    let clients: any;
+        let clients: TestClientConfig[];
+
 
     beforeAll(async () => {
         client = await makeClient();
@@ -38,9 +41,12 @@ describe('S3 sender api', () => {
             {
                 type: 's3',
                 endpoint: 'my-s3-connector',
-                create: () => ({
-                    client
-                }),
+                async createClient() {
+                    return {
+                        client,
+                        logger
+                    }
+                },
             },
         ];
     });
@@ -64,7 +70,7 @@ describe('S3 sender api', () => {
         compressor = new Compressor(opConfig.compression);
 
         await harness.initialize();
-
+        // @ts-expect-error
         workerId = harness.context.cluster.worker.id;
 
         return harness.getAPI<S3SenderFactoryAPI>('s3_sender_api:s3_exporter-1');

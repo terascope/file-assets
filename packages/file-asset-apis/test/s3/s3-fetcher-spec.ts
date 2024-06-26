@@ -1,16 +1,13 @@
 import 'jest-extended';
 import { debugLogger, toString } from '@terascope/utils';
 import {
-    makeClient, cleanupBucket, upload, UploadConfig
-} from './helpers';
+    makeClient, cleanupBucket, upload,
+    UploadConfig
+} from './helpers.js';
 import {
-    Compression,
-    Format,
-    ReaderConfig,
-    S3Fetcher,
-    createS3Bucket,
-    FileSlice,
-} from '../../src';
+    Compression, Format, ReaderConfig,
+    S3Fetcher, createS3Bucket, FileSlice,
+} from '../../src/index.js';
 
 describe('S3 Fetcher API', () => {
     const logger = debugLogger('s3-sender');

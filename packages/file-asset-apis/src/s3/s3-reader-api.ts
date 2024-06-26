@@ -1,14 +1,14 @@
 import { Logger } from '@terascope/utils';
-import type { S3Client } from './client-types';
+import type { S3Client } from './client-types/index.js';
 import {
     FileSlice,
     ReaderConfig,
     SliceConfig,
     FileSliceConfig,
-} from '../interfaces';
-import { segmentFile, canReadFile } from '../base';
-import { S3Slicer } from './s3-slicer';
-import { S3Fetcher } from './s3-fetcher';
+} from '../interfaces.js';
+import { segmentFile, canReadFile } from '../base/index.js';
+import { S3Slicer } from './s3-slicer.js';
+import { S3Fetcher } from './s3-fetcher.js';
 
 export class S3TerasliceAPI extends S3Fetcher {
     readonly segmentFileConfig: SliceConfig;

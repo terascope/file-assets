@@ -1,8 +1,8 @@
 import { Logger } from '@terascope/utils';
-import type { S3Client } from './client-types';
-import { FileSlice, ReaderConfig } from '../interfaces';
-import { ChunkedFileReader, parsePath } from '../base';
-import { getS3Object, s3RequestWithRetry } from './s3-helpers';
+import type { S3Client } from './client-types/index.js';
+import { FileSlice, ReaderConfig } from '../interfaces.js';
+import { ChunkedFileReader, parsePath } from '../base/index.js';
+import { getS3Object, s3RequestWithRetry } from './s3-helpers.js';
 
 export class S3Fetcher extends ChunkedFileReader {
     protected client: S3Client;

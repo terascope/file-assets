@@ -1,7 +1,7 @@
 import { BatchProcessor, DataEntity } from '@terascope/job-components';
 import { HDFSSender } from '@terascope/file-asset-apis';
-import { HDFSExportOpConfig } from './interfaces';
-import { HDFSSenderFactoryAPI } from '../hdfs_sender_api/interfaces';
+import { HDFSExportOpConfig } from './interfaces.js';
+import { HDFSSenderFactoryAPI } from '../hdfs_sender_api/interfaces.js';
 
 export default class HDFSBatcher extends BatchProcessor<HDFSExportOpConfig> {
     api!: HDFSSender;

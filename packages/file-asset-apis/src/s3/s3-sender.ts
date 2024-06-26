@@ -1,16 +1,16 @@
 import { Logger, TSError, RouteSenderAPI } from '@terascope/utils';
-import type { S3Client } from './client-types';
+import type { S3Client } from './client-types/index.js';
 import {
     parsePath, ChunkedFileSender, SendBatchConfig
-} from '../base';
-import { FileSenderType, ChunkedFileSenderConfig } from '../interfaces';
+} from '../base/index.js';
+import { FileSenderType, ChunkedFileSenderConfig } from '../interfaces.js';
 import {
     createS3Bucket,
     headS3Bucket,
     putS3Object,
-} from './s3-helpers';
-import { isObject } from '../helpers';
-import { MultiPartUploader } from './MultiPartUploader';
+} from './s3-helpers.js';
+import { isObject } from '../helpers.js';
+import { MultiPartUploader } from './MultiPartUploader.js';
 
 function validateConfig(input: unknown) {
     if (!isObject(input)) throw new Error('Invalid config parameter, ut must be an object');

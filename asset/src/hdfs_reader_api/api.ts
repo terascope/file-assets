@@ -2,7 +2,7 @@ import {
     APIFactory, isNil, isString, AnyObject, getTypeOf
 } from '@terascope/job-components';
 import { HDFSReader } from '@terascope/file-asset-apis';
-import { HDFSReaderApiConfig } from './interfaces';
+import { HDFSReaderApiConfig } from './interfaces.js';
 
 export default class HDFSReaderFactoryAPI extends APIFactory<HDFSReader, HDFSReaderApiConfig> {
     validateConfig(input: AnyObject): HDFSReaderApiConfig {
@@ -18,11 +18,11 @@ export default class HDFSReaderFactoryAPI extends APIFactory<HDFSReader, HDFSRea
         _name: string, overrideConfigs: Partial<HDFSReaderApiConfig>
     ):Promise<{ client: HDFSReader, config: HDFSReaderApiConfig }> {
         const config = this.validateConfig(Object.assign({}, this.apiConfig, overrideConfigs));
-        const s3Client = this.context.foundation.getConnection({
+        const { client: s3Client } = await this.context.apis.foundation.createClient({
             endpoint: config.connection,
             type: 'hdfs_ha',
             cached: true
-        }).client;
+        });
         const tryFn = this.tryRecord.bind(this);
         const rejectFn = this.rejectRecord.bind(this);
         const chunkedConfig = Object.assign({}, config, { tryFn, rejectFn });

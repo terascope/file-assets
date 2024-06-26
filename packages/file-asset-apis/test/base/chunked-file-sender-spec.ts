@@ -8,13 +8,13 @@ import {
     Format,
     ChunkedFileSender,
     SendBatchConfig
-} from '../../src';
+} from '../../src/index.js';
 
 describe('ChunkedSlicer', () => {
     const path = 'some/path';
     const workerId = '1234';
 
-    const logger = debugLogger(__filename);
+    const logger = debugLogger('ChunkedSlicer');
 
     class Test extends ChunkedFileSender {
         sentData = new Map();

@@ -4,9 +4,9 @@ import {
     flatten,
 } from '@terascope/utils';
 import fse from 'fs-extra';
-import path from 'path';
-import { segmentFile, canReadFile } from '../base/slice';
-import { SliceConfig, FileSlice, FileSliceConfig } from '../interfaces';
+import path from 'node:path';
+import { segmentFile, canReadFile } from '../base/slice.js';
+import { SliceConfig, FileSlice, FileSliceConfig } from '../interfaces.js';
 
 export class FileSlicer {
     readonly directories: string[];

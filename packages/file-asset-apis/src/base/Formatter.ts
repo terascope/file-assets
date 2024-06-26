@@ -16,7 +16,7 @@ import {
     getFieldsFromConfig,
     SendRecords,
     SendRecord,
-} from '../interfaces';
+} from '../interfaces.js';
 
 export type FormatterOptions = Omit<ChunkedFileSenderConfig, 'id'|'path'|'compression'|'file_per_slice'>;
 

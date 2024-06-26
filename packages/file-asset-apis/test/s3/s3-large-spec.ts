@@ -1,8 +1,8 @@
 import 'jest-extended';
 import type { S3Client } from '@aws-sdk/client-s3';
 import { pMap } from '@terascope/utils';
-import { makeClient, cleanupBucket } from './helpers';
-import * as s3Helpers from '../../src/s3/s3-helpers';
+import { makeClient, cleanupBucket } from './helpers.js';
+import * as s3Helpers from '../../src/s3/s3-helpers.js';
 
 jest.setTimeout(30_000);
 

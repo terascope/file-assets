@@ -2,11 +2,12 @@ import {
     APIFactory, AnyObject, isNil, isString, getTypeOf
 } from '@terascope/job-components';
 import { FileSender } from '@terascope/file-asset-apis';
-import { FileSenderAPIConfig } from './interfaces';
+import { FileSenderAPIConfig } from './interfaces.js';
 
 export default class FileSenderAPI extends APIFactory<FileSender, FileSenderAPIConfig> {
     validateConfig(input: AnyObject): FileSenderAPIConfig {
         if (isNil(input.path) || !isString(input.path)) throw new Error(`Invalid parameter path: it must be of type string, was given ${getTypeOf(input.path)}`);
+        // @ts-expect-error TODO: fixme
         const workerId = this.context.cluster.worker.id;
         input.id = workerId;
         // file_per_slice must be set to true if compression is set to anything besides "none"

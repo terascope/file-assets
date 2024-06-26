@@ -1,7 +1,7 @@
 import type { Logger, RouteSenderAPI } from '@terascope/utils';
 import fse from 'fs-extra';
-import { ChunkedFileSender, SendBatchConfig } from '../base';
-import { ChunkedFileSenderConfig, FileSenderType, isCSVSenderConfig } from '../interfaces';
+import { ChunkedFileSender, SendBatchConfig } from '../base/index.js';
+import { ChunkedFileSenderConfig, FileSenderType, isCSVSenderConfig } from '../interfaces.js';
 
 export class FileSender extends ChunkedFileSender implements RouteSenderAPI {
     constructor(config: ChunkedFileSenderConfig, logger: Logger) {

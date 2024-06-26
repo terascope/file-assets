@@ -2,16 +2,17 @@ import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
 import { AnyObject, DataEntity } from '@terascope/job-components';
 import { Format } from '@terascope/file-asset-apis';
-import path from 'path';
-import fs from 'fs';
-import { FileSenderFactoryAPI } from '../../asset/src/file_sender_api/interfaces';
+import fs from 'node:fs';
+import path from 'node:path';
+import { FileSenderFactoryAPI } from '../../asset/src/file_sender_api/interfaces.js';
+// @ts-expect-error
+import fixtures from 'jest-fixtures';
 
-const fixtures = require('jest-fixtures');
 
 describe('File Sender API', () => {
     let harness: WorkerTestHarness;
     let data: DataEntity[];
-    let workerId: string;
+    let workerId: number;
 
     async function makeTest(config: AnyObject = {}) {
         const opConfig = {
@@ -23,7 +24,7 @@ describe('File Sender API', () => {
         harness = WorkerTestHarness.testProcessor(opConfig);
 
         await harness.initialize();
-
+        // @ts-expect-error
         workerId = harness.context.cluster.worker.id;
 
         return harness.getAPI<FileSenderFactoryAPI>('file_sender_api:file_exporter-1');

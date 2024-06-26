@@ -2,7 +2,7 @@ import 'jest-extended';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
 import { ValidatedJobConfig } from '@terascope/job-components';
 import { Format } from '@terascope/file-asset-apis';
-import { FileSenderAPIConfig } from '../../asset/src/file_sender_api/interfaces';
+import { FileSenderAPIConfig } from '../../asset/src/file_sender_api/interfaces.js';
 
 describe('File Sender API Schema', () => {
     let harness: WorkerTestHarness;

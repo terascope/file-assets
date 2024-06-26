@@ -1,11 +1,12 @@
 import 'jest-extended';
-import fs from 'fs';
+import fs from 'node:fs';
 import { debugLogger, toNumber } from '@terascope/utils';
+//@ts-expect-error
+import fixtures from 'jest-fixtures';
 import {
     FileSender, Format, Compression, LDJSONSenderConfig
-} from '../../src';
+} from '../../src/index.js';
 
-const fixtures = require('jest-fixtures');
 
 describe('File Asset Sender API', () => {
     const logger = debugLogger('file-asset-API-sender');

@@ -1,6 +1,6 @@
 import {
     Compression, createFileName, Format, NameOptions
-} from '../../src';
+} from '../../src/index.js';
 
 describe('createFileName', () => {
     const testFile = 'testFile';

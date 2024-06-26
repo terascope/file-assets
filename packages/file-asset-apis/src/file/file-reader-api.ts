@@ -1,14 +1,14 @@
 import fse from 'fs-extra';
 import { Logger } from '@terascope/utils';
-import { FileSlicer } from './file-slicer';
+import { FileSlicer } from './file-slicer.js';
 import {
     FileSlice,
     ReaderConfig,
     FileSliceConfig,
     SliceConfig,
 } from '../interfaces';
-import { segmentFile, canReadFile } from '../base';
-import { FileFetcher } from './file-fetcher';
+import { segmentFile, canReadFile } from '../base/index.js';
+import { FileFetcher } from './file-fetcher.js';
 
 export class FileTerasliceAPI extends FileFetcher {
     readonly segmentFileConfig: SliceConfig;

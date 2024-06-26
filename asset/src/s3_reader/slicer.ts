@@ -1,7 +1,7 @@
 import { Slicer, SlicerRecoveryData } from '@terascope/job-components';
 import { FileSlice } from '@terascope/file-asset-apis';
-import { S3ReaderConfig } from './interfaces';
-import { S3ReaderFactoryAPI } from '../s3_reader_api/interfaces';
+import { S3ReaderConfig } from './interfaces.js';
+import { S3ReaderFactoryAPI } from '../s3_reader_api/interfaces.js';
 
 export default class S3Slicer extends Slicer<S3ReaderConfig> {
     slicer!: () => Promise<FileSlice[]|null>;

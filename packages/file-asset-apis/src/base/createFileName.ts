@@ -1,8 +1,8 @@
 import {
     isNumber, isString, isNil, isNotNil, isBoolean
 } from '@terascope/utils';
-import * as nodePathModule from 'path';
-import { NameOptions, Format, Compression } from '../interfaces';
+import * as nodePathModule from 'node:path';
+import { NameOptions, Format, Compression } from '../interfaces.js';
 
 const formatValues = Object.values(Format);
 const compressionValues = Object.values(Compression);

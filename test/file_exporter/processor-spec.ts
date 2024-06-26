@@ -2,20 +2,20 @@
 import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
 import { DataEntity } from '@terascope/job-components';
-import path from 'path';
-import fs from 'fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import fs from 'node:fs';
 import { remove, ensureDir } from 'fs-extra';
 import {
     Format, ChunkedFileSenderConfig, CSVSenderConfig,
     LDJSONSenderConfig, JSONSenderConfig
 } from '@terascope/file-asset-apis';
 
-// Increase the timeout for this test
-jest.setTimeout(15_000);
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function getTestFilePath(filename?: string) {
-    if (filename) return path.join(__dirname, 'test_output/test', filename);
-    return path.join(__dirname, 'test_output/test');
+    if (filename) return path.join(dirname, 'test_output/test', filename);
+    return path.join(dirname, 'test_output/test');
 }
 
 async function cleanTestDir() {
@@ -28,7 +28,7 @@ async function cleanTestDir() {
 
 describe('File exporter processor', () => {
     let harness: WorkerTestHarness;
-    let workerId: string;
+    let workerId: number;
     let data: DataEntity[];
     let data2: DataEntity[];
     let data3: DataEntity[];
@@ -58,7 +58,7 @@ describe('File exporter processor', () => {
         harness = WorkerTestHarness.testProcessor(opConfig);
 
         await harness.initialize();
-
+        // @ts-expect-error
         workerId = harness.context.cluster.worker.id;
 
         return harness;

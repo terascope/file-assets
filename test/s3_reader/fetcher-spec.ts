@@ -1,19 +1,20 @@
 import 'jest-extended';
 import {
     DataEntity, AnyObject, isNil,
-    toNumber,
+    toNumber, TestClientConfig, debugLogger
 } from '@terascope/job-components';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
 import { Format, FileSlice, S3Client } from '@terascope/file-asset-apis';
 import {
     makeClient, cleanupBucket, upload,
     testWorkerId
-} from '../helpers';
+} from '../helpers/index.js';
 
 describe('S3Reader fetcher', () => {
+    const logger = debugLogger('test');
     let harness: WorkerTestHarness;
     let client: S3Client;
-    let clients: any;
+    let clients: TestClientConfig[];
 
     beforeAll(async () => {
         client = await makeClient();
@@ -21,9 +22,12 @@ describe('S3Reader fetcher', () => {
             {
                 type: 's3',
                 endpoint: 'my-s3-connector',
-                create: () => ({
-                    client
-                }),
+                async createClient() {
+                    return {
+                        client,
+                        logger
+                    }
+                },
             },
         ];
     });

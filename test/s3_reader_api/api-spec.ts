@@ -1,7 +1,8 @@
 import 'jest-extended';
 import {
     DataEntity, toString, AnyObject,
-    isNil, toNumber
+    isNil, toNumber, TestClientConfig,
+    debugLogger
 } from '@terascope/job-components';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
 import { Format, FileSlice, S3Client } from '@terascope/file-asset-apis';
@@ -12,9 +13,11 @@ import {
 } from '../helpers';
 
 describe('S3 API Reader', () => {
+    const logger = debugLogger('file-fetcher');
     let harness: WorkerTestHarness;
     let client: S3Client;
-    let clients: any;
+        let clients: TestClientConfig[];
+
 
     beforeAll(async () => {
         client = await makeClient();
@@ -22,9 +25,12 @@ describe('S3 API Reader', () => {
             {
                 type: 's3',
                 endpoint: 'my-s3-connector',
-                create: () => ({
-                    client
-                }),
+                async createClient() {
+                    return {
+                        client,
+                        logger
+                    }
+                },
             },
         ];
     });

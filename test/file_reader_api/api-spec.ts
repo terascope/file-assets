@@ -2,17 +2,20 @@ import 'jest-extended';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
 import { AnyObject } from '@terascope/job-components';
 import { Format } from '@terascope/file-asset-apis';
-import path from 'path';
-import { FileReaderFactoryAPI } from '../../asset/src/file_reader_api/interfaces';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { FileReaderFactoryAPI } from '../../asset/src/file_reader_api/interfaces.js';
+// @ts-expect-error
+import fixtures from 'jest-fixtures';
 
-const fixtures = require('jest-fixtures');
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('File Reader API', () => {
     let harness: WorkerTestHarness;
     let testDataDir: string;
 
     beforeAll(async () => {
-        testDataDir = await fixtures.copyFixtureIntoTempDir(__dirname, 'file_reader/ldjson/subdir');
+        testDataDir = await fixtures.copyFixtureIntoTempDir(dirname, 'file_reader/ldjson/subdir');
     });
 
     async function makeTest(config: AnyObject = {}) {

@@ -1,10 +1,14 @@
 import 'jest-extended';
-import path from 'path';
+import path from 'node:path';
 import { newTestJobConfig, SlicerTestHarness } from 'teraslice-test-harness';
 import { flatten, SliceRequest } from '@terascope/job-components';
 import { Format } from '@terascope/file-asset-apis';
+import { fileURLToPath } from 'node:url';
+// @ts-expect-error
+import fixtures from 'jest-fixtures';
 
-const fixtures = require('jest-fixtures');
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+
 
 describe('File slicer json files', () => {
     let harness: SlicerTestHarness;
@@ -12,7 +16,7 @@ describe('File slicer json files', () => {
     let slices: (SliceRequest|null)[];
 
     beforeAll(async () => {
-        testDataDir = await fixtures.copyFixtureIntoTempDir(__dirname, 'file_reader/json');
+        testDataDir = await fixtures.copyFixtureIntoTempDir(dirname, 'file_reader/json');
         const job = newTestJobConfig({
             analytics: true,
             operations: [
@@ -71,7 +75,7 @@ describe('File slicer non json files', () => {
     let testDataDir: string;
 
     beforeEach(async () => {
-        testDataDir = await fixtures.copyFixtureIntoTempDir(__dirname, 'file_reader/ldjson');
+        testDataDir = await fixtures.copyFixtureIntoTempDir(dirname, 'file_reader/ldjson');
         const job = newTestJobConfig({
             analytics: true,
             operations: [
