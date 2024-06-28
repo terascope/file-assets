@@ -9,8 +9,8 @@ import {
     Format, Compression, Compressor,
     listS3Buckets, getS3Object, S3Client
 } from '@terascope/file-asset-apis';
-import { makeClient, cleanupBucket, getBodyFromResults } from '../helpers';
-import { S3SenderFactoryAPI } from '../../asset/src/s3_sender_api/interfaces';
+import { makeClient, cleanupBucket, getBodyFromResults } from '../helpers/index.js';
+import { S3SenderFactoryAPI } from '../../asset/src/s3_sender_api/interfaces.js';
 
 const lz4Module = {};
 const lz4Ready = lz4init(lz4Module);
@@ -32,8 +32,7 @@ describe('S3 sender api', () => {
     const metaRoute2 = '1';
 
     let client: S3Client;
-        let clients: TestClientConfig[];
-
+    let clients: TestClientConfig[];
 
     beforeAll(async () => {
         client = await makeClient();
@@ -45,7 +44,7 @@ describe('S3 sender api', () => {
                     return {
                         client,
                         logger
-                    }
+                    };
                 },
             },
         ];

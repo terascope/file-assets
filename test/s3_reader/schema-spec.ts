@@ -17,7 +17,7 @@ describe('S3 Reader Schema', () => {
             return {
                 client: {},
                 logger
-            }
+            };
         },
         endpoint: 'default'
     };

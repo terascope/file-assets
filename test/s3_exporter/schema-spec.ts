@@ -8,7 +8,7 @@ import {
 import { Format } from '@terascope/file-asset-apis';
 
 describe('S3 exporter Schema', () => {
-    const logger = debugLogger('s3 test')
+    const logger = debugLogger('s3 test');
     let harness: WorkerTestHarness;
 
     const clientConfig: TestClientConfig = {

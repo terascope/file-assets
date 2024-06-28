@@ -5,15 +5,14 @@ import {
 } from '@terascope/job-components';
 import { newTestJobConfig, SlicerTestHarness } from 'teraslice-test-harness';
 import { Format, S3Client } from '@terascope/file-asset-apis';
-import { makeClient, cleanupBucket, upload } from '../helpers';
+import { makeClient, cleanupBucket, upload } from '../helpers/index.js';
 
 describe('S3 slicer', () => {
     const logger = debugLogger('test');
     let harness: SlicerTestHarness;
 
     let client: S3Client;
-        let clients: TestClientConfig[];
-
+    let clients: TestClientConfig[];
 
     beforeAll(async () => {
         client = await makeClient();
@@ -25,7 +24,7 @@ describe('S3 slicer', () => {
                     return {
                         client,
                         logger
-                    }
+                    };
                 },
             },
         ];

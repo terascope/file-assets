@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
 import { ValidatedJobConfig, TestClientConfig, debugLogger } from '@terascope/job-components';
-import { S3ExporterAPIConfig } from '../../asset/src/s3_sender_api/interfaces';
+import { S3ExporterAPIConfig } from '../../asset/src/s3_sender_api/interfaces.js';
 
 describe('S3 Sender API Schema', () => {
     const logger = debugLogger('test');
@@ -14,7 +14,7 @@ describe('S3 Sender API Schema', () => {
             return {
                 client: {},
                 logger
-            }
+            };
         },
         endpoint: 'default'
     };

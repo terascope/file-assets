@@ -4,9 +4,9 @@ import { AnyObject } from '@terascope/job-components';
 import { Format } from '@terascope/file-asset-apis';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { FileReaderFactoryAPI } from '../../asset/src/file_reader_api/interfaces.js';
 // @ts-expect-error
 import fixtures from 'jest-fixtures';
+import { FileReaderFactoryAPI } from '../../asset/src/file_reader_api/interfaces.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 

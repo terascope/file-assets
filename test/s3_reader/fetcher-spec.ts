@@ -26,7 +26,7 @@ describe('S3Reader fetcher', () => {
                     return {
                         client,
                         logger
-                    }
+                    };
                 },
             },
         ];

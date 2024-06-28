@@ -54,7 +54,7 @@ describe('S3 sender api', () => {
                     return {
                         client,
                         logger
-                    }
+                    };
                 },
             },
         ];

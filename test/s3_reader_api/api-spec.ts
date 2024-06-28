@@ -6,18 +6,17 @@ import {
 } from '@terascope/job-components';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
 import { Format, FileSlice, S3Client } from '@terascope/file-asset-apis';
-import { S3ReaderFactoryAPI } from '../../asset/src/s3_reader_api/interfaces';
+import { S3ReaderFactoryAPI } from '../../asset/src/s3_reader_api/interfaces.js';
 import {
     makeClient, cleanupBucket, upload,
     testWorkerId
-} from '../helpers';
+} from '../helpers/index.js';
 
 describe('S3 API Reader', () => {
     const logger = debugLogger('file-fetcher');
     let harness: WorkerTestHarness;
     let client: S3Client;
-        let clients: TestClientConfig[];
-
+    let clients: TestClientConfig[];
 
     beforeAll(async () => {
         client = await makeClient();
@@ -29,7 +28,7 @@ describe('S3 API Reader', () => {
                     return {
                         client,
                         logger
-                    }
+                    };
                 },
             },
         ];

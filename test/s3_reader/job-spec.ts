@@ -23,7 +23,7 @@ describe('S3Reader job', () => {
                     return {
                         client,
                         logger
-                    }
+                    };
                 },
             },
         ];

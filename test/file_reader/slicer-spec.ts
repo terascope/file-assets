@@ -9,7 +9,6 @@ import fixtures from 'jest-fixtures';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-
 describe('File slicer json files', () => {
     let harness: SlicerTestHarness;
     let testDataDir: string;

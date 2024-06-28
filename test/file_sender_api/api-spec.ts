@@ -4,10 +4,9 @@ import { AnyObject, DataEntity } from '@terascope/job-components';
 import { Format } from '@terascope/file-asset-apis';
 import fs from 'node:fs';
 import path from 'node:path';
-import { FileSenderFactoryAPI } from '../../asset/src/file_sender_api/interfaces.js';
 // @ts-expect-error
 import fixtures from 'jest-fixtures';
-
+import { FileSenderFactoryAPI } from '../../asset/src/file_sender_api/interfaces.js';
 
 describe('File Sender API', () => {
     let harness: WorkerTestHarness;

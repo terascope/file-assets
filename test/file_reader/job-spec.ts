@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 // @ts-expect-error
 import fixtures from 'jest-fixtures';
+
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('File reader\'s fetcher', () => {

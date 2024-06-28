@@ -7,7 +7,6 @@ import fixtures from 'jest-fixtures';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-
 describe('File reader\'s fetcher', () => {
     let harness: WorkerTestHarness;
 
