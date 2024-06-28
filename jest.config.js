@@ -6,7 +6,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 export default {
     verbose: true,
     testEnvironment: 'node',
-    setupFilesAfterEnv: ['jest-extended/all', '<rootDir>/test/test.setup.js'],
+    setupFilesAfterEnv: ['jest-extended/all'],
     collectCoverage: true,
     coverageReporters: ['json', 'lcov', 'text', 'html'],
     coverageDirectory: 'coverage',

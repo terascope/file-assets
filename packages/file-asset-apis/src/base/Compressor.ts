@@ -1,6 +1,8 @@
-import { gzip, ungzip } from 'node-gzip';
+import pkg from 'node-gzip';
 import { Compression } from '../interfaces.js';
 import { getLZ4 } from './lz4.js';
+
+const { gzip, ungzip } = pkg;
 
 async function lz4Compress(data: Buffer|string): Promise<Buffer> {
     const { compress } = await getLZ4();

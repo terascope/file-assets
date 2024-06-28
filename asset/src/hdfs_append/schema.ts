@@ -1,6 +1,6 @@
 import { ConvictSchema, ValidatedJobConfig } from '@terascope/job-components';
 import { HDFSExportOpConfig } from './interfaces.js';
-import { DEFAULT_API_NAME } from '../hdfs_sender_api/interfaces';
+import { DEFAULT_API_NAME } from '../hdfs_sender_api/interfaces.js';
 import { opSchema } from '../__lib/common-schema.js';
 
 export default class Schema extends ConvictSchema<HDFSExportOpConfig> {

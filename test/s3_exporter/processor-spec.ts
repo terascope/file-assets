@@ -1,6 +1,9 @@
 import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
-import { DataEntity, TestClientConfig, debugLogger } from '@terascope/job-components';
+import {
+    DataEntity, TestClientConfig, debugLogger,
+    toString, get
+ } from '@terascope/job-components';
 import {
     Format, Compressor, getS3Object,
     S3Client
@@ -15,7 +18,7 @@ describe('S3 sender api', () => {
 
     let compressor: Compressor;
     let harness: WorkerTestHarness;
-    let workerId: number;
+    let workerId: string;
     let data: DataEntity[];
     let client: S3Client;
     let clients: TestClientConfig[];
@@ -38,8 +41,7 @@ describe('S3 sender api', () => {
         compressor = new Compressor(opConfig.compression);
 
         await harness.initialize();
-        // @ts-expect-error
-        workerId = harness.context.cluster.worker.id;
+        workerId = toString(get(harness, 'context.cluster.worker.id'));
 
         return harness;
     }

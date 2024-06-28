@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
-import { DataEntity } from '@terascope/job-components';
+import { DataEntity, toString, get } from '@terascope/job-components';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
@@ -28,7 +28,7 @@ async function cleanTestDir() {
 
 describe('File exporter processor', () => {
     let harness: WorkerTestHarness;
-    let workerId: number;
+    let workerId: string;
     let data: DataEntity[];
     let data2: DataEntity[];
     let data3: DataEntity[];
@@ -58,8 +58,7 @@ describe('File exporter processor', () => {
         harness = WorkerTestHarness.testProcessor(opConfig);
 
         await harness.initialize();
-        // @ts-expect-error
-        workerId = harness.context.cluster.worker.id;
+        workerId = toString(get(harness, 'context.cluster.worker.id'));
 
         return harness;
     }

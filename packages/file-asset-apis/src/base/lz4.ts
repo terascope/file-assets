@@ -1,5 +1,5 @@
 // @ts-expect-error
-import lz4init from 'lz4-asm/dist/lz4asm';
+import lz4init from 'lz4-asm/dist/lz4asm.js';
 
 export interface LZ4 {
     compress(data: Buffer): Promise<Buffer>;

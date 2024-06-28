@@ -10,7 +10,6 @@ import {
     listS3Buckets, ChunkGenerator
 } from '../../src/index.js';
 
-jest.setTimeout(30_000);
 
 describe('S3 Sender API', () => {
     const logger = debugLogger('s3-sender');

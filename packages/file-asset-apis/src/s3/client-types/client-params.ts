@@ -1,4 +1,4 @@
-export {
+export type {
     GetObjectRequest,
     ListObjectsV2Request,
     PutObjectRequest,

@@ -6,6 +6,7 @@ export default {
     coverageReporters: ['json', 'lcov', 'text', 'html'],
     coverageDirectory: 'coverage',
     extensionsToTreatAsEsm: ['.ts'],
+    transformIgnorePatterns: ['node_modules/'],
     testMatch: [
         '<rootDir>/test/**/*-spec.{ts,js}',
         '<rootDir>/test/*-spec.{ts,js}',
