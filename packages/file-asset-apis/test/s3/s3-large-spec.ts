@@ -4,7 +4,6 @@ import { pMap } from '@terascope/utils';
 import { makeClient, cleanupBucket } from './helpers.js';
 import * as s3Helpers from '../../src/s3/s3-helpers.js';
 
-
 describe('S3 Helpers - large objects', () => {
     const bucketName = 's3-test-helpers-bucket-large';
     let client: S3Client;

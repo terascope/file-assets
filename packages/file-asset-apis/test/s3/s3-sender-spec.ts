@@ -10,7 +10,6 @@ import {
     listS3Buckets, ChunkGenerator
 } from '../../src/index.js';
 
-
 describe('S3 Sender API', () => {
     const logger = debugLogger('s3-sender');
     const id = 'some-id';

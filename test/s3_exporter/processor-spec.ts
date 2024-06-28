@@ -3,7 +3,7 @@ import { WorkerTestHarness } from 'teraslice-test-harness';
 import {
     DataEntity, TestClientConfig, debugLogger,
     toString, get
- } from '@terascope/job-components';
+} from '@terascope/job-components';
 import {
     Format, Compressor, getS3Object,
     S3Client
