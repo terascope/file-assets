@@ -1,14 +1,18 @@
 import 'jest-extended';
-import { AnyObject, isNil, DataEntity } from '@terascope/job-components';
+import {
+    AnyObject, isNil, DataEntity,
+    TestClientConfig, debugLogger
+} from '@terascope/job-components';
 import { newTestJobConfig, SlicerTestHarness } from 'teraslice-test-harness';
 import { Format, S3Client } from '@terascope/file-asset-apis';
-import { makeClient, cleanupBucket, upload } from '../helpers';
+import { makeClient, cleanupBucket, upload } from '../helpers/index.js';
 
 describe('S3 slicer', () => {
+    const logger = debugLogger('test');
     let harness: SlicerTestHarness;
 
     let client: S3Client;
-    let clients: any;
+    let clients: TestClientConfig[];
 
     beforeAll(async () => {
         client = await makeClient();
@@ -16,9 +20,12 @@ describe('S3 slicer', () => {
             {
                 type: 's3',
                 endpoint: 'default',
-                create: () => ({
-                    client
-                }),
+                async createClient() {
+                    return {
+                        client,
+                        logger
+                    };
+                },
             },
         ];
     });

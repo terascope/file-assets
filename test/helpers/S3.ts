@@ -8,7 +8,7 @@ import {
     ChunkedFileSenderConfig, ReaderConfig, createS3Client,
     S3Client, S3ClientResponse
 } from '@terascope/file-asset-apis';
-import * as s3Config from './config';
+import * as s3Config from './config.js';
 
 const logger = debugLogger('s3_tests');
 

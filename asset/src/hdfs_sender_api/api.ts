@@ -1,13 +1,14 @@
 import {
-    APIFactory, AnyObject, isNil, isString, getTypeOf
+    APIFactory, AnyObject, isNil,
+    isString, getTypeOf, get, toString
 } from '@terascope/job-components';
 import { HDFSSender } from '@terascope/file-asset-apis';
-import { HDFSExporterAPIConfig } from './interfaces';
+import { HDFSExporterAPIConfig } from './interfaces.js';
 
 export default class HDFSSenderFactoryAPI extends APIFactory<HDFSSender, HDFSExporterAPIConfig> {
     validateConfig(input: AnyObject): HDFSExporterAPIConfig {
         if (isNil(input.path) || !isString(input.path)) throw new Error(`Invalid parameter path: it must be of type string, was given ${getTypeOf(input.path)}`);
-        const workerId = this.context.cluster.worker.id;
+        const workerId = toString(get(this.context, 'cluster.worker.id'));
         input.id = workerId;
         // file_per_slice must be set to true if compression is set to anything besides "none"
         if (input.compression !== 'none' && input.file_per_slice !== true) {
@@ -28,11 +29,11 @@ export default class HDFSSenderFactoryAPI extends APIFactory<HDFSSender, HDFSExp
             config.dynamic_routing = true;
         }
 
-        const hdfsClient = this.context.foundation.getConnection({
+        const { client: hdfsClient } = await this.context.apis.foundation.createClient({
             endpoint: config.connection,
             type: 'hdfs_ha',
             cached: false
-        }).client;
+        });
 
         const client = new HDFSSender(hdfsClient, config, this.logger);
         return { client, config };

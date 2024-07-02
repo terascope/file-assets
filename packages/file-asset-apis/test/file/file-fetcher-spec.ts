@@ -1,11 +1,15 @@
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
-import pathModule from 'path';
+// @ts-expect-error
+import fixtures from 'jest-fixtures';
+import pathModule from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
-    Compression, FileFetcher, Format, ReaderConfig, FileSlice
-} from '../../src';
+    Compression, FileFetcher, Format,
+    ReaderConfig, FileSlice
+} from '../../src/index.js';
 
-const fixtures = require('jest-fixtures');
+const dirname = pathModule.dirname(fileURLToPath(import.meta.url));
 
 describe('file-fetcher', () => {
     const logger = debugLogger('file-fetcher');
@@ -22,7 +26,7 @@ describe('file-fetcher', () => {
     }
 
     it('can read ldjson files', async () => {
-        const path = await fixtures.copyFixtureIntoTempDir(__dirname, 'file_reader/ldjson');
+        const path = await fixtures.copyFixtureIntoTempDir(dirname, 'file_reader/ldjson');
         const slicePath = makePath(path, 'testData.txt');
 
         const config = {
@@ -47,7 +51,7 @@ describe('file-fetcher', () => {
     });
 
     it('can read a json file with a single record', async () => {
-        const path = await fixtures.copyFixtureIntoTempDir(__dirname, 'file_reader/json/single');
+        const path = await fixtures.copyFixtureIntoTempDir(dirname, 'file_reader/json/single');
         const slicePath = makePath(path, 'single.json');
 
         const config = {
@@ -71,7 +75,7 @@ describe('file-fetcher', () => {
     });
 
     it('can read a json file with an array of records', async () => {
-        const path = await fixtures.copyFixtureIntoTempDir(__dirname, 'file_reader/json/array');
+        const path = await fixtures.copyFixtureIntoTempDir(dirname, 'file_reader/json/array');
         const slicePath = makePath(path, 'array.json');
 
         const config = {
@@ -96,7 +100,7 @@ describe('file-fetcher', () => {
     });
 
     it('can read a csv slice and keeps headers', async () => {
-        const path = await fixtures.copyFixtureIntoTempDir(__dirname, 'file_reader/csv');
+        const path = await fixtures.copyFixtureIntoTempDir(dirname, 'file_reader/csv');
         const slicePath = makePath(path, 'csv.txt');
 
         const config = {
@@ -140,7 +144,7 @@ describe('file-fetcher', () => {
     });
 
     it('can read a csv slice and removes headers', async () => {
-        const path = await fixtures.copyFixtureIntoTempDir(__dirname, 'file_reader/csv');
+        const path = await fixtures.copyFixtureIntoTempDir(dirname, 'file_reader/csv');
         const slicePath = makePath(path, 'csv.txt');
 
         const config = {
@@ -176,7 +180,7 @@ describe('file-fetcher', () => {
     });
 
     it('can read a tsv file', async () => {
-        const path = await fixtures.copyFixtureIntoTempDir(__dirname, 'file_reader/tsv');
+        const path = await fixtures.copyFixtureIntoTempDir(dirname, 'file_reader/tsv');
         const slicePath = makePath(path, 'tsv.tsv');
 
         const config = {
@@ -213,7 +217,7 @@ describe('file-fetcher', () => {
     });
 
     it('can read a raw formatted file', async () => {
-        const path = await fixtures.copyFixtureIntoTempDir(__dirname, 'file_reader/raw');
+        const path = await fixtures.copyFixtureIntoTempDir(dirname, 'file_reader/raw');
         const slicePath = makePath(path, 'raw.txt');
 
         const config = {
@@ -242,7 +246,7 @@ describe('file-fetcher', () => {
     });
 
     it('can read a compressed file', async () => {
-        const path = await fixtures.copyFixtureIntoTempDir(__dirname, 't1');
+        const path = await fixtures.copyFixtureIntoTempDir(dirname, 't1');
         const slicePath = makePath(path, 'package.json.lz4');
 
         const config = {

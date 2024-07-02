@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { Compression, Compressor } from '../../src';
+import { Compression, Compressor } from '../../src/index.js';
 
 describe('Compressor', () => {
     it('can work with gzip', async () => {

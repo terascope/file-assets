@@ -1,6 +1,6 @@
 import { ConvictSchema, cloneDeep } from '@terascope/job-components';
-import { FileSenderAPIConfig } from './interfaces';
-import { commonSchema } from '../__lib/common-schema';
+import { FileSenderAPIConfig } from './interfaces.js';
+import { commonSchema } from '../__lib/common-schema.js';
 
 const apiSchema = cloneDeep(commonSchema);
 apiSchema.path.format = 'required_String';

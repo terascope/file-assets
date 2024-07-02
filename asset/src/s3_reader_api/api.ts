@@ -2,7 +2,7 @@ import {
     APIFactory, AnyObject, isNil, isString, getTypeOf
 } from '@terascope/job-components';
 import { S3TerasliceAPI } from '@terascope/file-asset-apis';
-import { S3ReaderAPIConfig } from './interfaces';
+import { S3ReaderAPIConfig } from './interfaces.js';
 
 export default class S3ReaderAPI extends APIFactory<S3TerasliceAPI, S3ReaderAPIConfig> {
     validateConfig(input: AnyObject): S3ReaderAPIConfig {

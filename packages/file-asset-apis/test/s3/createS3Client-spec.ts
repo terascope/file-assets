@@ -1,11 +1,12 @@
 import 'jest-extended';
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
-    createCredentialsObject,
-    createHttpOptions,
-    createRequestHandlerOptions,
+    createCredentialsObject, createHttpOptions, createRequestHandlerOptions,
     genFinalS3ClientConfig,
-} from '../../src/s3/createS3Client';
+} from '../../src/s3/createS3Client.js';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('createS3Client', () => {
     describe('genS3ClientConfig', () => {
@@ -103,7 +104,7 @@ describe('createS3Client', () => {
                 region: 'us-east-1',
                 maxRetries: 3,
                 sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
+                certLocation: path.join(dirname, '../__fixtures__/cert/fakeCert.pem'),
                 forcePathStyle: true,
                 bucketEndpoint: false
             };
@@ -162,7 +163,7 @@ describe('createS3Client', () => {
                 region: 'us-east-1',
                 maxRetries: 3,
                 sslEnabled: true,
-                certLocation: path.join(__dirname, '../__fixtures__/cert/fakeCert.pem'),
+                certLocation: path.join(dirname, '../__fixtures__/cert/fakeCert.pem'),
                 forcePathStyle: true,
                 bucketEndpoint: false
             };

@@ -4,7 +4,7 @@ import {
     deleteS3Bucket,
     ChunkedFileSenderConfig, Compression, Formatter,
     Compressor, createFileName, putS3Object, createS3Client
-} from '../../src';
+} from '../../src/index.js';
 
 const {
     MINIO_HOST = 'http://127.0.0.1:9000',

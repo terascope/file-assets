@@ -1,22 +1,27 @@
 import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
-import { DataEntity } from '@terascope/job-components';
+import {
+    DataEntity, TestClientConfig, debugLogger,
+    toString, get
+} from '@terascope/job-components';
 import {
     Format, Compressor, getS3Object,
     S3Client
 } from '@terascope/file-asset-apis';
-import { makeClient, cleanupBucket, getBodyFromResults } from '../helpers';
+import { makeClient, cleanupBucket, getBodyFromResults } from '../helpers/index.js';
 
 describe('S3 sender api', () => {
     const bucket = 's3-exporter';
     const dirPath = '/testing/';
     const path = `${bucket}${dirPath}`;
+    const logger = debugLogger('test');
+
     let compressor: Compressor;
     let harness: WorkerTestHarness;
     let workerId: string;
     let data: DataEntity[];
     let client: S3Client;
-    let clients: any[];
+    let clients: TestClientConfig[];
 
     async function makeTest(config?: any) {
         const _op = {
@@ -36,8 +41,7 @@ describe('S3 sender api', () => {
         compressor = new Compressor(opConfig.compression);
 
         await harness.initialize();
-
-        workerId = harness.context.cluster.worker.id;
+        workerId = toString(get(harness, 'context.cluster.worker.id'));
 
         return harness;
     }
@@ -48,9 +52,12 @@ describe('S3 sender api', () => {
             {
                 type: 's3',
                 endpoint: 'my-s3-connector',
-                create: () => ({
-                    client
-                }),
+                async createClient() {
+                    return {
+                        client,
+                        logger
+                    };
+                },
             },
         ];
         await cleanupBucket(client, bucket);

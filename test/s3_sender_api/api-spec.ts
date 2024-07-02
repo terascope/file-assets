@@ -1,26 +1,30 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
-import { DataEntity } from '@terascope/job-components';
+import {
+    DataEntity, debugLogger, TestClientConfig,
+    get, toString
+} from '@terascope/job-components';
 // @ts-expect-error
 import lz4init from 'lz4-asm/dist/lz4asm';
-import { ungzip } from 'node-gzip';
+import pkg from 'node-gzip';
 import {
     Format, Compression, Compressor,
     listS3Buckets, getS3Object, S3Client
 } from '@terascope/file-asset-apis';
-import { makeClient, cleanupBucket, getBodyFromResults } from '../helpers';
-import { S3SenderFactoryAPI } from '../../asset/src/s3_sender_api/interfaces';
+import { makeClient, cleanupBucket, getBodyFromResults } from '../helpers/index.js';
+import { S3SenderFactoryAPI } from '../../asset/src/s3_sender_api/interfaces.js';
 
+const { ungzip } = pkg;
 const lz4Module = {};
 const lz4Ready = lz4init(lz4Module);
-
-jest.setTimeout(10_000);
 
 describe('S3 sender api', () => {
     const bucket = 's3-api-sender';
     const dirPath = '/testing/';
     const path = `${bucket}${dirPath}`;
+    const logger = debugLogger('test');
+
     let compressor: Compressor;
     let harness: WorkerTestHarness;
     let workerId: string;
@@ -30,7 +34,7 @@ describe('S3 sender api', () => {
     const metaRoute2 = '1';
 
     let client: S3Client;
-    let clients: any;
+    let clients: TestClientConfig[];
 
     beforeAll(async () => {
         client = await makeClient();
@@ -38,9 +42,12 @@ describe('S3 sender api', () => {
             {
                 type: 's3',
                 endpoint: 'my-s3-connector',
-                create: () => ({
-                    client
-                }),
+                async createClient() {
+                    return {
+                        client,
+                        logger
+                    };
+                },
             },
         ];
     });
@@ -64,8 +71,7 @@ describe('S3 sender api', () => {
         compressor = new Compressor(opConfig.compression);
 
         await harness.initialize();
-
-        workerId = harness.context.cluster.worker.id;
+        workerId = toString(get(harness, 'context.cluster.worker.id'));
 
         return harness.getAPI<S3SenderFactoryAPI>('s3_sender_api:s3_exporter-1');
     }

@@ -1,7 +1,7 @@
 import { Fetcher, DataEntity } from '@terascope/job-components';
 import { FileTerasliceAPI, FileSlice } from '@terascope/file-asset-apis';
-import { FileReaderConfig } from './interfaces';
-import { FileReaderFactoryAPI } from '../file_reader_api/interfaces';
+import { FileReaderConfig } from './interfaces.js';
+import { FileReaderFactoryAPI } from '../file_reader_api/interfaces.js';
 
 export default class FileFetcher extends Fetcher<FileReaderConfig> {
     api!: FileTerasliceAPI;

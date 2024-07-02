@@ -4,12 +4,12 @@ import {
     flatten,
     SlicerRecoveryData
 } from '@terascope/job-components';
-import path from 'path';
+import path from 'node:path';
 import {
     SliceConfig, FileSlice, segmentFile, HDFSReader
 } from '@terascope/file-asset-apis';
-import { HDFSReaderOpConfig } from './interfaces';
-import { HDFSReaderFactoryAPI, HDFSReaderApiConfig } from '../hdfs_reader_api/interfaces';
+import { HDFSReaderOpConfig } from './interfaces.js';
+import { HDFSReaderFactoryAPI, HDFSReaderApiConfig } from '../hdfs_reader_api/interfaces.js';
 
 export default class HDFSFileSlicer extends Slicer<HDFSReaderOpConfig> {
     api!: HDFSReader;

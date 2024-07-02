@@ -1,11 +1,11 @@
 import {
     DataEntity, pMap, isString, Logger
 } from '@terascope/utils';
-import * as nodePathModule from 'path';
-import { Compressor } from './Compressor';
-import { Formatter } from './Formatter';
-import { createFileName } from './createFileName';
-import { ChunkGenerator } from './ChunkGenerator';
+import * as nodePathModule from 'node:path';
+import { Compressor } from './Compressor.js';
+import { Formatter } from './Formatter.js';
+import { createFileName } from './createFileName.js';
+import { ChunkGenerator } from './ChunkGenerator.js';
 import {
     NameOptions,
     FileSenderType,
@@ -15,7 +15,7 @@ import {
     getLineDelimiter,
     SendRecords,
     SendRecord,
-} from '../interfaces';
+} from '../interfaces.js';
 
 const formatValues = Object.values(Format);
 

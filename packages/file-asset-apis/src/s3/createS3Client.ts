@@ -1,13 +1,13 @@
-import fs from 'fs';
-import tls from 'tls';
-import { Agent, AgentOptions as HttpsAgentOptions } from 'https';
+import fs from 'node:fs';
+import tls from 'node:tls';
+import { Agent, AgentOptions as HttpsAgentOptions } from 'node:https';
 import { S3Client as BaseClient } from '@aws-sdk/client-s3';
 import { NodeHttpHandler, NodeHttpHandlerOptions } from '@smithy/node-http-handler';
 import type { S3ClientConfig as BaseConfig } from '@aws-sdk/client-s3';
 import {
     debugLogger
 } from '@terascope/utils';
-import type { S3Client } from './client-types';
+import type { S3Client } from './client-types/index.js';
 
 export interface S3ClientConfig extends BaseConfig {
     sslEnabled?: boolean,

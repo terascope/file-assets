@@ -1,7 +1,7 @@
 import { ConvictSchema, ValidatedJobConfig } from '@terascope/job-components';
-import { FileReaderConfig } from './interfaces';
-import { opSchema } from '../__lib/common-schema';
-import { DEFAULT_API_NAME } from '../file_reader_api/interfaces';
+import { FileReaderConfig } from './interfaces.js';
+import { opSchema } from '../__lib/common-schema.js';
+import { DEFAULT_API_NAME } from '../file_reader_api/interfaces.js';
 
 export default class Schema extends ConvictSchema<FileReaderConfig> {
     validateJob(job: ValidatedJobConfig): void {

@@ -1,6 +1,6 @@
 import { Slicer, SlicerRecoveryData } from '@terascope/job-components';
 import { FileSlice } from '@terascope/file-asset-apis';
-import { FileReaderFactoryAPI, FileReaderAPIConfig } from '../file_reader_api/interfaces';
+import { FileReaderFactoryAPI, FileReaderAPIConfig } from '../file_reader_api/interfaces.js';
 
 export default class FileSlicerOperation extends Slicer {
     slicer!: () => Promise<FileSlice[]|null>;

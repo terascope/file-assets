@@ -1,7 +1,7 @@
 import fse from 'fs-extra';
 import { Logger } from '@terascope/utils';
-import { FileSlice, ReaderConfig } from '../interfaces';
-import { ChunkedFileReader } from '../base';
+import { FileSlice, ReaderConfig } from '../interfaces.js';
+import { ChunkedFileReader } from '../base/index.js';
 
 export class FileFetcher extends ChunkedFileReader {
     client = fse;

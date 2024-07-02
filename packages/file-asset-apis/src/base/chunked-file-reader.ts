@@ -21,8 +21,8 @@ import {
     getFieldDelimiter,
     getLineDelimiter,
     getFieldsFromConfig,
-} from '../interfaces';
-import { Compressor } from './Compressor';
+} from '../interfaces.js';
+import { Compressor } from './Compressor.js';
 
 type FN = (input: any) => any;
 

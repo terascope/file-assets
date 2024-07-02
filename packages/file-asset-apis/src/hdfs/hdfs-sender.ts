@@ -4,9 +4,9 @@ import {
     Logger,
     TSError
 } from '@terascope/utils';
-import path from 'path';
-import { ChunkedFileSender, SendBatchConfig } from '../base';
-import { FileSenderType, ChunkedFileSenderConfig } from '../interfaces';
+import path from 'node:path';
+import { ChunkedFileSender, SendBatchConfig } from '../base/index.js';
+import { FileSenderType, ChunkedFileSenderConfig } from '../interfaces.js';
 
 export class HDFSSender extends ChunkedFileSender implements RouteSenderAPI {
     client: AnyObject;

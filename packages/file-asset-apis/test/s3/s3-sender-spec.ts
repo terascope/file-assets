@@ -3,19 +3,12 @@ import 'jest-extended';
 import {
     DataEntity, debugLogger, isString, times
 } from '@terascope/utils';
-import { makeClient, cleanupBucket, getBodyFromResults } from './helpers';
+import { makeClient, cleanupBucket, getBodyFromResults } from './helpers.js';
 import {
-    Compression,
-    Format,
-    ChunkedFileSenderConfig,
-    S3Sender,
-    getS3Object,
-    Compressor,
-    listS3Buckets,
-    ChunkGenerator
-} from '../../src';
-
-jest.setTimeout(30_000);
+    Compression, Format, ChunkedFileSenderConfig,
+    S3Sender, getS3Object, Compressor,
+    listS3Buckets, ChunkGenerator
+} from '../../src/index.js';
 
 describe('S3 Sender API', () => {
     const logger = debugLogger('s3-sender');

@@ -1,6 +1,6 @@
 import { ConvictSchema, cloneDeep } from '@terascope/job-components';
-import { fileReaderSchema } from '../__lib/common-schema';
-import { FileReaderAPIConfig } from './interfaces';
+import { fileReaderSchema } from '../__lib/common-schema.js';
+import { FileReaderAPIConfig } from './interfaces.js';
 
 const apiSchema = cloneDeep(fileReaderSchema);
 

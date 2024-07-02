@@ -3,7 +3,7 @@ import 'jest-extended';
 import {
     ChunkGenerator, Formatter, Compressor,
     Format, Compression, Chunk
-} from '../../src';
+} from '../../src/index.js';
 
 describe('ChunkGenerator', () => {
     const CHUNK_SIZE = 1024; // 1kib

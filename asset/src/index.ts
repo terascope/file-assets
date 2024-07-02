@@ -1,41 +1,41 @@
-import FileBatcher from '../src/file_exporter/processor';
-import FileExporterSchema from '../src/file_exporter/schema';
+import FileBatcher from './file_exporter/processor.js';
+import FileExporterSchema from './file_exporter/schema.js';
 
-import FileFetcher from '../src/file_reader/fetcher';
-import FileSlicerOperation from '../src/file_reader/slicer';
-import FileReaderSchema from '../src/file_reader/schema';
+import FileFetcher from './file_reader/fetcher.js';
+import FileSlicerOperation from './file_reader/slicer.js';
+import FileReaderSchema from './file_reader/schema.js';
 
-import FileReaderAPI from '../src/file_reader_api/api';
-import FileReaderAPISchema from '../src/file_reader_api/schema';
+import FileReaderAPI from './file_reader_api/api.js';
+import FileReaderAPISchema from './file_reader_api/schema.js';
 
-import FileSenderAPI from '../src/file_sender_api/api';
-import FileSenderAPISchema from '../src/file_sender_api/schema';
+import FileSenderAPI from './file_sender_api/api.js';
+import FileSenderAPISchema from './file_sender_api/schema.js';
 
-import HDFSBatcher from '../src/hdfs_append/processor';
-import HDFSAppendSchema from '../src/hdfs_append/schema';
+import HDFSBatcher from './hdfs_append/processor.js';
+import HDFSAppendSchema from './hdfs_append/schema.js';
 
-import HDFSFetcher from '../src/hdfs_reader/fetcher';
-import HDFSReaderSchema from '../src/hdfs_reader/schema';
-import HDFSFileSlicer from '../src/hdfs_reader/slicer';
+import HDFSFetcher from './hdfs_reader/fetcher.js';
+import HDFSReaderSchema from './hdfs_reader/schema.js';
+import HDFSFileSlicer from './hdfs_reader/slicer.js';
 
-import HDFSReaderFactoryAPI from '../src/hdfs_reader_api/api';
-import HDFSReaderAPISchema from '../src/hdfs_reader_api/schema';
+import HDFSReaderFactoryAPI from './hdfs_reader_api/api.js';
+import HDFSReaderAPISchema from './hdfs_reader_api/schema.js';
 
-import HDFSSenderFactoryAPI from '../src/hdfs_sender_api/api';
-import HDFSSenderAPISchema from '../src/hdfs_sender_api/schema';
+import HDFSSenderFactoryAPI from './hdfs_sender_api/api.js';
+import HDFSSenderAPISchema from './hdfs_sender_api/schema.js';
 
-import S3Batcher from '../src/s3_exporter/processor';
-import S3ExporterSchema from '../src/s3_exporter/schema';
+import S3Batcher from './s3_exporter/processor.js';
+import S3ExporterSchema from './s3_exporter/schema.js';
 
-import S3Fetcher from '../src/s3_reader/fetcher';
-import S3ReaderSchema from '../src/s3_reader/schema';
-import S3Slicer from '../src/s3_reader/slicer';
+import S3Fetcher from './s3_reader/fetcher.js';
+import S3ReaderSchema from './s3_reader/schema.js';
+import S3Slicer from './s3_reader/slicer.js';
 
-import S3ReaderAPI from '../src/s3_reader_api/api';
-import S3ReaderAPISchema from '../src/s3_reader_api/schema';
+import S3ReaderAPI from './s3_reader_api/api.js';
+import S3ReaderAPISchema from './s3_reader_api/schema.js';
 
-import S3SenderAPI from '../src/s3_sender_api/api';
-import S3SenderAPISchema from '../src/s3_sender_api/schema';
+import S3SenderAPI from './s3_sender_api/api.js';
+import S3SenderAPISchema from './s3_sender_api/schema.js';
 
 export const ASSETS = {
     file_exporter: {

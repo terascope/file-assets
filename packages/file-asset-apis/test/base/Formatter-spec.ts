@@ -3,7 +3,7 @@ import {
     JSONSenderConfig, ChunkedFileSenderConfig,
     LDJSONSenderConfig,
     SendRecords
-} from '../../src';
+} from '../../src/index.js';
 
 describe('Formatter', () => {
     it('incorrect format will throw', () => {
