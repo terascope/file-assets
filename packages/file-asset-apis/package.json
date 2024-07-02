@@ -21,7 +21,7 @@
         "test:watch": "NODE_OPTIONS='--experimental-vm-modules' ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@aws-sdk/client-s3": "^3.606.0",
+        "@aws-sdk/client-s3": "^3.608.0",
         "@smithy/node-http-handler": "^3.1.1",
         "@terascope/utils": "^0.59.3",
         "csvtojson": "^2.0.10",
