@@ -33,7 +33,7 @@
         "@terascope/eslint-config": "^0.8.0",
         "@terascope/file-asset-apis": "^1.0.0",
         "@terascope/job-components": "^1.0.1",
-        "@terascope/scripts": "^0.77.3",
+        "@terascope/scripts": "^0.78.0",
         "@types/fs-extra": "^11.0.2",
         "@types/jest": "^29.5.12",
         "@types/json2csv": "^5.0.7",
