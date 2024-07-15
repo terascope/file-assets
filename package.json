@@ -32,8 +32,8 @@
     "devDependencies": {
         "@terascope/eslint-config": "^0.8.0",
         "@terascope/file-asset-apis": "^1.0.0",
-        "@terascope/job-components": "^1.0.1",
-        "@terascope/scripts": "^0.77.3",
+        "@terascope/job-components": "^1.1.0",
+        "@terascope/scripts": "^0.81.0",
         "@types/fs-extra": "^11.0.2",
         "@types/jest": "^29.5.12",
         "@types/json2csv": "^5.0.7",
@@ -47,8 +47,8 @@
         "lz4-asm": "^0.4.2",
         "node-gzip": "^1.1.2",
         "node-notifier": "^10.0.1",
-        "teraslice-test-harness": "^1.0.1",
-        "ts-jest": "^29.1.5",
+        "teraslice-test-harness": "^1.1.0",
+        "ts-jest": "^29.2.2",
         "typescript": "~5.2.2"
     },
     "engines": {
