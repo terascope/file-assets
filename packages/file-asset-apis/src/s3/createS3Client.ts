@@ -7,7 +7,7 @@ import type { S3ClientConfig as BaseConfig } from '@aws-sdk/client-s3';
 import {
     debugLogger
 } from '@terascope/utils';
-import type { S3Client } from './client-types/index.js';
+import type { S3Client } from './client-helpers/index.js';
 
 export interface S3ClientConfig extends BaseConfig {
     sslEnabled?: boolean,

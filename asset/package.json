@@ -4,12 +4,12 @@
     "version": "3.0.0",
     "private": true,
     "description": "A set of processors for working with files",
-    "type": "module",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/terascope/file-assets.git"
     },
     "license": "MIT",
+    "type": "module",
     "workspaces": {
         "nohoist": [
             "**"
@@ -21,7 +21,7 @@
         "test": "yarn --cwd ../ test"
     },
     "dependencies": {
-        "@terascope/file-asset-apis": "^1.0.0",
+        "@terascope/file-asset-apis": "^1.0.1",
         "@terascope/job-components": "^1.2.0",
         "csvtojson": "^2.0.10",
         "fs-extra": "^11.2.0",

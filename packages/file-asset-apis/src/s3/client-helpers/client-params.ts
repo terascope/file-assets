@@ -10,6 +10,9 @@ export type {
     CreateBucketRequest,
     UploadPartRequest,
     CompleteMultipartUploadRequest,
-    AbortMultipartUploadRequest,
+    AbortMultipartUploadRequest
+} from '@aws-sdk/client-s3';
+
+export {
     AbortMultipartUploadCommand
 } from '@aws-sdk/client-s3';

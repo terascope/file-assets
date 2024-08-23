@@ -1,15 +1,15 @@
 {
     "name": "@terascope/file-asset-apis",
     "displayName": "File Asset Apis",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "file reader and sender apis",
     "homepage": "https://github.com/terascope/file-assets",
     "repository": "git@github.com:terascope/file-assets.git",
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
+    "type": "module",
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
-    "type": "module",
     "files": [
         "dist/src/**/*"
     ],
