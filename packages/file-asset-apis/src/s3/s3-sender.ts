@@ -1,5 +1,5 @@
 import { Logger, TSError, RouteSenderAPI } from '@terascope/utils';
-import type { S3Client } from './client-types/index.js';
+import type { S3Client } from './client-helpers/index.js';
 import {
     parsePath, ChunkedFileSender, SendBatchConfig
 } from '../base/index.js';

@@ -1,5 +1,5 @@
 import { Logger } from '@terascope/utils';
-import type { S3Client } from './client-types/index.js';
+import type { S3Client } from './client-helpers/index.js';
 import { FileSlice, ReaderConfig } from '../interfaces.js';
 import { ChunkedFileReader, parsePath } from '../base/index.js';
 import { getS3Object, s3RequestWithRetry } from './s3-helpers.js';
