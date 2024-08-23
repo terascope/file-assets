@@ -1,12 +1,14 @@
 import { _Error, S3ServiceException } from '@aws-sdk/client-s3';
-
 export type S3Error = _Error;
-export const S3ErrorExceptions = S3ServiceException;
+export type S3ErrorExceptions = S3ServiceException;
 
 export {
     BucketAlreadyExists,
     BucketAlreadyOwnedByYou,
     NoSuchKey,
+} from '@aws-sdk/client-s3';
+
+export type {
     CompletedPart,
     ListObjectsV2CommandOutput,
     PutObjectTaggingCommandOutput,

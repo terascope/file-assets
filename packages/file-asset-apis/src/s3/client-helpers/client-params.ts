@@ -1,4 +1,4 @@
-export {
+export type {
     GetObjectRequest,
     ListObjectsV2Request,
     PutObjectRequest,
@@ -10,6 +10,9 @@ export {
     CreateBucketRequest,
     UploadPartRequest,
     CompleteMultipartUploadRequest,
-    AbortMultipartUploadRequest,
+    AbortMultipartUploadRequest
+} from '@aws-sdk/client-s3';
+
+export {
     AbortMultipartUploadCommand
 } from '@aws-sdk/client-s3';
