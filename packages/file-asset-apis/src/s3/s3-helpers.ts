@@ -12,7 +12,6 @@ import {
 import { TSError, pDelay, AnyObject } from '@terascope/utils';
 import { S3ClientParams, S3ClientResponse, S3RetryRequest } from './client-helpers/index.js';
 
-
 export async function s3RequestWithRetry(
     retryArgs: S3RetryRequest.GetObjectWithRetry,
     attempts?: number
