@@ -4,12 +4,12 @@
     "version": "3.0.0",
     "private": true,
     "description": "A set of processors for working with files",
-    "type": "module",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/terascope/file-assets.git"
     },
     "license": "MIT",
+    "type": "module",
     "workspaces": {
         "nohoist": [
             "**"
