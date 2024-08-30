@@ -36,7 +36,7 @@
         "@terascope/eslint-config": "^0.8.0",
         "@terascope/file-asset-apis": "^1.0.1",
         "@terascope/job-components": "^1.2.0",
-        "@terascope/scripts": "file:/Users/peterluitjens/WORKSPACE/teraslice/packages/scripts",
+        "@terascope/scripts": "^1.0.1",
         "@types/fs-extra": "^11.0.2",
         "@types/jest": "^29.5.12",
         "@types/json2csv": "^5.0.7",
