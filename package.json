@@ -22,7 +22,7 @@
         "docker:limit": "./scripts/docker-limit-check.sh",
         "docker:listImages": "ts-scripts images list",
         "docker:saveImages": "ts-scripts images save",
-        "lint": "eslint --ignore-path .gitignore --ext .js,.ts .",
+        "lint": "eslint",
         "lint:fix": "yarn lint --fix",
         "publish:changed": "./scripts/publish.sh",
         "setup": "yarn && yarn build --force",
