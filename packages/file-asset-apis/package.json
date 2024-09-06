@@ -1,7 +1,7 @@
 {
     "name": "@terascope/file-asset-apis",
     "displayName": "File Asset Apis",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "file reader and sender apis",
     "homepage": "https://github.com/terascope/file-assets",
     "repository": "git@github.com:terascope/file-assets.git",
@@ -21,9 +21,9 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@aws-sdk/client-s3": "^3.637.0",
+        "@aws-sdk/client-s3": "^3.645.0",
         "@smithy/node-http-handler": "^3.1.3",
-        "@terascope/utils": "^1.0.0",
+        "@terascope/utils": "^1.0.1",
         "csvtojson": "^2.0.10",
         "fs-extra": "^11.2.0",
         "json2csv": "5.0.7",
