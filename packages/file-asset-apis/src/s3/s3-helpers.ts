@@ -168,6 +168,12 @@ export async function doesBucketExist(
         if (httpStatusCode === 403) {
             throw new TSError(`User does not have access to bucket "${params.Bucket}"`, { statusCode: 403 });
         }
+        if (
+            httpStatusCode === 400
+            && !validateBucketName(params.Bucket as string)
+        ) {
+            throw new TSError(`The specified bucket ${params.Bucket} is not valid.`);
+        }
         throw err;
     }
     return true;
@@ -226,4 +232,44 @@ export async function abortS3Multipart(
 ): Promise<void> {
     const command = new AbortMultipartUploadCommand(params);
     await client.send(command);
+}
+
+/**
+ *
+ * @param bucketName A bucket name to test valiation against
+ * @returns A bolean on whether or not a bucket name is valid
+ */
+function validateBucketName(bucketName: string): boolean {
+    /*
+        As of right now, this will just return true or false.
+        Maybe in the future we can return specific invalid
+        reasons like in the comments below.
+    */
+
+    // Regex to match valid bucket names
+    const bucketNamePattern = /^[a-z0-9]([a-z0-9.-]{1,61}[a-z0-9])?$/;
+
+    // Regex to detect IP addresses
+    const ipAddressPattern = /^(?:\d{1,3}\.){3}\d{1,3}$/;
+
+    // Bucket name must be between 3 and 63 characters.
+    if (bucketName.length < 3 || bucketName.length > 63) {
+        return false;
+    }
+
+    if (!bucketNamePattern.test(bucketName)) {
+        return false;
+    }
+
+    // No consecutive periods, dashes next to periods.
+    if (bucketName.includes('..') || bucketName.includes('-.') || bucketName.includes('.-')) {
+        return false;
+    }
+
+    // Bucket name must not be an IP address.
+    if (ipAddressPattern.test(bucketName)) {
+        return false;
+    }
+
+    return true;
 }
