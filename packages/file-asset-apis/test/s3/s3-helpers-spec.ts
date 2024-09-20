@@ -48,6 +48,13 @@ describe('S3 Helpers', () => {
             expect(nonExistent).toBeFalse();
         });
 
+        it('should throw with an invalid bucket name', async () => {
+            const invalidBucket = 'NOT-valid-bucket';
+            expect(async () =>
+                await s3Helpers.doesBucketExist(client, { Bucket: invalidBucket })
+            ).rejects.toThrow(`The specified bucket ${invalidBucket} is not valid.`);
+        });
+
         it('should list buckets', async () => {
             const list = await s3Helpers.listS3Buckets(client);
 
