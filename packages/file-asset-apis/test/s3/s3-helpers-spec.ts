@@ -48,7 +48,8 @@ describe('S3 Helpers', () => {
             expect(nonExistent).toBeFalse();
         });
 
-        it('should throw with an invalid bucket name', async () => {
+        /// Need to disable this, Will only pass with minio RELEASE.2024-08-29T01-40-52Z and above
+        xit('should throw with an invalid bucket name', async () => {
             const invalidBucket = 'NOT-valid-bucket';
             expect(async () =>
                 await s3Helpers.doesBucketExist(client, { Bucket: invalidBucket })
