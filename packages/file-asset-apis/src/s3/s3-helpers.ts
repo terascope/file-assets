@@ -162,17 +162,14 @@ export async function doesBucketExist(
     } catch (err) {
         const { httpStatusCode } = (err as S3ClientResponse.S3ErrorExceptions).$metadata ?? {};
 
-        if (httpStatusCode === 404) {
-            return false;
-        }
         if (httpStatusCode === 403) {
             throw new TSError(`User does not have access to bucket "${params.Bucket}"`, { statusCode: 403 });
-        }
-        if (
-            httpStatusCode === 400
-            && !validateBucketName(params.Bucket as string)
+        // In the case of a 4** status code, return false
+        } else if (
+            Number(httpStatusCode) >= 400 &&
+            Number(httpStatusCode) <= 500
         ) {
-            throw new TSError(`The specified bucket ${params.Bucket} is not valid.`);
+            return false;
         }
         throw err;
     }
