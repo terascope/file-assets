@@ -241,6 +241,15 @@ export function validateBucketName(bucketName: string): boolean {
         As of right now, this will just return true or false.
         Maybe in the future we can return specific invalid
         reasons like in the comments below.
+        Link to aws bucket naming rules
+        https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
+        Ceph bucket naming rules:
+        https://docs.ceph.com/en/reef/radosgw/s3/bucketops/
+        Google cloud bucket naming rules
+        https://cloud.google.com/storage/docs/buckets#:~:text=Bucket%20names%20can%20only%20contain,with%20a%20number%20or%20letter.
+        Minio bucket naming rules
+        Not availiable in the docs but has it in the Minio UI
+        https://min.io/docs/minio/kubernetes/upstream/administration/console/managing-objects.html#minio-console-buckets
     */
 
     // Regex to match valid bucket names
