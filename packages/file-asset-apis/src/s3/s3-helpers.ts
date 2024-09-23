@@ -167,7 +167,7 @@ export async function doesBucketExist(
         // In the case of a 4** status code, return false
         } else if (
             Number(httpStatusCode) >= 400 &&
-            Number(httpStatusCode) <= 500
+            Number(httpStatusCode) < 500
         ) {
             return false;
         }
