@@ -300,4 +300,21 @@ describe('S3 Helpers', () => {
             expect(deleteOutput).toBeTruthy();
         });
     });
+    describe('validateBucketName', () => {
+
+        const longBucketName = 'thisnamehasover63charactersandshouldnotbeallowedtobevaidatedhere';
+
+        it('should return true with a valid bucket name', async () => {
+            expect(s3Helpers.validateBucketName('valid-name')).toBe(true);
+        });
+
+        it('should return false with an invalid bucket name', async () => {
+            expect(s3Helpers.validateBucketName('Invalid-name')).toBe(false);
+            expect(s3Helpers.validateBucketName('127.0.0.1')).toBe(false);
+            expect(s3Helpers.validateBucketName('hb')).toBe(false);
+            expect(s3Helpers.validateBucketName(longBucketName)).toBe(false);
+            expect(s3Helpers.validateBucketName('--hello')).toBe(false);
+            expect(s3Helpers.validateBucketName('test-.')).toBe(false);
+        });
+    });
 });
