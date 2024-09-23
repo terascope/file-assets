@@ -236,10 +236,10 @@ export async function abortS3Multipart(
 
 /**
  *
- * @param bucketName A bucket name to test valiation against
+ * @param bucketName A bucket name to test validation against
  * @returns A bolean on whether or not a bucket name is valid
  */
-function validateBucketName(bucketName: string): boolean {
+export function validateBucketName(bucketName: string): boolean {
     /*
         As of right now, this will just return true or false.
         Maybe in the future we can return specific invalid
