@@ -19,7 +19,7 @@ export default class HDFSSenderFactoryAPI extends APIFactory<HDFSSender, HDFSExp
 
     async create(
         _name: string, overrideConfigs: Partial<HDFSExporterAPIConfig>
-    ):Promise<{ client: HDFSSender, config: HDFSExporterAPIConfig }> {
+    ): Promise<{ client: HDFSSender; config: HDFSExporterAPIConfig }> {
         const config = this.validateConfig(
             Object.assign({}, this.apiConfig, overrideConfigs)
         );

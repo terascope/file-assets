@@ -1,3 +1,4 @@
+/* eslint-disable jest/expect-expect */
 import {
     Format, CSVSenderConfig, Formatter,
     JSONSenderConfig, ChunkedFileSenderConfig,

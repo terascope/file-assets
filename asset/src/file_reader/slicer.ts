@@ -3,7 +3,7 @@ import { FileSlice } from '@terascope/file-asset-apis';
 import { FileReaderFactoryAPI, FileReaderAPIConfig } from '../file_reader_api/interfaces.js';
 
 export default class FileSlicerOperation extends Slicer {
-    slicer!: () => Promise<FileSlice[]|null>;
+    slicer!: () => Promise<FileSlice[] | null>;
 
     /**
      * Currently only enable autorecover jobs
@@ -27,7 +27,7 @@ export default class FileSlicerOperation extends Slicer {
         this.slicer = await api.makeSlicer();
     }
 
-    async slice(): Promise<FileSlice[]|null> {
+    async slice(): Promise<FileSlice[] | null> {
         return this.slicer();
     }
 }

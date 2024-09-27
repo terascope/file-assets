@@ -151,11 +151,13 @@ describe('S3 Fetcher API', () => {
                 car: 'Audi',
                 price: 40000,
                 color: 'blue'
-            }, {
+            },
+            {
                 car: 'BMW',
                 price: 35000,
                 color: 'black'
-            }, {
+            },
+            {
                 car: 'Porsche',
                 price: 60000,
                 color: 'green'
@@ -212,11 +214,13 @@ describe('S3 Fetcher API', () => {
                 car: 'Audi',
                 price: 40000,
                 color: 'blue'
-            }, {
+            },
+            {
                 car: 'BMW',
                 price: 35000,
                 color: 'black'
-            }, {
+            },
+            {
                 car: 'Porsche',
                 price: 60000,
                 color: 'green'

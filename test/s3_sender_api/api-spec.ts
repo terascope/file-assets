@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
 import {

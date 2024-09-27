@@ -98,7 +98,7 @@ export class S3TerasliceAPI extends S3Fetcher {
      *      { offset: 0, length: 1000, path: 'some/dir/file.txt', total: 1000 }
      *   ]
     */
-    async makeSlicer(): Promise<() => Promise<FileSlice[]|null>> {
+    async makeSlicer(): Promise<() => Promise<FileSlice[] | null>> {
         const slicer = new S3Slicer(this.client, this.slicerConfig, this.logger);
         return async function _slice() {
             return slicer.slice();

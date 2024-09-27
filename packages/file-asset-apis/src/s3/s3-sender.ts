@@ -13,8 +13,10 @@ import { isObject } from '../helpers.js';
 import { MultiPartUploader } from './MultiPartUploader.js';
 
 function validateConfig(input: unknown) {
-    if (!isObject(input)) throw new Error('Invalid config parameter, ut must be an object');
-    (input as Record<string, unknown>);
+    if (!isObject(input)) {
+        throw new Error('Invalid config parameter, ut must be an object');
+    }
+
     if (input.file_per_slice == null || input.file_per_slice === false) {
         throw new Error('Invalid parameter "file_per_slice", it must be set to true, cannot be append data to S3 objects');
     }
@@ -35,7 +37,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
      *
      */
     protected async sendToDestination(
-        { filename, chunkGenerator } : SendBatchConfig
+        { filename, chunkGenerator }: SendBatchConfig
     ): Promise<void> {
         const objPath = parsePath(filename);
         const Key = await this.createFileDestinationName(objPath.prefix);
@@ -44,7 +46,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
         let isFirstSlice = true;
         // docs say Body can be a string, but types are complaining
         let Body: any;
-        let uploader: MultiPartUploader|undefined;
+        let uploader: MultiPartUploader | undefined;
 
         try {
             for await (const chunk of chunkGenerator) {

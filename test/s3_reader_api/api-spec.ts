@@ -39,11 +39,13 @@ describe('S3 API Reader', () => {
             car: 'Audi',
             price: 40000,
             color: 'blue'
-        }, {
+        },
+        {
             car: 'BMW',
             price: 35000,
             color: 'black'
-        }, {
+        },
+        {
             car: 'Porsche',
             price: 60000,
             color: 'green'

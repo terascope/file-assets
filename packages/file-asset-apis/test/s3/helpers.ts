@@ -54,8 +54,8 @@ export async function getBodyFromResults(
 }
 
 export interface UploadConfig extends Partial<ChunkedFileSenderConfig> {
-    sliceCount: number,
-    bucket: string,
+    sliceCount: number;
+    bucket: string;
 }
 
 export async function upload(

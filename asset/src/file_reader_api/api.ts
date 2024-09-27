@@ -16,7 +16,7 @@ export default class FileReaderAPI extends APIFactory<FileTerasliceAPI, FileRead
 
     async create(
         _name: string, overrideConfigs: Partial<FileReaderAPIConfig>
-    ):Promise<{ client: FileTerasliceAPI, config: FileReaderAPIConfig }> {
+    ): Promise<{ client: FileTerasliceAPI; config: FileReaderAPIConfig }> {
         const config = this.validateConfig(Object.assign({}, this.apiConfig, overrideConfigs));
         const tryFn = this.tryRecord.bind(this);
         const rejectFn = this.rejectRecord.bind(this);

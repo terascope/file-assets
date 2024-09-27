@@ -5,4 +5,4 @@ export const DEFAULT_API_NAME = 'file_sender_api';
 
 export interface FileSenderAPIConfig extends ChunkedFileSenderConfig, APIConfig {}
 
-export type FileSenderFactoryAPI = APIFactoryRegistry<FileSender, FileSenderAPIConfig>
+export type FileSenderFactoryAPI = APIFactoryRegistry<FileSender, FileSenderAPIConfig>;

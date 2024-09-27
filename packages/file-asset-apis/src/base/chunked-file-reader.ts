@@ -73,12 +73,13 @@ export abstract class ChunkedFileReader {
     logger: Logger;
     compressor: Compressor;
     private onRejectAction: string;
-    private tryFn: (fn:(msg: any) => DataEntity) => (input: any) => DataEntity | null;
+    private tryFn: (fn: (msg: any) => DataEntity) => (input: any) => DataEntity | null;
     private rejectRecord: (input: unknown, err: unknown) => never | null;
     private config: ChunkedFileReaderConfig;
     private encodingConfig: {
-        _encoding: DataEncoding
+        _encoding: DataEncoding;
     };
+
     protected filePerSlice: boolean;
 
     constructor(inputConfig: ChunkedFileReaderConfig, logger: Logger) {
@@ -153,7 +154,7 @@ export abstract class ChunkedFileReader {
         return null;
     }
 
-    protected abstract fetch(msg: AnyObject): Promise<string>
+    protected abstract fetch(msg: AnyObject): Promise<string>;
 
     // This method will grab the chunk of data specified by the slice plus an
     // extra margin if the slice does not end with the delimiter.
@@ -260,7 +261,9 @@ export abstract class ChunkedFileReader {
                 // Check for header row. Assumes there would only be one header row in a slice
                 if (removeHeader && !foundHeader
                     && Object.keys(parsedLine)
-                        .sort().join() === Object.values(parsedLine).sort().join()) {
+                        .sort()
+                        .join() === Object.values(parsedLine).sort()
+                        .join()) {
                     foundHeader = true;
                     parsedLine = null;
                 }

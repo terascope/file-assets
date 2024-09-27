@@ -75,7 +75,7 @@ export class S3Slicer {
     /**
     * This method will return an array of file slices, or null if the slicer is done
     */
-    async slice(): Promise<FileSlice[]|null> {
+    async slice(): Promise<FileSlice[] | null> {
         // First check to see if there are more objects in S3
         if (this._doneSlicing) return null;
 

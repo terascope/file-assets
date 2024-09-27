@@ -4,7 +4,7 @@ import type { DataEntity } from '@terascope/utils';
 /**
  * Used for defining the slice records type definition
 */
-export type SendRecord = Record<string, unknown>|DataEntity;
+export type SendRecord = Record<string, unknown> | DataEntity;
 export type SendRecords = Iterable<SendRecord>;
 
 export interface S3PutConfig {
@@ -17,7 +17,7 @@ export type CSVOptions = json2csv.Options<any>;
 
 export interface ChunkedAPIMethods {
     /** can pass in your own custom try/catch logic or use the default */
-    tryFn?: (fn:(msg: any) => DataEntity) => (input: any) => DataEntity | null;
+    tryFn?: (fn: (msg: any) => DataEntity) => (input: any) => DataEntity | null;
     /** Can pass in your own custom error handler, if you do so it
      * will ignore the "on_reject_action" configuration which only works for the default
      * error handler
@@ -73,11 +73,11 @@ export interface ChunkedFileSenderConfig extends ChunkedAPIMethods {
      * modifiers from format and compression */
     extension?: string;
     file_per_slice?: boolean;
-    concurrency?: number
+    concurrency?: number;
 }
 
 export interface CSVReaderConfig extends ChunkedFileReaderConfig {
-    format: Format.csv|Format.tsv;
+    format: Format.csv | Format.tsv;
     extra_args?: CSVOptions;
     /** Ignore the empty value in tsv/csv columns.
      * @default true
@@ -109,19 +109,21 @@ export function getFieldDelimiter(config: CSVReaderConfig): string {
     return config.field_delimiter ?? ',';
 }
 
-export function getLineDelimiter(config: ChunkedFileSenderConfig|ChunkedFileReaderConfig): string {
+export function getLineDelimiter(
+    config: ChunkedFileSenderConfig | ChunkedFileReaderConfig
+): string {
     return config.line_delimiter ?? '\n';
 }
 
 export function getFieldsFromConfig(
-    config: ChunkedFileSenderConfig|ChunkedFileReaderConfig
-): string[]|undefined {
-    const fields = (config as any).fields as string[]|undefined;
+    config: ChunkedFileSenderConfig | ChunkedFileReaderConfig
+): string[] | undefined {
+    const fields = (config as any).fields as string[] | undefined;
     return fields?.length ? fields : undefined;
 }
 
 export interface CSVSenderConfig extends ChunkedFileSenderConfig {
-    format: Format.csv|Format.tsv;
+    format: Format.csv | Format.tsv;
 
     /**
      * List of fields to process, will default to all of them
@@ -205,13 +207,13 @@ export function isLDJSONSenderConfig(
 }
 
 export interface ReaderConfig extends ChunkedFileReaderConfig {
-    size: number,
+    size: number;
     path: string;
 }
 
 export interface HDFSReaderConfig extends ChunkedFileReaderConfig {
     user: string;
-    size: number
+    size: number;
 }
 
 export enum FileSenderType {
@@ -232,8 +234,8 @@ export interface NameOptions {
     sliceCount?: number;
     id: string;
     extension?: string;
-    format: Format,
-    compression?: Compression
+    format: Format;
+    compression?: Compression;
 }
 
 export interface Offsets {
@@ -281,4 +283,4 @@ export interface FileSliceConfig extends SliceConfig {
     path: string;
 }
 
-export type FetcherFn = (slice: FileSlice) => Promise<string>
+export type FetcherFn = (slice: FileSlice) => Promise<string>;

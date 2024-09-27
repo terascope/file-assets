@@ -16,7 +16,7 @@ export default class HDFSReaderFactoryAPI extends APIFactory<HDFSReader, HDFSRea
 
     async create(
         _name: string, overrideConfigs: Partial<HDFSReaderApiConfig>
-    ):Promise<{ client: HDFSReader, config: HDFSReaderApiConfig }> {
+    ): Promise<{ client: HDFSReader; config: HDFSReaderApiConfig }> {
         const config = this.validateConfig(Object.assign({}, this.apiConfig, overrideConfigs));
         const { client: s3Client } = await this.context.apis.foundation.createClient({
             endpoint: config.connection,

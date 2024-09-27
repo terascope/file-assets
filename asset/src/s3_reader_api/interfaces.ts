@@ -5,4 +5,4 @@ export const DEFAULT_API_NAME = 's3_reader_api';
 
 export interface S3ReaderAPIConfig extends ReaderConfig, APIConfig {}
 
-export type S3ReaderFactoryAPI = APIFactoryRegistry<S3TerasliceAPI, S3ReaderAPIConfig>
+export type S3ReaderFactoryAPI = APIFactoryRegistry<S3TerasliceAPI, S3ReaderAPIConfig>;

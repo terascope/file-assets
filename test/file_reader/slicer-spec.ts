@@ -12,7 +12,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 describe('File slicer json files', () => {
     let harness: SlicerTestHarness;
     let testDataDir: string;
-    let slices: (SliceRequest|null)[];
+    let slices: (SliceRequest | null)[];
 
     beforeAll(async () => {
         testDataDir = await fixtures.copyFixtureIntoTempDir(dirname, 'file_reader/json');
@@ -35,7 +35,7 @@ describe('File slicer json files', () => {
 
         await harness.initialize();
 
-        slices = await harness.getAllSlices() as (SliceRequest|null)[];
+        slices = await harness.getAllSlices() as (SliceRequest | null)[];
     });
 
     afterAll(async () => {
@@ -69,7 +69,7 @@ describe('File slicer json files', () => {
 });
 
 describe('File slicer non json files', () => {
-    let slices: (SliceRequest|null)[];
+    let slices: (SliceRequest | null)[];
     let harness: SlicerTestHarness;
     let testDataDir: string;
 
@@ -96,7 +96,7 @@ describe('File slicer non json files', () => {
 
         await harness.initialize();
 
-        slices = await harness.getAllSlices() as (SliceRequest|null)[];
+        slices = await harness.getAllSlices() as (SliceRequest | null)[];
     });
 
     afterAll(async () => {

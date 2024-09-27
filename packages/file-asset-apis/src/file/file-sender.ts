@@ -7,6 +7,7 @@ export class FileSender extends ChunkedFileSender implements RouteSenderAPI {
     constructor(config: ChunkedFileSenderConfig, logger: Logger) {
         super(FileSenderType.file, config, logger);
     }
+
     /**
      * This is a low level API, it is not meant to be used externally,
      * please use the "send" method instead
@@ -14,7 +15,7 @@ export class FileSender extends ChunkedFileSender implements RouteSenderAPI {
     protected async sendToDestination(
         { dest, chunkGenerator }: SendBatchConfig
     ): Promise<void> {
-        let fd: number|undefined;
+        let fd: number | undefined;
 
         if (this.config.file_per_slice) {
             // we need to move the file to avoid

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import 'jest-extended';
 import { DataEntity, debugLogger } from '@terascope/utils';
 import {
@@ -31,7 +30,7 @@ describe('ChunkedSlicer', () => {
         async sendToDestination(
             { dest, chunkGenerator }: SendBatchConfig
         ) {
-            let output: Buffer|string|undefined;
+            let output: Buffer | string | undefined;
 
             for await (const chunk of chunkGenerator) {
                 if (chunk.has_more) {

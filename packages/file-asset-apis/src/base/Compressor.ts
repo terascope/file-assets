@@ -4,7 +4,7 @@ import { getLZ4 } from './lz4.js';
 
 const { gzip, ungzip } = pkg;
 
-async function lz4Compress(data: Buffer|string): Promise<Buffer> {
+async function lz4Compress(data: Buffer | string): Promise<Buffer> {
     const { compress } = await getLZ4();
     return compress(
         Buffer.isBuffer(data)
@@ -13,35 +13,35 @@ async function lz4Compress(data: Buffer|string): Promise<Buffer> {
     );
 }
 
-async function gzipCompress(data: Buffer|string): Promise<Buffer> {
+async function gzipCompress(data: Buffer | string): Promise<Buffer> {
     return gzip(data);
 }
 
-async function noneCompress(data: Buffer|string): Promise<Buffer> {
+async function noneCompress(data: Buffer | string): Promise<Buffer> {
     return Buffer.isBuffer(data)
         ? data
         : Buffer.from(data);
 }
 
-async function lz4Decompress(data: Buffer|string): Promise<string> {
+async function lz4Decompress(data: Buffer | string): Promise<string> {
     const { decompress } = await getLZ4();
     const buf = decompress(data);
     return buf.toString();
 }
 
-async function gzipDecompress(data: Buffer|string): Promise<string> {
+async function gzipDecompress(data: Buffer | string): Promise<string> {
     const uncompressed = await ungzip(data as any);
     return uncompressed.toString();
 }
 
-async function noneDecompress(data: Buffer|string): Promise<string> {
+async function noneDecompress(data: Buffer | string): Promise<string> {
     return Buffer.isBuffer(data) ? data.toString() : data;
 }
 
 export class Compressor {
     readonly type: Compression;
-    compress: (data: Buffer|string) => Promise<Buffer>;
-    decompress: (data: Buffer|string) => Promise<string>;
+    compress: (data: Buffer | string) => Promise<Buffer>;
+    decompress: (data: Buffer | string) => Promise<string>;
 
     constructor(type: Compression = Compression.none) {
         this.type = type;

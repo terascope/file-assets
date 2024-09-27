@@ -15,19 +15,19 @@ import { S3ClientParams, S3ClientResponse, S3RetryRequest } from './client-helpe
 export async function s3RequestWithRetry(
     retryArgs: S3RetryRequest.GetObjectWithRetry,
     attempts?: number
-): Promise<S3ClientResponse.GetObjectCommandOutput>
+): Promise<S3ClientResponse.GetObjectCommandOutput>;
 export async function s3RequestWithRetry(
     retryArgs: S3RetryRequest.PutObjectWithRetry,
     attempts?: number
-): Promise<S3ClientResponse.PutObjectCommandOutput>
+): Promise<S3ClientResponse.PutObjectCommandOutput>;
 export async function s3RequestWithRetry(
     retryArgs: S3RetryRequest.DeleteObjectWithRetry,
     attempts?: number
-): Promise<S3ClientResponse.DeleteObjectCommandOutput>
+): Promise<S3ClientResponse.DeleteObjectCommandOutput>;
 export async function s3RequestWithRetry(
     retryArgs: S3RetryRequest.ListObjectsWithRetry,
     attempts?: number
-): Promise<S3ClientResponse.ListObjectsV2CommandOutput>
+): Promise<S3ClientResponse.ListObjectsV2CommandOutput>;
 export async function s3RequestWithRetry(
     retryArgs: S3RetryRequest.RetryArgs,
     attempts = 1
@@ -166,8 +166,8 @@ export async function doesBucketExist(
             throw new TSError(`User does not have access to bucket "${params.Bucket}"`, { statusCode: 403 });
         // In the case of a 4** status code, return false
         } else if (
-            Number(httpStatusCode) >= 400 &&
-            Number(httpStatusCode) < 500
+            Number(httpStatusCode) >= 400
+            && Number(httpStatusCode) < 500
         ) {
             return false;
         }
