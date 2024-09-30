@@ -114,7 +114,7 @@ export abstract class ChunkedFileSender {
         };
     }
 
-    abstract verify(path: string): Promise<void>
+    abstract verify(path: string): Promise<void>;
 
     /**
      * Verifies that the base file path exists and that the destination
@@ -170,6 +170,7 @@ export abstract class ChunkedFileSender {
 
         return path;
     }
+
     /**
      * Batches records in a slice into groups based on the "path" config
      * or by the DataEntity metadata 'standard:route' override if
@@ -224,7 +225,7 @@ export abstract class ChunkedFileSender {
 
     protected abstract sendToDestination(
         config: SendBatchConfig
-    ): Promise<void>
+    ): Promise<void>;
 
     /**
      * Write data to file, uses parent "sendToDestination" method to determine location

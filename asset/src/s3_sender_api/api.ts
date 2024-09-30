@@ -19,7 +19,7 @@ export default class S3SenderAPI extends APIFactory<S3Sender, S3ExporterAPIConfi
 
     async create(
         _name: string, overrideConfigs: Partial<S3ExporterAPIConfig>
-    ):Promise<{ client: S3Sender, config: S3ExporterAPIConfig }> {
+    ): Promise<{ client: S3Sender; config: S3ExporterAPIConfig }> {
         const config = this.validateConfig(
             Object.assign({}, this.apiConfig, overrideConfigs)
         );

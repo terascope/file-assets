@@ -293,7 +293,6 @@ describe('S3 Helpers', () => {
         });
     });
     describe('validateBucketName', () => {
-
         const longBucketName = 'thisnamehasover63charactersandshouldnotbeallowedtobevaidatedhere';
 
         it('should return true with a valid bucket name', async () => {

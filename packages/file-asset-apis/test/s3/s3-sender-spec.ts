@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import 'jest-extended';
 import {
     DataEntity, debugLogger, isString, times

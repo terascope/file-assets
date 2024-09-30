@@ -71,7 +71,7 @@ export class FileSlicer {
     /**
     * This method will return an array of file slices, or null if the slicer is done
     */
-    async slice(): Promise<FileSlice[]|null> {
+    async slice(): Promise<FileSlice[] | null> {
         if (this.directories.length > 0) {
             return this.getFilePaths(this.directories.shift() as string);
         }

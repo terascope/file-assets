@@ -18,15 +18,15 @@ import {
     SendRecord,
 } from '../interfaces.js';
 
-export type FormatterOptions = Omit<ChunkedFileSenderConfig, 'id'|'path'|'compression'|'file_per_slice'>;
+export type FormatterOptions = Omit<ChunkedFileSenderConfig, 'id' | 'path' | 'compression' | 'file_per_slice'>;
 
 type MakeFormatFn = (
     config: FormatterOptions, csvOptions: json2csv.Options<any>
-) => FormatFn
+) => FormatFn;
 
 type FormatFn = (
-    slice: SendRecords|SendRecord, isFirstSlice: boolean
-) => string
+    slice: SendRecords | SendRecord, isFirstSlice: boolean
+) => string;
 
 function makeCSVOrTSVFunction(
     _config: FormatterOptions, csvOptions: json2csv.Options<any>
@@ -64,7 +64,7 @@ function makeLDJSONFunction(config: FormatterOptions): FormatFn {
 function makeJSONFunction(config: FormatterOptions): FormatFn {
     const fields = getFieldsFromConfig(config);
     return function jsonFormat(
-        slice: SendRecords|SendRecord,
+        slice: SendRecords | SendRecord,
     ) {
         return JSON.stringify(castArray(slice), fields);
     };

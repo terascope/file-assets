@@ -12,7 +12,7 @@ export interface Chunk {
     /**
      * The chunk of data to published
     */
-    readonly data: Buffer|string;
+    readonly data: Buffer | string;
 
     /**
      * Indicates whether there are more chunks to be processed
@@ -77,7 +77,7 @@ export class ChunkGenerator {
         */
         let chunkStr = '';
 
-        let chunk: Chunk|undefined;
+        let chunk: Chunk | undefined;
         for (const [str, has_more] of this.formatter.formatIterator(this.slice)) {
             chunk = undefined;
 

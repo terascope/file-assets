@@ -17,31 +17,31 @@ export type S3RetryResponse =
     PutObjectCommandOutput | DeleteObjectCommandOutput;
 
 export type RetryArgs = {
-    client: S3Client,
-    func: (client: S3Client, params: any) => Promise<S3RetryResponse>,
-    params: S3RetryParams
+    client: S3Client;
+    func: (client: S3Client, params: any) => Promise<S3RetryResponse>;
+    params: S3RetryParams;
 };
 
 export type ListObjectsWithRetry = {
-    client: S3Client,
-    func: (client: S3Client, params: ListObjectsV2Request) => Promise<ListObjectsV2CommandOutput>,
-    params: ListObjectsV2Request
+    client: S3Client;
+    func: (client: S3Client, params: ListObjectsV2Request) => Promise<ListObjectsV2CommandOutput>;
+    params: ListObjectsV2Request;
 };
 
 export type GetObjectWithRetry = {
-    client: S3Client,
-    func: (client: S3Client, params: GetObjectRequest) => Promise<GetObjectCommandOutput>,
-    params: GetObjectRequest
+    client: S3Client;
+    func: (client: S3Client, params: GetObjectRequest) => Promise<GetObjectCommandOutput>;
+    params: GetObjectRequest;
 };
 
 export type PutObjectWithRetry = {
-    client: S3Client,
-    func: (client: S3Client, params: PutObjectRequest) => Promise<PutObjectCommandOutput>,
-    params: PutObjectRequest
+    client: S3Client;
+    func: (client: S3Client, params: PutObjectRequest) => Promise<PutObjectCommandOutput>;
+    params: PutObjectRequest;
 };
 
 export type DeleteObjectWithRetry = {
-    client: S3Client,
-    func: (client: S3Client, params: DeleteObjectRequest) => Promise<DeleteObjectCommandOutput>,
-    params: DeleteObjectRequest
+    client: S3Client;
+    func: (client: S3Client, params: DeleteObjectRequest) => Promise<DeleteObjectCommandOutput>;
+    params: DeleteObjectRequest;
 };

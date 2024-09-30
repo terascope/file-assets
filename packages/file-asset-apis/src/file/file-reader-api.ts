@@ -134,7 +134,7 @@ export class FileTerasliceAPI extends FileFetcher {
      *   ]
     */
 
-    async makeSlicer(): Promise<() => Promise<FileSlice[]|null>> {
+    async makeSlicer(): Promise<() => Promise<FileSlice[] | null>> {
         const slicer = new FileSlicer(this.slicerConfig, this.logger);
         return async function _slice() {
             return slicer.slice();

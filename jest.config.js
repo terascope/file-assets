@@ -31,13 +31,14 @@ export default {
     preset: 'ts-jest',
     extensionsToTreatAsEsm: ['.ts'],
     transform: {
-        '\\.[jt]sx?$': ['ts-jest', {
-            isolatedModules: true,
-            tsconfig: './tsconfig.json',
-            diagnostics: true,
-            pretty: true,
-            useESM: true
-        }]
+        '\\.[jt]sx?$': ['ts-jest',
+            {
+                isolatedModules: true,
+                tsconfig: './tsconfig.json',
+                diagnostics: true,
+                pretty: true,
+                useESM: true
+            }]
     },
     globals: {
         ignoreDirectories: ['dist'],

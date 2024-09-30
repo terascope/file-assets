@@ -23,7 +23,7 @@ export class MultiPartUploader {
     /**
      * This will be set once start is called
     */
-    private uploadId: string|undefined;
+    private uploadId: string | undefined;
 
     /**
      * This will be used to throw an error if any new
@@ -129,7 +129,7 @@ export class MultiPartUploader {
      * Enqueue a part upload request
     */
     async enqueuePart(
-        body: Buffer|string, partNumber: number
+        body: Buffer | string, partNumber: number
     ): Promise<void> {
         if (this.finishing) {
             throw new Error(`MultiPartUploader already finishing, cannot upload part #${partNumber}`);
@@ -163,7 +163,7 @@ export class MultiPartUploader {
     /**
      * Make the s3 part upload request
     */
-    private async _uploadPart(body: Buffer|string, partNumber: number): Promise<void> {
+    private async _uploadPart(body: Buffer | string, partNumber: number): Promise<void> {
         if (!this.uploadId) {
             throw Error('Expected MultiPartUploader->start to have been finished');
         }

@@ -20,7 +20,7 @@ export default class FileSenderAPI extends APIFactory<FileSender, FileSenderAPIC
 
     async create(
         _name: string, overrideConfigs: Partial<FileSenderAPIConfig> = {}
-    ):Promise<{ client: FileSender, config: FileSenderAPIConfig }> {
+    ): Promise<{ client: FileSender; config: FileSenderAPIConfig }> {
         const config = this.validateConfig(
             Object.assign({}, this.apiConfig, overrideConfigs)
         );
