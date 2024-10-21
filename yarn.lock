@@ -2895,10 +2895,10 @@ awesome-phonenumber@^7.2.0:
   resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-7.2.0.tgz#009ec06cebfdf8a41b60cfb421ac2c842dbf3a35"
   integrity sha512-CqH0TyDMHiMhqGRg/kaJDiV5KRok5AdrJKvUsED9/QRQdiCjUzp32+NqEEnY+OWEDTeeqlyLsLs7SLR/sPQU2A==
 
-aws-sdk-client-mock@^4.0.2:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/aws-sdk-client-mock/-/aws-sdk-client-mock-4.0.2.tgz#78409d4d8abe2229909920345c079d3e289677a3"
-  integrity sha512-saFLXQPqHuMH0A1peNIGoAFEq9B0bpS5y5qrr+Y5F86MasVkCctggHKhHPRVjGr852Nz7cLg/PBxKs6lQoK3mg==
+aws-sdk-client-mock@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk-client-mock/-/aws-sdk-client-mock-4.1.0.tgz#ae1950b2277f8e65f9a039975d79ff9fffab39e3"
+  integrity sha512-h/tOYTkXEsAcV3//6C1/7U4ifSpKyJvb6auveAepqqNJl6TdZaPFEtKjBQNf8UxQdDP850knB2i/whq4zlsxJw==
   dependencies:
     "@types/sinon" "^17.0.3"
     sinon "^18.0.1"
