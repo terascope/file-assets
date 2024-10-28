@@ -38,7 +38,7 @@
         "@terascope/job-components": "^1.5.1",
         "@terascope/scripts": "^1.4.1",
         "@types/fs-extra": "^11.0.2",
-        "@types/jest": "^29.5.13",
+        "@types/jest": "^29.5.14",
         "@types/json2csv": "^5.0.7",
         "@types/node": "^20.14.9",
         "@types/node-gzip": "^1.1.0",
