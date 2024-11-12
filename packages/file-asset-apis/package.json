@@ -21,23 +21,23 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@aws-sdk/client-s3": "^3.689.0",
-        "@smithy/node-http-handler": "^3.2.5",
-        "@terascope/utils": "^1.1.0",
-        "csvtojson": "^2.0.10",
-        "fs-extra": "^11.2.0",
+        "@aws-sdk/client-s3": "~3.689.0",
+        "@smithy/node-http-handler": "~3.2.5",
+        "@terascope/utils": "~1.4.0",
+        "csvtojson": "~2.0.10",
+        "fs-extra": "~11.2.0",
         "json2csv": "5.0.7",
-        "lz4-asm": "^0.4.2",
-        "node-gzip": "^1.1.2"
+        "lz4-asm": "~0.4.2",
+        "node-gzip": "~1.1.2"
     },
     "devDependencies": {
-        "@terascope/scripts": "^1.5.0",
-        "@types/jest": "^29.5.14",
-        "aws-sdk-client-mock": "^4.1.0",
-        "jest": "^29.7.0",
-        "jest-extended": "^4.0.2",
-        "jest-fixtures": "^0.6.0",
-        "ts-jest": "^29.2.5"
+        "@terascope/scripts": "~1.5.0",
+        "@types/jest": "~29.5.14",
+        "aws-sdk-client-mock": "~4.1.0",
+        "jest": "~29.7.0",
+        "jest-extended": "~4.0.2",
+        "jest-fixtures": "~0.6.0",
+        "ts-jest": "~29.2.5"
     },
     "peerDependencies": {},
     "engines": {

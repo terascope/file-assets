@@ -78,7 +78,7 @@
     "@smithy/util-utf8" "^2.0.0"
     tslib "^2.6.2"
 
-"@aws-sdk/client-s3@^3.689.0":
+"@aws-sdk/client-s3@~3.689.0":
   version "3.689.0"
   resolved "https://registry.yarnpkg.com/@aws-sdk/client-s3/-/client-s3-3.689.0.tgz#50d57f13f3932f6332a6247f479f62143520728a"
   integrity sha512-qYD1GJEPeLM6H3x8BuAAMXZltvVce5vGiwtZc9uMkBBo3HyFnmPitIPTPfaD1q8LOn/7KFdkY4MJ4e8D3YpV9g==
@@ -1684,7 +1684,7 @@
     "@smithy/types" "^3.6.0"
     tslib "^2.6.2"
 
-"@smithy/node-http-handler@^3.2.5":
+"@smithy/node-http-handler@^3.2.5", "@smithy/node-http-handler@~3.2.5":
   version "3.2.5"
   resolved "https://registry.yarnpkg.com/@smithy/node-http-handler/-/node-http-handler-3.2.5.tgz#ad9d9ba1528bf0d4a655135e978ecc14b3df26a2"
   integrity sha512-PkOwPNeKdvX/jCpn0A8n9/TyoxjGZB8WVoJmm9YzsnAgggTj4CrjpRHlTQw7dlLZ320n1mY1y+nTRUDViKi/3w==
@@ -2001,7 +2001,7 @@
   dependencies:
     defer-to-connect "^2.0.1"
 
-"@terascope/eslint-config@^1.1.0":
+"@terascope/eslint-config@~1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@terascope/eslint-config/-/eslint-config-1.1.0.tgz#07a720beacb7efb48dc1d5b01d585832e001df57"
   integrity sha512-gAfV8x5FPbbCu+pwRgu0b+VJ3VKsLu8l/ziOnO2ATo4zZXhXulQDuPiYoz/ZPem/YdwYgqZDL1Hr2haZerBudQ==
@@ -2035,13 +2035,13 @@
     progress "^2.0.3"
     yargs "^17.2.1"
 
-"@terascope/job-components@^1.5.3":
-  version "1.5.3"
-  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-1.5.3.tgz#f8d180dd08b6fe955b4501ca96f2a629473a434f"
-  integrity sha512-H0OycdzTJTwLqoZBlT8q9xgiCk+NDs9ZtND6EpxRdiLBXDN3zmhnPPALHPLMO3Wz/DZU0Ip4AsKJ+jNOArOG9w==
+"@terascope/job-components@~1.6.0":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-1.6.0.tgz#3def9d2f09e777974c923c9ed72c93a59cd2b6b6"
+  integrity sha512-0UoWLgQROx4CSqtPEBnkb/pbudl9o+vF9iX9N1a+VXORrzHUtnMr7DJZ4YtSZFdwaAeZI7gSvlan9YsEW6xS3g==
   dependencies:
-    "@terascope/types" "^1.2.0"
-    "@terascope/utils" "^1.3.2"
+    "@terascope/types" "^1.3.0"
+    "@terascope/utils" "^1.4.0"
     convict "^6.2.4"
     convict-format-with-moment "^6.2.0"
     convict-format-with-validator "^6.2.0"
@@ -2050,7 +2050,7 @@
     prom-client "^15.1.3"
     uuid "^10.0.0"
 
-"@terascope/scripts@^1.5.0":
+"@terascope/scripts@~1.5.0":
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/@terascope/scripts/-/scripts-1.5.0.tgz#474127ce9152c465cc40a8273177146bea880ec8"
   integrity sha512-IHrVWsd8qx9yUdMomjVbbjb7d8BUZZjQQv3BeQ57MTza9Ic+Zn2GseNTNATgpaHxRHCz3YZbRsoZ24Q7zjf0Yw==
@@ -2086,13 +2086,62 @@
   dependencies:
     prom-client "^15.1.3"
 
-"@terascope/utils@^1.1.0", "@terascope/utils@^1.3.2":
+"@terascope/types@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@terascope/types/-/types-1.3.0.tgz#5b890fd84a10cd08e66d9f979b729a8a9d2b1d60"
+  integrity sha512-Dlz7xK4J2aj86YqMyYBFCBe1JsfVEgXHlCDr8pTr+O/5LEpWhEe256c+2Vq1GR5mDuEfmpDk3PkMNOajlxdsTQ==
+  dependencies:
+    prom-client "^15.1.3"
+
+"@terascope/utils@^1.3.2":
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-1.3.2.tgz#c9f22523a1dc0d578c1c3428303f0f2076edbf69"
   integrity sha512-HNnZtkwQjOyH907lt4wX1avNtyyE1anXzvbBTc9YuX9SPVbeff92+mjYL+6qWtuv/TiHlKBT77+F1i5eB8WEuA==
   dependencies:
     "@chainsafe/is-ip" "^2.0.2"
     "@terascope/types" "^1.2.0"
+    "@turf/bbox" "^7.1.0"
+    "@turf/bbox-polygon" "^7.1.0"
+    "@turf/boolean-contains" "^7.1.0"
+    "@turf/boolean-disjoint" "^7.1.0"
+    "@turf/boolean-equal" "^7.1.0"
+    "@turf/boolean-intersects" "^7.1.0"
+    "@turf/boolean-point-in-polygon" "^7.1.0"
+    "@turf/boolean-within" "^7.1.0"
+    "@turf/circle" "^7.1.0"
+    "@turf/helpers" "^7.1.0"
+    "@turf/invariant" "^7.1.0"
+    "@turf/line-to-polygon" "^7.1.0"
+    "@types/lodash-es" "^4.17.12"
+    "@types/validator" "^13.12.2"
+    awesome-phonenumber "^7.2.0"
+    date-fns "^4.1.0"
+    date-fns-tz "^3.2.0"
+    datemath-parser "^1.0.6"
+    debug "^4.3.7"
+    geo-tz "^8.1.1"
+    ip-bigint "^8.2.0"
+    ip-cidr "^4.0.2"
+    ip6addr "^0.2.5"
+    ipaddr.js "^2.2.0"
+    is-cidr "^5.1.0"
+    is-plain-object "^5.0.0"
+    js-string-escape "^1.0.1"
+    kind-of "^6.0.3"
+    latlon-geohash "^2.0.0"
+    lodash-es "^4.17.21"
+    mnemonist "^0.39.8"
+    p-map "^7.0.2"
+    shallow-clone "^3.0.1"
+    validator "^13.12.0"
+
+"@terascope/utils@^1.4.0", "@terascope/utils@~1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@terascope/utils/-/utils-1.4.0.tgz#92001274fc8b3becc75b80b3ba5d85d6d932a73c"
+  integrity sha512-7BnKfzDx0YEW8EdJI4JCYS7rmdI1h1M3CMaiyEsD81BKUF8eyid9z841BlzuqUzjIxTlpRuF5TOddwxsbq4hRg==
+  dependencies:
+    "@chainsafe/is-ip" "^2.0.2"
+    "@terascope/types" "^1.3.0"
     "@turf/bbox" "^7.1.0"
     "@turf/bbox-polygon" "^7.1.0"
     "@turf/boolean-contains" "^7.1.0"
@@ -2399,7 +2448,7 @@
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-1.0.6.tgz#628effeeae2064a1b4e79f78e81d87b7e5fc7b50"
   integrity sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==
 
-"@types/fs-extra@^11.0.2":
+"@types/fs-extra@~11.0.2":
   version "11.0.4"
   resolved "https://registry.yarnpkg.com/@types/fs-extra/-/fs-extra-11.0.4.tgz#e16a863bb8843fba8c5004362b5a73e17becca45"
   integrity sha512-yTbItCNreRooED33qjunPthRcSjERP1r4MqCZc7wv0u2sUkzTFp45tgUfS5+r7FrZPdmCCNflLhVSP/o+SemsQ==
@@ -2443,7 +2492,7 @@
   dependencies:
     "@types/istanbul-lib-report" "*"
 
-"@types/jest@^29.5.14":
+"@types/jest@~29.5.14":
   version "29.5.14"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-29.5.14.tgz#2b910912fa1d6856cadcd0c1f95af7df1d6049e5"
   integrity sha512-ZN+4sdnLUbo8EVvVc2ao0GFW6oVrQRPn4K2lglySj7APvSrgzxHiNNK99us4WDMi57xxA2yggblIAMNhXOotLQ==
@@ -2461,7 +2510,7 @@
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.15.tgz#596a1747233694d50f6ad8a7869fcb6f56cf5841"
   integrity sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==
 
-"@types/json2csv@^5.0.7":
+"@types/json2csv@~5.0.7":
   version "5.0.7"
   resolved "https://registry.yarnpkg.com/@types/json2csv/-/json2csv-5.0.7.tgz#c80ff09b669f8e3ee60be19d91326275a6a2346b"
   integrity sha512-Ma25zw9G9GEBnX8b12R4EYvnFT6dBh8L3jwsN5EUFXa+fl2dqmbLDbNWN0XuQU3rSXdsbBeCYjI9uHU2PUBxhA==
@@ -2499,7 +2548,7 @@
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.17.9.tgz#0dc4902c229f6b8e2ac5456522104d7b1a230290"
   integrity sha512-w9iWudx1XWOHW5lQRS9iKpK/XuRhnN+0T7HvdCCd802FYkT1AMTnxndJHGrNJwRoRHkslGr4S29tjm1cT7x/7w==
 
-"@types/node-gzip@^1.1.0":
+"@types/node-gzip@~1.1.0":
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/@types/node-gzip/-/node-gzip-1.1.3.tgz#cc9c78ecc58b2e19aa9fe6f6a95fd8a36062cb27"
   integrity sha512-gonKbqhKCTrnTpgM5VoVIILYF6odOS4nN2xaIkOUq8ckdrbD3PyF6h5SHIM23eHK/Q1dpHAQsWk5v2WUW7q14Q==
@@ -2513,12 +2562,12 @@
   dependencies:
     undici-types "~6.19.2"
 
-"@types/node@^20.14.9":
-  version "20.16.10"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.16.10.tgz#0cc3fdd3daf114a4776f54ba19726a01c907ef71"
-  integrity sha512-vQUKgWTjEIRFCvK6CyriPH3MZYiYlNy0fKiEYHWbcoWLEgs4opurGGKlebrTLqdSMIbXImH6XExNiIyNUv3WpA==
+"@types/node@~22.9.0":
+  version "22.9.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.9.0.tgz#b7f16e5c3384788542c72dc3d561a7ceae2c0365"
+  integrity sha512-vuyHg81vvWA1Z1ELfvLko2c8f34gyA0zaic0+Rllc5lbCnbSyuvb2Oxpm6TAUAC/2xZN3QGqxBNggD1nNR2AfQ==
   dependencies:
-    undici-types "~6.19.2"
+    undici-types "~6.19.8"
 
 "@types/request@^2.47.1":
   version "2.48.12"
@@ -2977,7 +3026,7 @@ awesome-phonenumber@^7.2.0:
   resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-7.2.0.tgz#009ec06cebfdf8a41b60cfb421ac2c842dbf3a35"
   integrity sha512-CqH0TyDMHiMhqGRg/kaJDiV5KRok5AdrJKvUsED9/QRQdiCjUzp32+NqEEnY+OWEDTeeqlyLsLs7SLR/sPQU2A==
 
-aws-sdk-client-mock@^4.1.0:
+aws-sdk-client-mock@~4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/aws-sdk-client-mock/-/aws-sdk-client-mock-4.1.0.tgz#ae1950b2277f8e65f9a039975d79ff9fffab39e3"
   integrity sha512-h/tOYTkXEsAcV3//6C1/7U4ifSpKyJvb6auveAepqqNJl6TdZaPFEtKjBQNf8UxQdDP850knB2i/whq4zlsxJw==
@@ -3491,7 +3540,7 @@ cross-spawn@^7.0.0, cross-spawn@^7.0.2, cross-spawn@^7.0.3:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
-csvtojson@^2.0.10:
+csvtojson@~2.0.10:
   version "2.0.10"
   resolved "https://registry.yarnpkg.com/csvtojson/-/csvtojson-2.0.10.tgz#11e7242cc630da54efce7958a45f443210357574"
   integrity sha512-lUWFxGKyhraKCW8Qghz6Z0f2l/PqB1W3AO0HKJzGIQ5JRSlR651ekJDiGJbBT4sRNNv5ddnSGVEnsxP9XRCVpQ==
@@ -4090,7 +4139,7 @@ eslint-visitor-keys@^4.0.0, eslint-visitor-keys@^4.2.0:
   resolved "https://registry.yarnpkg.com/eslint-visitor-keys/-/eslint-visitor-keys-4.2.0.tgz#687bacb2af884fcdda8a6e7d65c606f46a14cd45"
   integrity sha512-UyLnSehNt62FFhSwjZlHmeokpRK59rcz29j+F1/aDgbkbRTk7wIc9XzdoasMUbRNKDM0qQt/+BJ4BrpFeABemw==
 
-eslint@^9.10.0, eslint@^9.14.0:
+eslint@^9.10.0, eslint@~9.14.0:
   version "9.14.0"
   resolved "https://registry.yarnpkg.com/eslint/-/eslint-9.14.0.tgz#534180a97c00af08bcf2b60b0ebf0c4d6c1b2c95"
   integrity sha512-c2FHsVBr87lnUtjP4Yhvk4yEhKrQavGafRA/Se1ouse8PfbfC/Qh9Mxa00yWsZRlqeUB9raXip0aiiUZkgnr9g==
@@ -4456,7 +4505,7 @@ fs-constants@^1.0.0:
   resolved "https://registry.yarnpkg.com/fs-constants/-/fs-constants-1.0.0.tgz#6be0de9be998ce16af8afc24497b9ee9b7ccd9ad"
   integrity sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==
 
-fs-extra@^11.2.0:
+fs-extra@^11.2.0, fs-extra@~11.2.0:
   version "11.2.0"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-11.2.0.tgz#e70e17dfad64232287d01929399e0ea7c86b0e5b"
   integrity sha512-PmDi3uwK5nFuXh7XDTlVnS17xJS7vW36is2+w3xcv8SVxiB4NyATf4ctkVY5bkSjX0Y4nbvZCq1/EjtEyr9ktw==
@@ -5493,7 +5542,7 @@ jest-environment-node@^29.7.0:
     jest-mock "^29.7.0"
     jest-util "^29.7.0"
 
-jest-extended@^4.0.2:
+jest-extended@~4.0.2:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/jest-extended/-/jest-extended-4.0.2.tgz#d23b52e687cedf66694e6b2d77f65e211e99e021"
   integrity sha512-FH7aaPgtGYHc9mRjriS0ZEHYM5/W69tLrFTIdzm+yJgeoCmmrSB/luSfMSqWP9O29QWHPEmJ4qmU6EwsZideog==
@@ -5501,7 +5550,7 @@ jest-extended@^4.0.2:
     jest-diff "^29.0.0"
     jest-get-type "^29.0.0"
 
-jest-fixtures@^0.6.0:
+jest-fixtures@~0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/jest-fixtures/-/jest-fixtures-0.6.0.tgz#7a58475aa7f404d84c9b72d324ed0b285ba6f3ae"
   integrity sha512-ugqOq1HnJYgFGfmK8cc2jQbjcw4g00KqJNZfajTRZlYjnRschnmYuMrsb20aG74pg8R+zh6q72P3yPG7SnPMfA==
@@ -5740,7 +5789,7 @@ jest-worker@^29.7.0:
     merge-stream "^2.0.0"
     supports-color "^8.0.0"
 
-jest@^29.7.0:
+jest@~29.7.0:
   version "29.7.0"
   resolved "https://registry.yarnpkg.com/jest/-/jest-29.7.0.tgz#994676fc24177f088f1c5e3737f5697204ff2613"
   integrity sha512-NIy3oAFp9shda19hy4HK0HRTWKtPJmGdnvywu01nOqNC2vZg+Z+fvJDxpMQA88eb2I9EcafcdjYgsDthnYTvGw==
@@ -6098,7 +6147,7 @@ lunr@^2.3.9:
   resolved "https://registry.yarnpkg.com/lunr/-/lunr-2.3.9.tgz#18b123142832337dd6e964df1a5a7707b25d35e1"
   integrity sha512-zTU3DaZaF3Rt9rhN3uBMGQD3dD2/vFQqnvZCDv4dl5iOzq2IZQqTxu90r4E5J+nP70J3ilqVCrbho2eWaeW8Ow==
 
-lz4-asm@^0.4.2:
+lz4-asm@~0.4.2:
   version "0.4.2"
   resolved "https://registry.yarnpkg.com/lz4-asm/-/lz4-asm-0.4.2.tgz#bdc0276ddb2ca8437615daef9c926e4ef09345be"
   integrity sha512-1i6ycr3lLNMiV9qjHn4OwaDRR3hxHhVTxAmX2W7PiWITJym6im6vCD7/201RoBIfsN9Rw+XUMdJx9l5KJaXnnA==
@@ -6275,7 +6324,7 @@ node-fetch@^2.6.1:
   dependencies:
     whatwg-url "^5.0.0"
 
-node-gzip@^1.1.2:
+node-gzip@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/node-gzip/-/node-gzip-1.1.2.tgz#245bd171b31ce7c7f50fc4cd0ca7195534359afb"
   integrity sha512-ZB6zWpfZHGtxZnPMrJSKHVPrRjURoUzaDbLFj3VO70mpLTW5np96vXyHwft4Id0o+PYIzgDkBUjIzaNHhQ8srw==
@@ -6285,7 +6334,7 @@ node-int64@^0.4.0:
   resolved "https://registry.yarnpkg.com/node-int64/-/node-int64-0.4.0.tgz#87a9065cdb355d3182d8f94ce11188b825c68a3b"
   integrity sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==
 
-node-notifier@^10.0.1:
+node-notifier@~10.0.1:
   version "10.0.1"
   resolved "https://registry.yarnpkg.com/node-notifier/-/node-notifier-10.0.1.tgz#0e82014a15a8456c4cfcdb25858750399ae5f1c7"
   integrity sha512-YX7TSyDukOZ0g+gmzjB6abKu+hTGvO8+8+gIFDsRCU2t8fLV/P2unmt+LGFaIa4y64aX98Qksa97rgz4vMNeLQ==
@@ -7596,7 +7645,7 @@ teeny-request@7.1.1:
     stream-events "^1.0.5"
     uuid "^8.0.0"
 
-teraslice-test-harness@^1.2.0:
+teraslice-test-harness@~1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/teraslice-test-harness/-/teraslice-test-harness-1.2.0.tgz#7d284cfe2b52488de9834245a168b21709a838fa"
   integrity sha512-lbkQs0ZkARg5K5+/NJxWL5CKReibs0Yp0MINnvIDPqhK4NuRkf3dBMX1C+ofRFj8p0yxlc1mtqao0pNNQ8PXbw==
@@ -7679,7 +7728,7 @@ ts-api-utils@^1.3.0:
   resolved "https://registry.yarnpkg.com/ts-api-utils/-/ts-api-utils-1.3.0.tgz#4b490e27129f1e8e686b45cc4ab63714dc60eea1"
   integrity sha512-UQMIo7pb8WRomKR1/+MFVLTroIvDVtMX3K6OUir8ynLyzB8Jeriont2bTAtmNPa1ekAgN7YPDyf6V+ygrdU+eQ==
 
-ts-jest@^29.2.5:
+ts-jest@~29.2.5:
   version "29.2.5"
   resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-29.2.5.tgz#591a3c108e1f5ebd013d3152142cb5472b399d63"
   integrity sha512-KD8zB2aAZrcKIdGk4OwpJggeLcH1FgrICqDSROWqlnJXGCXK4Mn6FcdK2B6670Xr73lHMG1kHw8R87A0ecZ+vA==
@@ -7863,7 +7912,7 @@ unbzip2-stream@^1.0.9:
     buffer "^5.2.1"
     through "^2.3.8"
 
-undici-types@~6.19.2:
+undici-types@~6.19.2, undici-types@~6.19.8:
   version "6.19.8"
   resolved "https://registry.yarnpkg.com/undici-types/-/undici-types-6.19.8.tgz#35111c9d1437ab83a7cdc0abae2f26d88eda0a02"
   integrity sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==
