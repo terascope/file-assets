@@ -9,5 +9,5 @@ on:
 
 jobs:
   call-asset-test-workflow:
-    uses: terascope/workflows/.github/workflows/asset-test.yml@2220e2db7c713ea16a8cacbd1f5aef926e77ba5c
+    uses: terascope/workflows/.github/workflows/asset-test.yml@8c9327b7f1979b72e76dc3eac467bc85b34dbbd2
     secrets: inherit
