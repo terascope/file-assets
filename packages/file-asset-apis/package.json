@@ -39,7 +39,6 @@
         "jest-fixtures": "~0.6.0",
         "ts-jest": "~29.2.5"
     },
-    "peerDependencies": {},
     "engines": {
         "node": ">=18.0.0",
         "yarn": ">=1.22.19"
