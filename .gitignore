@@ -80,3 +80,6 @@ asset/dist
 dist/
 
 tsconfig.tsbuildinfo
+
+# .yarn
+.yarn/install-state.gz
