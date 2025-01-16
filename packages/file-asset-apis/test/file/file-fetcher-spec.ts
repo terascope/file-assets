@@ -13,10 +13,9 @@ const dirname = pathModule.dirname(fileURLToPath(import.meta.url));
 
 describe('file-fetcher', () => {
     const logger = debugLogger('file-fetcher');
-    let testPath: string;
 
     function makeFetcher(testConfig: Partial<ReaderConfig> = {}) {
-        const config = Object.assign({}, { path: testPath, size: 1000 }, testConfig);
+        const config = Object.assign({}, { path: undefined, size: 1000 }, testConfig);
         if (config.format == null) throw new Error('Must provide a format');
         return new FileFetcher(config as ReaderConfig, logger);
     }

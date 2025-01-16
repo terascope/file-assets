@@ -9,7 +9,7 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
 
     async initialize(): Promise<void> {
         await super.initialize();
-        const apiName = this.opConfig.api_name;
+        const apiName = this.opConfig.api_name as string;
         const apiManager = this.getAPI<S3SenderFactoryAPI>(apiName);
         // this processor does not allow dynamic routing, use routed-sender operation instead
         this.api = await apiManager.create(apiName, { dynamic_routing: false });

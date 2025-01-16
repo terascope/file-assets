@@ -29,7 +29,7 @@ export default class HDFSFileSlicer extends Slicer<HDFSReaderOpConfig> {
     async initialize(recoveryData: SlicerRecoveryData[]): Promise<void> {
         await super.initialize(recoveryData);
 
-        const apiName = this.opConfig.api_name;
+        const apiName = this.opConfig.api_name as string;
         const apiManager = this.getAPI<HDFSReaderFactoryAPI>(apiName);
         const apiConfig = apiManager.getConfig(apiName) as HDFSReaderApiConfig;
 
