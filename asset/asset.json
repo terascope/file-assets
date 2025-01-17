@@ -1,6 +1,6 @@
 {
     "name": "file",
-    "version": "3.0.3",
+    "version": "3.0.4",
     "description": "A set of processors for working with files",
     "minimum_teraslice_version": "2.0.0"
 }
