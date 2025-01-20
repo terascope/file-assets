@@ -25,7 +25,7 @@
         "@smithy/node-http-handler": "~3.3.3",
         "@terascope/utils": "~1.7.1",
         "csvtojson": "~2.0.10",
-        "fs-extra": "~11.2.0",
+        "fs-extra": "~11.3.0",
         "json2csv": "5.0.7",
         "lz4-asm": "~0.4.2",
         "node-gzip": "~1.1.2"
