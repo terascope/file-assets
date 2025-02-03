@@ -2528,7 +2528,7 @@ __metadata:
   dependencies:
     "@aws-sdk/client-s3": "npm:~3.726.1"
     "@smithy/node-http-handler": "npm:~4.0.2"
-    "@terascope/scripts": "npm:^1.9.2"
+    "@terascope/scripts": "npm:^1.10.0"
     "@terascope/utils": "npm:~1.7.2"
     "@types/jest": "npm:~29.5.14"
     aws-sdk-client-mock: "npm:~4.1.0"
@@ -2562,12 +2562,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@terascope/scripts@npm:^1.9.2, @terascope/scripts@npm:~1.9.2":
-  version: 1.9.2
-  resolution: "@terascope/scripts@npm:1.9.2"
+"@terascope/scripts@npm:^1.10.0, @terascope/scripts@npm:~1.10.0":
+  version: 1.10.0
+  resolution: "@terascope/scripts@npm:1.10.0"
   dependencies:
     "@kubernetes/client-node": "npm:~0.22.3"
-    "@terascope/utils": "npm:~1.7.2"
+    "@terascope/utils": "npm:~1.7.3"
     codecov: "npm:~3.8.3"
     execa: "npm:~9.5.2"
     fs-extra: "npm:~11.3.0"
@@ -2595,7 +2595,7 @@ __metadata:
       optional: true
   bin:
     ts-scripts: ./bin/ts-scripts.js
-  checksum: 10c0/4f1d96e0dccf36183ea34a71060e760c278ca4983a298b74f6de07231454d924bad4cf6505dd7adcaafd06ec470985e625224b47e7b8edf66249223b74c4a14f
+  checksum: 10c0/47c7e9bfe360e0d026c25fc5e936925e0267662d4734bd9f64e2b182e4d284b444593e776d1a5396203e19761baadc9f70b28b76d5808a0dc71cea22a518a184
   languageName: node
   linkType: hard
 
@@ -2649,6 +2649,50 @@ __metadata:
     shallow-clone: "npm:~3.0.1"
     validator: "npm:~13.12.0"
   checksum: 10c0/712c416c3698d79bd3056458b25960740068612e1fc65a49c29e79b25a67ba573d2c06feb03e3e1b41c570ef4c9030d0d95c7be7ab243efb5b7b65ad55450b54
+  languageName: node
+  linkType: hard
+
+"@terascope/utils@npm:~1.7.3":
+  version: 1.7.3
+  resolution: "@terascope/utils@npm:1.7.3"
+  dependencies:
+    "@chainsafe/is-ip": "npm:~2.0.2"
+    "@terascope/types": "npm:~1.4.1"
+    "@turf/bbox": "npm:~7.2.0"
+    "@turf/bbox-polygon": "npm:~7.2.0"
+    "@turf/boolean-contains": "npm:~7.2.0"
+    "@turf/boolean-disjoint": "npm:~7.2.0"
+    "@turf/boolean-equal": "npm:~7.2.0"
+    "@turf/boolean-intersects": "npm:~7.2.0"
+    "@turf/boolean-point-in-polygon": "npm:~7.2.0"
+    "@turf/boolean-within": "npm:~7.2.0"
+    "@turf/circle": "npm:~7.2.0"
+    "@turf/helpers": "npm:~7.2.0"
+    "@turf/invariant": "npm:~7.2.0"
+    "@turf/line-to-polygon": "npm:~7.2.0"
+    "@types/lodash-es": "npm:~4.17.12"
+    "@types/validator": "npm:~13.12.2"
+    awesome-phonenumber: "npm:~7.2.0"
+    date-fns: "npm:~4.1.0"
+    date-fns-tz: "npm:~3.2.0"
+    datemath-parser: "npm:~1.0.6"
+    debug: "npm:~4.4.0"
+    geo-tz: "npm:~8.1.2"
+    ip-bigint: "npm:~8.2.0"
+    ip-cidr: "npm:~4.0.2"
+    ip6addr: "npm:~0.2.5"
+    ipaddr.js: "npm:~2.2.0"
+    is-cidr: "npm:~5.1.0"
+    is-plain-object: "npm:~5.0.0"
+    js-string-escape: "npm:~1.0.1"
+    kind-of: "npm:~6.0.3"
+    latlon-geohash: "npm:~2.0.0"
+    lodash-es: "npm:~4.17.21"
+    mnemonist: "npm:~0.39.8"
+    p-map: "npm:~7.0.3"
+    shallow-clone: "npm:~3.0.1"
+    validator: "npm:~13.12.0"
+  checksum: 10c0/4c8f1614bc6fad3d697ddfc94c0b7331cd66c833a36bf686ad7c25ca0cccb3ed31d2eac6c93b0327926dae57b26fb7f0eb23c60acccc8e1bfddeaeb7c570a84a
   languageName: node
   linkType: hard
 
@@ -5775,7 +5819,7 @@ __metadata:
     "@terascope/eslint-config": "npm:~1.1.5"
     "@terascope/file-asset-apis": "npm:~1.0.3"
     "@terascope/job-components": "npm:~1.9.2"
-    "@terascope/scripts": "npm:~1.9.2"
+    "@terascope/scripts": "npm:~1.10.0"
     "@types/fs-extra": "npm:~11.0.4"
     "@types/jest": "npm:~29.5.14"
     "@types/json2csv": "npm:~5.0.7"
