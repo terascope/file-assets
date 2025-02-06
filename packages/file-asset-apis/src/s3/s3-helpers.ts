@@ -8,7 +8,7 @@ import {
     CreateMultipartUploadCommand, UploadPartCommand,
     CompleteMultipartUploadCommand, AbortMultipartUploadCommand,
 } from '@aws-sdk/client-s3';
-import crypto from "node:crypto";
+import crypto from 'node:crypto';
 
 import { TSError, pDelay, AnyObject } from '@terascope/utils';
 import { S3ClientParams, S3ClientResponse, S3RetryRequest } from './client-helpers/index.js';
@@ -110,17 +110,19 @@ export async function deleteS3Objects(
 ): Promise<S3ClientResponse.DeleteObjectsCommandOutput> {
     const command = new DeleteObjectsCommand(params);
 
-    /// This was added because the javascript aws-sdk used to added the Content-MD5 header automatically,
-    /// but now it doesn’t, so we manually generate and append it for S3 delete object requests.
-    /// This ensures compatibility with minio and other S3-compatible services that may require the header.
-    /// Minio code that requires it
-    /// https://github.com/minio/minio/blob/b8dde47d4e8d0d26c583f8ea106633c6c140f3f9/cmd/bucket-handlers.go#L430-L435
+    /*
+     This was added because the javascript aws-sdk used to added the Content-MD5
+     header automatically, but now it doesn’t, so we manually generate and append it
+     for S3 delete object requests. This ensures compatibility with minio and other
+     S3-compatible services that may require the header.
+     Minio code that requires it
+     https://github.com/minio/minio/blob/b8dde47d4e8d0d26c583f8ea106633c6c140f3f9/cmd/bucket-handlers.go#L430-L435
+    */
     const checksumMiddlewareApplied = client.middlewareStack.identify().includes('addMD5Checksum - build');
     // Middleware to add md5 header
     if (!checksumMiddlewareApplied) {
         client.middlewareStack.add(
-            (next, context) =>
-            async (args): Promise<any> => {
+            (next, context) => async (args): Promise<any> => {
                 const request = args.request as RequestInit;
 
                 // Remove checksum headers
@@ -128,27 +130,26 @@ export async function deleteS3Objects(
                 const body = request.body as string;
                 /// Check to see if the command is of the right type
                 if (context.commandName === 'DeleteObjectsCommand') {
-
                     /// Ensure there is a body to make a hash from
                     if (typeof body === 'string' && body) {
-                        const md5Hash = crypto.createHash("md5").update(body, "utf8").digest("base64");
-                        headers["Content-MD5"] = md5Hash;
+                        const md5Hash = crypto.createHash('md5').update(body, 'utf8')
+                            .digest('base64');
+                        headers['Content-MD5'] = md5Hash;
                     }
                     request.headers = headers;
 
                     Object.entries(request.headers).forEach(
-                    // @ts-ignore
-                    ([key, value]: [string, string]): void => {
-                        if (!request.headers) {
-                        request.headers = {};
+                        ([key, value]: [string, string]): void => {
+                            if (!request.headers) {
+                                request.headers = {};
+                            }
+                            (request.headers as Record<string, string>)[key] = value;
                         }
-                        (request.headers as Record<string, string>)[key] = value;
-                    }
                     );
                 }
                 return next(args);
             },
-            { step: "build", name: "addMD5Checksum" }
+            { step: 'build', name: 'addMD5Checksum' }
         );
     }
     return client.send(command);
