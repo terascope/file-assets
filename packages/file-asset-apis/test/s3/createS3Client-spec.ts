@@ -43,6 +43,8 @@ describe('createS3Client', () => {
                         + '-----END CERTIFICATE-----',
                     forcePathStyle: true,
                     bucketEndpoint: false,
+                    responseChecksumValidation: 'WHEN_REQUIRED',
+                    requestChecksumCalculation: 'WHEN_REQUIRED',
                     maxAttempts: 3,
                     requestHandler: {
                         metadata: { handlerProtocol: 'http/1.1' },
@@ -76,6 +78,8 @@ describe('createS3Client', () => {
                     sslEnabled: false,
                     forcePathStyle: true,
                     bucketEndpoint: false,
+                    responseChecksumValidation: 'WHEN_REQUIRED',
+                    requestChecksumCalculation: 'WHEN_REQUIRED',
                     maxAttempts: 3,
                     credentials: { accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin' }
                 });
@@ -136,6 +140,8 @@ describe('createS3Client', () => {
                     sslEnabled: false,
                     forcePathStyle: true,
                     bucketEndpoint: false,
+                    responseChecksumValidation: 'WHEN_REQUIRED',
+                    requestChecksumCalculation: 'WHEN_REQUIRED',
                     maxAttempts: 3,
                     credentials: { accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin' }
                 });
