@@ -133,10 +133,10 @@ export async function deleteS3Objects(
                     // Remove any checksum headers
                     Object.keys(headers).forEach((header) => {
                         if (
-                        header.toLowerCase().startsWith("x-amz-checksum-") ||
-                        header.toLowerCase().startsWith("x-amz-sdk-checksum-")
+                            header.toLowerCase().startsWith('x-amz-checksum-')
+                            || header.toLowerCase().startsWith('x-amz-sdk-checksum-')
                         ) {
-                        delete headers[header];
+                            delete headers[header];
                         }
                     });
                     /// Ensure there is a body to make a hash from
