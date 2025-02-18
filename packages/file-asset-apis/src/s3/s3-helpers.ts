@@ -130,6 +130,15 @@ export async function deleteS3Objects(
                 const body = request.body as string;
                 /// Check to see if the command is of the right type
                 if (context.commandName === 'DeleteObjectsCommand') {
+                    // Remove any checksum headers
+                    Object.keys(headers).forEach((header) => {
+                        if (
+                        header.toLowerCase().startsWith("x-amz-checksum-") ||
+                        header.toLowerCase().startsWith("x-amz-sdk-checksum-")
+                        ) {
+                        delete headers[header];
+                        }
+                    });
                     /// Ensure there is a body to make a hash from
                     if (typeof body === 'string' && body) {
                         const md5Hash = crypto.createHash('md5').update(body, 'utf8')
@@ -137,15 +146,6 @@ export async function deleteS3Objects(
                         headers['Content-MD5'] = md5Hash;
                     }
                     request.headers = headers;
-
-                    Object.entries(request.headers).forEach(
-                        ([key, value]: [string, string]): void => {
-                            if (!request.headers) {
-                                request.headers = {};
-                            }
-                            (request.headers as Record<string, string>)[key] = value;
-                        }
-                    );
                 }
                 return next(args);
             },
