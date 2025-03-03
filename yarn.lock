@@ -2143,7 +2143,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@smithy/node-http-handler@npm:^4.0.2, @smithy/node-http-handler@npm:~4.0.2":
+"@smithy/node-http-handler@npm:^4.0.2":
   version: 4.0.2
   resolution: "@smithy/node-http-handler@npm:4.0.2"
   dependencies:
@@ -2153,6 +2153,19 @@ __metadata:
     "@smithy/types": "npm:^4.1.0"
     tslib: "npm:^2.6.2"
   checksum: 10c0/6a3446dcf3bf006cf55b065edfbe7636f2aa13073f2937e224890902de44b191a5214dce4cb61e98b1ad53889bdbb35386e8810a338bc75ea3743f8d4550a2ad
+  languageName: node
+  linkType: hard
+
+"@smithy/node-http-handler@npm:~4.0.3":
+  version: 4.0.3
+  resolution: "@smithy/node-http-handler@npm:4.0.3"
+  dependencies:
+    "@smithy/abort-controller": "npm:^4.0.1"
+    "@smithy/protocol-http": "npm:^5.0.1"
+    "@smithy/querystring-builder": "npm:^4.0.1"
+    "@smithy/types": "npm:^4.1.0"
+    tslib: "npm:^2.6.2"
+  checksum: 10c0/03e0e40725ac8884dc1715288bdbe6f05e8073c623c7d4eb4d6859e6ffdee1c831e407b1d286860580d7cb341d5ec41274e8888f2aeac6f865c0890ac4e9403c
   languageName: node
   linkType: hard
 
@@ -2528,7 +2541,7 @@ __metadata:
   resolution: "@terascope/file-asset-apis@workspace:packages/file-asset-apis"
   dependencies:
     "@aws-sdk/client-s3": "npm:~3.750.0"
-    "@smithy/node-http-handler": "npm:~4.0.2"
+    "@smithy/node-http-handler": "npm:~4.0.3"
     "@terascope/scripts": "npm:~1.10.4"
     "@terascope/utils": "npm:~1.7.5"
     "@types/jest": "npm:~29.5.14"
