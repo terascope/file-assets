@@ -1,9 +1,11 @@
 # file-assets
+
 > A set of Teraslice processors for working with data stored in files on disk. The readers utilize the `chunked-file-reader` module (migrated into this bundle from the Teraslice monorepo) to break data into records.
 
 Since all the readers in this asset bundle use DataEntities, the slice's file path can be retrieved from each record by using something like `record.getMetadata('path')`. More information about DataEntities can be found [here](https://terascope.github.io/teraslice/docs/packages/utils/api/classes/dataentity).
 
 This bundle includes the following processors:
+
 - [`file_exporter`](./docs/file_exporter.md)
 - [`file_reader`](./docs/file_reader.md)
 - [`s3_exporter`](./docs/s3_exporter.md)
@@ -30,6 +32,7 @@ teraslice-cli assets deploy clusterAlias terascope/file-assets
 ```
 
 ## Connectors
+
 ### S3 Connector
 
 **Configuration:**
