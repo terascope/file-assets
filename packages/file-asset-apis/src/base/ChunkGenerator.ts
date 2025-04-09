@@ -68,6 +68,10 @@ export class ChunkGenerator {
     }
 
     private async* _chunkByRow(): AsyncIterableIterator<Chunk> {
+        // FIXME
+        // seems off - looks like will always return MAX_CHUNK_SIZE_BYTES
+        // and if we're calling it for each row seems like would be better
+        // to put at constructor level
         const chunkSize = getBytes(ChunkGenerator.MAX_CHUNK_SIZE_BYTES);
         let index = 0;
 
