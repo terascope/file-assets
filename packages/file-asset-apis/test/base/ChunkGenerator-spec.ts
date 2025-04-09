@@ -7,9 +7,7 @@ import {
 
 describe('ChunkGenerator', () => {
     const CHUNK_SIZE = 1024; // 1kib
-
-    ChunkGenerator.MAX_CHUNK_SIZE_BYTES = CHUNK_SIZE; // 1kib
-    ChunkGenerator.MIN_CHUNK_SIZE_BYTES = CHUNK_SIZE; // 1kib
+    const limits = { maxBytes: CHUNK_SIZE, minBytes: CHUNK_SIZE };
 
     describe(`when the format is ${Format.json}`, () => {
         describe('when constructed with a empty slice', () => {
@@ -20,7 +18,8 @@ describe('ChunkGenerator', () => {
                         format: Format.json,
                     }),
                     new Compressor(Compression.none),
-                    []
+                    [],
+                    limits
                 );
             });
 
@@ -38,7 +37,8 @@ describe('ChunkGenerator', () => {
                         format: Format.json,
                     }),
                     new Compressor(Compression.none),
-                    input
+                    input,
+                    limits
                 );
             });
 
@@ -69,7 +69,8 @@ describe('ChunkGenerator', () => {
                         format: Format.json,
                     }),
                     new Compressor(Compression.none),
-                    input
+                    input,
+                    limits
                 );
             });
 
@@ -117,7 +118,8 @@ describe('ChunkGenerator', () => {
                         format: Format.csv,
                     }),
                     new Compressor(Compression.none),
-                    [{}]
+                    [{}],
+                    limits
                 );
             });
 
@@ -136,7 +138,8 @@ describe('ChunkGenerator', () => {
                         format: Format.ldjson,
                     }),
                     new Compressor(Compression.lz4),
-                    []
+                    [],
+                    limits
                 );
             });
 
@@ -154,7 +157,8 @@ describe('ChunkGenerator', () => {
                         format: Format.ldjson,
                     }),
                     new Compressor(Compression.lz4),
-                    input
+                    input,
+                    limits
                 );
             });
 
@@ -188,7 +192,8 @@ describe('ChunkGenerator', () => {
                         format: Format.ldjson,
                     }),
                     new Compressor(Compression.lz4),
-                    input
+                    input,
+                    limits
                 );
             });
 
@@ -231,7 +236,8 @@ describe('ChunkGenerator', () => {
                         format: Format.ldjson,
                     }),
                     new Compressor(Compression.none),
-                    []
+                    [],
+                    limits
                 );
             });
 
@@ -249,7 +255,8 @@ describe('ChunkGenerator', () => {
                         format: Format.ldjson,
                     }),
                     new Compressor(Compression.none),
-                    input
+                    input,
+                    limits
                 );
             });
 
@@ -283,7 +290,8 @@ describe('ChunkGenerator', () => {
                         format: Format.ldjson,
                     }),
                     new Compressor(Compression.none),
-                    input
+                    input,
+                    limits
                 );
             });
 

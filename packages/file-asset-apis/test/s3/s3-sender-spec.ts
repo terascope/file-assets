@@ -6,7 +6,7 @@ import { makeClient, cleanupBucket, getBodyFromResults } from './helpers.js';
 import {
     Compression, Format, ChunkedFileSenderConfig,
     S3Sender, getS3Object, Compressor,
-    listS3Buckets, ChunkGenerator
+    listS3Buckets, MIN_CHUNK_SIZE_BYTES
 } from '../../src/index.js';
 
 describe('S3 Sender API', () => {
@@ -205,6 +205,6 @@ describe('S3 Sender API', () => {
 
         const expectedResults = `${data.map((obj) => JSON.stringify(obj)).join('\n')}\n`;
         expect(fetchedData).toEqual(expectedResults);
-        expect(expectedResults.length).toBeGreaterThan(ChunkGenerator.MIN_CHUNK_SIZE_BYTES);
+        expect(expectedResults.length).toBeGreaterThan(MIN_CHUNK_SIZE_BYTES);
     });
 });
