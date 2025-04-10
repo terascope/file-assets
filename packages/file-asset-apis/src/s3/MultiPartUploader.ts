@@ -1,6 +1,6 @@
 import { EventEmitter, once } from 'node:events';
 import {
-    Logger, pDelay, sortBy, toHumanTime
+    Logger, pDelay, pWhile, sortBy, toHumanTime
 } from '@terascope/utils';
 import type { S3Client, S3ClientResponse } from './client-helpers/index.js';
 import {
@@ -138,26 +138,37 @@ export class MultiPartUploader {
         if (this.partUploadErrors.size) {
             await this._throwPartUploadError();
         }
-
         this.pendingParts++;
 
-        await this._waitForStart(`part #${partNumber}`);
+        // run in background so more than 1 part can upload at a time
+        Promise.resolve()
+            .then(() => this._waitForQueue())
+            .then(() => this._waitForStart(`part #${partNumber}`))
+            .then(() => this._uploadPart(body, partNumber))
+            .catch((err) => {
+                this.partUploadErrors.set(String(err), err);
+            })
+            .finally(async () => {
+                this.pendingParts--;
+                this.events.emit(Events.PartDone);
 
-        try {
-            await this._uploadPart(body, partNumber);
-        } catch (err) {
-            this.partUploadErrors.set(String(err), err);
-        } finally {
-            this.pendingParts--;
-            this.events.emit(Events.PartDone);
-        }
+                if (this.pendingParts > 0 || !this.uploadId) {
+                    // adding this here will ensure that
+                    // we give the event loop some time to
+                    // to start the upload
+                    await pDelay(this.pendingParts);
+                }
+            });
+    }
 
-        if (this.pendingParts > 0 || !this.uploadId) {
-            // adding this here will ensure that
-            // we give the event loop some time to
-            // to start the upload
-            await pDelay(this.pendingParts);
-        }
+    /**
+     * no hard limit on concurrent uploads to S3, read good to keep below 1,000
+     * but decided to limit further to 100 to be safe
+     */
+    private async _waitForQueue() {
+        const concurrency = 100;
+        if (this.pendingParts <= concurrency) return;
+        return pWhile(async () => this.pendingParts <= concurrency);
     }
 
     /**
