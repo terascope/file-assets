@@ -128,9 +128,11 @@ export class MultiPartUploader {
     /**
      * Enqueue a part upload request
     */
-    async enqueuePart(
+    async enqueuePartSync(
         body: Buffer | string, partNumber: number
     ): Promise<void> {
+        // eslint-disable-next-line no-console
+        console.log('===sync');
         if (this.finishing) {
             throw new Error(`MultiPartUploader already finishing, cannot upload part #${partNumber}`);
         }
@@ -191,6 +193,40 @@ export class MultiPartUploader {
         });
 
         this.parts.push({ PartNumber: partNumber, ETag });
+    }
+
+    async enqueuePartAsync(
+        body: Buffer | string, partNumber: number
+    ): Promise<void> {
+        // eslint-disable-next-line no-console
+        console.log('===a-sync');
+        if (this.finishing) {
+            throw new Error(`MultiPartUploader already finishing, cannot upload part #${partNumber}`);
+        }
+
+        if (this.partUploadErrors.size) {
+            await this._throwPartUploadError();
+        }
+
+        this.pendingParts++;
+
+        await this._waitForStart(`part #${partNumber}`);
+
+        try {
+            await this._uploadPart(body, partNumber);
+        } catch (err) {
+            this.partUploadErrors.set(String(err), err);
+        } finally {
+            this.pendingParts--;
+            this.events.emit(Events.PartDone);
+        }
+
+        if (this.pendingParts > 0 || !this.uploadId) {
+            // adding this here will ensure that
+            // we give the event loop some time to
+            // to start the upload
+            await pDelay(this.pendingParts);
+        }
     }
 
     /**

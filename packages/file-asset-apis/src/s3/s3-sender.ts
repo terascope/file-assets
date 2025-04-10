@@ -75,9 +75,10 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
 
                 if (!uploader) throw new Error('Expected uploader to exist');
 
+                // speeds up by a couple seconds but not as much as hoped
                 // the index is zero based but the part numbers start at 1
                 // so we need to increment by 1
-                uploader.enqueuePart(Body, chunk.index + 1);
+                uploader.enqueuePartSync(Body, chunk.index + 1);
             }
 
             // we are done, finalize the upload
@@ -128,3 +129,89 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
      */
     async verify(_route: string): Promise<void> {}
 }
+
+// DIDNT WORK
+// pMapIterable - think has to run at chunkGenerator but might throw off the index i think
+// async function* source() {
+//     yield 1;
+//     yield 2;
+//     yield 3;
+// }
+
+// const target = pMapIterable(source(), async (n) => {
+//     console.log(`Running with ${n}...`);
+//     await pDelay(1000);
+//     console.log(`Finished running with ${n}`);
+// }, {
+//     concurrency: 1,
+//     backpressure: 2
+// });
+
+// for await (const _ of target) {}
+
+// WORKED BUT DECIDED NO
+// maybe faster - but seems like collecting a few chunks in memory could be bad
+// async sendToDestination3({ filename, chunkGenerator }: SendBatchConfig): Promise<void> {
+//     const objPath = parsePath(filename);
+//     const Key = await this.createFileDestinationName(objPath.prefix);
+//     const Bucket = objPath.bucket;
+
+//     let isFirstSlice = true;
+//     // docs say Body can be a string, but types are complaining
+//     let Body: any;
+//     let uploader: MultiPartUploader | undefined;
+
+//     let items = [];
+//     let pending = 0;
+
+//     try {
+//         for await (const chunk of chunkGenerator) {
+//             Body = chunk.data;
+
+//             // first slice decides if it is multipart or not
+//             if (isFirstSlice) {
+//                 isFirstSlice = false;
+
+//                 if (chunk.has_more) {
+//                     uploader = new MultiPartUploader(
+//                         this.client, Bucket, Key, this.logger
+//                     );
+//                     await uploader.start();
+//                 } else {
+//                 // make regular query
+//                     if (!Body) return;
+
+//                     await putS3Object(this.client, {
+//                         Bucket,
+//                         Key,
+//                         Body
+//                     });
+//                     return;
+//                 }
+//             }
+//             if (!uploader) throw new Error('Expected uploader to exist');
+
+//             items.push([Body, chunk.index + 1]);
+//             if (items.length > 5) {
+//                 pending++;
+//                 Promise.all(
+//                     items.map(([body, part]) => uploader!.enqueuePartAsync(body, part))
+//                 ).then(() => {
+//                     pending--;
+//                 });
+//                 items = [];
+//             }
+//         }
+
+//         await pWhile(async () => pending === 0);
+
+//         if (uploader) {
+//             return await uploader.finish();
+//         }
+//     } catch (err) {
+//         if (uploader) {
+//             await uploader.abort();
+//         }
+//         throw err;
+//     }
+// }
