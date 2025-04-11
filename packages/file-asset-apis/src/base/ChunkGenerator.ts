@@ -1,7 +1,9 @@
 import { isTest } from '@terascope/utils';
+import { DataFrame } from '@terascope/data-mate';
 import { Compressor } from './Compressor.js';
 import { Formatter } from './Formatter.js';
 import { Format, Compression, SendRecords } from '../interfaces.js';
+import { estimateRecordsPerUpload } from './dataframe-utils.js';
 
 export interface Chunk {
     /**
@@ -22,6 +24,12 @@ export interface Chunk {
 
 const MiB = 1024 * 1024;
 
+/** 100 MiB - Used for determine how big each chunk of a single file should be */
+export const MAX_CHUNK_SIZE_BYTES = (isTest ? 5 : 100) * MiB;
+
+/** 5MiB - Minimum part size for multipart uploads with Minio */
+export const MIN_CHUNK_SIZE_BYTES = 5 * MiB;
+
 /**
  * Efficiently breaks up a slice into multiple chunks.
  * The behavior will change depending if the whole slice has be
@@ -31,20 +39,20 @@ const MiB = 1024 * 1024;
 */
 export class ChunkGenerator {
     /**
-     * Used for determine how big each chunk of a single file should be
-    */
-    static MAX_CHUNK_SIZE_BYTES = (isTest ? 5 : 100) * MiB;
-
-    /*
-    * 5MiB - Minimum part size for multipart uploads with Minio
-    */
-    static MIN_CHUNK_SIZE_BYTES = 5 * MiB;
+     * how big each chunk of a single file should be
+     */
+    readonly chunkSize = 5 * MiB;
 
     constructor(
         readonly formatter: Formatter,
         readonly compressor: Compressor,
-        readonly slice: SendRecords
-    ) {}
+        readonly slice: SendRecords,
+        limits?: { maxBytes?: number; minBytes?: number }
+    ) {
+        const max = limits?.maxBytes || MAX_CHUNK_SIZE_BYTES;
+        const min = limits?.minBytes || MIN_CHUNK_SIZE_BYTES;
+        this.chunkSize = getBytes(max, min);
+    }
 
     /**
      * If the format is ldjson and compression is not on,
@@ -58,6 +66,9 @@ export class ChunkGenerator {
     }
 
     [Symbol.asyncIterator](): AsyncIterableIterator<Chunk> {
+        if (this.slice instanceof DataFrame) {
+            return this._chunkFrame();
+        }
         if (Array.isArray(this.slice) && this.slice.length === 0) {
             return this._emptyIterator();
         }
@@ -68,7 +79,6 @@ export class ChunkGenerator {
     }
 
     private async* _chunkByRow(): AsyncIterableIterator<Chunk> {
-        const chunkSize = getBytes(ChunkGenerator.MAX_CHUNK_SIZE_BYTES);
         let index = 0;
 
         /**
@@ -88,15 +98,15 @@ export class ChunkGenerator {
              * the overflow from the current row buffer needs to
              * be deferred until the next iteration
             */
-            const estimatedOverflowBytes = chunkStr.length - chunkSize;
-            if (estimatedOverflowBytes >= chunkSize) {
+            const estimatedOverflowBytes = chunkStr.length - this.chunkSize;
+            if (estimatedOverflowBytes >= this.chunkSize) {
                 chunk = {
                     index,
                     has_more,
-                    data: chunkStr.slice(0, chunkSize),
+                    data: chunkStr.slice(0, this.chunkSize),
                 };
 
-                chunkStr = chunkStr.slice(chunkSize, chunkStr.length);
+                chunkStr = chunkStr.slice(this.chunkSize, chunkStr.length);
                 index++;
             } else if (estimatedOverflowBytes >= 0) {
                 chunk = {
@@ -130,12 +140,11 @@ export class ChunkGenerator {
         const formattedData = this.formatter.format(this.slice);
         const data = await this.compressor.compress(formattedData);
 
-        const chunkSize = getBytes(ChunkGenerator.MAX_CHUNK_SIZE_BYTES);
-        const numChunks = Math.ceil(data.length / chunkSize);
+        const numChunks = Math.ceil(data.length / this.chunkSize);
 
         let offset = 0;
         for (let i = 0; i < numChunks; i++) {
-            const chunk = data.subarray(offset, offset + chunkSize);
+            const chunk = data.subarray(offset, offset + this.chunkSize);
             yield {
                 index: i,
                 data: chunk,
@@ -145,12 +154,68 @@ export class ChunkGenerator {
         }
     }
 
+    private async* _chunkFrame(): AsyncIterableIterator<Chunk> {
+        if (!(this.slice instanceof DataFrame)) throw new Error('Invalid call to chunk data frame');
+
+        // TODO format, compression, tests - (if works)
+        if (this.compressor.type !== Compression.none) throw new Error('Data frame compression is not yet supported');
+        if (this.formatter.type !== Format.ldjson) throw new Error('Data frame formatting is not yet supported');
+
+        const {
+            recordsPerChunk, totalChunks, // avgRecordSize
+        } = estimateRecordsPerUpload(this.slice, this.chunkSize);
+
+        let start = 0;
+        let index = 0;
+
+        const twoMiB = this.chunkSize * 2;
+
+        let total = totalChunks;
+
+        for (let i = 0; i < total; i++) {
+            const records = this.slice.slice(start, recordsPerChunk + start);
+            const ary = records.toJSON();
+            const body = ary.map((el) => JSON.stringify(el))
+                .join('\n');
+
+            index = index + 1;
+
+            // should be under 1MiB hopefully but allow up to 2MiB
+            if (body.length < twoMiB) {
+                start = start + recordsPerChunk;
+                yield {
+                    index,
+                    has_more: i < total,
+                    data: body,
+                };
+            } else {
+                let str = '';
+
+                for (let idx = 0; idx < ary.length; idx++) {
+                    const record = ary[idx];
+                    str = str + `${JSON.stringify(record)}\n`;
+                    if (str.length >= this.chunkSize) {
+                        total++;
+                        const recordsProcessed = ary.length - idx;
+                        start = start + recordsProcessed;
+                        yield {
+                            index,
+                            has_more: i < total,
+                            data: body,
+                        };
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     private async* _emptyIterator(): AsyncIterableIterator<Chunk> {}
 }
 
 /**
- * Convert MiB to bytes with a hard minimum
+ * Get bytes with a hard minimum
 */
-function getBytes(bytes: number): number {
-    return Math.max(bytes, ChunkGenerator.MIN_CHUNK_SIZE_BYTES);
+function getBytes(max: number, min: number): number {
+    return Math.max(max, min);
 }
