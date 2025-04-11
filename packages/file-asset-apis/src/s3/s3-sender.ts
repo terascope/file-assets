@@ -79,6 +79,9 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                 }
 
                 pending++;
+
+                // the index is zero based but the part numbers start at 1
+                // so we need to increment by 1
                 uploader
                     .enqueuePart(
                         Body, chunk.index + 1
