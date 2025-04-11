@@ -1,7 +1,9 @@
 import { isTest } from '@terascope/utils';
+import { DataFrame } from '@terascope/data-mate';
 import { Compressor } from './Compressor.js';
 import { Formatter } from './Formatter.js';
 import { Format, Compression, SendRecords } from '../interfaces.js';
+import { estimateRecordsPerUpload } from './dataframe-utils.js';
 
 export interface Chunk {
     /**
@@ -64,6 +66,9 @@ export class ChunkGenerator {
     }
 
     [Symbol.asyncIterator](): AsyncIterableIterator<Chunk> {
+        if (this.slice instanceof DataFrame) {
+            return this._chunkFrame();
+        }
         if (Array.isArray(this.slice) && this.slice.length === 0) {
             return this._emptyIterator();
         }
@@ -146,6 +151,62 @@ export class ChunkGenerator {
                 has_more: (i + 1) !== numChunks
             };
             offset += chunk.length;
+        }
+    }
+
+    private async* _chunkFrame(): AsyncIterableIterator<Chunk> {
+        if (!(this.slice instanceof DataFrame)) throw new Error('Invalid call to chunk data frame');
+
+        // TODO format, compression, tests - (if works)
+        if (this.compressor.type !== Compression.none) throw new Error('Data frame compression is not yet supported');
+        if (this.formatter.type !== Format.ldjson) throw new Error('Data frame formatting is not yet supported');
+
+        const {
+            recordsPerChunk, totalChunks, // avgRecordSize
+        } = estimateRecordsPerUpload(this.slice, this.chunkSize);
+
+        let start = 0;
+        let index = 0;
+
+        const twoMiB = this.chunkSize * 2;
+
+        let total = totalChunks;
+
+        for (let i = 0; i < total; i++) {
+            const records = this.slice.slice(start, recordsPerChunk + start);
+            const ary = records.toJSON();
+            const body = ary.map((el) => JSON.stringify(el))
+                .join('\n');
+
+            index = index + 1;
+
+            // should be under 1MiB hopefully but allow up to 2MiB
+            if (body.length < twoMiB) {
+                start = start + recordsPerChunk;
+                yield {
+                    index,
+                    has_more: i < total,
+                    data: body,
+                };
+            } else {
+                let str = '';
+
+                for (let idx = 0; idx < ary.length; idx++) {
+                    const record = ary[idx];
+                    str = str + `${JSON.stringify(record)}\n`;
+                    if (str.length >= this.chunkSize) {
+                        total++;
+                        const recordsProcessed = ary.length - idx;
+                        start = start + recordsProcessed;
+                        yield {
+                            index,
+                            has_more: i < total,
+                            data: body,
+                        };
+                        break;
+                    }
+                }
+            }
         }
     }
 
