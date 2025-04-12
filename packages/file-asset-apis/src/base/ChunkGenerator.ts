@@ -1,5 +1,5 @@
 import { isTest } from '@terascope/utils';
-import { DataFrame } from '@terascope/data-mate';
+import { DataFrame, SerializeOptions } from '@terascope/data-mate';
 import { Compressor } from './Compressor.js';
 import { Formatter } from './Formatter.js';
 import { Format, Compression, SendRecords } from '../interfaces.js';
@@ -22,10 +22,10 @@ export interface Chunk {
     readonly has_more: boolean;
 }
 
-const MiB = 1024 * 1024;
+export const MiB = 1024 * 1024;
 
 /** 100 MiB - Used for determine how big each chunk of a single file should be */
-export const MAX_CHUNK_SIZE_BYTES = (isTest ? 5 : 100) * MiB;
+export const MAX_CHUNK_SIZE_BYTES = (isTest ? 5 : 5) * MiB;
 
 /** 5MiB - Minimum part size for multipart uploads with Minio */
 export const MIN_CHUNK_SIZE_BYTES = 5 * MiB;
@@ -42,16 +42,22 @@ export class ChunkGenerator {
      * how big each chunk of a single file should be
      */
     readonly chunkSize = 5 * MiB;
+    // TODO probably pass the serialized fram instead
+    readonly serializeOptions: SerializeOptions | undefined;
 
     constructor(
         readonly formatter: Formatter,
         readonly compressor: Compressor,
         readonly slice: SendRecords,
-        limits?: { maxBytes?: number; minBytes?: number }
+        limits?: { maxBytes?: number; minBytes?: number },
+        // TODO probably pass the serialized fram instead
+        serializeOptions?: SerializeOptions
     ) {
         const max = limits?.maxBytes || MAX_CHUNK_SIZE_BYTES;
         const min = limits?.minBytes || MIN_CHUNK_SIZE_BYTES;
         this.chunkSize = getBytes(max, min);
+        // TODO probably pass the serialized fram instead
+        this.serializeOptions = serializeOptions;
     }
 
     /**
@@ -161,8 +167,10 @@ export class ChunkGenerator {
         if (this.compressor.type !== Compression.none) throw new Error('Data frame compression is not yet supported');
         if (this.formatter.type !== Format.ldjson) throw new Error('Data frame formatting is not yet supported');
 
+        // FIXME not right
         const {
-            recordsPerChunk, totalChunks, // avgRecordSize
+            // recordsPerChunk, totalChunks, avgRecordSize
+            maxRecordsPerChunk, avgRecordSize
         } = estimateRecordsPerUpload(this.slice, this.chunkSize);
 
         let start = 0;
@@ -170,44 +178,131 @@ export class ChunkGenerator {
 
         const twoMiB = this.chunkSize * 2;
 
-        let total = totalChunks;
+        let hasMore = true;
+        while (hasMore) {
+            let field = '';
+            for (const key in this.slice.config.fields) {
+                if (!field) field = key;
+                break;
+            }
 
-        for (let i = 0; i < total; i++) {
-            const records = this.slice.slice(start, recordsPerChunk + start);
-            const ary = records.toJSON();
-            const body = ary.map((el) => JSON.stringify(el))
-                .join('\n');
+            const records = this.slice.slice(start, this.slice.size + start);
+
+            const ary = records.toJSON(this.serializeOptions || {
+                useNullForUndefined: false,
+                skipNilValues: true,
+                skipEmptyObjects: true,
+                skipNilObjectValues: true,
+                skipDuplicateObjects: false,
+            });
+
+            const body = ary.map((el) => JSON.stringify(el)).join('\n');
 
             index = index + 1;
 
             // should be under 1MiB hopefully but allow up to 2MiB
             if (body.length < twoMiB) {
-                start = start + recordsPerChunk;
+                start = start + maxRecordsPerChunk;
+
+                const nextChunk = this.slice.slice(start, start + 3);
+
+                hasMore = Boolean(nextChunk.size);
+
                 yield {
                     index,
-                    has_more: i < total,
+                    has_more: hasMore,
                     data: body,
                 };
             } else {
                 let str = '';
 
-                for (let idx = 0; idx < ary.length; idx++) {
-                    const record = ary[idx];
+                let recordsProcessed = 0;
+
+                for (const record of ary) {
+                    recordsProcessed = recordsProcessed + 1;
                     str = str + `${JSON.stringify(record)}\n`;
+
                     if (str.length >= this.chunkSize) {
-                        total++;
-                        const recordsProcessed = ary.length - idx;
                         start = start + recordsProcessed;
+
+                        const nextChunk = this.slice.slice(start, start + 3);
+
+                        hasMore = Boolean(nextChunk.size);
                         yield {
                             index,
-                            has_more: i < total,
-                            data: body,
+                            has_more: hasMore,
+                            data: str,
                         };
                         break;
                     }
                 }
+
+                const nextChunk = this.slice.slice(start, start + 3);
+
+                start = start + recordsProcessed;
+                hasMore = Boolean(nextChunk.size);
+                yield {
+                    index,
+                    has_more: hasMore,
+                    data: str,
+                };
             }
         }
+        // for (let i = 0; i < total; i++) {
+        //     const records = this.slice.slice(start, maxRecordsPerChunk + start);
+        //     console.log('===rec', start, maxRecordsPerChunk + start);
+        //     const ary = records.toJSON(this.serializeOptions || {
+        //         useNullForUndefined: false,
+        //         skipNilValues: true,
+        //         skipEmptyObjects: true,
+        //         skipNilObjectValues: true,
+        //         skipDuplicateObjects: false,
+        //     });
+
+        //     const body = ary.map((el) => JSON.stringify(el))
+        //         .join('\n');
+
+        //     index = index + 1;
+
+        //     // should be under 1MiB hopefully but allow up to 2MiB
+        //     if (body.length < twoMiB) {
+        //         start = start + maxRecordsPerChunk;
+        //         console.log('===body.length good', body.length, twoMiB);
+        //         console.log('===has more', i, total);
+        //         start = start + recordsPerChunk;
+        //         yield {
+        //             index,
+        //             has_more: i < total,
+        //             data: body,
+        //         };
+        //     } else {
+        //         console.log('===body.length bad', body.length, twoMiB);
+        //         let str = '';
+
+        //         for (let idx = 0; idx < ary.length; idx++) {
+        //             const record = ary[idx];
+        //             str = str + `${JSON.stringify(record)}\n`;
+        //             if (str.length >= this.chunkSize) {
+        //                 total++;
+        //                 const recordsProcessed = ary.length - idx;
+        //                 start = start + recordsProcessed;
+        //                 console.log('===str early', str.length, twoMiB);
+        //                 yield {
+        //                     index,
+        //                     has_more: i < total,
+        //                     data: str,
+        //                 };
+        //                 break;
+        //             }
+        //         }
+        //         console.log('===str done', str.length, twoMiB);
+        //         yield {
+        //             index,
+        //             has_more: i < total,
+        //             data: str,
+        //         };
+        //     }
+        // }
     }
 
     private async* _emptyIterator(): AsyncIterableIterator<Chunk> {}
