@@ -1,14 +1,10 @@
-import { Logger, TSError, RouteSenderAPI } from '@terascope/utils';
+import { Logger, TSError, RouteSenderAPI, pWhile } from '@terascope/utils';
 import type { S3Client } from './client-helpers/index.js';
 import {
-    parsePath, ChunkedFileSender, SendBatchConfig
+    parsePath, ChunkedFileSender, SendBatchConfig, MiB
 } from '../base/index.js';
 import { FileSenderType, ChunkedFileSenderConfig } from '../interfaces.js';
-import {
-    createS3Bucket,
-    headS3Bucket,
-    putS3Object,
-} from './s3-helpers.js';
+import { createS3Bucket, headS3Bucket, putS3Object } from './s3-helpers.js';
 import { isObject } from '../helpers.js';
 import { MultiPartUploader } from './MultiPartUploader.js';
 
@@ -47,6 +43,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
         // docs say Body can be a string, but types are complaining
         let Body: any;
         let uploader: MultiPartUploader | undefined;
+        let pending = 0;
 
         try {
             for await (const chunk of chunkGenerator) {
@@ -75,9 +72,23 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
 
                 if (!uploader) throw new Error('Expected uploader to exist');
 
+                // don't allow too many concurrent uploads to prevent holding a lot in memory
+                const queueSize = chunkGenerator.chunkSize > (100 * MiB) ? 1 : 5;
+                if (pending > queueSize) {
+                    await pWhile(async () => pending <= queueSize);
+                }
+
+                pending++;
+
                 // the index is zero based but the part numbers start at 1
                 // so we need to increment by 1
-                await uploader.enqueuePart(Body, chunk.index + 1);
+                uploader
+                    .enqueuePart(
+                        Body, chunk.index + 1
+                    )
+                    .finally(() => {
+                        pending--;
+                    });
             }
 
             // we are done, finalize the upload
