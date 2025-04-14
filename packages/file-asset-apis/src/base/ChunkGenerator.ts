@@ -163,15 +163,11 @@ export class ChunkGenerator {
     private async* _chunkFrame(): AsyncIterableIterator<Chunk> {
         if (!(this.slice instanceof DataFrame)) throw new Error('Invalid call to chunk data frame');
 
-        // TODO format, compression, tests - (if works)
+        // TODO format, compression, tests - (if we decide to go with it)
         if (this.compressor.type !== Compression.none) throw new Error('Data frame compression is not yet supported');
         if (this.formatter.type !== Format.ldjson) throw new Error('Data frame formatting is not yet supported');
 
-        // FIXME not right
-        const {
-            // recordsPerChunk, totalChunks, avgRecordSize
-            maxRecordsPerChunk, avgRecordSize
-        } = estimateRecordsPerUpload(this.slice, this.chunkSize);
+        const { recordsPerChunk, chunks } = estimateRecordsPerUpload(this.slice, this.chunkSize);
 
         let start = 0;
         let index = 0;
@@ -179,15 +175,12 @@ export class ChunkGenerator {
         const twoMiB = this.chunkSize * 2;
 
         let hasMore = true;
+
         while (hasMore) {
-            let field = '';
-            for (const key in this.slice.config.fields) {
-                if (!field) field = key;
-                break;
-            }
+            let end = recordsPerChunk + start;
+            if (end > this.slice.size) end = this.slice.size;
 
-            const records = this.slice.slice(start, this.slice.size + start);
-
+            const records = this.slice.slice(start, end);
             const ary = records.toJSON(this.serializeOptions || {
                 useNullForUndefined: false,
                 skipNilValues: true,
@@ -202,11 +195,14 @@ export class ChunkGenerator {
 
             // should be under 1MiB hopefully but allow up to 2MiB
             if (body.length < twoMiB) {
-                start = start + maxRecordsPerChunk;
+                start = start + recordsPerChunk;
 
-                const nextChunk = this.slice.slice(start, start + 3);
-
-                hasMore = Boolean(nextChunk.size);
+                if (chunks === 1 || start > this.slice.size) {
+                    hasMore = false;
+                } else {
+                    const nextChunk = this.slice.slice(start);
+                    hasMore = Boolean(nextChunk.size);
+                }
 
                 yield {
                     index,
@@ -214,8 +210,11 @@ export class ChunkGenerator {
                     data: body,
                 };
             } else {
-                let str = '';
+                // in case estimates went off limit,
+                // TODO maybe split ary in half, pop off a few at a time,
+                // or estimate overflow, instead of looping each record
 
+                let str = '';
                 let recordsProcessed = 0;
 
                 for (const record of ary) {
@@ -225,9 +224,13 @@ export class ChunkGenerator {
                     if (str.length >= this.chunkSize) {
                         start = start + recordsProcessed;
 
-                        const nextChunk = this.slice.slice(start, start + 3);
+                        if (start > this.slice.size) {
+                            hasMore = false;
+                        } else {
+                            const nextChunk = this.slice.slice(start);
+                            hasMore = Boolean(nextChunk.size);
+                        }
 
-                        hasMore = Boolean(nextChunk.size);
                         yield {
                             index,
                             has_more: hasMore,
@@ -236,11 +239,15 @@ export class ChunkGenerator {
                         break;
                     }
                 }
-
-                const nextChunk = this.slice.slice(start, start + 3);
-
                 start = start + recordsProcessed;
-                hasMore = Boolean(nextChunk.size);
+
+                if (start > this.slice.size) {
+                    hasMore = false;
+                } else {
+                    const nextChunk = this.slice.slice(start);
+                    hasMore = Boolean(nextChunk.size);
+                }
+
                 yield {
                     index,
                     has_more: hasMore,
@@ -248,61 +255,6 @@ export class ChunkGenerator {
                 };
             }
         }
-        // for (let i = 0; i < total; i++) {
-        //     const records = this.slice.slice(start, maxRecordsPerChunk + start);
-        //     console.log('===rec', start, maxRecordsPerChunk + start);
-        //     const ary = records.toJSON(this.serializeOptions || {
-        //         useNullForUndefined: false,
-        //         skipNilValues: true,
-        //         skipEmptyObjects: true,
-        //         skipNilObjectValues: true,
-        //         skipDuplicateObjects: false,
-        //     });
-
-        //     const body = ary.map((el) => JSON.stringify(el))
-        //         .join('\n');
-
-        //     index = index + 1;
-
-        //     // should be under 1MiB hopefully but allow up to 2MiB
-        //     if (body.length < twoMiB) {
-        //         start = start + maxRecordsPerChunk;
-        //         console.log('===body.length good', body.length, twoMiB);
-        //         console.log('===has more', i, total);
-        //         start = start + recordsPerChunk;
-        //         yield {
-        //             index,
-        //             has_more: i < total,
-        //             data: body,
-        //         };
-        //     } else {
-        //         console.log('===body.length bad', body.length, twoMiB);
-        //         let str = '';
-
-        //         for (let idx = 0; idx < ary.length; idx++) {
-        //             const record = ary[idx];
-        //             str = str + `${JSON.stringify(record)}\n`;
-        //             if (str.length >= this.chunkSize) {
-        //                 total++;
-        //                 const recordsProcessed = ary.length - idx;
-        //                 start = start + recordsProcessed;
-        //                 console.log('===str early', str.length, twoMiB);
-        //                 yield {
-        //                     index,
-        //                     has_more: i < total,
-        //                     data: str,
-        //                 };
-        //                 break;
-        //             }
-        //         }
-        //         console.log('===str done', str.length, twoMiB);
-        //         yield {
-        //             index,
-        //             has_more: i < total,
-        //             data: str,
-        //         };
-        //     }
-        // }
     }
 
     private async* _emptyIterator(): AsyncIterableIterator<Chunk> {}

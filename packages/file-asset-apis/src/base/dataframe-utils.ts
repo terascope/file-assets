@@ -1,8 +1,10 @@
 import type { DataFrame } from '@terascope/data-mate';
 
 function getRecordsToSample(size: number): number {
-    if (size < 1 && size !== -1) return 1;
-    if (size < 100) return 3;
+    if (size <= 50) return 1;
+    if (size <= 1000) return 3;
+    if (size <= 50000) return 5;
+    if (size <= 1 && size !== -1) return 1;
     return 10;
 }
 
@@ -18,7 +20,7 @@ function getRandomIndex(size: number, collected: number[], retries = 5): number 
     }
 }
 
-export function estimateRecordsPerUpload(frame: DataFrame, maxBytes: number) {
+export function estimateRecordsPerUpload(frame: DataFrame, maxBytes: number, retries = 2) {
     const indicesToSample: number[] = [];
     const sampleSize = getRecordsToSample(frame.size);
 
@@ -34,41 +36,21 @@ export function estimateRecordsPerUpload(frame: DataFrame, maxBytes: number) {
         }
     }
 
-    // in case failed to sample
-    // if (!indicesToSample?.length) return 1;
+    if (!indicesToSample?.length) {
+        if (!retries) throw new Error('Unexpected error uploading results');
+        return estimateRecordsPerUpload(frame, maxBytes, retries - 1);
+    }
 
     const avgRecordSize = frameBytes / indicesToSample.length;
-    const total = avgRecordSize * frame.size;
-    const recordsPerChunk = Math.ceil(total / maxBytes);
-    const totalChunks = Math.ceil(frame.size / recordsPerChunk);
-    return { recordsPerChunk, totalChunks, avgRecordSize };
+
+    const totalFrameBytes = avgRecordSize * frame.size;
+
+    let chunks = 1;
+    if (totalFrameBytes > maxBytes) {
+        chunks = totalFrameBytes / maxBytes;
+    }
+
+    const recordsPerChunk = Math.trunc(frame.size / (chunks));
+
+    return { chunks, recordsPerChunk };
 }
-
-// function simpleSend(frame: DataFrame) {
-//     const { recordsPerChunk, totalChunks } =
-// // estimateRecordsPerUpload(frame, MAX_CHUNK_SIZE_BYTES);
-
-//     function* generator(_i) {
-//         let start = 0;
-//         for (let i = 0; i < totalChunks; i++) {
-//             const records = frame.slice(start, recordsPerChunk + start);
-//             const body = records.toJSON()
-//                 .map((el) => JSON.stringify(el))
-//                 .join('\n');
-//             start = start + recordsPerChunk;
-
-//             if (body.length < MAX_CHUNK_SIZE_BYTES) {
-//                 yield body;
-//             } else {
-
-//             }
-
-//             // try convert to generator to share code instead
-//             // if (totalChunks > 0) {
-//             //     // start upload
-//             // } else {
-//             //     // start multi
-//             // }
-//         }
-//     }
-// }
