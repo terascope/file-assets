@@ -138,4 +138,143 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
      * This is currently a noop, may change in future and work to ensure dynamic bucket exists
      */
     async verify(_route: string): Promise<void> {}
+
+    /**
+     * similar to simpleSend but but more of a factory for the
+     * user to decide how to provide the records instead of
+     * chunking
+    */
+    async sendNonChunked({
+        recordsPerUpload, chunks, size, getRecords, doesHaveMore
+    }: {
+        recordsPerUpload: number;
+        chunks: number;
+        size: number;
+        getRecords: (start?: number, end?: number) => any[];
+        doesHaveMore: (start?: number) => boolean;
+    }) {
+        const objPath = parsePath(this.path);
+        const Key = await this.createFileDestinationName(objPath.prefix);
+        const Bucket = objPath.bucket;
+
+        let uploader: MultiPartUploader | undefined;
+        let pending = 0;
+
+        let isFirstSlice = true;
+        let start = 0;
+        let index = 0;
+
+        const twoHundredMiB = MiB * 200;
+        const oneHundredMiB = MiB * 100;
+
+        let hasMore = true;
+
+        // don't allow too many concurrent uploads to prevent holding a lot in memory
+        const queueSize = 5;
+
+        const send = async (idx: number, isMore: boolean, body: any) => {
+            // first slice decides if it is multipart or not
+            if (isFirstSlice) {
+                isFirstSlice = false;
+
+                if (isMore) {
+                    uploader = new MultiPartUploader(
+                        this.client, Bucket, Key, this.logger
+                    );
+                    await uploader.start();
+                } else {
+                    if (!body) return;
+
+                    await putS3Object(this.client, {
+                        Bucket,
+                        Key,
+                        Body: body
+                    });
+                    return;
+                }
+            }
+
+            if (!uploader) throw new Error('Expected uploader to exist');
+
+            if (pending > queueSize) {
+                await pWhile(async () => pending <= queueSize);
+            }
+
+            pending++;
+
+            uploader
+                .enqueuePart(
+                    body, idx
+                )
+                .finally(() => {
+                    pending--;
+                });
+        };
+
+        while (hasMore) {
+            let end = recordsPerUpload + start;
+            if (end > size) end = size;
+
+            const ary = getRecords(start, end);
+
+            const body = this.formatter.format(ary);
+            // const body = ary.map((el) => JSON.stringify(el)).join('\n');
+
+            // the index is zero based but the part numbers start at 1
+            // so we need to increment by 1
+            index = index + 1;
+
+            // should be under 1MiB hopefully but allow up to 2MiB
+            if (body.length < twoHundredMiB) {
+                start = start + recordsPerUpload;
+
+                if (chunks === 1 || start > size) {
+                    hasMore = false;
+                } else {
+                    hasMore = doesHaveMore(start);
+                }
+
+                await send(index, hasMore, body);
+            } else {
+                // in case estimates went off limit,
+                // TODO maybe split ary in half, pop off a few at a time,
+                // or estimate overflow, instead of looping each record
+
+                let str = '';
+                let recordsProcessed = 0;
+
+                for (const record of ary) {
+                    recordsProcessed = recordsProcessed + 1;
+                    str = str + `${JSON.stringify(record)}\n`;
+
+                    if (str.length >= oneHundredMiB) {
+                        start = start + recordsProcessed;
+
+                        if (start > size) {
+                            hasMore = false;
+                        } else {
+                            hasMore = doesHaveMore(start);
+                        }
+
+                        await send(index, hasMore, str);
+
+                        break;
+                    }
+                }
+                start = start + recordsProcessed;
+
+                if (start > size) {
+                    hasMore = false;
+                } else {
+                    hasMore = doesHaveMore(start);
+                }
+
+                await send(index, hasMore, str);
+            }
+        }
+
+        if (uploader) {
+            return await uploader.finish();
+        }
+    }
 }

@@ -28,9 +28,10 @@ describe('ChunkedSlicer', () => {
         }
 
         async sendToDestination(
-            { dest, chunkGenerator }: SendBatchConfig
+            { filename, chunkGenerator }: SendBatchConfig
         ) {
             let output: Buffer | string | undefined;
+            const dest = await this.createFileDestinationName(filename);
 
             for await (const chunk of chunkGenerator) {
                 if (chunk.has_more) {

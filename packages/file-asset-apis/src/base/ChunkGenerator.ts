@@ -1,9 +1,7 @@
 import { isTest } from '@terascope/utils';
-import { DataFrame, SerializeOptions } from '@terascope/data-mate';
 import { Compressor } from './Compressor.js';
 import { Formatter } from './Formatter.js';
 import { Format, Compression, SendRecords } from '../interfaces.js';
-import { estimateRecordsPerUpload } from './dataframe-utils.js';
 
 export interface Chunk {
     /**
@@ -25,7 +23,7 @@ export interface Chunk {
 export const MiB = 1024 * 1024;
 
 /** 100 MiB - Used for determine how big each chunk of a single file should be */
-export const MAX_CHUNK_SIZE_BYTES = (isTest ? 5 : 5) * MiB;
+export const MAX_CHUNK_SIZE_BYTES = (isTest ? 5 : 100) * MiB;
 
 /** 5MiB - Minimum part size for multipart uploads with Minio */
 export const MIN_CHUNK_SIZE_BYTES = 5 * MiB;
@@ -42,22 +40,16 @@ export class ChunkGenerator {
      * how big each chunk of a single file should be
      */
     readonly chunkSize = 5 * MiB;
-    // TODO probably pass the serialized fram instead
-    readonly serializeOptions: SerializeOptions | undefined;
 
     constructor(
         readonly formatter: Formatter,
         readonly compressor: Compressor,
         readonly slice: SendRecords,
-        limits?: { maxBytes?: number; minBytes?: number },
-        // TODO probably pass the serialized fram instead
-        serializeOptions?: SerializeOptions
+        limits?: { maxBytes?: number; minBytes?: number }
     ) {
         const max = limits?.maxBytes || MAX_CHUNK_SIZE_BYTES;
         const min = limits?.minBytes || MIN_CHUNK_SIZE_BYTES;
         this.chunkSize = getBytes(max, min);
-        // TODO probably pass the serialized fram instead
-        this.serializeOptions = serializeOptions;
     }
 
     /**
@@ -72,9 +64,6 @@ export class ChunkGenerator {
     }
 
     [Symbol.asyncIterator](): AsyncIterableIterator<Chunk> {
-        if (this.slice instanceof DataFrame) {
-            return this._chunkFrame();
-        }
         if (Array.isArray(this.slice) && this.slice.length === 0) {
             return this._emptyIterator();
         }
@@ -109,7 +98,7 @@ export class ChunkGenerator {
                 chunk = {
                     index,
                     has_more,
-                    data: chunkStr.slice(0, this.chunkSize),
+                    data: chunkStr.slice(0, this.chunkSize)
                 };
 
                 chunkStr = chunkStr.slice(this.chunkSize, chunkStr.length);
@@ -118,7 +107,7 @@ export class ChunkGenerator {
                 chunk = {
                     index,
                     has_more,
-                    data: chunkStr,
+                    data: chunkStr
                 };
 
                 chunkStr = '';
@@ -160,102 +149,107 @@ export class ChunkGenerator {
         }
     }
 
-    private async* _chunkFrame(): AsyncIterableIterator<Chunk> {
-        if (!(this.slice instanceof DataFrame)) throw new Error('Invalid call to chunk data frame');
+    // was playing w/seeing if could get faster by slicing data frames, didn't really help though
+    // private async* _chunkFrame(): AsyncIterableIterator<Chunk> {
+    // eslint-disable-next-line @stylistic/max-len
+    //     if (!(this.slice instanceof DataFrame)) throw new Error('Invalid call to chunk data frame');
 
-        // TODO format, compression, tests - (if we decide to go with it)
-        if (this.compressor.type !== Compression.none) throw new Error('Data frame compression is not yet supported');
-        if (this.formatter.type !== Format.ldjson) throw new Error('Data frame formatting is not yet supported');
+    //     // TODO format, compression, tests - (if we decide to go with it)
+    // eslint-disable-next-line @stylistic/max-len
+    //     if (this.compressor.type !== Compression.none) throw new Error('Data frame compression is not yet supported');
+    // eslint-disable-next-line @stylistic/max-len
+    //     if (this.formatter.type !== Format.ldjson) throw new Error('Data frame formatting is not yet supported');
 
-        const { recordsPerChunk, chunks } = estimateRecordsPerUpload(this.slice, this.chunkSize);
+    //     const { recordsPerChunk, chunks } = estimateRecordsPerUpload(this.slice, this.chunkSize);
 
-        let start = 0;
-        let index = 0;
+    //     let start = 0;
+    //     let index = 0;
 
-        const twoMiB = this.chunkSize * 2;
+    //     const twoMiB = this.chunkSize * 2;
 
-        let hasMore = true;
+    //     let hasMore = true;
 
-        while (hasMore) {
-            let end = recordsPerChunk + start;
-            if (end > this.slice.size) end = this.slice.size;
+    //     while (hasMore) {
+    //         let end = recordsPerChunk + start;
+    //         if (end > this.slice.size) end = this.slice.size;
 
-            const records = this.slice.slice(start, end);
-            const ary = records.toJSON(this.serializeOptions || {
-                useNullForUndefined: false,
-                skipNilValues: true,
-                skipEmptyObjects: true,
-                skipNilObjectValues: true,
-                skipDuplicateObjects: false,
-            });
+    //         const records = this.slice.slice(start, end);
+    //         const ary = records.toJSON(this.serializeOptions || {
+    //             useNullForUndefined: false,
+    //             skipNilValues: true,
+    //             skipEmptyObjects: true,
+    //             skipNilObjectValues: true,
+    //             skipDuplicateObjects: false,
+    //         });
 
-            const body = ary.map((el) => JSON.stringify(el)).join('\n');
+    //         const body = this.formatter.format(ary);
+    //         // const body = ary.map((el) => JSON.stringify(el)).join('\n');
 
-            index = index + 1;
+    //         index = index + 1;
 
-            // should be under 1MiB hopefully but allow up to 2MiB
-            if (body.length < twoMiB) {
-                start = start + recordsPerChunk;
+    //         // should be under 1MiB hopefully but allow up to 2MiB
+    //         if (body.length < twoMiB) {
+    //             start = start + recordsPerChunk;
 
-                if (chunks === 1 || start > this.slice.size) {
-                    hasMore = false;
-                } else {
-                    const nextChunk = this.slice.slice(start);
-                    hasMore = Boolean(nextChunk.size);
-                }
+    //             if (chunks === 1 || start > this.slice.size) {
+    //                 hasMore = false;
+    //             } else {
+    //                 const nextChunk = this.slice.slice(start);
+    //                 hasMore = Boolean(nextChunk.size);
+    //             }
 
-                yield {
-                    index,
-                    has_more: hasMore,
-                    data: body,
-                };
-            } else {
-                // in case estimates went off limit,
-                // TODO maybe split ary in half, pop off a few at a time,
-                // or estimate overflow, instead of looping each record
+    //             yield {
+    //                 index,
+    //                 has_more: hasMore,
+    //                 data: body,
+    //             };
+    //         } else {
+    //             // in case estimates went off limit,
+    //             // TODO maybe split ary in half, pop off a few at a time,
+    //             // or estimate overflow, instead of looping each record
 
-                let str = '';
-                let recordsProcessed = 0;
+    //             let str = '';
+    //             let recordsProcessed = 0;
 
-                for (const record of ary) {
-                    recordsProcessed = recordsProcessed + 1;
-                    str = str + `${JSON.stringify(record)}\n`;
+    //             for (const record of ary) {
+    //                 recordsProcessed = recordsProcessed + 1;
+    //                 str = str + `${JSON.stringify(record)}\n`;
 
-                    if (str.length >= this.chunkSize) {
-                        start = start + recordsProcessed;
+    //                 if (str.length >= this.chunkSize) {
+    //                     start = start + recordsProcessed;
 
-                        if (start > this.slice.size) {
-                            hasMore = false;
-                        } else {
-                            const nextChunk = this.slice.slice(start);
-                            hasMore = Boolean(nextChunk.size);
-                        }
+    //                     if (start > this.slice.size) {
+    //                         hasMore = false;
+    //                     } else {
+    //                         const nextChunk = this.slice.slice(start);
+    //                         hasMore = Boolean(nextChunk.size);
+    //                     }
 
-                        yield {
-                            index,
-                            has_more: hasMore,
-                            data: str,
-                        };
-                        break;
-                    }
-                }
-                start = start + recordsProcessed;
+    //                     yield {
+    //                         index,
+    //                         has_more: hasMore,
+    //                         data: str,
+    //                     };
+    //                     break;
+    //                 }
+    //             }
+    //             start = start + recordsProcessed;
 
-                if (start > this.slice.size) {
-                    hasMore = false;
-                } else {
-                    const nextChunk = this.slice.slice(start);
-                    hasMore = Boolean(nextChunk.size);
-                }
+    //             if (start > this.slice.size) {
+    //                 hasMore = false;
+    //             } else {
+    //                 const nextChunk = this.slice.slice(start);
+    //                 hasMore = Boolean(nextChunk.size);
+    //             }
 
-                yield {
-                    index,
-                    has_more: hasMore,
-                    data: str,
-                };
-            }
-        }
-    }
+    //             yield {
+    //                 index,
+    //                 has_more: hasMore,
+    //                 data: str,
+    //             };
+    //         }
+    //     }
+    // }
 
     private async* _emptyIterator(): AsyncIterableIterator<Chunk> {}
 }

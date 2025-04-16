@@ -23,8 +23,6 @@ const formatValues = Object.values(Format);
 export interface SendBatchConfig {
     /** The original filename  */
     readonly filename: string;
-    /** The full path generated for filename  */
-    readonly dest: string;
     /** Async Iterator that provides chunks of data to write  */
     readonly chunkGenerator: ChunkGenerator;
     /**
@@ -46,7 +44,7 @@ export abstract class ChunkedFileSender {
 
     constructor(type: FileSenderType, config: ChunkedFileSenderConfig, logger: Logger) {
         if (!formatValues.includes(config.format)) {
-            throw new Error(`Invalid paramter format, is must be provided and be set to any of these: ${formatValues.join(', ')}`);
+            throw new Error(`Invalid parameter format, is must be provided and be set to any of these: ${formatValues.join(', ')}`);
         }
 
         if (!isString(config.path)) {
@@ -273,12 +271,8 @@ export abstract class ChunkedFileSender {
             if (this.sliceCount > 0) this.formatter.csvOptions.header = false;
         }
 
-        const filename = this.path;
-        const destName = await this.createFileDestinationName(filename);
-
         await this.sendToDestination({
-            filename,
-            dest: destName,
+            filename: this.path,
             chunkGenerator: new ChunkGenerator(
                 this.formatter,
                 this.compressor,
