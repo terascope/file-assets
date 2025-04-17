@@ -96,6 +96,9 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
             // do this outside of the for loop
             // to free up the chunkGenerator
             if (uploader) {
+                if (pending) {
+                    await pWhile(async () => pending === 0);
+                }
                 return await uploader.finish();
             }
         } catch (err) {
