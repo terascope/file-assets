@@ -1,5 +1,7 @@
 import { EventEmitter, once } from 'node:events';
-import { Logger, pDelay, sortBy, toHumanTime } from '@terascope/utils';
+import {
+    Logger, pDelay, sortBy, toHumanTime
+} from '@terascope/utils';
 import type { S3Client, S3ClientResponse } from './client-helpers/index.js';
 import {
     createS3MultipartUpload,
@@ -124,27 +126,8 @@ export class MultiPartUploader {
     }
 
     /**
-     * Make the s3 part upload request
+     * Enqueue a part upload request
     */
-    private async _uploadPart(body: Buffer | string, partNumber: number): Promise<void> {
-        if (!this.uploadId) {
-            throw Error('Expected MultiPartUploader->start to have been finished');
-        }
-
-        if (this.partUploadErrors.size) {
-            await this._throwPartUploadError();
-        }
-        const { ETag } = await uploadS3ObjectPart(this.client, {
-            Bucket: this.bucket,
-            Key: this.key,
-            Body: body as any,
-            UploadId: this.uploadId,
-            PartNumber: partNumber
-        });
-
-        this.parts.push({ PartNumber: partNumber, ETag });
-    }
-
     async enqueuePart(
         body: Buffer | string, partNumber: number
     ): Promise<void> {
@@ -175,6 +158,28 @@ export class MultiPartUploader {
             // to start the upload
             await pDelay(this.pendingParts);
         }
+    }
+
+    /**
+     * Make the s3 part upload request
+    */
+    private async _uploadPart(body: Buffer | string, partNumber: number): Promise<void> {
+        if (!this.uploadId) {
+            throw Error('Expected MultiPartUploader->start to have been finished');
+        }
+
+        if (this.partUploadErrors.size) {
+            await this._throwPartUploadError();
+        }
+        const { ETag } = await uploadS3ObjectPart(this.client, {
+            Bucket: this.bucket,
+            Key: this.key,
+            Body: body as any,
+            UploadId: this.uploadId,
+            PartNumber: partNumber
+        });
+
+        this.parts.push({ PartNumber: partNumber, ETag });
     }
 
     /**

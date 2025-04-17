@@ -74,7 +74,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                 if (!uploader) throw new Error('Expected uploader to exist');
 
                 // don't allow too many concurrent uploads to prevent holding a lot in memory
-                const queueSize = chunkGenerator.chunkSize > (100 * MiB) ? 1 : 5;
+                const queueSize = 5;
                 if (pending > queueSize) {
                     await pWhile(async () => pending <= queueSize);
                 }
