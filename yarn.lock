@@ -2516,7 +2516,7 @@ __metadata:
   dependencies:
     "@aws-sdk/client-s3": "npm:~3.787.0"
     "@smithy/node-http-handler": "npm:~4.0.4"
-    "@terascope/scripts": "npm:~1.15.4"
+    "@terascope/scripts": "npm:~1.16.0"
     "@terascope/utils": "npm:~1.8.0"
     "@types/jest": "npm:~29.5.14"
     aws-sdk-client-mock: "npm:~4.1.0"
@@ -2550,9 +2550,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@terascope/scripts@npm:~1.15.4":
-  version: 1.15.4
-  resolution: "@terascope/scripts@npm:1.15.4"
+"@terascope/scripts@npm:~1.16.0":
+  version: 1.16.0
+  resolution: "@terascope/scripts@npm:1.16.0"
   dependencies:
     "@kubernetes/client-node": "npm:~1.1.2"
     "@terascope/utils": "npm:~1.8.0"
@@ -2583,7 +2583,7 @@ __metadata:
       optional: true
   bin:
     ts-scripts: ./bin/ts-scripts.js
-  checksum: 10c0/693b401efc41b471d2f931fb66b13b43a29ab384ec63466844f82d8e0de80a4f6deb00b0a0cdbeee48a72cf82f67eca4c070ef78db074ad025effac65c96005c
+  checksum: 10c0/3cdad6c14749ff61c77eda15798cc54191c4a733c9ae566d312fe331de86a31ac7db3b6ffc81c9b617770417d900eb13543f567dbe4e765ec8ec78b607247124
   languageName: node
   linkType: hard
 
@@ -5886,7 +5886,7 @@ __metadata:
     "@terascope/eslint-config": "npm:~1.1.13"
     "@terascope/file-asset-apis": "npm:~1.0.5"
     "@terascope/job-components": "npm:~1.10.0"
-    "@terascope/scripts": "npm:~1.15.4"
+    "@terascope/scripts": "npm:~1.16.0"
     "@types/fs-extra": "npm:~11.0.4"
     "@types/jest": "npm:~29.5.14"
     "@types/json2csv": "npm:~5.0.7"
