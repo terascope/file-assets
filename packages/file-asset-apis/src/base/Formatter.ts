@@ -130,7 +130,7 @@ export class Formatter {
 
         const lineDelimiter = getLineDelimiter(this.config);
 
-        for (const [record, has_more] of _hasMoreIterator<SendRecord>(slice)) {
+        for (const [record, has_more] of hasMoreIterator<SendRecord>(slice)) {
             const formatted = this.fn(record, firstSlice);
             firstSlice = false;
 
@@ -161,7 +161,7 @@ export class Formatter {
     }
 }
 
-function _hasMoreIterator<R>(
+export function hasMoreIterator<R>(
     items: Iterable<R>
 ): IterableIterator<[items: R, has_more: boolean]> {
     const iterator = items[Symbol.iterator]();

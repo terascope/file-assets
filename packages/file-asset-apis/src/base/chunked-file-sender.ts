@@ -264,7 +264,7 @@ export abstract class ChunkedFileSender {
      *   s3Sender.simpleSend([{ some: 'data' }]) => Promise<void>
      *   s3Sender.simpleSend([DataEntity.make({ some: 'data' })]) => Promise<void>
     */
-    async simpleSend(records: SendRecords): Promise<void> {
+    async simpleSend(records: SendRecords, experimentalChunkMethod?: 'buffer' | 'batchBuffer'): Promise<void> {
         this.incrementCount();
 
         if (!this.filePerSlice) {
@@ -276,7 +276,8 @@ export abstract class ChunkedFileSender {
             chunkGenerator: new ChunkGenerator(
                 this.formatter,
                 this.compressor,
-                records
+                records,
+                experimentalChunkMethod
             ),
             count: Array.isArray(records) ? records.length : -1
         });

@@ -47,6 +47,11 @@ export class S3Fetcher extends ChunkedFileReader {
         }
         const data = await body.transformToByteArray();
 
+        // FIXME
+        // const data = this.format === Format.ldjson
+        //     ? await body.transformToString()
+        //     : await body.transformToByteArray();
+
         return this.compressor.decompress(Buffer.from(data));
     }
 }

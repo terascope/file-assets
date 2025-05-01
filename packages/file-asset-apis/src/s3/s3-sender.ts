@@ -1,7 +1,7 @@
 import { Logger, TSError, RouteSenderAPI, pWhile } from '@terascope/utils';
 import type { S3Client } from './client-helpers/index.js';
 import {
-    parsePath, ChunkedFileSender, SendBatchConfig, MiB
+    parsePath, ChunkedFileSender, SendBatchConfig
 } from '../base/index.js';
 import { FileSenderType, ChunkedFileSenderConfig } from '../interfaces.js';
 import { createS3Bucket, headS3Bucket, putS3Object } from './s3-helpers.js';

@@ -1,6 +1,6 @@
 import { isTest } from '@terascope/utils';
 import { Compressor } from './Compressor.js';
-import { Formatter } from './Formatter.js';
+import { Formatter, hasMoreIterator } from './Formatter.js';
 import { Format, Compression, SendRecords } from '../interfaces.js';
 
 export interface Chunk {
@@ -18,6 +18,11 @@ export interface Chunk {
      * Indicates whether there are more chunks to be processed
     */
     readonly has_more: boolean;
+
+    /**
+     * Cleanup function  - i.e. to free up memory
+     */
+    readonly cleanup?: (idx: number) => void;
 }
 
 export const MiB = 1024 * 1024;
@@ -40,16 +45,19 @@ export class ChunkGenerator {
      * how big each chunk of a single file should be
      */
     readonly chunkSize = 5 * MiB;
+    readonly experimentalChunkMethod?: 'buffer' | 'batchBuffer';
 
     constructor(
         readonly formatter: Formatter,
         readonly compressor: Compressor,
         readonly slice: SendRecords,
+        experimentalChunkMethod?: 'buffer' | 'batchBuffer',
         limits?: { maxBytes?: number; minBytes?: number }
     ) {
         const max = limits?.maxBytes || MAX_CHUNK_SIZE_BYTES;
         const min = limits?.minBytes || MIN_CHUNK_SIZE_BYTES;
         this.chunkSize = getBytes(max, min);
+        this.experimentalChunkMethod = experimentalChunkMethod;
     }
 
     /**
@@ -68,6 +76,8 @@ export class ChunkGenerator {
             return this._emptyIterator();
         }
         if (this.isRowOptimized()) {
+            if (this.experimentalChunkMethod === 'buffer') return this._chunkBuffer();
+            if (this.experimentalChunkMethod === 'batchBuffer') return this._chunkBufferBatched();
             return this._chunkByRow();
         }
         return this._chunkAll();
@@ -147,6 +157,211 @@ export class ChunkGenerator {
             };
             offset += chunk.length;
         }
+    }
+
+    private async* _chunkBuffer(): AsyncIterableIterator<Chunk> {
+        let index = 0;
+        const buffers: Record<number, Buffer> = {
+            0: Buffer.alloc(this.chunkSize)
+        };
+        const sizes: Record<number, number> = {
+            0: 0
+        };
+        const cleanup = (idx: number) => {
+            delete buffers[idx];
+            delete sizes[idx];
+        };
+
+        // eslint-disable-next-line prefer-const
+        for (let [str, has_more] of this.formatter.formatIterator(this.slice)) {
+            let chunk;
+
+            // adding string too much yield current buffer
+            if (sizes[index] + str.length > this.chunkSize) {
+                chunk = {
+                    index,
+                    has_more,
+                    data: buffers[index],
+                    cleanup
+                };
+            } else if (
+                // next would overflow, but this should fit
+                sizes[index] + str.length + str.length > this.chunkSize
+                && sizes[index] + str.length <= this.chunkSize
+            ) {
+                const size = buffers[index].write(str, sizes[index]);
+                sizes[index] = sizes[index] + size;
+                chunk = {
+                    index,
+                    has_more,
+                    data: buffers[index],
+                    cleanup
+                };
+            } else { // add to buffer
+                const size = buffers[index].write(str, sizes[index]);
+                sizes[index] = sizes[index] + size;
+            }
+
+            str = ''; // clear memory
+
+            if (chunk) {
+                index++;
+                buffers[index] = Buffer.alloc(this.chunkSize);
+                sizes[index] = 0;
+                yield chunk;
+            }
+
+            // const estimatedOverflowBytes = buffSize - this.chunkSize;
+            // if (estimatedOverflowBytes >= this.chunkSize) {
+            //     yield {
+            //         index,
+            //         has_more,
+            //         data: buffer.subarray(0, this.chunkSize)
+            //     };
+            //     index++;
+            //     const next = buffer?.subarray(this.chunkSize, buffSize);
+            //     buffer.fill('');
+            //     buffSize = 0;
+            //     const size = buffer.copy(next);
+            //     buffSize = buffSize + size;
+            // } else if (estimatedOverflowBytes >= 0) {
+            //     yield {
+            //         index,
+            //         has_more,
+            //         data: buffer
+            //     };
+            //     index++;
+            //     buffer.fill('');
+            //     buffSize = 0;
+            // }
+        }
+        if (sizes[index]) {
+            yield {
+                index,
+                has_more: false,
+                data: buffers[index],
+                cleanup
+            };
+        }
+    }
+
+    private async* _chunkBufferBatched(): AsyncIterableIterator<Chunk> {
+        let index = 0;
+        const buffers: Record<number, Buffer> = {
+            0: Buffer.alloc(this.chunkSize)
+        };
+        const sizes: Record<number, number> = {
+            0: 0
+        };
+        const cleanup = (idx: number) => {
+            delete buffers[idx];
+            delete sizes[idx];
+        };
+
+        let items: (Record<string, any> | string)[] = [];
+
+        let batchSize = Number(process.argv.find((el) => el.startsWith('batch'))?.split('=')[1] || 100);
+        let avgBatchSize = 0;
+        let avgRecordBytes = 0;
+
+        let gotAvg = false;
+
+        for (const [record, has_more] of hasMoreIterator(this.slice)) {
+            if (!gotAvg && (items.length <= 5 || !has_more)) {
+                if (items.length >= 5 && avgRecordBytes) gotAvg = true;
+
+                const newLineBytes = '\n'.length;
+                avgRecordBytes = items.reduce(
+                    (acc, curr) => acc + JSON.stringify(curr).length + newLineBytes, 0
+                ) / items.length;
+
+                ({
+                    batchSize, avgBatchSize, // estimatedBatchesPerUpload,
+                } = this._ensureBatchSizeOk(avgRecordBytes, items));
+            }
+
+            // add batch to buffer
+            if (items.length && items.length % batchSize === 0) {
+                const stringified: string | null = JSON.stringify!(items)
+                    .replaceAll(/,"\\n",*/g, '\n')
+                    .replace(/^\[/g, '')
+                    .replace(/]$/g, '');
+
+                const size = buffers[index].write(stringified, sizes[index], 'utf-8');
+                sizes[index] = sizes[index] + size;
+                items = [];
+            }
+
+            // will overflow next batch
+            if (sizes[index] + avgBatchSize >= this.chunkSize) {
+                yield {
+                    index,
+                    has_more,
+                    data: buffers[index],
+                    cleanup
+                };
+                index++;
+                buffers[index] = Buffer.alloc(this.chunkSize);
+                sizes[index] = 0;
+            }
+
+            items.push(record);
+            items.push('\n');
+        }
+
+        if (items.length) {
+            const stringified: string | null = JSON.stringify!(items)
+                .replaceAll(/,"\\n",*/g, '\n')
+                .replace(/^\[/g, '')
+                .replace(/]$/g, '');
+
+            const size = buffers[index].write(stringified, sizes[index], 'utf-8');
+            sizes[index] = sizes[index] + size;
+            items = [];
+        }
+        if (sizes[index]) {
+            yield {
+                index,
+                has_more: false,
+                data: buffers[index],
+                cleanup
+            };
+            index++;
+            buffers[index] = Buffer.alloc(this.chunkSize);
+            sizes[index] = 0;
+        }
+    }
+
+    private _ensureBatchSizeOk(avgRecordBytes: number, items: any[]) {
+        let estimatedBatchesPerUpload = 0;
+
+        let batchSize = 100;
+
+        // ensure batch size ok
+        if (!avgRecordBytes && items.length >= 5) {
+            const isValidBatchSize = () => {
+                const batchesPerChunk = this.chunkSize / (batchSize * avgRecordBytes);
+                if (batchesPerChunk > this.chunkSize) return false;
+                return batchesPerChunk;
+            };
+
+            while (!estimatedBatchesPerUpload) {
+                if (isValidBatchSize()) {
+                    estimatedBatchesPerUpload = this.chunkSize / batchSize;
+                } else if (batchSize === 1) {
+                    estimatedBatchesPerUpload = 1;
+                } else {
+                    batchSize = batchSize / 10;
+                }
+            }
+        }
+
+        return {
+            estimatedBatchesPerUpload,
+            avgRecordBytes,
+            batchSize,
+            avgBatchSize: avgRecordBytes * batchSize
+        };
     }
 
     private async* _emptyIterator(): AsyncIterableIterator<Chunk> {}

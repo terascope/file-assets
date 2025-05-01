@@ -19,6 +19,7 @@ describe('ChunkGenerator', () => {
                     }),
                     new Compressor(Compression.none),
                     [],
+                    undefined,
                     limits
                 );
             });
@@ -38,6 +39,7 @@ describe('ChunkGenerator', () => {
                     }),
                     new Compressor(Compression.none),
                     input,
+                    undefined,
                     limits
                 );
             });
@@ -47,6 +49,7 @@ describe('ChunkGenerator', () => {
                     index: 0,
                     data: `${JSON.stringify(input)}\n`,
                     has_more: false,
+                    cleanup: undefined
                 }];
                 await expect(toArray(gen)).resolves.toEqual(expected);
             });
@@ -70,6 +73,7 @@ describe('ChunkGenerator', () => {
                     }),
                     new Compressor(Compression.none),
                     input,
+                    undefined,
                     limits
                 );
             });
@@ -89,6 +93,7 @@ describe('ChunkGenerator', () => {
                         .subarray(0, CHUNK_SIZE)
                         .toString(),
                     has_more: true,
+                    cleanup: undefined
                 },
                 {
                     index: 1,
@@ -96,6 +101,7 @@ describe('ChunkGenerator', () => {
                         .subarray(CHUNK_SIZE, CHUNK_SIZE * 2)
                         .toString(),
                     has_more: true,
+                    cleanup: undefined
                 },
                 {
                     index: 2,
@@ -103,6 +109,7 @@ describe('ChunkGenerator', () => {
                         .subarray(CHUNK_SIZE * 2, CHUNK_SIZE * 3)
                         .toString(),
                     has_more: false,
+                    cleanup: undefined
                 }];
                 await expect(toArray(gen)).resolves.toEqual(expected);
             });
@@ -119,6 +126,7 @@ describe('ChunkGenerator', () => {
                     }),
                     new Compressor(Compression.none),
                     [{}],
+                    undefined,
                     limits
                 );
             });
@@ -139,6 +147,7 @@ describe('ChunkGenerator', () => {
                     }),
                     new Compressor(Compression.lz4),
                     [],
+                    undefined,
                     limits
                 );
             });
@@ -158,6 +167,7 @@ describe('ChunkGenerator', () => {
                     }),
                     new Compressor(Compression.lz4),
                     input,
+                    undefined,
                     limits
                 );
             });
@@ -170,6 +180,7 @@ describe('ChunkGenerator', () => {
                     index: 0,
                     data: wholeBuffer.toString(),
                     has_more: false,
+                    cleanup: undefined
                 }];
                 await expect(toArray(gen)).resolves.toEqual(expected);
             });
@@ -193,6 +204,7 @@ describe('ChunkGenerator', () => {
                     }),
                     new Compressor(Compression.lz4),
                     input,
+                    undefined,
                     limits
                 );
             });
@@ -214,6 +226,7 @@ describe('ChunkGenerator', () => {
                         .subarray(0, CHUNK_SIZE)
                         .toString(),
                     has_more: true,
+                    cleanup: undefined
                 },
                 {
                     index: 1,
@@ -221,6 +234,7 @@ describe('ChunkGenerator', () => {
                         .subarray(CHUNK_SIZE, CHUNK_SIZE * 2)
                         .toString(),
                     has_more: false,
+                    cleanup: undefined
                 }];
                 await expect(toArray(gen)).resolves.toEqual(expected);
             });
@@ -237,6 +251,7 @@ describe('ChunkGenerator', () => {
                     }),
                     new Compressor(Compression.none),
                     [],
+                    undefined,
                     limits
                 );
             });
@@ -256,6 +271,7 @@ describe('ChunkGenerator', () => {
                     }),
                     new Compressor(Compression.none),
                     input,
+                    undefined,
                     limits
                 );
             });
@@ -268,6 +284,7 @@ describe('ChunkGenerator', () => {
                     index: 0,
                     data: wholeBuffer.toString(),
                     has_more: false,
+                    cleanup: undefined
                 }];
                 await expect(toArray(gen)).resolves.toEqual(expected);
             });
@@ -291,6 +308,7 @@ describe('ChunkGenerator', () => {
                     }),
                     new Compressor(Compression.none),
                     input,
+                    undefined,
                     limits
                 );
             });
@@ -309,11 +327,13 @@ describe('ChunkGenerator', () => {
                     index: 0,
                     data: str.slice(0, CHUNK_SIZE + overflow),
                     has_more: true,
+                    cleanup: undefined
                 },
                 {
                     index: 1,
                     data: str.slice(CHUNK_SIZE + overflow, str.length),
                     has_more: false,
+                    cleanup: undefined
                 }];
                 await expect(toArray(gen)).resolves.toEqual(expected);
             });
@@ -327,7 +347,8 @@ async function toArray(gen: ChunkGenerator): Promise<TestChunk[]> {
     for await (const chunk of gen) {
         result.push({
             ...chunk,
-            data: chunk.data.toString()
+            data: chunk.data.toString(),
+            cleanup: undefined
         });
     }
     return result;
