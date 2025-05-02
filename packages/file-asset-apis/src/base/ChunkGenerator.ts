@@ -75,11 +75,13 @@ export class ChunkGenerator {
         if (Array.isArray(this.slice) && this.slice.length === 0) {
             return this._emptyIterator();
         }
+        if (this.experimentalChunkMethod === 'buffer') return this._chunkBuffer();
+
         if (this.isRowOptimized()) {
-            if (this.experimentalChunkMethod === 'buffer') return this._chunkBuffer();
             if (this.experimentalChunkMethod === 'batchBuffer') return this._chunkBufferBatched();
             return this._chunkByRow();
         }
+        if (this.experimentalChunkMethod === 'batchBuffer') throw new Error('Experimental method only supported in ldjson format, no compression');
         return this._chunkAll();
     }
 
@@ -171,12 +173,31 @@ export class ChunkGenerator {
             delete buffers[idx];
             delete sizes[idx];
         };
+        const startNextBuffer = () => {
+            index++;
+            buffers[index] = Buffer.alloc(this.chunkSize);
+            sizes[index] = 0;
+        };
+
+        const estimates = { count: 0, total: 0, average: 0 };
 
         // eslint-disable-next-line prefer-const
         for (let [str, has_more] of this.formatter.formatIterator(this.slice)) {
             let chunk;
 
-            // adding string too much yield current buffer
+            if (!estimates.average && str.length) {
+                estimates.count = estimates.count + 1;
+                estimates.total = estimates.total + str.length;
+
+                const almostFull = estimates.total + str.length >= this.chunkSize;
+                if (almostFull || estimates.count >= 5) {
+                    estimates.average = estimates.total / estimates.count;
+                }
+            }
+
+            // if doesn't fit - make chunk, start next buffer, add to next buffer
+            // if fits, but next string won't, add to buffer, make chunk, start next buffer
+            // else buffer not close to full so just write to buffer
             if (sizes[index] + str.length > this.chunkSize) {
                 chunk = {
                     index,
@@ -184,9 +205,11 @@ export class ChunkGenerator {
                     data: buffers[index],
                     cleanup
                 };
+                startNextBuffer();
+                const size = buffers[index].write(str, sizes[index]);
+                sizes[index] = sizes[index] + size;
             } else if (
-                // next would overflow, but this should fit
-                sizes[index] + str.length + str.length > this.chunkSize
+                sizes[index] + str.length + estimates.average >= this.chunkSize
                 && sizes[index] + str.length <= this.chunkSize
             ) {
                 const size = buffers[index].write(str, sizes[index]);
@@ -197,7 +220,8 @@ export class ChunkGenerator {
                     data: buffers[index],
                     cleanup
                 };
-            } else { // add to buffer
+                startNextBuffer();
+            } else {
                 const size = buffers[index].write(str, sizes[index]);
                 sizes[index] = sizes[index] + size;
             }
@@ -205,35 +229,8 @@ export class ChunkGenerator {
             str = ''; // clear memory
 
             if (chunk) {
-                index++;
-                buffers[index] = Buffer.alloc(this.chunkSize);
-                sizes[index] = 0;
                 yield chunk;
             }
-
-            // const estimatedOverflowBytes = buffSize - this.chunkSize;
-            // if (estimatedOverflowBytes >= this.chunkSize) {
-            //     yield {
-            //         index,
-            //         has_more,
-            //         data: buffer.subarray(0, this.chunkSize)
-            //     };
-            //     index++;
-            //     const next = buffer?.subarray(this.chunkSize, buffSize);
-            //     buffer.fill('');
-            //     buffSize = 0;
-            //     const size = buffer.copy(next);
-            //     buffSize = buffSize + size;
-            // } else if (estimatedOverflowBytes >= 0) {
-            //     yield {
-            //         index,
-            //         has_more,
-            //         data: buffer
-            //     };
-            //     index++;
-            //     buffer.fill('');
-            //     buffSize = 0;
-            // }
         }
         if (sizes[index]) {
             yield {
@@ -247,41 +244,45 @@ export class ChunkGenerator {
 
     private async* _chunkBufferBatched(): AsyncIterableIterator<Chunk> {
         let index = 0;
-        const buffers: Record<number, Buffer> = {
-            0: Buffer.alloc(this.chunkSize)
-        };
-        const sizes: Record<number, number> = {
-            0: 0
-        };
+        const buffers: Record<number, Buffer> = { 0: Buffer.alloc(this.chunkSize) };
+        const sizes: Record<number, number> = { 0: 0 };
+
         const cleanup = (idx: number) => {
             delete buffers[idx];
             delete sizes[idx];
+        };
+        const startNextBuffer = () => {
+            index++;
+            buffers[index] = Buffer.alloc(this.chunkSize);
+            sizes[index] = 0;
         };
 
         let items: (Record<string, any> | string)[] = [];
 
         let batchSize = Number(process.argv.find((el) => el.startsWith('batch'))?.split('=')[1] || 100);
         let avgBatchSize = 0;
-        let avgRecordBytes = 0;
 
-        let gotAvg = false;
+        const estimates = { count: 0, total: 0, average: 0 };
 
         for (const [record, has_more] of hasMoreIterator(this.slice)) {
-            if (!gotAvg && (items.length <= 5 || !has_more)) {
-                if (items.length >= 5 && avgRecordBytes) gotAvg = true;
+            if (!estimates.average && record) {
+                const formatted = `${JSON.stringify(record)}\n`;
+                estimates.count = estimates.count + 1;
+                estimates.total = estimates.total + formatted.length;
 
-                const newLineBytes = '\n'.length;
-                avgRecordBytes = items.reduce(
-                    (acc, curr) => acc + JSON.stringify(curr).length + newLineBytes, 0
-                ) / items.length;
-
+                const almostFull = estimates.total + formatted.length >= this.chunkSize;
+                if (almostFull || estimates.count >= 5) {
+                    estimates.average = estimates.total / estimates.count;
+                }
                 ({
                     batchSize, avgBatchSize, // estimatedBatchesPerUpload,
-                } = this._ensureBatchSizeOk(avgRecordBytes, items));
+                } = this._ensureBatchSizeOk(estimates.average, items));
             }
 
-            // add batch to buffer
+            // add item batch to buffer
             if (items.length && items.length % batchSize === 0) {
+                // NOTE: cannot join on '\n' - converts array to string
+                // which would be '[object Object]\n[object Object]'
                 const stringified: string | null = JSON.stringify!(items)
                     .replaceAll(/,"\\n",*/g, '\n')
                     .replace(/^\[/g, '')
@@ -292,19 +293,19 @@ export class ChunkGenerator {
                 items = [];
             }
 
-            // will overflow next batch
+            // will overflow next item batch so yield
             if (sizes[index] + avgBatchSize >= this.chunkSize) {
+                console.error('===sizeBB', sizes[index]);
                 yield {
                     index,
                     has_more,
                     data: buffers[index],
                     cleanup
                 };
-                index++;
-                buffers[index] = Buffer.alloc(this.chunkSize);
-                sizes[index] = 0;
+                startNextBuffer();
             }
 
+            // stringify in batches - can't join on '\n' so push '\n'
             items.push(record);
             items.push('\n');
         }
@@ -326,9 +327,6 @@ export class ChunkGenerator {
                 data: buffers[index],
                 cleanup
             };
-            index++;
-            buffers[index] = Buffer.alloc(this.chunkSize);
-            sizes[index] = 0;
         }
     }
 

@@ -131,6 +131,11 @@ export class Formatter {
         const lineDelimiter = getLineDelimiter(this.config);
 
         for (const [record, has_more] of hasMoreIterator<SendRecord>(slice)) {
+            // FIXME this needs a try/catch in case the record is too big
+            // and a fix - but i think the issue is more that we might be getting
+            // an array instead - need to verify - if that's the case maybe needs
+            // change to check if it's an array and break up that way - or
+            // form space side add a different path
             const formatted = this.fn(record, firstSlice);
             firstSlice = false;
 
