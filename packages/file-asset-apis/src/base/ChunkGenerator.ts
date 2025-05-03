@@ -164,6 +164,7 @@ export class ChunkGenerator {
     private async* _chunkBuffer(): AsyncIterableIterator<Chunk> {
         let index = 0;
         const buffers: Record<number, Buffer> = {
+            // FIXME compare differences b/n alloc and allocUnsafe
             0: Buffer.alloc(this.chunkSize)
         };
         const sizes: Record<number, number> = {
@@ -266,6 +267,8 @@ export class ChunkGenerator {
 
         for (const [record, has_more] of hasMoreIterator(this.slice)) {
             if (!estimates.average && record) {
+                // FIXME maybe consider adding a let wrote; outside if, write to buffer,
+                // and at bottom if (!wrote) items.push at end
                 const formatted = `${JSON.stringify(record)}\n`;
                 estimates.count = estimates.count + 1;
                 estimates.total = estimates.total + formatted.length;
@@ -338,6 +341,7 @@ export class ChunkGenerator {
         // ensure batch size ok
         if (!avgRecordBytes && items.length >= 5) {
             const isValidBatchSize = () => {
+                // FIXME - wound up getting Infinity in some scenarios
                 const batchesPerChunk = this.chunkSize / (batchSize * avgRecordBytes);
                 if (batchesPerChunk > this.chunkSize) return false;
                 return batchesPerChunk;
@@ -349,6 +353,7 @@ export class ChunkGenerator {
                 } else if (batchSize === 1) {
                     estimatedBatchesPerUpload = 1;
                 } else {
+                    // FIXME - wound up getting0 batchSize in some scenarios
                     batchSize = batchSize / 10;
                 }
             }
