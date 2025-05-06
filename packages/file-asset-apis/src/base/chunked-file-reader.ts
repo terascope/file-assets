@@ -8,6 +8,7 @@ import {
     isSimpleObject,
     isString,
     isBoolean,
+    tryParseJSON,
 } from '@terascope/utils';
 import csvToJson from 'csvtojson';
 import { CSVParseParam } from 'csvtojson/v2/Parameters';
@@ -323,11 +324,16 @@ export abstract class ChunkedFileReader {
         const data = splitChunks(incomingData, this.lineDelimiter, slice);
 
         return data.map(
-            this.tryFn((record: any) => DataEntity.fromBuffer(
-                record,
-                this.encodingConfig,
-                slice
-            ))
+            this.tryFn((record: any) => {
+                if (typeof record === 'string') {
+                    return tryParseJSON(record);
+                }
+                return DataEntity.fromBuffer(
+                    record,
+                    this.encodingConfig,
+                    slice
+                );
+            })
         );
     }
 

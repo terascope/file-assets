@@ -1,5 +1,9 @@
 import 'jest-extended';
-import { DataEntity, debugLogger, pMap, times } from '@terascope/utils';
+import { DataFrame } from '@terascope/data-mate';
+import {
+    DataEntity, debugLogger, pMap, times
+} from '@terascope/utils';
+import { DataTypeConfig } from '@terascope/data-types';
 import { makeClient, cleanupBucket, getBodyFromResults } from './helpers.js';
 import {
     Compression, Format, ChunkedFileSenderConfig,
@@ -14,8 +18,6 @@ describe('S3 Sender API', () => {
     const logger = debugLogger('s3-sender');
     const id = 'some-id';
     const bucket = 's3-sender-api';
-    const dirPath = '/testing/';
-    const path = `${bucket}${dirPath}`;
     const ensureBucket = 'testing-ensure';
     let client: any;
 
@@ -23,32 +25,32 @@ describe('S3 Sender API', () => {
     const compression = Compression.none;
     const compressor = new Compressor(compression);
 
-    const expectedSlices = [
+    const getExpectedSlices = (path = 'testing') => ([
         {
             length: 10485760,
             offset: 0,
-            path: 'testing/some-id.0.ldjson',
+            path: `${path}/some-id.0.ldjson`,
             total: 40146054
         },
         {
             length: 10485761,
             offset: 10485759,
-            path: 'testing/some-id.0.ldjson',
+            path: `${path}/some-id.0.ldjson`,
             total: 40146054
         },
         {
             length: 10485761,
             offset: 20971519,
-            path: 'testing/some-id.0.ldjson',
+            path: `${path}/some-id.0.ldjson`,
             total: 40146054
         },
         {
             offset: 31457279,
             length: 8688775,
-            path: 'testing/some-id.0.ldjson',
+            path: `${path}/some-id.0.ldjson`,
             total: 40146054
         }
-    ];
+    ]);
 
     const data = times(200_000, (index) => {
         let count = index % 0 === 0
@@ -85,6 +87,8 @@ describe('S3 Sender API', () => {
 
     describe('sending large ldjson, not compressed data to s3 (multipart)', () => {
         it('should work normally', async () => {
+            const dirPath = 'testing';
+            const path = `${bucket}/${dirPath}/`;
             const config: ChunkedFileSenderConfig = {
                 path,
                 id,
@@ -118,7 +122,7 @@ describe('S3 Sender API', () => {
                     slices = slices.concat(slicesOrDone);
                 }
             }
-            expect(slices).toEqual(expectedSlices);
+            expect(slices).toEqual(getExpectedSlices(dirPath));
 
             const fetcher = new S3Fetcher(client, {
                 format: Format.ldjson,
@@ -156,8 +160,10 @@ describe('S3 Sender API', () => {
         });
 
         it('should work with buffer', async () => {
+            const dirPath = 'testbuff';
+            const path = `${bucket}/${dirPath}/`;
             const config: ChunkedFileSenderConfig = {
-                path: 's3-sender-api/testbuff',
+                path,
                 id,
                 format,
                 compression,
@@ -189,7 +195,7 @@ describe('S3 Sender API', () => {
                     slices = slices.concat(slicesOrDone);
                 }
             }
-            expect(slices).toEqual(expectedSlices);
+            expect(slices).toEqual(getExpectedSlices(dirPath));
 
             const fetcher = new S3Fetcher(client, {
                 format: Format.ldjson,
@@ -222,8 +228,10 @@ describe('S3 Sender API', () => {
         });
 
         it('should work with batched buffer', async () => {
+            const dirPath = 'testbatch';
+            const path = `${bucket}/${dirPath}/`;
             const config: ChunkedFileSenderConfig = {
-                path: 's3-sender-api/testbatch',
+                path,
                 id,
                 format,
                 compression,
@@ -255,7 +263,7 @@ describe('S3 Sender API', () => {
                     slices = slices.concat(slicesOrDone);
                 }
             }
-            expect(slices).toEqual(expectedSlices);
+            expect(slices).toEqual(getExpectedSlices(dirPath));
 
             const fetcher = new S3Fetcher(client, {
                 format: Format.ldjson,
@@ -285,6 +293,82 @@ describe('S3 Sender API', () => {
 
             // expect(fetchedData).toEqual(expectedResults);
             // expect(expectedResults.length).toBeGreaterThan(MIN_CHUNK_SIZE_BYTES);
+        });
+
+        it('should work with data frame batch', async () => {
+            const dirPath = 'testarydf';
+            const path = `${bucket}/${dirPath}/`;
+            const config: ChunkedFileSenderConfig = {
+                path,
+                id,
+                format,
+                compression,
+                file_per_slice: true,
+                concurrency: 1
+            };
+            const sender = new S3Sender(client, config, logger);
+
+            await sender.ensureBucket();
+            const tc: DataTypeConfig = {
+                fields: {
+                    count: { type: 'Text' },
+                    id: { type: 'Number' },
+                    obj: { type: 'Object' }
+                }
+            };
+
+            const frame = DataFrame.fromJSON(tc, data);
+
+            await sender.simpleSend(data, 'batchBuffer', frame);
+
+            const slicer = new S3Slicer(client, {
+                file_per_slice: false,
+                format: Format.ldjson,
+                size: 10 * 1024 * 1024,
+                path,
+            }, logger);
+
+            let slices: FileSlice[] = [];
+            let isDone = false;
+            while (!isDone) {
+                const slicesOrDone = await slicer.slice();
+                if (slicesOrDone == null) {
+                    isDone = true;
+                } else {
+                    slices = slices.concat(slicesOrDone);
+                }
+            }
+            expect(slices).toEqual(getExpectedSlices(dirPath));
+
+            const fetcher = new S3Fetcher(client, {
+                format: Format.ldjson,
+                path,
+                file_per_slice: false,
+                compression: Compression.none,
+            }, logger);
+
+            let dataRead: DataEntity[] = [];
+            await pMap(slices, async (slice) => {
+                const record = await fetcher.read(slice);
+                dataRead = dataRead.concat(record);
+                return { total: record.length };
+            }, { concurrency: 1 });
+
+            expect(dataRead).toEqual(data);
+
+            // const key = `testarybatch/${id}.0.${format}`;
+            // const { Contents } = await listS3Objects(client, { Bucket: bucket });
+            // console.error('===Contents', Contents);
+            // const dbData = await getS3Object(client, {
+            //     Bucket: bucket,
+            //     Key: key,
+            // });
+
+            // const response = await getBodyFromResults(dbData);
+
+            // const fetchedData = await compressor.decompress(
+            //     response
+            // );
         });
     });
 });
