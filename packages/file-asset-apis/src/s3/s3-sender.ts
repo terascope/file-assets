@@ -9,7 +9,6 @@ import { FileSenderType, ChunkedFileSenderConfig } from '../interfaces.js';
 import { createS3Bucket, headS3Bucket, putS3Object } from './s3-helpers.js';
 import { isObject } from '../helpers.js';
 import { MultiPartUploader } from './MultiPartUploader.js';
-// import { pMapIterable } from 'p-map';
 
 function validateConfig(input: unknown) {
     if (!isObject(input)) {
@@ -112,89 +111,6 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
             throw err;
         }
     }
-
-    // alt option for handling concurrency - close but not quite right
-    // protected async sendToDestinationPMapIter(
-    //     { filename, chunkGenerator }: SendBatchConfig
-    // ): Promise<void> {
-    //     const objPath = parsePath(filename);
-    //     const Key = await this.createFileDestinationName(objPath.prefix);
-    //     const Bucket = objPath.bucket;
-
-    //     let isFirstSlice = true;
-    //     // docs say Body can be a string, but types are complaining
-    //     let Body: any;
-    //     let uploader: MultiPartUploader | undefined;
-
-    //     const mapper = async (chunk: Chunk) => {
-    //         Body = chunk.data;
-
-    //         // first slice decides if it is multipart or not
-    //         if (isFirstSlice) {
-    //             isFirstSlice = false;
-
-    //             if (chunk.has_more) {
-    //                 uploader = new MultiPartUploader(
-    //                     this.client, Bucket, Key, this.logger
-    //                 );
-    //                 console.error('===uploaderFirst');
-    //                 await uploader.start();
-    //             } else {
-    //                 // make regular query
-    //                 if (!Body) return;
-
-    //                 console.error('===put1');
-    //                 await putS3Object(this.client, {
-    //                     Bucket,
-    //                     Key,
-    //                     Body
-    //                 });
-    //                 return;
-    //             }
-    //         } else {
-    //             console.error('===uploaderFirstNO');
-    //         }
-
-    //         if (!uploader) throw new Error('Expected uploader to exist');
-
-    //         if (!chunk.has_more) {
-    //             console.error('===idx no more', chunk.index, uploader.pendingParts);
-    //             await pWhile(async () => {
-    //                 await pDelay(100);
-    //                 if (uploader!.pendingParts < 1) return true;
-    //             });
-    //         } else {
-    //             console.error('===idx', chunk.index, uploader.pendingParts);
-    //         }
-    //         // the index is zero based but the part numbers start at 1
-    //         // so we need to increment by 1
-    //         await uploader.enqueuePart(
-    //             Body, chunk.index + 1
-    //         );
-    //     };
-
-    //     try {
-    //         const start = Date.now();
-    //         // Multiple posts are fetched concurrently, with limited concurrency and backpressure
-    //         for await (const _chunk of pMapIterable(
-    //             chunkGenerator,
-    //             mapper,
-    //             { concurrency: 50 })
-    //         ) {
-    //             console.log('post,_chunk', _chunk);
-    //         }
-    //         console.error('===2', Date.now() - start);
-
-    //         if (uploader) {
-    //             return await uploader.finish();
-    //         }
-    //     } catch (err) {
-    //         if (uploader) {
-    //             await uploader.abort();
-    //         }
-    //         throw err;
-    //     }
-    // }
 
     /**
      * Used to verify that the bucket exists, will attempt to create one
