@@ -1,7 +1,6 @@
 import {
     DataEntity, pMap, isString, Logger
 } from '@terascope/utils';
-import { type DataFrame } from '@terascope/data-mate';
 import * as nodePathModule from 'node:path';
 import { Compressor } from './Compressor.js';
 import { Formatter } from './Formatter.js';
@@ -32,6 +31,8 @@ export interface SendBatchConfig {
      * it being stored in an iterator
     */
     readonly count: number;
+    /** Number of concurrent chunks to send at a time (currently only for S3 sender) */
+    readonly concurrency?: number;
 }
 
 export abstract class ChunkedFileSender {
@@ -265,7 +266,9 @@ export abstract class ChunkedFileSender {
      *   s3Sender.simpleSend([{ some: 'data' }]) => Promise<void>
      *   s3Sender.simpleSend([DataEntity.make({ some: 'data' })]) => Promise<void>
     */
-    async simpleSend(records: SendRecords, experimentalChunkMethod?: 'buffer' | 'batchBuffer', dataFrame?: DataFrame<any>): Promise<void> {
+    async simpleSend(records: SendRecords): Promise<void> {
+        const { concurrency } = this;
+
         this.incrementCount();
 
         if (!this.filePerSlice) {
@@ -277,12 +280,10 @@ export abstract class ChunkedFileSender {
             chunkGenerator: new ChunkGenerator(
                 this.formatter,
                 this.compressor,
-                records,
-                experimentalChunkMethod,
-                undefined,
-                dataFrame
+                records
             ),
-            count: Array.isArray(records) ? records.length : -1
+            count: Array.isArray(records) ? records.length : -1,
+            concurrency
         });
     }
 }

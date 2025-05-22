@@ -17,6 +17,8 @@ export interface S3ClientConfig extends BaseConfig {
     secretAccessKey?: string;
     accessKeyId?: string;
     maxRetries?: number;
+    // settings used by file-assets instead of s3
+    opsConfig?: { concurrency?: number };
 }
 
 export interface S3ClientCredentials {
@@ -48,7 +50,9 @@ export async function createS3Client(
  * @param {S3ClientConfig} config Starting S3 client configuration object
  * @returns {S3ClientConfig} Final S3 client configuration object
  */
-export async function genFinalS3ClientConfig(config: S3ClientConfig): Promise<BaseConfig> {
+export async function genFinalS3ClientConfig(s3ClientConfig: S3ClientConfig): Promise<BaseConfig> {
+    const { opsConfig, ...config } = s3ClientConfig;
+
     if (config.maxRetries) {
         config.maxAttempts = config.maxRetries;
     }
