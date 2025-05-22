@@ -24,8 +24,7 @@ export async function makeClient() {
         maxAttempts: 4,
         forcePathStyle: true,
         sslEnabled: false,
-        region: 'us-east-1',
-        opsConfig: { concurrency: 5 }
+        region: 'us-east-1'
     });
 }
 
