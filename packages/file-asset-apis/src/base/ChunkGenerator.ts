@@ -18,11 +18,6 @@ export interface Chunk {
      * Indicates whether there are more chunks to be processed
     */
     readonly has_more: boolean;
-
-    /**
-     * Cleanup function  - i.e. to free up memory
-     */
-    readonly cleanup?: (idx: number) => void;
 }
 
 export const MiB = 1024 * 1024;
