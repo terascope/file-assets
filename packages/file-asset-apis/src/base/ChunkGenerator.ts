@@ -38,8 +38,8 @@ export const MIN_CHUNK_SIZE_BYTES = 5 * MiB;
 export class ChunkGenerator {
     /**
      * how big each chunk of a single file should be
-     */
-    readonly chunkSize = 5 * MiB;
+    */
+    readonly chunkSize: number;
 
     constructor(
         readonly formatter: Formatter,
@@ -67,7 +67,9 @@ export class ChunkGenerator {
         if (Array.isArray(this.slice) && this.slice.length === 0) {
             return this._emptyIterator();
         }
-
+        if (this.isRowOptimized()) {
+            return this._chunkByRow();
+        }
         return this._chunkAll();
     }
 
@@ -96,7 +98,7 @@ export class ChunkGenerator {
                 chunk = {
                     index,
                     has_more,
-                    data: chunkStr.slice(0, this.chunkSize)
+                    data: chunkStr.slice(0, this.chunkSize),
                 };
 
                 chunkStr = chunkStr.slice(this.chunkSize, chunkStr.length);
@@ -105,7 +107,7 @@ export class ChunkGenerator {
                 chunk = {
                     index,
                     has_more,
-                    data: chunkStr
+                    data: chunkStr,
                 };
 
                 chunkStr = '';
