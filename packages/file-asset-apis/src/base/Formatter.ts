@@ -52,6 +52,24 @@ function makeLDJSONFunction(config: FormatterOptions): FormatFn {
     const lineDelimiter = getLineDelimiter(config);
     const fields = getFieldsFromConfig(config);
     function _stringify(record: SendRecord): string {
+        /**
+         * if record size over something
+         * stringify array half or element by element or object key by key
+         * otherwise just stringify as is
+         * if (isArray(record)) //
+         * catch won't necessary help - will either give RangeError: Invalid String Length
+         * or not even get there w/FATAL ERROR: Reached heap limit Allocation failed
+         * - JavaScript heap out of memory
+         */
+        // const max = 80000000;
+        // if (isArray(record) && record.length) {
+        //     const estimatedRecordLength = record.find((el) => !!el)?.length;
+        //     const totalRecords = record.length
+        //     const total = estimatedRecordLength * totalRecords;
+        //     if (total > max) { // TODO }
+        // }
+        // if (typeof record === 'string' && record.length > max) { // TODO }
+        // if (is obj && ??)  { // TODO }
         return JSON.stringify(record, fields);
     }
     return function ldjsonFormat(slice) {

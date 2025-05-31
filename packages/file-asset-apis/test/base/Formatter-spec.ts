@@ -241,6 +241,24 @@ describe('Formatter', () => {
             );
         });
     });
+
+    describe('larger data sets', () => {
+        it('can format ldjson without running out of memory', () => {
+            const config: LDJSONSenderConfig = {
+                id: 'foo',
+                path: 'foo',
+                format: Format.ldjson,
+                fields: [],
+                line_delimiter: '\n',
+            };
+
+            const formatter = new Formatter(config);
+
+            expect(formatter.format(// 85333333
+                new Array(81900000).fill('x')
+            )).toBeString();
+        });
+    });
 });
 
 function expectFormatResult(
