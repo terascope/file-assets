@@ -31,7 +31,6 @@ export interface SendBatchConfig {
      * it being stored in an iterator
     */
     readonly count: number;
-    /** Number of concurrent chunks to send at a time (currently only for S3 sender) */
     readonly concurrency?: number;
 }
 
@@ -266,9 +265,10 @@ export abstract class ChunkedFileSender {
      *   s3Sender.simpleSend([{ some: 'data' }]) => Promise<void>
      *   s3Sender.simpleSend([DataEntity.make({ some: 'data' })]) => Promise<void>
     */
-    async simpleSend(records: SendRecords): Promise<void> {
+    async simpleSend(
+        records: SendRecords, useExperimentalLDJSON?: boolean, batchSize?: number
+    ): Promise<void> {
         const { concurrency } = this;
-
         this.incrementCount();
 
         if (!this.filePerSlice) {
@@ -280,7 +280,10 @@ export abstract class ChunkedFileSender {
             chunkGenerator: new ChunkGenerator(
                 this.formatter,
                 this.compressor,
-                records
+                records,
+                undefined,
+                useExperimentalLDJSON,
+                batchSize
             ),
             count: Array.isArray(records) ? records.length : -1,
             concurrency

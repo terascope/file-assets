@@ -189,6 +189,50 @@ describe('S3 Sender API', () => {
         await sender.ensureBucket();
 
         await sender.send(data);
+        await sender.simpleSend(data, false, 1);
+
+        const key = `testing/${id}.0.${format}`;
+
+        const dbData = await getS3Object(client, {
+            Bucket: bucket,
+            Key: key,
+        });
+
+        const response = await getBodyFromResults(dbData);
+
+        const fetchedData = await compressor.decompress(
+            response
+        );
+
+        const expectedResults = `${data.map((obj) => JSON.stringify(obj)).join('\n')}\n`;
+        expect(fetchedData).toEqual(expectedResults);
+        expect(expectedResults.length).toBeGreaterThan(MIN_CHUNK_SIZE_BYTES);
+    });
+
+    it('can send large ldjson, not compressed data to s3 (multipart) via experimental batch chunk', async () => {
+        const data = times(60_000, (index) => ({
+            count: 'foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo,foo',
+            id: index,
+            obj: { foo: 'bar' }
+        }));
+
+        const format = Format.ldjson;
+        const compression = Compression.none;
+        const compressor = new Compressor(compression);
+
+        const config: ChunkedFileSenderConfig = {
+            path,
+            id,
+            format,
+            compression,
+            file_per_slice: true,
+            concurrency: 4
+        };
+        const sender = new S3Sender(client, config, logger);
+
+        await sender.ensureBucket();
+
+        await sender.simpleSend(data, false, 1);
 
         const key = `testing/${id}.0.${format}`;
 

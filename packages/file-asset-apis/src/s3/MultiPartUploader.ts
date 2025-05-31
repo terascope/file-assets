@@ -143,23 +143,25 @@ export class MultiPartUploader {
 
         await this._waitForStart(`part #${partNumber}`);
 
-        const uploadPart = async (retries = 3) => {
+        const uploadPart = async (retries?: number) => {
+            let canFinish = true;
             try {
                 await this._uploadPart(body, partNumber);
             } catch (err) {
                 if (retries) {
+                    canFinish = false;
                     await uploadPart(retries - 1);
                 } else {
                     this.partUploadErrors.set(String(err), err);
                 }
             } finally {
-                if (!retries) {
+                if (canFinish) {
                     this.pendingParts--;
                     this.events.emit(Events.PartDone);
                 }
             }
         };
-        await uploadPart();
+        await uploadPart(3);
 
         if (this.pendingParts > 0 || !this.uploadId) {
             // adding this here will ensure that

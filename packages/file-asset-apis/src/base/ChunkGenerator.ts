@@ -1,6 +1,6 @@
 import { isTest } from '@terascope/utils';
 import { Compressor } from './Compressor.js';
-import { Formatter } from './Formatter.js';
+import { Formatter, hasMoreIterator } from './Formatter.js';
 import { Format, Compression, SendRecords } from '../interfaces.js';
 
 export interface Chunk {
@@ -40,16 +40,22 @@ export class ChunkGenerator {
      * how big each chunk of a single file should be
     */
     readonly chunkSize: number;
+    readonly batchSize: number;
+    readonly useExperimentalLDJSON?: boolean;
 
     constructor(
         readonly formatter: Formatter,
         readonly compressor: Compressor,
         readonly slice: SendRecords,
-        limits?: { maxBytes?: number; minBytes?: number }
+        limits?: { maxBytes?: number; minBytes?: number },
+        useExperimentalLDJSON?: boolean,
+        batchSize?: number
     ) {
         const max = limits?.maxBytes || MAX_CHUNK_SIZE_BYTES;
         const min = limits?.minBytes || MIN_CHUNK_SIZE_BYTES;
         this.chunkSize = getBytes(max, min);
+        this.batchSize = batchSize || 1000;
+        this.useExperimentalLDJSON = useExperimentalLDJSON;
     }
 
     /**
@@ -67,10 +73,112 @@ export class ChunkGenerator {
         if (Array.isArray(this.slice) && this.slice.length === 0) {
             return this._emptyIterator();
         }
+        if (this.useExperimentalLDJSON) {
+            return this._chunkStringBatched();
+        }
         if (this.isRowOptimized()) {
             return this._chunkByRow();
         }
         return this._chunkAll();
+    }
+
+    async* _chunkStringBatched() {
+        let index = 0;
+        let str = '';
+        let items = [];
+        // TODO need better validation on this
+        let batchSize = this.batchSize;
+        let avgBatchSize = 0;
+        const estimates = { count: 0, total: 0, average: 0, ready: false };
+        for (const [record, has_more] of hasMoreIterator(this.slice)) {
+            let wrote = false;
+            if (!estimates.ready && record) {
+                const formatted = `${JSON.stringify(record)}\n`;
+                str += `${JSON.stringify(record)}\n`;
+                wrote = true;
+                estimates.count = estimates.count + 1;
+                estimates.total = estimates.total + formatted.length;
+                estimates.average = estimates.total / estimates.count;
+                const almostFull = estimates.total + formatted.length >= this.chunkSize;
+                // let estimatedBatchesPerUpload;
+                if (almostFull || estimates.count >= 5) {
+                    estimates.ready = true;
+                    ({
+                        batchSize, avgBatchSize, // estimatedBatchesPerUpload,
+                    } = this._ensureBatchSizeOk(estimates.average, items));
+                }
+            }
+            // add item batch to buffer
+            if (items.length && items.length % batchSize === 0) {
+                // NOTE: cannot join on '\n' - converts array to string
+                // which would be '[object Object]\n[object Object]'
+                str += JSON.stringify(items)
+                    .replaceAll(/,"\\n",*/g, '\n')
+                    .replace(/^\[/g, '')
+                    .replace(/]$/g, '');
+                items = [];
+            }
+            // will overflow next item batch so yield
+            if (str.length + avgBatchSize >= this.chunkSize) {
+                yield {
+                    index,
+                    has_more,
+                    data: str,
+                };
+                index++;
+                str = '';
+            }
+            if (!wrote) {
+                // stringify in batches - can't join on '\n' so push '\n'
+                items.push(record);
+                items.push('\n');
+            }
+        }
+        if (items.length) {
+            str += JSON.stringify(items)
+                .replaceAll(/,"\\n",*/g, '\n')
+                .replace(/^\[/g, '')
+                .replace(/]$/g, '');
+            items = [];
+        }
+        if (str) {
+            yield {
+                index,
+                has_more: false,
+                data: str,
+            };
+            str = '';
+        }
+    }
+
+    _ensureBatchSizeOk(avgRecordBytes: number, items: any) {
+        let estimatedBatchesPerUpload = 0;
+        let batchSize = 100;
+        // ensure batch size ok
+        if (!avgRecordBytes && items.length >= 5) {
+            const isValidBatchSize = () => {
+                // FIXME - wound up getting Infinity in some scenarios
+                const batchesPerChunk = this.chunkSize / (batchSize * avgRecordBytes);
+                if (batchesPerChunk > this.chunkSize) return false;
+                return batchesPerChunk;
+            };
+            while (!estimatedBatchesPerUpload) {
+                if (isValidBatchSize()) {
+                    estimatedBatchesPerUpload = this.chunkSize / batchSize;
+                } else if (batchSize === 1) {
+                    estimatedBatchesPerUpload = 1;
+                } else {
+                    // FIXME - wound up getting0 batchSize in some scenarios
+                    batchSize = batchSize / 10;
+                }
+            }
+        }
+        return {
+            estimatedBatchesPerUpload,
+            avgRecordBytes,
+            batchSize,
+            avgBatchSize: avgRecordBytes * batchSize
+        };
     }
 
     private async* _chunkByRow(): AsyncIterableIterator<Chunk> {
@@ -115,11 +223,13 @@ export class ChunkGenerator {
             }
 
             if (chunk) {
+                console.log('===yield', chunk.data.length);
                 yield chunk;
             }
         }
 
         if (chunkStr.length) {
+            console.log('===yield', chunkStr.length);
             chunk = {
                 index,
                 has_more: false,
