@@ -69,26 +69,24 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
 
                 if (!uploader) throw new Error('Expected uploader to exist');
 
-                // don't allow too many concurrent uploads to prevent holding a lot in memory
-                if (pending > concurrency) {
-                    await pWhile(async () => {
-                        // TODO change pWhile to not force timeout w/jitter OR add a delay option
-                        await pDelay(100);
-                        return pending <= concurrency;
-                    });
-                }
-
                 pending++;
-
-                // the index is zero based but the part numbers start at 1
-                // so we need to increment by 1
                 uploader
                     .enqueuePart(
-                        Body, chunk.index + 1
+                        Body,
+                        // index is zero based but part numbers start at 1 so increment by 1
+                        chunk.index + 1
                     )
                     .finally(() => {
                         pending--;
                     });
+
+                if (pending >= concurrency) {
+                    console.error('===waiting', pending, concurrency);
+                    await pWhile(async () => {
+                        await pDelay(100); // delay because pWhile options force a timeout
+                        return pending < concurrency;
+                    });
+                }
             }
 
             // we are done, finalize the upload
@@ -97,8 +95,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
             if (uploader) {
                 if (pending > 0) {
                     await pWhile(async () => {
-                        // TODO change pWhile to not force timeout w/jitter OR add a delay option
-                        await pDelay(100);
+                        await pDelay(100); // delay because pWhile options force a timeout
                         return pending === 0;
                     });
                 }
