@@ -1831,13 +1831,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@smithy/abort-controller@npm:^4.0.3":
-  version: 4.0.3
-  resolution: "@smithy/abort-controller@npm:4.0.3"
+"@smithy/abort-controller@npm:^4.0.4":
+  version: 4.0.4
+  resolution: "@smithy/abort-controller@npm:4.0.4"
   dependencies:
-    "@smithy/types": "npm:^4.3.0"
+    "@smithy/types": "npm:^4.3.1"
     tslib: "npm:^2.6.2"
-  checksum: 10c0/06ad5f8965153f453fd611698db3ffe95427899629d73b0309f31d76ef36d7953db9431932edcecf6fc720d5e02d89df12e69c301f15b23475874b9d7c1bb60b
+  checksum: 10c0/eb172b002fb92406c69b83460f949ace73247e6abd85d0d3714de2765c5db7b98070b9abfb630e2c591dd7b2ff770cc24f7737c1c207581f716c402b16bf46f9
   languageName: node
   linkType: hard
 
@@ -2134,16 +2134,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@smithy/node-http-handler@npm:~4.0.5":
-  version: 4.0.5
-  resolution: "@smithy/node-http-handler@npm:4.0.5"
+"@smithy/node-http-handler@npm:~4.0.6":
+  version: 4.0.6
+  resolution: "@smithy/node-http-handler@npm:4.0.6"
   dependencies:
-    "@smithy/abort-controller": "npm:^4.0.3"
-    "@smithy/protocol-http": "npm:^5.1.1"
-    "@smithy/querystring-builder": "npm:^4.0.3"
-    "@smithy/types": "npm:^4.3.0"
+    "@smithy/abort-controller": "npm:^4.0.4"
+    "@smithy/protocol-http": "npm:^5.1.2"
+    "@smithy/querystring-builder": "npm:^4.0.4"
+    "@smithy/types": "npm:^4.3.1"
     tslib: "npm:^2.6.2"
-  checksum: 10c0/626b4e0f6051d544c3598c9835140b4f14cf9028f12fcdaa70e37b958dbe662f31198e8bdbb2d859cb4aa553ccdf4596c92aeeecc6eff3e811c7ae31f6972eea
+  checksum: 10c0/bde23701b6166b76958cbc194d551a139e3dcc1d05a6c7de3d5b14f54934ca5a49a28d13d8ec4b012716aae816cd0c8c4735c959d5ef697a7a1932fbcfc5d7f2
   languageName: node
   linkType: hard
 
@@ -2167,13 +2167,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@smithy/protocol-http@npm:^5.1.1":
-  version: 5.1.1
-  resolution: "@smithy/protocol-http@npm:5.1.1"
+"@smithy/protocol-http@npm:^5.1.2":
+  version: 5.1.2
+  resolution: "@smithy/protocol-http@npm:5.1.2"
   dependencies:
-    "@smithy/types": "npm:^4.3.0"
+    "@smithy/types": "npm:^4.3.1"
     tslib: "npm:^2.6.2"
-  checksum: 10c0/741a43669eed89e8a47ce93103ed2063fb24402b1e9c05954b7b0bfeb7618c0ee89a3fbbcdc80255ea75342ce7bd552eb42f06d478deb0b2de3d42f5f18bb3cf
+  checksum: 10c0/50fb026efa321e65a77f9747312eeb428ff2196095c15ed5937efe807a4734c47746759ccf2dbc84a45719effcbc81221662289be6d4d5ec122afb0e3cd66fd9
   languageName: node
   linkType: hard
 
@@ -2188,14 +2188,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@smithy/querystring-builder@npm:^4.0.3":
-  version: 4.0.3
-  resolution: "@smithy/querystring-builder@npm:4.0.3"
+"@smithy/querystring-builder@npm:^4.0.4":
+  version: 4.0.4
+  resolution: "@smithy/querystring-builder@npm:4.0.4"
   dependencies:
-    "@smithy/types": "npm:^4.3.0"
+    "@smithy/types": "npm:^4.3.1"
     "@smithy/util-uri-escape": "npm:^4.0.0"
     tslib: "npm:^2.6.2"
-  checksum: 10c0/4c72b31116db2a5b318cb1060a93a4d510a345a0c594cd68858c2c64e2bf1a000047243cf337ca7a96be54c794182051fe85788c1e37914777a6ebc2298eb5ff
+  checksum: 10c0/30ec0301fbc2212101391841000a3117ab6c3ae2b6b2a1db230cc1dfcf97738f527b23f859f0a5e843f2a983793b58cdcd21a0ce11ef93fcdf5d8a1ee0d70fbc
   languageName: node
   linkType: hard
 
@@ -2277,12 +2277,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@smithy/types@npm:^4.3.0":
-  version: 4.3.0
-  resolution: "@smithy/types@npm:4.3.0"
+"@smithy/types@npm:^4.3.1":
+  version: 4.3.1
+  resolution: "@smithy/types@npm:4.3.1"
   dependencies:
     tslib: "npm:^2.6.2"
-  checksum: 10c0/364393b18aa76ba21258c18f0c0109770332058cdeb143f0c556770078376a8fa861e411408b280ebf57d92aff5f7de9543e22ef30a63204f5101919f820010d
+  checksum: 10c0/8b350562b9ed4ff97465025b4ae77a34bb07b9d47fb6f9781755aac9401b0355a63c2fef307393e2dae3fa0277149dd7d83f5bc2a63d4ad3519ea32fd56b5cda
   languageName: node
   linkType: hard
 
@@ -2548,7 +2548,7 @@ __metadata:
   resolution: "@terascope/file-asset-apis@workspace:packages/file-asset-apis"
   dependencies:
     "@aws-sdk/client-s3": "npm:~3.817.0"
-    "@smithy/node-http-handler": "npm:~4.0.5"
+    "@smithy/node-http-handler": "npm:~4.0.6"
     "@terascope/scripts": "npm:~1.16.2"
     "@terascope/utils": "npm:~1.8.2"
     "@types/jest": "npm:~29.5.14"

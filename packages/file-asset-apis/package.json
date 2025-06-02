@@ -22,7 +22,7 @@
     },
     "dependencies": {
         "@aws-sdk/client-s3": "~3.817.0",
-        "@smithy/node-http-handler": "~4.0.5",
+        "@smithy/node-http-handler": "~4.0.6",
         "@terascope/utils": "~1.8.2",
         "csvtojson": "~2.0.10",
         "fs-extra": "~11.3.0",
