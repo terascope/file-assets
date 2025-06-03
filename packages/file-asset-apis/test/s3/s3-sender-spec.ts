@@ -189,7 +189,6 @@ describe('S3 Sender API', () => {
         await sender.ensureBucket();
 
         await sender.send(data);
-        await sender.simpleSend(data, false, 1);
 
         const key = `testing/${id}.0.${format}`;
 
@@ -232,7 +231,7 @@ describe('S3 Sender API', () => {
 
         await sender.ensureBucket();
 
-        await sender.simpleSend(data, false, 1);
+        await sender.simpleSend(data, true, 100);
 
         const key = `testing/${id}.0.${format}`;
 

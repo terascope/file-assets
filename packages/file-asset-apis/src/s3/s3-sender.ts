@@ -81,7 +81,6 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                     });
 
                 if (pending >= concurrency) {
-                    console.error('===waiting', pending, concurrency);
                     await pWhile(async () => {
                         await pDelay(100); // delay because pWhile options force a timeout
                         return pending < concurrency;

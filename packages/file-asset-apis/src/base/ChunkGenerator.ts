@@ -40,7 +40,7 @@ export class ChunkGenerator {
      * how big each chunk of a single file should be
     */
     readonly chunkSize: number;
-    readonly batchSize: number;
+    batchSize: number;
     readonly useExperimentalLDJSON?: boolean;
 
     constructor(
@@ -74,6 +74,8 @@ export class ChunkGenerator {
             return this._emptyIterator();
         }
         if (this.useExperimentalLDJSON) {
+            if (this.formatter.type !== Format.ldjson) throw new Error('Experimental LDJSON optimization only supports ldjson');
+            if (this.compressor.type !== Compression.none) throw new Error('Experimental LDJSON optimization does not supports compression');
             return this._chunkStringBatched();
         }
         if (this.isRowOptimized()) {
@@ -86,30 +88,30 @@ export class ChunkGenerator {
         let index = 0;
         let str = '';
         let items = [];
-        // TODO need better validation on this
-        let batchSize = this.batchSize;
+
         let avgBatchSize = 0;
         const estimates = { count: 0, total: 0, average: 0, ready: false };
+
         for (const [record, has_more] of hasMoreIterator(this.slice)) {
             let wrote = false;
+
             if (!estimates.ready && record) {
                 const formatted = `${JSON.stringify(record)}\n`;
                 str += `${JSON.stringify(record)}\n`;
                 wrote = true;
-                estimates.count = estimates.count + 1;
-                estimates.total = estimates.total + formatted.length;
+
+                estimates.count += 1;
+                estimates.total += formatted.length;
                 estimates.average = estimates.total / estimates.count;
+
                 const almostFull = estimates.total + formatted.length >= this.chunkSize;
-                // let estimatedBatchesPerUpload;
                 if (almostFull || estimates.count >= 5) {
                     estimates.ready = true;
-                    ({
-                        batchSize, avgBatchSize, // estimatedBatchesPerUpload,
-                    } = this._ensureBatchSizeOk(estimates.average, items));
+                    (avgBatchSize = this._fixBatchSize(estimates.average));
                 }
             }
-            // add item batch to buffer
-            if (items.length && items.length % batchSize === 0) {
+
+            if (items.length && items.length % this.batchSize === 0) {
                 // NOTE: cannot join on '\n' - converts array to string
                 // which would be '[object Object]\n[object Object]'
                 str += JSON.stringify(items)
@@ -118,7 +120,8 @@ export class ChunkGenerator {
                     .replace(/]$/g, '');
                 items = [];
             }
-            // will overflow next item batch so yield
+
+            // can overflow next item so yield
             if (str.length + avgBatchSize >= this.chunkSize) {
                 yield {
                     index,
@@ -128,12 +131,15 @@ export class ChunkGenerator {
                 index++;
                 str = '';
             }
+
             if (!wrote) {
                 // stringify in batches - can't join on '\n' so push '\n'
                 items.push(record);
                 items.push('\n');
             }
         }
+
+        // finish off anything left
         if (items.length) {
             str += JSON.stringify(items)
                 .replaceAll(/,"\\n",*/g, '\n')
@@ -151,34 +157,30 @@ export class ChunkGenerator {
         }
     }
 
-    _ensureBatchSizeOk(avgRecordBytes: number, items: any) {
-        let estimatedBatchesPerUpload = 0;
-        let batchSize = 100;
-        // ensure batch size ok
-        if (!avgRecordBytes && items.length >= 5) {
-            const isValidBatchSize = () => {
-                // FIXME - wound up getting Infinity in some scenarios
-                const batchesPerChunk = this.chunkSize / (batchSize * avgRecordBytes);
-                if (batchesPerChunk > this.chunkSize) return false;
-                return batchesPerChunk;
-            };
-            while (!estimatedBatchesPerUpload) {
-                if (isValidBatchSize()) {
-                    estimatedBatchesPerUpload = this.chunkSize / batchSize;
-                } else if (batchSize === 1) {
-                    estimatedBatchesPerUpload = 1;
-                } else {
-                    // FIXME - wound up getting0 batchSize in some scenarios
-                    batchSize = batchSize / 10;
-                }
+    /** Adjusts the batch size if needed to ensure it stays under the chunk size */
+    _fixBatchSize(_avgRecordBytes: number) {
+        const avgRecordBytes = _avgRecordBytes || 1; // ensure > 0
+        let done = false;
+        this.batchSize = this.batchSize || 2000; // ensure > 0
+        let avgBatchSize = 0;
+
+        const isValidBatchSize = () => {
+            avgBatchSize = this.batchSize * avgRecordBytes;
+            return avgBatchSize < this.chunkSize;
+        };
+
+        while (!done) {
+            if (isValidBatchSize()) {
+                done = true;
+            } else if (this.batchSize <= 1) {
+                this.batchSize = 1;
+                done = true;
+            } else {
+                this.batchSize = Math.floor(this.batchSize / 10);
             }
         }
-        return {
-            estimatedBatchesPerUpload,
-            avgRecordBytes,
-            batchSize,
-            avgBatchSize: avgRecordBytes * batchSize
-        };
+
+        return avgBatchSize;
     }
 
     private async* _chunkByRow(): AsyncIterableIterator<Chunk> {
@@ -223,13 +225,11 @@ export class ChunkGenerator {
             }
 
             if (chunk) {
-                console.log('===yield', chunk.data.length);
                 yield chunk;
             }
         }
 
         if (chunkStr.length) {
-            console.log('===yield', chunkStr.length);
             chunk = {
                 index,
                 has_more: false,
