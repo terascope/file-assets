@@ -8,7 +8,6 @@ import {
     isSimpleObject,
     isString,
     isBoolean,
-    tryParseJSON,
 } from '@terascope/utils';
 import csvToJson from 'csvtojson';
 import { CSVParseParam } from 'csvtojson/v2/Parameters';

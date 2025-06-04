@@ -46,7 +46,7 @@ describe('ChunkGenerator', () => {
                 const expected: TestChunk[] = [{
                     index: 0,
                     data: `${JSON.stringify(input)}\n`,
-                    has_more: false
+                    has_more: false,
                 }];
                 await expect(toArray(gen)).resolves.toEqual(expected);
             });
@@ -88,21 +88,21 @@ describe('ChunkGenerator', () => {
                     data: wholeBuffer
                         .subarray(0, CHUNK_SIZE)
                         .toString(),
-                    has_more: true
+                    has_more: true,
                 },
                 {
                     index: 1,
                     data: wholeBuffer
                         .subarray(CHUNK_SIZE, CHUNK_SIZE * 2)
                         .toString(),
-                    has_more: true
+                    has_more: true,
                 },
                 {
                     index: 2,
                     data: wholeBuffer
                         .subarray(CHUNK_SIZE * 2, CHUNK_SIZE * 3)
                         .toString(),
-                    has_more: false
+                    has_more: false,
                 }];
                 await expect(toArray(gen)).resolves.toEqual(expected);
             });
@@ -169,7 +169,7 @@ describe('ChunkGenerator', () => {
                 const expected: TestChunk[] = [{
                     index: 0,
                     data: wholeBuffer.toString(),
-                    has_more: false
+                    has_more: false,
                 }];
                 await expect(toArray(gen)).resolves.toEqual(expected);
             });
@@ -213,14 +213,14 @@ describe('ChunkGenerator', () => {
                     data: wholeBuffer
                         .subarray(0, CHUNK_SIZE)
                         .toString(),
-                    has_more: true
+                    has_more: true,
                 },
                 {
                     index: 1,
                     data: wholeBuffer
                         .subarray(CHUNK_SIZE, CHUNK_SIZE * 2)
                         .toString(),
-                    has_more: false
+                    has_more: false,
                 }];
                 await expect(toArray(gen)).resolves.toEqual(expected);
             });
@@ -267,7 +267,7 @@ describe('ChunkGenerator', () => {
                 const expected: TestChunk[] = [{
                     index: 0,
                     data: wholeBuffer.toString(),
-                    has_more: false
+                    has_more: false,
                 }];
                 await expect(toArray(gen)).resolves.toEqual(expected);
             });
@@ -308,12 +308,12 @@ describe('ChunkGenerator', () => {
                 const expected: TestChunk[] = [{
                     index: 0,
                     data: str.slice(0, CHUNK_SIZE + overflow),
-                    has_more: true
+                    has_more: true,
                 },
                 {
                     index: 1,
                     data: str.slice(CHUNK_SIZE + overflow, str.length),
-                    has_more: false
+                    has_more: false,
                 }];
                 await expect(toArray(gen)).resolves.toEqual(expected);
             });

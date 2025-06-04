@@ -56,7 +56,10 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                         );
                         await uploader.start();
                     } else {
-                        if (!Body) return;
+                        if (!Body) {
+                            this.logger.error(`Nothing to send to ${filename}'`);
+                            return;
+                        }
 
                         await putS3Object(this.client, {
                             Bucket,
@@ -82,7 +85,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
 
                 if (pending >= concurrency) {
                     await pWhile(async () => {
-                        await pDelay(100); // delay because pWhile options force a timeout
+                        await pDelay(100);
                         return pending < concurrency;
                     });
                 }
@@ -94,7 +97,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
             if (uploader) {
                 if (pending > 0) {
                     await pWhile(async () => {
-                        await pDelay(100); // delay because pWhile options force a timeout
+                        await pDelay(100);
                         return pending === 0;
                     });
                 }
