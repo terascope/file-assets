@@ -1,6 +1,6 @@
 import { isTest } from '@terascope/utils';
 import { Compressor } from './Compressor.js';
-import { Formatter, hasMoreIterator } from './Formatter.js';
+import { Formatter } from './Formatter.js';
 import { Format, Compression, SendRecords } from '../interfaces.js';
 
 export interface Chunk {
@@ -40,22 +40,16 @@ export class ChunkGenerator {
      * how big each chunk of a single file should be
     */
     readonly chunkSize: number;
-    batchSize: number;
-    readonly useExperimentalLDJSON?: boolean;
 
     constructor(
         readonly formatter: Formatter,
         readonly compressor: Compressor,
         readonly slice: SendRecords,
         limits?: { maxBytes?: number; minBytes?: number },
-        useExperimentalLDJSON?: boolean,
-        batchSize?: number
     ) {
         const max = limits?.maxBytes || MAX_CHUNK_SIZE_BYTES;
         const min = limits?.minBytes || MIN_CHUNK_SIZE_BYTES;
         this.chunkSize = getBytes(max, min);
-        this.batchSize = batchSize || 1000;
-        this.useExperimentalLDJSON = useExperimentalLDJSON;
     }
 
     /**
@@ -73,114 +67,10 @@ export class ChunkGenerator {
         if (Array.isArray(this.slice) && this.slice.length === 0) {
             return this._emptyIterator();
         }
-        if (this.useExperimentalLDJSON) {
-            if (this.formatter.type !== Format.ldjson) throw new Error('Experimental LDJSON optimization only supports ldjson');
-            if (this.compressor.type !== Compression.none) throw new Error('Experimental LDJSON optimization does not supports compression');
-            return this._chunkStringBatched();
-        }
         if (this.isRowOptimized()) {
             return this._chunkByRow();
         }
         return this._chunkAll();
-    }
-
-    async* _chunkStringBatched() {
-        let index = 0;
-        let str = '';
-        let items = [];
-
-        let avgBatchSize = 0;
-        const estimates = { count: 0, total: 0, average: 0, ready: false };
-
-        for (const [record, has_more] of hasMoreIterator(this.slice)) {
-            let wrote = false;
-
-            if (!estimates.ready && record) {
-                const formatted = `${JSON.stringify(record)}\n`;
-                str += `${JSON.stringify(record)}\n`;
-                wrote = true;
-
-                estimates.count += 1;
-                estimates.total += formatted.length;
-                estimates.average = estimates.total / estimates.count;
-
-                const almostFull = estimates.total + formatted.length >= this.chunkSize;
-                if (almostFull || estimates.count >= 5) {
-                    estimates.ready = true;
-                    (avgBatchSize = this._fixBatchSize(estimates.average));
-                }
-            }
-
-            if (items.length && items.length % this.batchSize === 0) {
-                // NOTE: cannot join on '\n' - converts array to string
-                // which would be '[object Object]\n[object Object]'
-                str += JSON.stringify(items)
-                    .replaceAll(/,"\\n",*/g, '\n')
-                    .replace(/^\[/g, '')
-                    .replace(/]$/g, '');
-                items = [];
-            }
-
-            // can overflow next item so yield
-            if (str.length + avgBatchSize >= this.chunkSize) {
-                yield {
-                    index,
-                    has_more,
-                    data: str,
-                };
-                index++;
-                str = '';
-            }
-
-            if (!wrote) {
-                // stringify in batches - can't join on '\n' so push '\n'
-                items.push(record);
-                items.push('\n');
-            }
-        }
-
-        // finish off anything left
-        if (items.length) {
-            str += JSON.stringify(items)
-                .replaceAll(/,"\\n",*/g, '\n')
-                .replace(/^\[/g, '')
-                .replace(/]$/g, '');
-            items = [];
-        }
-        if (str) {
-            yield {
-                index,
-                has_more: false,
-                data: str,
-            };
-            str = '';
-        }
-    }
-
-    /** Adjusts the batch size if needed to ensure it stays under the chunk size */
-    _fixBatchSize(_avgRecordBytes: number) {
-        const avgRecordBytes = _avgRecordBytes || 1; // ensure > 0
-        let done = false;
-        this.batchSize = this.batchSize || 2000; // ensure > 0
-        let avgBatchSize = 0;
-
-        const isValidBatchSize = () => {
-            avgBatchSize = this.batchSize * avgRecordBytes;
-            return avgBatchSize < this.chunkSize;
-        };
-
-        while (!done) {
-            if (isValidBatchSize()) {
-                done = true;
-            } else if (this.batchSize <= 1) {
-                this.batchSize = 1;
-                done = true;
-            } else {
-                this.batchSize = Math.floor(this.batchSize / 10);
-            }
-        }
-
-        return avgBatchSize;
     }
 
     private async* _chunkByRow(): AsyncIterableIterator<Chunk> {

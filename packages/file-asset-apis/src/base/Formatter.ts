@@ -130,7 +130,7 @@ export class Formatter {
 
         const lineDelimiter = getLineDelimiter(this.config);
 
-        for (const [record, has_more] of hasMoreIterator<SendRecord>(slice)) {
+        for (const [record, has_more] of _hasMoreIterator<SendRecord>(slice)) {
             // FIXME this needs a try/catch in case the record is too big
             // and a fix - but i think the issue is more that we might be getting
             // an array instead - need to verify - if that's the case maybe needs
@@ -166,7 +166,7 @@ export class Formatter {
     }
 }
 
-export function hasMoreIterator<R>(
+function _hasMoreIterator<R>(
     items: Iterable<R>
 ): IterableIterator<[items: R, has_more: boolean]> {
     const iterator = items[Symbol.iterator]();
