@@ -45,7 +45,7 @@ export abstract class ChunkedFileSender {
 
     constructor(type: FileSenderType, config: ChunkedFileSenderConfig, logger: Logger) {
         if (!formatValues.includes(config.format)) {
-            throw new Error(`Invalid parameter format, is must be provided and be set to any of these: ${formatValues.join(', ')}`);
+            throw new Error(`Invalid parameter format, it must be provided and be set to any of these: ${formatValues.join(', ')}`);
         }
 
         if (!isString(config.path)) {
