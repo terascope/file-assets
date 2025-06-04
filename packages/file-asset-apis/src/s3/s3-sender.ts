@@ -29,6 +29,10 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
         this.client = client;
     }
 
+    /**
+     * This is a low level API, it is not meant to be used externally,
+     * please use the "send" method instead
+     */
     protected async sendToDestination(
         { filename, chunkGenerator, concurrency = 1 }: SendBatchConfig
     ): Promise<void> {
