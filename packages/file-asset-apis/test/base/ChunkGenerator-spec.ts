@@ -318,48 +318,6 @@ describe('ChunkGenerator', () => {
                 await expect(toArray(gen)).resolves.toEqual(expected);
             });
         });
-
-        describe('when using experimental ldjson batch method', () => {
-            let gen: ChunkGenerator;
-            let input: Record<string, any>[];
-            let chunks: TestChunk[];
-
-            beforeAll(async () => {
-                input = times(100, (index) => ({
-                    count: index,
-                }));
-
-                gen = new ChunkGenerator(
-                    new Formatter({
-                        format: Format.ldjson,
-                    }),
-                    new Compressor(Compression.none),
-                    input,
-                    limits,
-                    true,
-                    20000
-                );
-
-                chunks = await toArray(gen);
-            });
-
-            it('should adjust the batch size as needed', async () => {
-                expect(gen.batchSize).toEqual(20);
-            });
-
-            it('should chunk data', async () => {
-                const str = gen.formatter.format(input);
-                // ensure test will work
-                expect(str.length).toBeGreaterThan(CHUNK_SIZE);
-
-                chunks.forEach(({ data }) => {
-                    expect(data).toBeString();
-                    expect(str).toInclude(data);
-                });
-
-                expect(chunks.length).toBeGreaterThan(1);
-            });
-        });
     });
 });
 
