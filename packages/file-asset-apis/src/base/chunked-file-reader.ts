@@ -96,7 +96,7 @@ export abstract class ChunkedFileReader {
         const encoding = format === Format.raw ? DataEncoding.RAW : DataEncoding.JSON;
 
         if (format == null || !formatValues.includes(format)) {
-            throw new Error(`Invalid parameter format, is must be provided and be set to any of these: ${formatValues.join(', ')}`);
+            throw new Error(`Invalid parameter "format", it must be provided and set to one of these: ${formatValues.join(', ')}`);
         }
 
         if (isCSVReaderConfig(inputConfig)) {
@@ -324,16 +324,11 @@ export abstract class ChunkedFileReader {
         const data = splitChunks(incomingData, this.lineDelimiter, slice);
 
         return data.map(
-            this.tryFn((record: any) => {
-                if (typeof record === 'string') {
-                    return tryParseJSON(record);
-                }
-                return DataEntity.fromBuffer(
-                    record,
-                    this.encodingConfig,
-                    slice
-                );
-            })
+            this.tryFn((record: any) => DataEntity.fromBuffer(
+                record,
+                this.encodingConfig,
+                slice
+            ))
         );
     }
 
