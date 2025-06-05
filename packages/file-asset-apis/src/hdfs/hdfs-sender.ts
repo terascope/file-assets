@@ -23,11 +23,8 @@ export class HDFSSender extends ChunkedFileSender implements RouteSenderAPI {
      * @todo THIS PROBABLY NOT WORK and is missing some logic in the file sender
      */
     protected async sendToDestination(
-        { filename, chunkGenerator }: SendBatchConfig
+        { dest, chunkGenerator }: SendBatchConfig
     ): Promise<void> {
-        // The full path generated for filename
-        const dest = await this.createFileDestinationName(filename);
-
         let output: Buffer | string | undefined;
 
         for await (const chunk of chunkGenerator) {

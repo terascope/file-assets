@@ -23,6 +23,8 @@ const formatValues = Object.values(Format);
 export interface SendBatchConfig {
     /** The original filename  */
     readonly filename: string;
+    /** The full path generated for filename  */
+    readonly dest: string;
     /** Async Iterator that provides chunks of data to write  */
     readonly chunkGenerator: ChunkGenerator;
     /**
@@ -273,8 +275,12 @@ export abstract class ChunkedFileSender {
             if (this.sliceCount > 0) this.formatter.csvOptions.header = false;
         }
 
+        const filename = this.path;
+        const destName = await this.createFileDestinationName(filename);
+
         await this.sendToDestination({
-            filename: this.path,
+            filename,
+            dest: destName,
             chunkGenerator: new ChunkGenerator(
                 this.formatter,
                 this.compressor,

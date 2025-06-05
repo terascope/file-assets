@@ -13,11 +13,8 @@ export class FileSender extends ChunkedFileSender implements RouteSenderAPI {
      * please use the "send" method instead
      */
     protected async sendToDestination(
-        { filename, chunkGenerator }: SendBatchConfig
+        { dest, chunkGenerator }: SendBatchConfig
     ): Promise<void> {
-        // The full path generated for filename
-        const dest = await this.createFileDestinationName(filename);
-
         let fd: number | undefined;
 
         if (this.config.file_per_slice) {
