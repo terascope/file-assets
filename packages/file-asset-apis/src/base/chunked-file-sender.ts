@@ -33,6 +33,7 @@ export interface SendBatchConfig {
      * it being stored in an iterator
     */
     readonly count: number;
+    readonly concurrency?: number;
 }
 
 export abstract class ChunkedFileSender {
@@ -46,7 +47,7 @@ export abstract class ChunkedFileSender {
 
     constructor(type: FileSenderType, config: ChunkedFileSenderConfig, logger: Logger) {
         if (!formatValues.includes(config.format)) {
-            throw new Error(`Invalid paramter format, is must be provided and be set to any of these: ${formatValues.join(', ')}`);
+            throw new Error(`Invalid parameter format, it must be provided and be set to any of these: ${formatValues.join(', ')}`);
         }
 
         if (!isString(config.path)) {
@@ -267,6 +268,7 @@ export abstract class ChunkedFileSender {
      *   s3Sender.simpleSend([DataEntity.make({ some: 'data' })]) => Promise<void>
     */
     async simpleSend(records: SendRecords): Promise<void> {
+        const { concurrency } = this;
         this.incrementCount();
 
         if (!this.filePerSlice) {
@@ -284,7 +286,8 @@ export abstract class ChunkedFileSender {
                 this.compressor,
                 records
             ),
-            count: Array.isArray(records) ? records.length : -1
+            count: Array.isArray(records) ? records.length : -1,
+            concurrency
         });
     }
 }
