@@ -35,13 +35,13 @@ export interface SendBatchConfig {
     readonly count: number;
     /**
      * The amount of concurrent requests -
-     * currently only in s3 simpleSend multipart uploads
-     * but batched send already has some concurrency as well
+     * currently only in s3 "simpleSend" multipart uploads but
+     * regular "send" uses concurrency on the batch level
      */
     readonly concurrency?: number;
     /**
      * How many milliseconds to delay if needed -
-     * i.e. waiting for pending requests to go down below the concurrency limit
+     * i.e. waiting for pending requests to decrease below the concurrency limit
      * if sender supports concurrency
      */
     readonly jitter?: number;
