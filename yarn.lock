@@ -2499,7 +2499,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@terascope/file-asset-apis@npm:~1.0.6, @terascope/file-asset-apis@workspace:packages/file-asset-apis":
+"@terascope/file-asset-apis@npm:~1.1.0, @terascope/file-asset-apis@workspace:packages/file-asset-apis":
   version: 0.0.0-use.local
   resolution: "@terascope/file-asset-apis@workspace:packages/file-asset-apis"
   dependencies:
@@ -3161,6 +3161,13 @@ __metadata:
   dependencies:
     "@types/node": "npm:*"
   checksum: 10c0/c27f2b698a63aa6c0a4023ac47aad174bd601963d65a419f7422970ec7f946e65ed6920c71540fc8a9c1044642e5da769ea51e370abbc5d614f3ab16ff08529f
+  languageName: node
+  linkType: hard
+
+"@types/typescript@npm:*":
+  version: 0.4.29
+  resolution: "@types/typescript@npm:0.4.29"
+  checksum: 10c0/39cee1f1fe307846fd2180acacb6078aaeb9070a3c40870c7dc8862fd816abe18bd10ac3d1f9181b2b216773e811dd0c1613f93bb3c46c2abb3cf89dbcefcea1
   languageName: node
   linkType: hard
 
@@ -5850,7 +5857,7 @@ __metadata:
   resolution: "file-assets-bundle@workspace:."
   dependencies:
     "@terascope/eslint-config": "npm:~1.1.17"
-    "@terascope/file-asset-apis": "npm:~1.0.6"
+    "@terascope/file-asset-apis": "npm:~1.1.0"
     "@terascope/job-components": "npm:~1.10.2"
     "@terascope/scripts": "npm:~1.17.3"
     "@types/fs-extra": "npm:~11.0.4"
@@ -5917,7 +5924,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "file@workspace:asset"
   dependencies:
-    "@terascope/file-asset-apis": "npm:~1.0.6"
+    "@terascope/file-asset-apis": "npm:~1.1.0"
     "@terascope/job-components": "npm:~1.10.2"
     csvtojson: "npm:~2.0.10"
     fs-extra: "npm:~11.3.0"
@@ -10995,7 +11002,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:~5.8.3":
+"typescript@npm:*, typescript@npm:~5.8.3":
   version: 5.8.3
   resolution: "typescript@npm:5.8.3"
   bin:
@@ -11005,7 +11012,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A~5.8.3#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A*#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A~5.8.3#optional!builtin<compat/typescript>":
   version: 5.8.3
   resolution: "typescript@patch:typescript@npm%3A5.8.3#optional!builtin<compat/typescript>::version=5.8.3&hash=5786d5"
   bin:

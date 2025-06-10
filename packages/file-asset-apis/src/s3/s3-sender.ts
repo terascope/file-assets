@@ -1,14 +1,13 @@
-import { Logger, TSError, RouteSenderAPI } from '@terascope/utils';
+import {
+    Logger, TSError, RouteSenderAPI,
+    pWhile, pDelay,
+} from '@terascope/utils';
 import type { S3Client } from './client-helpers/index.js';
 import {
     parsePath, ChunkedFileSender, SendBatchConfig
 } from '../base/index.js';
 import { FileSenderType, ChunkedFileSenderConfig } from '../interfaces.js';
-import {
-    createS3Bucket,
-    headS3Bucket,
-    putS3Object,
-} from './s3-helpers.js';
+import { createS3Bucket, headS3Bucket, putS3Object } from './s3-helpers.js';
 import { isObject } from '../helpers.js';
 import { MultiPartUploader } from './MultiPartUploader.js';
 
@@ -34,10 +33,9 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
     /**
      * This is a low level API, it is not meant to be used externally,
      * please use the "send" method instead
-     *
      */
     protected async sendToDestination(
-        { filename, chunkGenerator }: SendBatchConfig
+        { filename, chunkGenerator, concurrency = 1, jitter = 10 }: SendBatchConfig
     ): Promise<void> {
         const objPath = parsePath(filename);
         const Key = await this.createFileDestinationName(objPath.prefix);
@@ -47,10 +45,12 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
         // docs say Body can be a string, but types are complaining
         let Body: any;
         let uploader: MultiPartUploader | undefined;
+        let pending = 0;
 
         try {
             for await (const chunk of chunkGenerator) {
                 Body = chunk.data;
+
                 // first slice decides if it is multipart or not
                 if (isFirstSlice) {
                     isFirstSlice = false;
@@ -61,8 +61,10 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                         );
                         await uploader.start();
                     } else {
-                        // make regular query
-                        if (!Body) return;
+                        if (!Body) {
+                            this.logger.error(`Nothing to send to ${filename}'`);
+                            return;
+                        }
 
                         await putS3Object(this.client, {
                             Bucket,
@@ -75,15 +77,35 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
 
                 if (!uploader) throw new Error('Expected uploader to exist');
 
-                // the index is zero based but the part numbers start at 1
-                // so we need to increment by 1
-                await uploader.enqueuePart(Body, chunk.index + 1);
+                pending++;
+                uploader
+                    .enqueuePart(
+                        Body,
+                        // index is zero based but part numbers start at 1 so increment by 1
+                        chunk.index + 1
+                    )
+                    .finally(() => {
+                        pending--;
+                    });
+
+                if (pending >= concurrency) {
+                    await pWhile(async () => {
+                        await pDelay(jitter);
+                        return pending < concurrency;
+                    });
+                }
             }
 
             // we are done, finalize the upload
             // do this outside of the for loop
             // to free up the chunkGenerator
             if (uploader) {
+                if (pending > 0) {
+                    await pWhile(async () => {
+                        await pDelay(jitter);
+                        return pending === 0;
+                    });
+                }
                 return await uploader.finish();
             }
         } catch (err) {

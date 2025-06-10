@@ -20,7 +20,13 @@ export interface Chunk {
     readonly has_more: boolean;
 }
 
-const MiB = 1024 * 1024;
+export const MiB = 1024 * 1024;
+
+/** 100 MiB - Used for determine how big each chunk of a single file should be */
+export const MAX_CHUNK_SIZE_BYTES = (isTest ? 6 : 100) * MiB;
+
+/** 5MiB - Minimum part size for multipart uploads with Minio */
+export const MIN_CHUNK_SIZE_BYTES = 5 * MiB;
 
 /**
  * Efficiently breaks up a slice into multiple chunks.
@@ -31,20 +37,20 @@ const MiB = 1024 * 1024;
 */
 export class ChunkGenerator {
     /**
-     * Used for determine how big each chunk of a single file should be
+     * how big each chunk of a single file should be
     */
-    static MAX_CHUNK_SIZE_BYTES = (isTest ? 5 : 100) * MiB;
-
-    /*
-    * 5MiB - Minimum part size for multipart uploads with Minio
-    */
-    static MIN_CHUNK_SIZE_BYTES = 5 * MiB;
+    readonly chunkSize: number;
 
     constructor(
         readonly formatter: Formatter,
         readonly compressor: Compressor,
-        readonly slice: SendRecords
-    ) {}
+        readonly slice: SendRecords,
+        limits?: { maxBytes?: number; minBytes?: number },
+    ) {
+        const max = limits?.maxBytes || MAX_CHUNK_SIZE_BYTES;
+        const min = limits?.minBytes || MIN_CHUNK_SIZE_BYTES;
+        this.chunkSize = getBytes(max, min);
+    }
 
     /**
      * If the format is ldjson and compression is not on,
@@ -68,7 +74,6 @@ export class ChunkGenerator {
     }
 
     private async* _chunkByRow(): AsyncIterableIterator<Chunk> {
-        const chunkSize = getBytes(ChunkGenerator.MAX_CHUNK_SIZE_BYTES);
         let index = 0;
 
         /**
@@ -88,15 +93,15 @@ export class ChunkGenerator {
              * the overflow from the current row buffer needs to
              * be deferred until the next iteration
             */
-            const estimatedOverflowBytes = chunkStr.length - chunkSize;
-            if (estimatedOverflowBytes >= chunkSize) {
+            const estimatedOverflowBytes = chunkStr.length - this.chunkSize;
+            if (estimatedOverflowBytes >= this.chunkSize) {
                 chunk = {
                     index,
                     has_more,
-                    data: chunkStr.slice(0, chunkSize),
+                    data: chunkStr.slice(0, this.chunkSize),
                 };
 
-                chunkStr = chunkStr.slice(chunkSize, chunkStr.length);
+                chunkStr = chunkStr.slice(this.chunkSize, chunkStr.length);
                 index++;
             } else if (estimatedOverflowBytes >= 0) {
                 chunk = {
@@ -130,12 +135,11 @@ export class ChunkGenerator {
         const formattedData = this.formatter.format(this.slice);
         const data = await this.compressor.compress(formattedData);
 
-        const chunkSize = getBytes(ChunkGenerator.MAX_CHUNK_SIZE_BYTES);
-        const numChunks = Math.ceil(data.length / chunkSize);
+        const numChunks = Math.ceil(data.length / this.chunkSize);
 
         let offset = 0;
         for (let i = 0; i < numChunks; i++) {
-            const chunk = data.subarray(offset, offset + chunkSize);
+            const chunk = data.subarray(offset, offset + this.chunkSize);
             yield {
                 index: i,
                 data: chunk,
@@ -149,8 +153,8 @@ export class ChunkGenerator {
 }
 
 /**
- * Convert MiB to bytes with a hard minimum
+ * Get bytes with a hard minimum
 */
-function getBytes(bytes: number): number {
-    return Math.max(bytes, ChunkGenerator.MIN_CHUNK_SIZE_BYTES);
+function getBytes(max: number, min: number): number {
+    return Math.max(max, min);
 }
