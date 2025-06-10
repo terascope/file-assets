@@ -74,6 +74,12 @@ export interface ChunkedFileSenderConfig extends ChunkedAPIMethods {
     extension?: string;
     file_per_slice?: boolean;
     concurrency?: number;
+    /**
+     * How many milliseconds to delay if needed -
+     * i.e. waiting for pending requests to go down below the concurrency limit
+     * if the sender supports concurrency
+     */
+    jitter?: number;
 }
 
 export interface CSVReaderConfig extends ChunkedFileReaderConfig {

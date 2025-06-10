@@ -35,7 +35,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
      * please use the "send" method instead
      */
     protected async sendToDestination(
-        { filename, chunkGenerator, concurrency = 1 }: SendBatchConfig
+        { filename, chunkGenerator, concurrency = 1, jitter = 10 }: SendBatchConfig
     ): Promise<void> {
         const objPath = parsePath(filename);
         const Key = await this.createFileDestinationName(objPath.prefix);
@@ -90,7 +90,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
 
                 if (pending >= concurrency) {
                     await pWhile(async () => {
-                        await pDelay(100);
+                        await pDelay(jitter);
                         return pending < concurrency;
                     });
                 }
@@ -102,7 +102,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
             if (uploader) {
                 if (pending > 0) {
                     await pWhile(async () => {
-                        await pDelay(100);
+                        await pDelay(jitter);
                         return pending === 0;
                     });
                 }

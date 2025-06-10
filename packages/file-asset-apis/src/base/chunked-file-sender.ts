@@ -33,7 +33,18 @@ export interface SendBatchConfig {
      * it being stored in an iterator
     */
     readonly count: number;
+    /**
+     * The amount of concurrent requests -
+     * currently only in s3 simpleSend multipart uploads
+     * but batched send already has some concurrency as well
+     */
     readonly concurrency?: number;
+    /**
+     * How many milliseconds to delay if needed -
+     * i.e. waiting for pending requests to go down below the concurrency limit
+     * if sender supports concurrency
+     */
+    readonly jitter?: number;
 }
 
 export abstract class ChunkedFileSender {
@@ -206,12 +217,14 @@ export abstract class ChunkedFileSender {
             Object.entries(batches),
             async ([filename, list]) => {
                 const destName = await this.createFileDestinationName(filename);
-                return {
+                const config: SendBatchConfig = {
                     filename,
                     dest: destName,
                     chunkGenerator: new ChunkGenerator(this.formatter, this.compressor, list),
-                    count: list.length
+                    count: list.length,
+                    jitter: this.config.jitter
                 };
+                return config;
             }
         );
     }
@@ -287,7 +300,8 @@ export abstract class ChunkedFileSender {
                 records
             ),
             count: Array.isArray(records) ? records.length : -1,
-            concurrency
+            concurrency,
+            jitter: this.config.jitter || 10
         });
     }
 }
