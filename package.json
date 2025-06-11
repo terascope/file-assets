@@ -3,7 +3,7 @@
     "displayName": "File Assets Bundle",
     "version": "3.2.0",
     "private": true,
-    "description": "A set of processors for working with files",
+    "description": "A set of teraslice processors for working with files",
     "repository": "https://github.com/terascope/file-assets.git",
     "homepage": "https://github.com/terascope/file-assets",
     "documentation": "https://terascope.github.io/file-assets",

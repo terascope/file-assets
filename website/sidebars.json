@@ -1,0 +1,36 @@
+{
+    "asset": {
+        "Overview": [
+            "asset/overview"
+        ],
+        "Apis": [
+            "asset/apis/file_reader_api",
+            "asset/apis/file_sender_api",
+            "asset/apis/s3_reader_api",
+            "asset/apis/s3_sender_api"
+        ],
+        "Operations": [
+            "asset/operations/file_exporter",
+            "asset/operations/file_reader",
+            "asset/operations/hdfs_exporter",
+            "asset/operations/hdfs_reader",
+            "asset/operations/s3_exporter",
+            "asset/operations/s3_reader"
+        ]
+    },
+    "packages": {
+        "Overview": [
+            "packages/overview"
+        ],
+        "Packages": [
+            {
+                "type": "category",
+                "label": "file-asset-apis",
+                "items": [
+                    "packages/file-asset-apis/overview",
+                    "packages/file-asset-apis/api/overview"
+                ]
+            }
+        ]
+    }
+}
