@@ -2,7 +2,7 @@
 
 The `s3_sender_api` will provide a factory that can create file sender apis that can be accessed in any operation through the `getAPI` method on the operation.
 
-This is a [Factory API](https://terascope.github.io/teraslice/docs/packages/job-components/api/interfaces/apifactoryregistry), which can be used to fully manage api creation and configuration.
+This is a [Factory API](https://terascope.github.io/teraslice/docs/packages/job-components/api/operations/api-factory/overview/), which can be used to fully manage api creation and configuration.
 
 This api is the core of the [s3_exporter](../operations/s3_exporter). This contains all the same behavior, functionality and configuration of that exporter
 

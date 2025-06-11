@@ -171,12 +171,12 @@ This is the reader class that is returned from the create method of the APIFacto
 ```(slice: FileSlice) => Promise<string>```
 parameters:
 
-- slice: {
+- slice: `{
     path: string,
     total: number (total number of bytes),
     length: number (how many bytes to read),
     offset: number (where to start reading from)
-}
+}`
 
 This method will send the records to file
 
@@ -216,16 +216,16 @@ api.canReadFile(goodPath) === true;
 ```(fileInfo, config: SliceConfig) => FileSlice[]```
 parameters:
 
-- fileInfo: {
+- fileInfo: `{
     path: the path to the file
     size: the size in bytes the file contains
-}
-- config: {
+}`
+- config: `{
     file_per_slice: please check [Parameters](#parameters) for more information,
     format: used to determine how the data should be written to file,
     size: how big each slice chunk should be,
     line_delimiter: a delimiter applied between each record or slice
-}
+}`
 
 This is a helper method what will segment a given file and its byte size into chunks that the reader can process.
 
