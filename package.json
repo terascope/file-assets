@@ -1,15 +1,14 @@
 {
     "name": "file-assets-bundle",
     "displayName": "File Assets Bundle",
-    "version": "3.2.0",
+    "version": "3.2.1",
     "private": true,
     "description": "A set of teraslice processors for working with files",
-    "repository": "https://github.com/terascope/file-assets.git",
     "homepage": "https://github.com/terascope/file-assets",
-    "documentation": "https://terascope.github.io/file-assets",
     "bugs": {
         "url": "https://github.com/terascope/file-assets/issues"
     },
+    "repository": "https://github.com/terascope/file-assets.git",
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
     "type": "module",
@@ -66,6 +65,7 @@
         "node": ">=22.0.0",
         "yarn": ">=1.22.19"
     },
+    "documentation": "https://terascope.github.io/file-assets",
     "terascope": {
         "root": true,
         "testSuite": "s3",
