@@ -2,18 +2,18 @@
 
 > A set of Teraslice processors for working with data stored in files on disk. The readers utilize the `chunked-file-reader` module (migrated into this bundle from the Teraslice monorepo) to break data into records.
 
-Since all the readers in this asset bundle use DataEntities, the slice's file path can be retrieved from each record by using something like `record.getMetadata('path')`. More information about DataEntities can be found [here](https://terascope.github.io/teraslice/docs/packages/utils/api/classes/dataentity).
+Since all the readers in this asset bundle use DataEntities, the slice's file path can be retrieved from each record by using something like `record.getMetadata('path')`. More information about DataEntities can be found [here](https://terascope.github.io/teraslice/docs/packages/utils/api/entities/data-entity/classes/DataEntity).
 
 This bundle includes the following processors:
 
-- [`file_exporter`](./docs/file_exporter.md)
-- [`file_reader`](./docs/file_reader.md)
-- [`s3_exporter`](./docs/s3_exporter.md)
-- [`s3_reader`](./docs/s3_reader.md)
-- [`file_sender_api`](./docs/file_sender_api.md)
-- [`file_reader_api`](./docs/file_reader_api.md)
-- [`s3_sender_api`](./docs/s3_sender_api.md)
-- [`s3_reader_api`](./docs/s3_reader_api.md)
+- [`file_exporter`](./docs/asset/operations/file_exporter)
+- [`file_reader`](./docs/asset/operations/file_reader)
+- [`s3_exporter`](./docs/asset/operations/s3_exporter)
+- [`s3_reader`](./docs/asset/operations/s3_reader)
+- [`file_sender_api`](./docs/asset/apis/file_sender_api)
+- [`file_reader_api`](./docs/asset/apis/file_reader_api)
+- [`s3_sender_api`](./docs/asset/apis/s3_sender_api)
+- [`s3_reader_api`](./docs/asset/apis/s3_reader_api)
 
 ## Releases
 
@@ -21,7 +21,7 @@ You can find a list of releases, changes, and pre-built asset bundles [here](htt
 
 ## Getting Started
 
-This asset bundle requires a running Teraslice cluster, you can find the documentation [here](https://github.com/terascope/teraslice/blob/master/README.md).
+This asset bundle requires a running Teraslice cluster [Documentation](https://terascope.github.io/teraslice).
 
 ```bash
 # Step 1: make sure you have teraslice-cli installed
@@ -109,4 +109,3 @@ Please make sure to update tests as appropriate.
 ## License
 
 [MIT](./LICENSE) licensed.
-

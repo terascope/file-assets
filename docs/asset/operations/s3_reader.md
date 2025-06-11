@@ -1,276 +1,60 @@
-# s3_reader_api
+# s3_reader
 
-This is a [teraslice api](https://terascope.github.io/teraslice/docs/jobs/configuration#apis), which encapsulates a specific functionality that can be utilized by any processor, reader or slicer.
+The `s3_reader` can fetch data from an S3 bucket. It works by slicing up the file into byte chunks that encompass complete records determined by the format parameter so that they can be independently read from the file.
 
-The `s3_reader_api` will provide an [api factory](https://terascope.github.io/teraslice/docs/packages/job-components/api/classes/apifactory), which is a singleton that can create, cache and manage multiple file sender apis that can be accessed in any operation through the `getAPI` method on the operation.
+For this processor to run, a path is required in the configuration. All intermediate directories must pre-exist, and the workers will need to have adequate permissions to read from that directory.
+
+This reader currently only works in `once` jobs.
 
 If you are using the asset version >= 2.4.0, it should be used on teraslice >= v84.0
 
 ## Usage
 
-### Example Processor using a s3 reader api
-This is an example of a custom processor using the s3_reader_api.
+### Read ldjson from a file
+This test job will find and read the files in the `/app/data/test_files`. In this example, the TS cluster could be a single-node cluster or a multi-node cluster where `/app/data` is directory shared between all the workers.
 
-Example Job
+ Example Job
 
 ```json
 {
-    "name" : "testing",
-    "workers" : 1,
-    "slicers" : 1,
-    "lifecycle" : "once",
-    "assets" : [
-        "file"
-    ],
-    "apis" : [
-        {
-            "_name": "s3_reader_api",
-            "path": "/app/data/test_files",
-            "format": "ldjson",
-            "line_delimiter": "\n"
-        }
-    ],
-    "operations" : [
-        {
-            "_op" : "test-reader"
-        },
-        {
-            "_op" : "some_reader",
-            "api_name" : "s3_reader_api"
-        }
-    ]
+  "name": "s3_reader",
+  "lifecycle": "once",
+  "workers": 10,
+  "max_retries": 0,
+   "assets": [
+    "file"
+  ],
+  "operations": [
+    {
+        "_op": "s3_reader",
+        "path": "/app/data/test_files",
+        "size": 100000,
+        "format": "ldjson"
+    },
+    {
+        "_op": "noop"
+    }
+  ]
 }
 ```
 
-Here is a custom processor for the job described above
+Here is a representation of what the processor will do with the configuration listed in the job above
 
 ```javascript
-export default class SomeReader extends Fetcher {
-    async initialize() {
-        await super.initialize();
-        const apiName = this.opConfig.api_name;
-        const apiManager = this.getAPI(apiName);
-        this.api = await apiManager.create(apiName);
-    }
-
-    async fetch() {
-        const slice =  {
-            path: '/app/data/test_files/someFile.txt',
-            offset: 0,
-            total: 364,
-            length: 364
-        }
-        // can do anything with the slice before reading
-        return this.api.read(slice);
-    }
-}
-```
-
-## S3 Reader Factory API Methods
-### size
-
-this will return how many separate reader apis are in the cache
-
-### get
-parameters
-- name: String
-
-this will fetch any reader api that is associated with the name provided
-
-### getConfig
-parameters
-- name: String
-
-this will fetch any reader api config that is associated with the name provided
-
-### create (async)
-parameters
-- name: String
-- configOverrides: Check options below, optional
-
-this will create an instance of a [reader api](#s3_reader_instance), and cache it with the name given. Any
-config provided in the second argument will override what is specified in the apiConfig and cache it with the name provided. It will throw an error if you try creating another api with the same name parameter
-
-### remove (async)
-parameters
-- name: String
-
-this will remove an instance of a reader api from the cache and will follow any cleanup code specified in the api code.
-
-### entries
-
-This will allow you to iterate over the cache name and client of the cache
-
-### keys
-
-This will allow you to iterate over the cache name of the cache
-
-### values
-
-This will allow you to iterate over the clients of the cache
-
-## Example of using the factory methods in a processor
-```javascript
-// example of api configuration
-const apiConfig = {
-    _name: 's3_reader_api',
-    path: '/app/data/test_files',
-    format: 'ldjson',
-    line_delimiter: '\n'
+const slice =  {
+    path: '/app/data/test_files/someFile.txt',
+    offset: 0,
+    total: 364,
+    length: 364
 }
 
-const apiManager = this.getAPI<ElasticReaderFactoryAPI>(apiName);
+const results = await reader.run(slice);
 
-apiManager.size() === 0
-
-// this will return an api cached at "normalClient" and it will use the default api config
-const normalClient = await apiManager.create('normalClient', {})
-
-apiManager.size() === 1
-
-apiManager.get('normalClient') === normalClient
-
-// this will return an api cached at "overrideClient"
-const overrideClient = await apiManager.create('overrideClient', { path: 'other/path', format: 'tsv' })
-
-apiManager.size() === 2
-
-// this will return the full configuration for this client
-apiManger.getConfig('overrideClient') === {
-    _name: 's3_reader_api',
-    path: 'other/path',
-    format: 'ldjson',
-    line_delimiter: '\n'
-}
-
-
-await apiManger.remove('normalClient');
-
-apiManager.size() === 1
-
-apiManager.get('normalClient') === undefined
-```
-
-### S3 Reader Instance
-This is the reader class that is returned from the create method of the APIFactory
-
-### fetch
-```(slice: FileSlice) => Promise<string>```
-parameters:
-- slice: {
-    path: string,
-    total: number (total number of bytes),
-    length: number (how many bytes to read),
-    offset: number (where to start reading from)
-}
-
-This method will send the records to file
-
-```js
-// this will read the first 500 bytes of the file
-const slice = {
-    path: 'some/data/path',
-    total: 10000,
-    length: 500,
-    offset: 0
-}
-const results = await api.read(docs)
-```
-
-### canReadFile
-```(filePath: String) => Boolean```
-parameters:
-- filePath: the path of the file
-
-This is a helper method will return true if the filepath is valid, it will return false if any part of the path or filename starts with a `.`
-
-```js
-const badPath1 = 'some/.other/path.txt';
-const badPath2 = 'some/other/.path.txt';
-const goodPath = 'some/other/path.txt';
-
-api.canReadFile(badPath1) === false;
-api.canReadFile(badPath2) === false;
-api.canReadFile(goodPath) === true;
-
-```
-
-### segmentFile
-```(fileInfo, config: SliceConfig) => FileSlice[]```
-parameters:
-- fileInfo: {
-    path: the path to the file
-    size: the size in bytes the file contains
-}
-- config: {
-    file_per_slice: please check [Parameters](#parameters) for more information,
-    format: used to determine how the data should be written to file,
-    size: how big each slice chunk should be,
-    line_delimiter: a delimiter applied between each record or slice
-}
-
-This is a helper method what will segment a given file and its byte size into chunks that the reader can process.
-
-```js
-const slice = { path: 'some/path', size: 1000 };
-const config = {
-    file_per_slice: false,
-    line_delimiter: '\n',
-    size: 300,
-    format: Format.ldjson
-};
-
- const results = api.segmentFile(slice, config);
-
-results === [
-  {
-      offset: 0,
-      length: 300,
-      path: 'some/path',
-      total: 1000
-  },
-  {
-     length: 301,
-     offset: 299,
-     path: 'some/path',
-     total: 1000
-  },
-  {
-      length: 301,
-      offset: 599,
-      path: 'some/path',
-      total: 1000
-  },
-  {
-      offset: 899,
-      length: 101,
-      path: 'some/path',
-      total: 1000
-  }
-]
-
-```
-
-### makeSlicer (async)
-```() => Promise<FileSlice[]|null>```
-
-This function will generate slice chunks for your reader.
-
-
-```js
-const slicer = await api.makeSlicer();
-
-const slice = await slicer();
-
-slice ===  [{
-      offset: 0,
-      length: 1000,
-      path: 'some/path',
-      total: 1000
-}]
+results === [{ some: 'records'}, { more: 'data' }]
 ```
 
 ## Parameters
+
 | Configuration   | Description                                                                                                                                                                                                                                                                                                 | Type     | Notes                                                                                                                                                 |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | \_op            | Name of operation, it must reflect the exact name of the file                                                                                                                                                                                                                                               | String   | required                                                                                                                                              |
@@ -278,6 +62,7 @@ slice ===  [{
 | extension       | Optional file extension to add to file names                                                                                                                                                                                                                                                                | String   | optional, A `.` is not automatically prepended to this value when being added to the filename, if it is desired it must be specified on the extension |
 | compression     | you may specify a compression algorithm to apply to the data before being written to file, it may be set to `none`, `lz4` or `gzip`                                                                                                                                                                         | String   | optional, defaults `none`                                                                                                                             |
 | fields          | a list of all field names present in the file **in the order that they are found**, this essentially acts as the headers. This option is only used for `tsv` and `csv` formats                                                                                                                              | String[] | optional                                                                                                                                              |
+| api_name        | Name of api used for s3_reader                                                                                                                                                                                                                                                                              | String   | optional, defaults to `s3_reader_api`                                                                                                                 |
 | field_delimiter | A delimiter between field names. This is only used when `format` is set to `csv`                                                                                                                                                                                                                            | String   | optional, defaults to `,`                                                                                                                             |
 | line_delimiter  | If a line delimiter other than `\n` is used in the files, this option will tell the reader how to read records in the file. This option is ignored for `json` format. See the [format](#format) section for more information how this deliminator is applied for each format.                               | String   | optional, defaults to `\n`                                                                                                                            |
 | file_per_slice  | This setting determines if the output for a worker will be in a single file (`false`), or if the worker will create a new file for every slice it processes  (`true`). If set to `true`, an integer, starting at 0, will be appended to the filename and incremented by 1 for each slice a worker processes | Boolean  | optional, defaults to `true`. If using `json` format, this option will be overridden to `true`                                                        |
@@ -301,7 +86,7 @@ slice ===  [{
 
 `ldjson` format will treat files as a set of line-delimited JSON records. line  delimiters other than `\n` can be used, but the `line_delimiter` option must be set in this case.
 
-##### tsv
+#### tsv
 
 `tsv` format will treat files as a set of tab-delimited values. If using the `tsv` input format, the **FIELDS OPTION MUST BE PROVIDED AS WELL**. As with `ldjson`, a custom line delimiter can be used with the `line_delimiter` parameter. Providing `tsv` as the format is the same as providing the `csv` option with `\t` as the `field_delimiter`.
 
@@ -311,8 +96,75 @@ slice ===  [{
 
 #### raw
 
-`raw` format will generate files where each line is the value of the `data` attribute of a data entity in the slice. This is mainly used to process binary data or other data that are not strings, the records must be sent to the `hdfs_exporter` in the form of:
+`raw` format will treat files as a set of raw string separated by the `line_delimiter`, and each string will be stored in the `data` attribute of a data entity. The reader will make sure slices split on the `line_delimiter` so partial lines do not show up in records.
+
+### API usage in a job
+
+In file_assets v1, many core components were made into teraslice apis. When you use a file processor it will automatically setup the api for you, but if you manually specify the api, then there are restrictions on what configurations you can put on the operation so that clashing of configurations are minimized. The api configs take precedence.
+
+If submitting the job in long form, here is a list of parameters that will throw an error if also specified on the opConfig, since these values should be placed on the api:
+
+- `path`
+
+`SHORT FORM (no api specified)`
 
 ```json
-{ "data": "some processed data string or buffer" }
+{
+  "name": "s3_reader",
+  "lifecycle": "once",
+  "workers": 1,
+  "max_retries": 0,
+  "assets": [
+    "file",
+    "standard"
+  ],
+  "operations": [
+    {
+      "_op": "s3_reader",
+      "path": "/app/data/test_files",
+      "format": "tsv",
+      "file_per_slice": true,
+      "include_header": true,
+      "size": 100000
+    },
+    {
+        "_op": "noop"
+    }
+  ]
+}
+```
+
+this configuration will be expanded out to the long form underneath the hood
+`LONG FORM (api is specified)`
+
+```json
+{
+  "name": "s3_reader",
+  "lifecycle": "once",
+  "workers": 1,
+  "max_retries": 0,
+  "assets": [
+    "file",
+    "standard"
+  ],
+  "apis": [
+      {
+          "_name": "s3_reader_api",
+          "path": "/app/data/test_files",
+          "format": "tsv",
+          "file_per_slice": true,
+          "include_header": true,
+          "size": 100000
+      }
+  ],
+  "operations": [
+    {
+      "_op": "s3_reader",
+      "api_name": "s3_reader_api"
+    },
+    {
+        "_op": "noop"
+    }
+  ]
+}
 ```
