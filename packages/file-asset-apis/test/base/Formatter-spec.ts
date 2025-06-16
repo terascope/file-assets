@@ -14,7 +14,7 @@ describe('Formatter', () => {
             format: 'something' as any,
         };
 
-        expect(() => new Formatter(config)).toThrowError(
+        expect(() => new Formatter(config)).toThrow(
             'Unsupported output format "something"'
         );
     });
@@ -27,7 +27,7 @@ describe('Formatter', () => {
             line_delimiter: 23423 as any,
         };
 
-        expect(() => new Formatter(config)).toThrowError(
+        expect(() => new Formatter(config)).toThrow(
             'Invalid parameter line_delimiter, it must be provided and be of type string, was given Number'
         );
     });
