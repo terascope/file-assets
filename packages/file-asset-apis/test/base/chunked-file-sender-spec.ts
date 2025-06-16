@@ -62,7 +62,7 @@ describe('ChunkedSlicer', () => {
         const errMsg = 'Invalid parameter "file_per_slice", it must be set to true if format is set to json';
         expect(
             () => new Test(FileSenderType.file, makeConfig(Format.json), logger)
-        ).toThrowError(errMsg);
+        ).toThrow(errMsg);
     });
 
     it('will throw if file_per_slice is false and compression is anything but none', () => {
@@ -70,12 +70,12 @@ describe('ChunkedSlicer', () => {
         expect(() => {
             const config = makeConfig(Format.ldjson, { compression: Compression.gzip });
             new Test(FileSenderType.file, config, logger);
-        }).toThrowError(errMsg);
+        }).toThrow(errMsg);
 
         expect(() => {
             const config = makeConfig(Format.ldjson, { compression: Compression.lz4 });
             new Test(FileSenderType.file, config, logger);
-        }).toThrowError(errMsg);
+        }).toThrow(errMsg);
 
         const test3 = new Test(FileSenderType.file, makeConfig(
             Format.ldjson, { compression: Compression.none }
