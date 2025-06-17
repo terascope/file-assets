@@ -1,3 +1,5 @@
+import { themes } from 'prism-react-renderer';
+
 module.exports = {
     title: 'File Assets',
     tagline: 'A set of teraslice processors for working with files',
@@ -155,6 +157,11 @@ module.exports = {
                 light: 'default',
                 dark: 'dark'
             },
-        }
+        },
+        prism: {
+            theme: themes.default,
+            darkTheme: themes.dark,
+            additionalLanguages: ['bash'],
+        },
     }
 };
