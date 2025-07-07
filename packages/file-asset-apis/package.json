@@ -31,7 +31,7 @@
         "node-gzip": "~1.1.2"
     },
     "devDependencies": {
-        "@terascope/scripts": "~1.18.1",
+        "@terascope/scripts": "~1.19.4",
         "@types/jest": "~30.0.0",
         "aws-sdk-client-mock": "~4.1.0",
         "jest": "~30.0.3",
