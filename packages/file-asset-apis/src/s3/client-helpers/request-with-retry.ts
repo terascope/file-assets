@@ -10,11 +10,11 @@ import {
     S3Client
 } from '@aws-sdk/client-s3';
 
-export type S3RetryParams =
-    ListObjectsV2Request | GetObjectRequest | DeleteObjectRequest | PutObjectRequest;
-export type S3RetryResponse =
-    ListObjectsV2CommandOutput | GetObjectCommandOutput |
-    PutObjectCommandOutput | DeleteObjectCommandOutput;
+export type S3RetryParams
+    = ListObjectsV2Request | GetObjectRequest | DeleteObjectRequest | PutObjectRequest;
+export type S3RetryResponse
+    = ListObjectsV2CommandOutput | GetObjectCommandOutput
+        | PutObjectCommandOutput | DeleteObjectCommandOutput;
 
 export type RetryArgs = {
     client: S3Client;
