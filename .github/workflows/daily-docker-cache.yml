@@ -7,5 +7,5 @@ on:
 
 jobs:
   call-refresh-docker-cache-workflow:
-    uses: terascope/workflows/.github/workflows/refresh-docker-cache.yml@35a63ec059dbbe13a8bf116dad7434127ca4adae
+    uses: terascope/workflows/.github/workflows/refresh-docker-cache.yml@main
     secrets: inherit
