@@ -37,7 +37,7 @@
         "test:watch": "ts-scripts test --watch asset --"
     },
     "devDependencies": {
-        "@terascope/eslint-config": "~1.1.21",
+        "@terascope/eslint-config": "~1.1.22",
         "@terascope/file-asset-apis": "~1.1.1",
         "@terascope/job-components": "~1.11.3",
         "@terascope/scripts": "~1.20.4",
