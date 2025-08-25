@@ -5,6 +5,7 @@ import {
     TestClientConfig, debugLogger, DataEncoding
 } from '@terascope/job-components';
 import { Format } from '@terascope/file-asset-apis';
+import { DEFAULT_API_NAME } from '../../asset/src/s3_reader_api/interfaces.js';
 
 describe('S3 Reader Schema', () => {
     const logger = debugLogger('test');
@@ -139,6 +140,35 @@ describe('S3 Reader Schema', () => {
             };
 
             await expect(makeTest(opConfig, apiConfig)).toReject();
+        });
+
+        it('will not throw if connection configs are specified in apis and not opConfig', async () => {
+            const opConfig = { _op: 's3_reader', api_name: DEFAULT_API_NAME };
+            const apiConfig = {
+                _name: DEFAULT_API_NAME,
+                path: '/chillywilly',
+                format: Format.ldjson
+            };
+
+            const job = newTestJobConfig({
+                apis: [apiConfig],
+                operations: [
+                    opConfig,
+                    {
+                        _op: 'noop'
+                    }
+                ]
+            });
+
+            harness = new WorkerTestHarness(job, { clients });
+
+            await harness.initialize();
+
+            const validatedApiConfig = harness.executionContext.config.apis.find(
+                (api: APIConfig) => api._name === DEFAULT_API_NAME
+            );
+
+            expect(validatedApiConfig).toMatchObject(apiConfig);
         });
     });
 });
