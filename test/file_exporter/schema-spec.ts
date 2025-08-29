@@ -4,6 +4,7 @@ import {
 } from '@terascope/job-components';
 import { Format } from '@terascope/file-asset-apis';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
+import { DEFAULT_API_NAME } from '../../asset/src/file_sender_api/interfaces.js';
 
 describe('File exporter Schema', () => {
     let harness: WorkerTestHarness;
@@ -116,6 +117,36 @@ describe('File exporter Schema', () => {
             };
 
             await expect(makeTest(opConfig, apiConfig)).toReject();
+        });
+
+        it('will not throw if connection configs are specified in apis and not opConfig', async () => {
+            const opConfig = { _op: 'file_exporter', api_name: DEFAULT_API_NAME };
+            const apiConfig = {
+                _name: DEFAULT_API_NAME,
+                path: 'some/path',
+                compression: 'none',
+                size: 200,
+                format: 'raw',
+                line_delimiter: '\n'
+            };
+
+            const job = newTestJobConfig({
+                apis: [apiConfig],
+                operations: [
+                    { _op: 'test-reader' },
+                    opConfig
+                ]
+            });
+
+            harness = new WorkerTestHarness(job);
+
+            await harness.initialize();
+
+            const validatedApiConfig = harness.executionContext.config.apis.find(
+                (api: APIConfig) => api._name === DEFAULT_API_NAME
+            );
+
+            expect(validatedApiConfig).toMatchObject(apiConfig);
         });
     });
 });
