@@ -4,10 +4,8 @@ import { fileURLToPath } from 'node:url';
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default {
-    verbose: true,
     testEnvironment: 'node',
     setupFilesAfterEnv: ['jest-extended/all'],
-    collectCoverage: true,
     coverageReporters: ['json', 'lcov', 'text', 'html'],
     coverageDirectory: 'coverage',
     testTimeout: 60 * 1000,
@@ -33,7 +31,6 @@ export default {
     transform: {
         '\\.[jt]sx?$': ['ts-jest',
             {
-                isolatedModules: true,
                 tsconfig: './tsconfig.json',
                 diagnostics: true,
                 pretty: true,
