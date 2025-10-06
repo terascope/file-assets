@@ -2,7 +2,6 @@ export default {
     verbose: true,
     testEnvironment: 'node',
     setupFilesAfterEnv: ['jest-extended/all', '<rootDir>/test/test.setup.js'],
-    collectCoverage: true,
     coverageReporters: ['json', 'lcov', 'text', 'html'],
     coverageDirectory: 'coverage',
     extensionsToTreatAsEsm: ['.ts'],
@@ -18,7 +17,6 @@ export default {
     transform: {
         '\\.[jt]sx?$': ['ts-jest',
             {
-                isolatedModules: true,
                 tsconfig: './tsconfig.json',
                 diagnostics: true,
                 pretty: true,
