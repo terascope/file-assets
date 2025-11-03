@@ -299,10 +299,8 @@ describe('createS3Client', () => {
                             + '...\n'
                             + 'iKlsPBRbNdq5cNIuIfPS8emrYMs=\n'
                             + '-----END CERTIFICATE-----'],
-                        defaultPort: 443,
                         noDelay: true,
                         path: null,
-                        protocol: 'https:'
                     })
                 })
             });
