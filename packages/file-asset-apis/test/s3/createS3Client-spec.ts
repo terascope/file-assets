@@ -292,16 +292,18 @@ describe('createS3Client', () => {
             const result = createRequestHandlerOptions(httpOptions);
             expect(result).toEqual({
                 httpsAgent: expect.objectContaining({
-                    options: {
+                    options: expect.objectContaining({
                         rejectUnauthorized: true,
                         ca: ['-----BEGIN CERTIFICATE-----\n'
                             + 'MIICUDCCAdoCBDaM1tYwDQYJKoZIhvcNAQEEBQAwgY8xCzAJBgNVBAYTAlVTMRMw\n'
                             + '...\n'
                             + 'iKlsPBRbNdq5cNIuIfPS8emrYMs=\n'
                             + '-----END CERTIFICATE-----'],
+                        defaultPort: 443,
                         noDelay: true,
-                        path: null
-                    }
+                        path: null,
+                        protocol: 'https:'
+                    })
                 })
             });
         });
