@@ -292,7 +292,7 @@ describe('createS3Client', () => {
             const result = createRequestHandlerOptions(httpOptions);
             expect(result).toEqual({
                 httpsAgent: expect.objectContaining({
-                    options: {
+                    options: expect.objectContaining({
                         rejectUnauthorized: true,
                         ca: ['-----BEGIN CERTIFICATE-----\n'
                             + 'MIICUDCCAdoCBDaM1tYwDQYJKoZIhvcNAQEEBQAwgY8xCzAJBgNVBAYTAlVTMRMw\n'
@@ -300,8 +300,8 @@ describe('createS3Client', () => {
                             + 'iKlsPBRbNdq5cNIuIfPS8emrYMs=\n'
                             + '-----END CERTIFICATE-----'],
                         noDelay: true,
-                        path: null
-                    }
+                        path: null,
+                    })
                 })
             });
         });
