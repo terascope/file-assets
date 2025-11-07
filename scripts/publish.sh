@@ -11,6 +11,7 @@ check_deps() {
 
 publish() {
     local dryRun="$1"
+    local publishTag="$2"
     local name tag targetVersion currentVersion isPrivate
 
     name="$(jq -r '.name' package.json)"
@@ -27,7 +28,11 @@ publish() {
         echo "Publishing:"
         echo "  $name@$currentVersion -> $targetVersion"
         if [ "$dryRun" == "false" ]; then
-            yarn npm publish
+            if [ -n "$publishTag" ]; then
+                yarn npm publish --tag "$publishTag"
+            else
+                yarn npm publish
+            fi
         fi
     else
         echo "Not publishing:"
@@ -37,11 +42,24 @@ publish() {
 
 main() {
     check_deps
-    local projectDir dryRun='false'
+    local projectDir dryRun='false' publishTag=''
 
-    if [ "$1" == '--dry-run' ]; then
-        dryRun='true'
-    fi
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --dry-run)
+                dryRun='true'
+                shift
+                ;;
+            --tag)
+                publishTag="$2"
+                shift 2
+                ;;
+            *)
+                echo "Unknown option: $1"
+                exit 1
+                ;;
+        esac
+    done
 
     projectDir="$(pwd)"
 
@@ -50,7 +68,7 @@ main() {
 
     for package in "${projectDir}/packages/"*; do
         cd "$package" || continue;
-        publish "$dryRun";
+        publish "$dryRun" "$publishTag";
     done;
 
     cd "${projectDir}" || return;

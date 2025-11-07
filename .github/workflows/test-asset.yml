@@ -3,9 +3,13 @@ run-name: ${{ github.actor }} is testing the Teraslice Asset
 on:
   workflow_dispatch:
   push:
-    branches: [ master ]
+    branches:
+      - master
+      - release/file-assets-v*
   pull_request:
-    branches: [ master ]
+    branches: 
+      - master
+      - release/file-assets-v*
 
 jobs:
   call-asset-test-workflow:
