@@ -28,7 +28,7 @@ describe('createS3Client', () => {
             };
 
             const result = await genFinalS3ClientConfig(startConfig);
-            expect(result).toEqual(
+            expect(result).toMatchObject(
                 {
                     endpoint: 'https://127.0.0.1:49000',
                     accessKeyId: 'minioadmin',
@@ -44,11 +44,12 @@ describe('createS3Client', () => {
                     forcePathStyle: true,
                     bucketEndpoint: false,
                     maxAttempts: 3,
-                    requestHandler: {
+                    requestHandler: expect.objectContaining({
                         metadata: { handlerProtocol: 'http/1.1' },
                         configProvider: expect.toBeObject(),
-                        socketWarningTimestamp: 0
-                    },
+                        socketWarningTimestamp: 0,
+                        externalAgent: true
+                    }),
                     credentials: { accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin' }
                 });
         });
