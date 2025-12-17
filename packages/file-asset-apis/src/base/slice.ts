@@ -1,4 +1,4 @@
-import { isString } from '@terascope/utils';
+import { isString } from '@terascope/core-utils';
 import path from 'node:path';
 import {
     SliceConfig, FileSlice, Offsets, Format, getLineDelimiter

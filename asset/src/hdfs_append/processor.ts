@@ -1,4 +1,5 @@
-import { BatchProcessor, DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/core-utils';
+import { BatchProcessor } from '@terascope/job-components';
 import { HDFSSender } from '@terascope/file-asset-apis';
 import { HDFSExportOpConfig } from './interfaces.js';
 import { HDFSSenderFactoryAPI } from '../hdfs_sender_api/interfaces.js';

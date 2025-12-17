@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { DataEntity, debugLogger } from '@terascope/utils';
+import { DataEntity, debugLogger } from '@terascope/core-utils';
 import {
     FileSenderType,
     ChunkedFileSenderConfig,

@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { debugLogger, DataEntity } from '@terascope/utils';
+import { debugLogger, DataEntity } from '@terascope/core-utils';
 import {
     ChunkedFileReader, Format, Compression, ReaderConfig
 } from '../../src/index.js';

@@ -1,4 +1,5 @@
-import { BatchProcessor, DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/core-utils';
+import { BatchProcessor } from '@terascope/job-components';
 import { FileSender } from '@terascope/file-asset-apis';
 import { FileExporterConfig } from './interfaces.js';
 import { FileSenderFactoryAPI } from '../file_sender_api/interfaces.js';

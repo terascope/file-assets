@@ -1,5 +1,5 @@
 import fse from 'fs-extra';
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 import { FileSlice, ReaderConfig } from '../interfaces.js';
 import { ChunkedFileReader } from '../base/index.js';
 

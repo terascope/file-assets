@@ -4,7 +4,7 @@ import {
     isString,
     getTypeOf,
     castArray,
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import json2csv, { parse } from 'json2csv';
 import {
     Format,

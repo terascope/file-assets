@@ -1,11 +1,11 @@
-import { AnyObject, Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 import { ChunkedFileReader } from '../base/index.js';
 import { FileSlice, HDFSReaderConfig } from '../interfaces.js';
 
 export class HDFSReader extends ChunkedFileReader {
-    client: AnyObject;
+    client: Record<string, any>;
 
-    constructor(client: AnyObject, config: HDFSReaderConfig, logger: Logger) {
+    constructor(client: Record<string, any>, config: HDFSReaderConfig, logger: Logger) {
         super(config, logger);
         this.client = client;
     }

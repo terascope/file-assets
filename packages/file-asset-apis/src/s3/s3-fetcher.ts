@@ -1,4 +1,4 @@
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 import type { S3Client } from './client-helpers/index.js';
 import { FileSlice, ReaderConfig } from '../interfaces.js';
 import { ChunkedFileReader, parsePath } from '../base/index.js';

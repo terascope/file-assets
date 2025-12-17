@@ -1,7 +1,7 @@
 import { EventEmitter, once } from 'node:events';
 import {
     Logger, pDelay, sortBy, toHumanTime
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import type { S3Client, S3ClientResponse } from './client-helpers/index.js';
 import {
     createS3MultipartUpload,

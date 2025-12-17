@@ -1,4 +1,5 @@
-import { Fetcher, DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/core-utils';
+import { Fetcher } from '@terascope/job-components';
 import { FileTerasliceAPI, FileSlice } from '@terascope/file-asset-apis';
 import { FileReaderConfig } from './interfaces.js';
 import { FileReaderFactoryAPI } from '../file_reader_api/interfaces.js';

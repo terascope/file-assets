@@ -1,5 +1,5 @@
 import type json2csv from 'json2csv';
-import type { DataEntity } from '@terascope/utils';
+import type { DataEntity } from '@terascope/core-utils';
 
 /**
  * Used for defining the slice records type definition

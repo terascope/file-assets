@@ -1,17 +1,13 @@
-import {
-    RouteSenderAPI,
-    AnyObject,
-    Logger,
-    TSError
-} from '@terascope/utils';
+import { RouteSenderAPI } from '@terascope/job-components';
+import { Logger, TSError } from '@terascope/core-utils';
 import path from 'node:path';
 import { ChunkedFileSender, SendBatchConfig } from '../base/index.js';
 import { FileSenderType, ChunkedFileSenderConfig } from '../interfaces.js';
 
 export class HDFSSender extends ChunkedFileSender implements RouteSenderAPI {
-    client: AnyObject;
+    client: Record<string, any>;
 
-    constructor(client: AnyObject, config: ChunkedFileSenderConfig, logger: Logger) {
+    constructor(client: Record<string, any>, config: ChunkedFileSenderConfig, logger: Logger) {
         super(FileSenderType.hdfs, config, logger);
         this.client = client;
     }

@@ -1,4 +1,5 @@
-import { BatchProcessor, DataEntity, isPromAvailable } from '@terascope/job-components';
+import { DataEntity } from '@terascope/core-utils';
+import { BatchProcessor, isPromAvailable } from '@terascope/job-components';
 import { S3Sender } from '@terascope/file-asset-apis';
 import { S3ExportConfig } from './interfaces.js';
 import { S3SenderFactoryAPI } from '../s3_sender_api/interfaces.js';

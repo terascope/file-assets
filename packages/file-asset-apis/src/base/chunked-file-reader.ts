@@ -3,12 +3,11 @@ import {
     cloneDeep,
     DataEntity,
     isNotNil,
-    AnyObject,
     DataEncoding,
     isSimpleObject,
     isString,
     isBoolean,
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import csvToJson from 'csvtojson';
 import { CSVParseParam } from 'csvtojson/v2/Parameters';
 import {
@@ -154,7 +153,7 @@ export abstract class ChunkedFileReader {
         return null;
     }
 
-    protected abstract fetch(msg: AnyObject): Promise<string>;
+    protected abstract fetch(msg: Record<string, any>): Promise<string>;
 
     // This method will grab the chunk of data specified by the slice plus an
     // extra margin if the slice does not end with the delimiter.

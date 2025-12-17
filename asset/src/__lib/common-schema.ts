@@ -1,4 +1,4 @@
-import { isNumber, joinList } from '@terascope/job-components';
+import { isNumber, joinList } from '@terascope/core-utils';
 import { Compression, Format } from '@terascope/file-asset-apis';
 
 const formats = Object.values(Format);
@@ -28,7 +28,7 @@ const readerSchema = {
     connection: {
         doc: 'The connection from Terafoundation to use',
         default: 'default',
-        format: 'optional_String'
+        format: 'optional_string'
     },
 };
 
@@ -39,12 +39,12 @@ export const commonSchema = {
             + 'be treated as a file prefix.\ni.e. "/data/export_" will result in files like'
             + ' "/data/export_hs897f.1079.gz"',
         default: null,
-        format: 'required_String'
+        format: 'required_string'
     },
     extension: {
         doc: 'A file extension override, by default an extension will be added to the file based on the format and compression settings',
         default: null,
-        format: 'optional_String'
+        format: 'optional_string'
     },
     compression: {
         doc: 'Compression to use on the object. Supports lz4 and gzip.',
@@ -54,12 +54,12 @@ export const commonSchema = {
     field_delimiter: {
         doc: 'Delimiter character between record fields. Only used with `csv` format',
         default: null,
-        format: 'optional_String'
+        format: 'optional_string'
     },
     line_delimiter: {
         doc: 'Line delimiter character for the object',
         default: null,
-        format: 'optional_String'
+        format: 'optional_string'
     },
     fields: {
         doc: 'Fields to include in the output',
@@ -96,6 +96,6 @@ export const opSchema = {
     api_name: {
         doc: 'name of api to be used by operation',
         default: null,
-        format: 'optional_String'
+        format: 'optional_string'
     }
 };

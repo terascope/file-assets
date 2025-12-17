@@ -1,9 +1,5 @@
-import {
-    Slicer,
-    TSError,
-    flatten,
-    SlicerRecoveryData
-} from '@terascope/job-components';
+import { flatten, TSError } from '@terascope/core-utils';
+import { Slicer, SlicerRecoveryData } from '@terascope/job-components';
 import path from 'node:path';
 import {
     SliceConfig, FileSlice, segmentFile, HDFSReader

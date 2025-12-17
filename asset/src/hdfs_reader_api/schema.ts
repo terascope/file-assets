@@ -1,19 +1,16 @@
 import {
-    ConvictSchema,
-    cloneDeep,
-    AnyObject,
-    isString,
-    getTypeOf
-} from '@terascope/job-components';
+    isString, getTypeOf, cloneDeep,
+} from '@terascope/core-utils';
+import { ConvictSchema } from '@terascope/job-components';
 import { HDFSReaderApiConfig, DEFAULT_API_NAME } from './interfaces.js';
 import { fileReaderSchema } from '../__lib/common-schema.js';
 
-const clonedSchema = cloneDeep(fileReaderSchema) as AnyObject;
+const clonedSchema = cloneDeep(fileReaderSchema) as Record<string, any>;
 
 clonedSchema.user = {
     doc: 'User to use when reading the files. Default: "hdfs"',
     default: 'hdfs',
-    format: 'optional_String'
+    format: 'optional_string'
 };
 
 clonedSchema.api_name = {

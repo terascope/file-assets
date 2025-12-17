@@ -1,4 +1,5 @@
-import { Fetcher, DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/core-utils';
+import { Fetcher } from '@terascope/job-components';
 import { HDFSReader, FileSlice } from '@terascope/file-asset-apis';
 import { HDFSReaderOpConfig } from './interfaces.js';
 import { HDFSReaderFactoryAPI } from '../hdfs_reader_api/interfaces.js';

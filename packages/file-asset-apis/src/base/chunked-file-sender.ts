@@ -1,6 +1,6 @@
 import {
     DataEntity, pMap, isString, Logger
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import * as nodePathModule from 'node:path';
 import { Compressor } from './Compressor.js';
 import { Formatter } from './Formatter.js';

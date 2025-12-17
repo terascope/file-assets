@@ -1,5 +1,5 @@
 import fse from 'fs-extra';
-import { Logger } from '@terascope/utils';
+import { Logger } from '@terascope/core-utils';
 import { FileSlicer } from './file-slicer.js';
 import {
     FileSlice,

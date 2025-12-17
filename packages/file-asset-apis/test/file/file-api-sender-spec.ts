@@ -1,6 +1,6 @@
 import 'jest-extended';
 import fs from 'node:fs';
-import { debugLogger, toNumber } from '@terascope/utils';
+import { debugLogger, toNumber } from '@terascope/core-utils';
 // @ts-expect-error
 import fixtures from 'jest-fixtures';
 import {
