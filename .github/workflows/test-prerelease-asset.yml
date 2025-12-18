@@ -4,12 +4,11 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - master
+      - release/file-assets-v*
   pull_request:
-    branches: 
-      - master
-
+    branches:
+      - release/file-assets-v*
 jobs:
   call-asset-test-workflow:
-    uses: terascope/workflows/.github/workflows/asset-test.yml@main
+    uses: terascope/workflows/.github/workflows/prerelease-asset-test.yml@main
     secrets: inherit
