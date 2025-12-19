@@ -149,7 +149,9 @@ export interface CSVSenderConfig extends ChunkedFileSenderConfig {
     field_delimiter?: string;
 }
 
-export function isCSVSenderConfig(config: ChunkedFileSenderConfig): config is CSVSenderConfig {
+export function isCSVSenderConfig(
+    config: Partial<ChunkedFileSenderConfig>
+): config is CSVSenderConfig {
     return config.format === Format.csv || config.format === Format.tsv;
 }
 
