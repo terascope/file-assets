@@ -1,13 +1,13 @@
 import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
 import {
-    DataEntity, TestClientConfig, debugLogger,
-    toString, get
-} from '@terascope/job-components';
+    DataEntity, debugLogger, toString, get
+} from '@terascope/core-utils';
 import {
     Format, Compressor, getS3Object,
     S3Client
 } from '@terascope/file-asset-apis';
+import { TestClientConfig } from '@terascope/job-components';
 import { makeClient, cleanupBucket, getBodyFromResults } from '../helpers/index.js';
 
 describe('S3 sender api', () => {

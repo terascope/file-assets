@@ -9,7 +9,7 @@ export default class FileFetcher extends Fetcher<FileReaderConfig> {
 
     async initialize(): Promise<void> {
         await super.initialize();
-        const apiName = this.opConfig.api_name;
+        const apiName = this.opConfig._api_name;
         const apiManager = this.getAPI<FileReaderFactoryAPI>(apiName);
         this.api = await apiManager.create(apiName, {});
     }

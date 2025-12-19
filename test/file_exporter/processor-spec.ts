@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
-import { DataEntity, toString, get } from '@terascope/job-components';
+import { DataEntity, toString, get } from '@terascope/core-utils';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';

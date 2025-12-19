@@ -93,7 +93,7 @@ export const commonSchema = {
 export const fileReaderSchema = Object.assign({}, commonSchema, readerSchema);
 
 export const opSchema = {
-    api_name: {
+    _api_name: {
         doc: 'name of api to be used by operation',
         default: null,
         format: 'optional_string'

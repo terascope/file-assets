@@ -1,6 +1,5 @@
 import 'jest-extended';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
-import { AnyObject } from '@terascope/job-components';
 import { Format } from '@terascope/file-asset-apis';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,12 +17,11 @@ describe('File Reader API', () => {
         testDataDir = await fixtures.copyFixtureIntoTempDir(dirname, 'file_reader/ldjson/subdir');
     });
 
-    async function makeTest(config: AnyObject = {}) {
+    async function makeTest() {
         const opConfig = {
             _op: 'file_reader',
             path: testDataDir,
-            format: Format.ldjson,
-            ...config
+            format: Format.ldjson
         };
         const job = newTestJobConfig({
             operations: [

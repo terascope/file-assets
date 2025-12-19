@@ -18,7 +18,7 @@ describe('File Reader API Schema', () => {
             analytics: true,
             apis: [config],
             operations: [
-                { _op: 'file_reader', api_name: apiName },
+                { _op: 'file_reader', _api_name: apiName },
                 { _op: 'noop' },
             ],
         };

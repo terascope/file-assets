@@ -29,7 +29,7 @@ describe('File reader\'s fetcher', () => {
         const job = newTestJobConfig({
             apis: [apiConfig],
             operations: [
-                { _op: 'file_reader', api_name: 'file_reader_api' },
+                { _op: 'file_reader', _api_name: 'file_reader_api' },
                 { _op: 'noop' }
             ]
         });

@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { debugLogger, toString } from '@terascope/utils';
+import { debugLogger, toString } from '@terascope/core-utils';
 import {
     makeClient, cleanupBucket, upload,
     UploadConfig

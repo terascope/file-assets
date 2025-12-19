@@ -21,7 +21,7 @@ describe('File Sender API Schema', () => {
             operations: [
                 {
                     _op: 'file_exporter',
-                    api_name: apiName,
+                    _api_name: apiName,
                     format: Format.ldjson
                 },
                 { _op: 'noop' },

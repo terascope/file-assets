@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger } from '@terascope/core-utils';
 // @ts-expect-error
 import fixtures from 'jest-fixtures';
 import pathModule from 'node:path';

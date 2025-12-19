@@ -10,7 +10,7 @@ export default class S3Fetcher extends Fetcher<S3ReaderConfig> {
 
     async initialize(): Promise<void> {
         await super.initialize();
-        const apiName = this.opConfig.api_name as string;
+        const apiName = this.opConfig._api_name as string;
         const apiManager = this.getAPI<S3ReaderFactoryAPI>(apiName);
         this.api = await apiManager.create(apiName, {} as any);
         // eslint-disable-next-line @typescript-eslint/no-this-alias

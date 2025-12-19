@@ -1,8 +1,9 @@
 import 'jest-extended';
 import {
-    DataEntity, AnyObject, toNumber,
-    debugLogger, TestClientConfig
-} from '@terascope/job-components';
+    DataEntity, toNumber,
+    debugLogger
+} from '@terascope/core-utils';
+import { TestClientConfig } from '@terascope/job-components';
 import { JobTestHarness, newTestJobConfig } from 'teraslice-test-harness';
 import { Format, S3Client } from '@terascope/file-asset-apis';
 import { makeClient, cleanupBucket, upload } from '../helpers/index.js';
@@ -83,7 +84,7 @@ describe('S3Reader job', () => {
                 analytics: true,
                 apis: [apiConfig],
                 operations: [
-                    { _op: 's3_reader', api_name: 's3_reader_api' } as any,
+                    { _op: 's3_reader', _api_name: 's3_reader_api' } as any,
                     { _op: 'noop' }
                 ]
             });
@@ -101,7 +102,7 @@ describe('S3Reader job', () => {
             const { data } = results[0];
 
             topicData.forEach((record) => {
-                const carData = data.find((obj) => obj.car === record.car) as AnyObject;
+                const carData = data.find((obj) => obj.car === record.car) as Record<string, any>;
                 expect(carData).toBeDefined();
                 expect(carData.color).toEqual(record.color);
                 expect(toNumber(carData.price)).toEqual(record.price);
@@ -143,7 +144,7 @@ describe('S3Reader job', () => {
             const { data } = results[0];
 
             topicData.forEach((record) => {
-                const carData = data.find((obj) => obj.car === record.car) as AnyObject;
+                const carData = data.find((obj) => obj.car === record.car) as Record<string, any>;
                 expect(carData).toBeDefined();
                 expect(carData.color).toEqual(record.color);
                 expect(toNumber(carData.price)).toEqual(record.price);

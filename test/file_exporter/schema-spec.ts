@@ -1,10 +1,10 @@
 import 'jest-extended';
+import { DataEncoding } from '@terascope/core-utils';
 import {
-    OpConfig, APIConfig, ValidatedJobConfig, DataEncoding
+    OpConfig, APIConfig, ValidatedJobConfig
 } from '@terascope/job-components';
 import { Format } from '@terascope/file-asset-apis';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
-import { DEFAULT_API_NAME } from '../../asset/src/file_sender_api/interfaces.js';
 
 describe('File exporter Schema', () => {
     let harness: WorkerTestHarness;
@@ -40,7 +40,7 @@ describe('File exporter Schema', () => {
         });
 
         it('should not throw an error if path is specified in apiConfig', async () => {
-            const opConfig = { _op: 'file_exporter', api_name: 'file_sender_api' };
+            const opConfig = { _op: 'file_exporter', _api_name: 'file_sender_api' };
             const apiConfig = { _name: 'file_sender_api', path: '/chillywilly' };
 
             await expect(makeTest(opConfig, apiConfig)).toResolve();
@@ -59,7 +59,7 @@ describe('File exporter Schema', () => {
             const opConfig = {
                 _op: 'file_exporter',
                 _dead_letter_action: 'throw',
-                api_name: 'file_sender_api'
+                _api_name: 'file_sender_api'
             };
 
             const apiConfig = {
@@ -75,7 +75,7 @@ describe('File exporter Schema', () => {
             const opConfig = {
                 _op: 'file_exporter',
                 _dead_letter_action: 'none',
-                api_name: 'file_sender_api'
+                _api_name: 'file_sender_api'
             };
 
             const apiConfig = {
@@ -91,7 +91,7 @@ describe('File exporter Schema', () => {
             const opConfig = {
                 _op: 'file_exporter',
                 _encoding: DataEncoding.JSON,
-                api_name: 'file_sender_api'
+                _api_name: 'file_sender_api'
             };
 
             const apiConfig = {
@@ -107,7 +107,7 @@ describe('File exporter Schema', () => {
             const opConfig = {
                 _op: 'file_exporter',
                 _encoding: DataEncoding.RAW,
-                api_name: 'file_sender_api'
+                _api_name: 'file_sender_api'
             };
 
             const apiConfig = {
@@ -120,9 +120,9 @@ describe('File exporter Schema', () => {
         });
 
         it('will not throw if connection configs are specified in apis and not opConfig', async () => {
-            const opConfig = { _op: 'file_exporter', api_name: DEFAULT_API_NAME };
+            const opConfig = { _op: 'file_exporter', _api_name: 'file_sender_api' };
             const apiConfig = {
-                _name: DEFAULT_API_NAME,
+                _name: 'file_sender_api',
                 path: 'some/path',
                 compression: 'none',
                 size: 200,
@@ -143,7 +143,7 @@ describe('File exporter Schema', () => {
             await harness.initialize();
 
             const validatedApiConfig = harness.executionContext.config.apis.find(
-                (api: APIConfig) => api._name === DEFAULT_API_NAME
+                (api: APIConfig) => api._name === 'file_sender_api'
             );
 
             expect(validatedApiConfig).toMatchObject(apiConfig);

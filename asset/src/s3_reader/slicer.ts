@@ -17,7 +17,7 @@ export default class S3Slicer extends Slicer<S3ReaderConfig> {
     async initialize(recoveryData: SlicerRecoveryData[]): Promise<void> {
         await super.initialize(recoveryData);
 
-        const apiName = this.opConfig.api_name as string;
+        const apiName = this.opConfig._api_name as string;
         const apiManager = this.getAPI<S3ReaderFactoryAPI>(apiName);
         const api = await apiManager.create(apiName, {});
         this.slicer = await api.makeSlicer();

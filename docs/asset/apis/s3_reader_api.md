@@ -37,7 +37,7 @@ Example Job
         },
         {
             "_op" : "some_reader",
-            "api_name" : "s3_reader_api"
+            "_api_name" : "s3_reader_api"
         }
     ]
 }
@@ -49,7 +49,7 @@ Here is a custom processor for the job described above
 export default class SomeReader extends Fetcher {
     async initialize() {
         await super.initialize();
-        const apiName = this.opConfig.api_name;
+        const apiName = this.opConfig._api_name;
         const apiManager = this.getAPI(apiName);
         this.api = await apiManager.create(apiName);
     }

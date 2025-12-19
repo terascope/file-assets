@@ -1,12 +1,14 @@
 import 'jest-extended';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
 import {
-    AnyObject, APIConfig, ValidatedJobConfig,
-    TestClientConfig, Logger, DataEncoding,
-    debugLogger
+    Logger, DataEncoding, debugLogger
+} from '@terascope/core-utils';
+import {
+    APIConfig, ValidatedJobConfig,
+    TestClientConfig,
+    OpConfig
 } from '@terascope/job-components';
 import { Format } from '@terascope/file-asset-apis';
-import { DEFAULT_API_NAME } from '../../asset/src/s3_sender_api/interfaces.js';
 
 describe('S3 exporter Schema', () => {
     const logger = debugLogger('s3 test');
@@ -28,7 +30,7 @@ describe('S3 exporter Schema', () => {
 
     const clients = [clientConfig];
 
-    async function makeTest(config: AnyObject, apiConfig?: APIConfig) {
+    async function makeTest(config: Partial<OpConfig>, apiConfig?: APIConfig) {
         const opConfig = Object.assign(
             { _op: 's3_exporter', format: Format.ldjson },
             config
@@ -75,7 +77,7 @@ describe('S3 exporter Schema', () => {
         });
 
         it('should not throw if path is given in api', async () => {
-            const opConfig = { api_name: 's3_sender_api' };
+            const opConfig = { _api_name: 's3_sender_api' };
             const apiConfig = { _name: 's3_sender_api', path: 'chillywilly' };
 
             await expect(makeTest(opConfig, apiConfig)).toResolve();
@@ -85,7 +87,7 @@ describe('S3 exporter Schema', () => {
             const opConfig = {
                 _op: 's3_exporter',
                 _dead_letter_action: 'throw',
-                api_name: 's3_sender_api'
+                _api_name: 's3_sender_api'
             };
 
             const apiConfig = {
@@ -101,7 +103,7 @@ describe('S3 exporter Schema', () => {
             const opConfig = {
                 _op: 's3_exporter',
                 _dead_letter_action: 'none',
-                api_name: 's3_sender_api'
+                _api_name: 's3_sender_api'
             };
 
             const apiConfig = {
@@ -117,7 +119,7 @@ describe('S3 exporter Schema', () => {
             const opConfig = {
                 _op: 's3_exporter',
                 _encoding: DataEncoding.JSON,
-                api_name: 's3_sender_api'
+                _api_name: 's3_sender_api'
             };
 
             const apiConfig = {
@@ -133,7 +135,7 @@ describe('S3 exporter Schema', () => {
             const opConfig = {
                 _op: 's3_exporter',
                 _encoding: DataEncoding.RAW,
-                api_name: 's3_sender_api'
+                _api_name: 's3_sender_api'
             };
 
             const apiConfig = {
@@ -146,9 +148,9 @@ describe('S3 exporter Schema', () => {
         });
 
         it('will not throw if connection configs are specified in apis and not opConfig', async () => {
-            const opConfig = { _op: 's3_exporter', api_name: DEFAULT_API_NAME };
+            const opConfig = { _op: 's3_exporter', _api_name: 's3_sender_api' };
             const apiConfig = {
-                _name: DEFAULT_API_NAME,
+                _name: 's3_sender_api',
                 path: '/chillywilly',
                 format: Format.ldjson
             };
@@ -166,7 +168,7 @@ describe('S3 exporter Schema', () => {
             await harness.initialize();
 
             const validatedApiConfig = harness.executionContext.config.apis.find(
-                (api: APIConfig) => api._name === DEFAULT_API_NAME
+                (api: APIConfig) => api._name === 's3_sender_api'
             );
 
             expect(validatedApiConfig).toMatchObject(apiConfig);

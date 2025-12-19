@@ -1,11 +1,10 @@
 import 'jest-extended';
+import { DataEncoding } from '@terascope/core-utils';
 import {
     OpConfig, APIConfig, ValidatedJobConfig,
-    DataEncoding
 } from '@terascope/job-components';
 import { Format } from '@terascope/file-asset-apis';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
-import { DEFAULT_API_NAME } from '../../asset/src/file_reader_api/interfaces.js';
 
 describe('File Reader Schema', () => {
     let harness: WorkerTestHarness;
@@ -47,21 +46,21 @@ describe('File Reader Schema', () => {
         });
 
         it('should not throw an error if no path is specified if apiConfig is set', async () => {
-            const opConfig = { _op: 'file_reader', api_name: 'file_reader_api' };
+            const opConfig = { _op: 'file_reader', _api_name: 'file_reader_api' };
             const apiConfig = { _name: 'file_reader_api', path: 'some/path' };
 
             await expect(makeTest(opConfig, apiConfig)).toResolve();
         });
 
         it('should throw is path is specified and different than', async () => {
-            const opConfig = { _op: 'file_reader', path: 'some/other', api_name: 'file_reader_api' };
+            const opConfig = { _op: 'file_reader', path: 'some/other', _api_name: 'file_reader_api' };
             const apiConfig = { _name: 'file_reader_api', path: 'some/path' };
 
             await expect(makeTest(opConfig, apiConfig)).toReject();
         });
 
         it('should throw is extra_args is specified and different from', async () => {
-            const opConfig = { _op: 'file_reader', extra_args: { some: 'stuff' }, api_name: 'file_reader_api' };
+            const opConfig = { _op: 'file_reader', extra_args: { some: 'stuff' }, _api_name: 'file_reader_api' };
             const apiConfig = { _name: 'file_reader_api', path: 'some/path', extra_args: { some: 'other' } };
 
             await expect(makeTest(opConfig, apiConfig)).toReject();
@@ -71,7 +70,7 @@ describe('File Reader Schema', () => {
             const opConfig = {
                 _op: 'file_reader',
                 _dead_letter_action: 'throw',
-                api_name: 'file_reader_api'
+                _api_name: 'file_reader_api'
             };
 
             const apiConfig = {
@@ -87,7 +86,7 @@ describe('File Reader Schema', () => {
             const opConfig = {
                 _op: 'file_reader',
                 _dead_letter_action: 'none',
-                api_name: 'file_reader_api'
+                _api_name: 'file_reader_api'
             };
 
             const apiConfig = {
@@ -103,7 +102,7 @@ describe('File Reader Schema', () => {
             const opConfig = {
                 _op: 'file_reader',
                 _encoding: DataEncoding.JSON,
-                api_name: 'file_reader_api'
+                _api_name: 'file_reader_api'
             };
 
             const apiConfig = {
@@ -119,7 +118,7 @@ describe('File Reader Schema', () => {
             const opConfig = {
                 _op: 'file_reader',
                 _encoding: DataEncoding.RAW,
-                api_name: 'file_reader_api'
+                _api_name: 'file_reader_api'
             };
 
             const apiConfig = {
@@ -132,9 +131,9 @@ describe('File Reader Schema', () => {
         });
 
         it('will not throw if connection configs are specified in apis and not opConfig', async () => {
-            const opConfig = { _op: 'file_reader', api_name: DEFAULT_API_NAME };
+            const opConfig = { _op: 'file_reader', _api_name: 'file_reader_api' };
             const apiConfig = {
-                _name: DEFAULT_API_NAME,
+                _name: 'file_reader_api',
                 path: 'some/path',
                 compression: 'none',
                 size: 200,
@@ -157,7 +156,7 @@ describe('File Reader Schema', () => {
             await harness.initialize();
 
             const validatedApiConfig = harness.executionContext.config.apis.find(
-                (api: APIConfig) => api._name === DEFAULT_API_NAME
+                (api: APIConfig) => api._name === 'file_reader_api'
             );
 
             expect(validatedApiConfig).toMatchObject(apiConfig);

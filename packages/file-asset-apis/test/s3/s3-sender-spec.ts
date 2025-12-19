@@ -1,7 +1,7 @@
 import 'jest-extended';
 import {
     DataEntity, debugLogger, isString, times
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { makeClient, cleanupBucket, getBodyFromResults } from './helpers.js';
 import {
     Compression, Format, ChunkedFileSenderConfig,

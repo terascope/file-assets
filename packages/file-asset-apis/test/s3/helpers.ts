@@ -1,4 +1,4 @@
-import { isError } from '@terascope/utils';
+import { isError } from '@terascope/core-utils';
 import {
     S3Client, S3ClientResponse, deleteAllS3Objects,
     deleteS3Bucket,

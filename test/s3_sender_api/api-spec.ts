@@ -1,9 +1,9 @@
 import 'jest-extended';
 import { WorkerTestHarness } from 'teraslice-test-harness';
 import {
-    DataEntity, debugLogger, TestClientConfig,
-    get, toString
-} from '@terascope/job-components';
+    DataEntity, debugLogger, get, toString
+} from '@terascope/core-utils';
+import { TestClientConfig } from '@terascope/job-components';
 // @ts-expect-error
 import lz4init from 'lz4-asm/dist/lz4asm';
 import pkg from 'node-gzip';

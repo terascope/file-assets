@@ -1,8 +1,8 @@
 import 'jest-extended';
 import {
-    AnyObject, isNil, DataEntity,
-    TestClientConfig, debugLogger
-} from '@terascope/job-components';
+    isNil, DataEntity, debugLogger
+} from '@terascope/core-utils';
+import { OpConfig, TestClientConfig } from '@terascope/job-components';
 import { newTestJobConfig, SlicerTestHarness } from 'teraslice-test-harness';
 import { Format, S3Client } from '@terascope/file-asset-apis';
 import { makeClient, cleanupBucket, upload } from '../helpers/index.js';
@@ -48,7 +48,7 @@ describe('S3 slicer', () => {
         }
     ].map((obj) => DataEntity.make(obj));
 
-    async function makeTest(config: AnyObject = {}) {
+    async function makeTest(config: Partial<OpConfig> = {}) {
         if (isNil(config.path)) throw new Error('test config must have path');
         if (isNil(config.format)) throw new Error('test config must have format');
 

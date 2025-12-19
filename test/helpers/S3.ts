@@ -1,7 +1,7 @@
 import {
-    AnyObject, debugLogger, isNil,
-    isString, DataEntity, isError
-} from '@terascope/job-components';
+    debugLogger, isNil, isString,
+    DataEntity, isError
+} from '@terascope/core-utils';
 import {
     S3Fetcher, S3Sender, FileSlice, Format,
     deleteS3Object, listS3Objects, deleteS3Bucket,
@@ -52,7 +52,7 @@ export async function fetch(
 }
 
 export async function upload(
-    client: S3Client, config: AnyObject, data: DataEntity[]
+    client: S3Client, config: Record<string, any>, data: DataEntity[]
 ): Promise<number> {
     if (isNil(config.bucket) || !isString(config.bucket)) throw new Error('config must include parameter bucket');
     if (isNil(config.path) || !isString(config.path)) throw new Error('config must include parameter path');

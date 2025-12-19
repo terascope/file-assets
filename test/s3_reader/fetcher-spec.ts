@@ -1,8 +1,9 @@
 import 'jest-extended';
 import {
-    DataEntity, AnyObject, isNil,
-    toNumber, TestClientConfig, debugLogger
-} from '@terascope/job-components';
+    DataEntity, isNil,
+    toNumber, debugLogger
+} from '@terascope/core-utils';
+import { OpConfig, TestClientConfig } from '@terascope/job-components';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
 import { Format, FileSlice, S3Client } from '@terascope/file-asset-apis';
 import {
@@ -50,7 +51,7 @@ describe('S3Reader fetcher', () => {
         }
     ].map((obj) => DataEntity.make(obj));
 
-    async function makeTest(config: AnyObject) {
+    async function makeTest(config: Partial<OpConfig>) {
         if (isNil(config.path)) throw new Error('test config must have path');
         if (isNil(config.format)) throw new Error('test config must have format');
 
@@ -118,12 +119,12 @@ describe('S3Reader fetcher', () => {
             const opConfig = { path, format };
 
             const test = await makeTest(opConfig);
-            const results = await test.runSlice(slice);
+            const result = await test.runSlice(slice);
 
-            expect(results).toBeArrayOfSize(3);
+            expect(result).toBeArrayOfSize(3);
 
             data.forEach((record) => {
-                const carData = results.find((obj) => obj.car === record.car) as AnyObject;
+                const carData = result.find((obj) => obj.car === record.car) as Record<string, any>;
                 expect(carData).toBeDefined();
                 expect(carData.color).toEqual(record.color);
                 expect(toNumber(carData.price)).toEqual(record.price);
