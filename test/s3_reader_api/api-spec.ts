@@ -60,7 +60,7 @@ describe('S3 API Reader', () => {
             {},
             {
                 _op: 's3_reader',
-                connection: 'my-s3-connector',
+                _connection: 'my-s3-connector',
                 size: 100000,
                 field_delimiter: ',',
                 line_delimiter: '\n',

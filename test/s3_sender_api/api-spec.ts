@@ -58,7 +58,7 @@ describe('S3 sender api', () => {
         const _op = {
             _op: 's3_exporter',
             path,
-            connection: 'my-s3-connector',
+            _connection: 'my-s3-connector',
             file_per_slice: true,
             compression: Compression.none,
             format: Format.csv,

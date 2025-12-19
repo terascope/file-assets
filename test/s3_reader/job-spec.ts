@@ -70,7 +70,7 @@ describe('S3Reader job', () => {
         it('can run reader and slicer in long form job specification', async () => {
             const apiConfig = {
                 _name: 's3_reader_api',
-                connection: 'my-s3-connector',
+                _connection: 'my-s3-connector',
                 size: 100000,
                 field_delimiter: ',',
                 line_delimiter: '\n',
@@ -112,7 +112,7 @@ describe('S3Reader job', () => {
         it('can run reader and slicer in short form job specification', async () => {
             const opConfig = {
                 _op: 's3_reader',
-                connection: 'my-s3-connector',
+                _connection: 'my-s3-connector',
                 size: 100000,
                 field_delimiter: ',',
                 line_delimiter: '\n',

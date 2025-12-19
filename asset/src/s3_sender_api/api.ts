@@ -31,7 +31,7 @@ export default class S3SenderAPI extends APIFactory<S3Sender, S3ExporterAPIConfi
         }
 
         const { client: s3Client } = await this.context.apis.foundation.createClient({
-            endpoint: config.connection,
+            endpoint: config._connection,
             type: 's3',
             cached: true
         });

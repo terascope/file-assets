@@ -162,7 +162,7 @@ results === firstSlice;
 | include_header  | Determines whether or not to include column headers for the fields in output files. If set to `true`, a header will be added as the first entry to every file created. This option is only used for `tsv` and `csv` formats | Boolean  | optional, defaults to `false` |
 | concurrency     | The represents the limit on how many parallel writes will occur at a given time | Number   | optional, defaults to `10` |
 | format          | Used to determine how the data should be written to file, options are: `json`, `ldjson`, `raw`, `csv`, `tsv` | String   | required, please reference the [format](#format) section for more information |
-| connection      | Name of the s3 connection to use when sending data | String   | optional, defaults to the `default` connection |
+| _connection      | Name of the s3 connection to use when sending data | String   | optional, defaults to the `default` connection |
 
 ## Advanced Configuration
 

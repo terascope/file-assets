@@ -25,7 +25,7 @@ const readerSchema = {
         default: {},
         format: Object
     },
-    connection: {
+    _connection: {
         doc: 'The connection from Terafoundation to use',
         default: 'default',
         format: 'optional_string'
