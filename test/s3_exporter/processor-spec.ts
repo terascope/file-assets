@@ -5,10 +5,12 @@ import {
 } from '@terascope/core-utils';
 import {
     Format, Compressor, getS3Object,
-    S3Client
+    S3Client,
+    Compression
 } from '@terascope/file-asset-apis';
-import { TestClientConfig } from '@terascope/job-components';
+import { OpConfig, TestClientConfig } from '@terascope/job-components';
 import { makeClient, cleanupBucket, getBodyFromResults } from '../helpers/index.js';
+import { S3ExporterAPIConfig } from '../../asset/src/s3_sender_api/interfaces.js';
 
 describe('S3 sender api', () => {
     const bucket = 's3-exporter';
@@ -23,22 +25,33 @@ describe('S3 sender api', () => {
     let client: S3Client;
     let clients: TestClientConfig[];
 
-    async function makeTest(config?: any) {
+    async function makeTest(config?: {
+        _op: Partial<OpConfig>;
+        api: Partial<S3ExporterAPIConfig>;
+    }) {
         const _op = {
             _op: 's3_exporter',
+            _api_name: 's3_sender_api'
+        };
+
+        const api: S3ExporterAPIConfig = {
+            id: 'test',
+            _name: 's3_sender_api',
             path,
             _connection: 'my-s3-connector',
             file_per_slice: true,
-            compression: 'none',
-            format: 'csv',
+            compression: Compression.none,
+            format: Format.csv,
             field_delimiter: ',',
             line_delimiter: '\n',
             include_header: false
         };
-        const opConfig = config ? Object.assign({}, _op, config) : _op;
-        harness = WorkerTestHarness.testProcessor(opConfig, { clients });
 
-        compressor = new Compressor(opConfig.compression);
+        const opConfig = config?._op ? Object.assign({}, _op, config._op) : _op;
+        const apiConfig = config?.api ? Object.assign({}, api, config.api) : api;
+        harness = WorkerTestHarness.testSender(opConfig, apiConfig, { clients });
+
+        compressor = new Compressor(apiConfig.compression);
 
         await harness.initialize();
         workerId = toString(get(harness, 'context.cluster.worker.id'));
@@ -85,7 +98,7 @@ describe('S3 sender api', () => {
     it('can send data', async () => {
         const expectedResults = '0,1,2,3,4,5\n';
         const format = Format.csv;
-        const test = await makeTest({ format });
+        const test = await makeTest({ _op: {}, api: { format } });
 
         const results = await test.runSlice(data);
 

@@ -5,7 +5,7 @@ import {
 import {
     S3Fetcher, S3Sender, FileSlice, Format,
     deleteS3Object, listS3Objects, deleteS3Bucket,
-    ChunkedFileSenderConfig, ReaderConfig, createS3Client,
+    ChunkedFileSenderAPIConfig, ReaderAPIConfig, createS3Client,
     S3Client, S3ClientResponse
 } from '@terascope/file-asset-apis';
 import * as s3Config from './config.js';
@@ -28,23 +28,23 @@ export async function makeClient() {
 
 export const testWorkerId = 'test-id';
 
-const defaultSenderConfigs: Partial<ChunkedFileSenderConfig> = {
+const defaultSenderConfigs: Partial<ChunkedFileSenderAPIConfig> = {
     concurrency: 10,
     format: Format.ldjson,
     id: testWorkerId,
     file_per_slice: true
 };
 
-const defaultReaderConfig: Partial<ReaderConfig> = {
+const defaultReaderConfig: Partial<ReaderAPIConfig> = {
     size: 10000
 };
 
 export async function fetch(
-    client: S3Client, config: Partial<ReaderConfig>, slice: FileSlice
+    client: S3Client, config: Partial<ReaderAPIConfig>, slice: FileSlice
 ): Promise<string> {
     if (isNil(config.path) || !isString(config.path)) throw new Error('config must include parameter path');
 
-    const fetchConfig = Object.assign({}, defaultReaderConfig, config) as ReaderConfig;
+    const fetchConfig = Object.assign({}, defaultReaderConfig, config) as ReaderAPIConfig;
     const api = new S3Fetcher(client, fetchConfig, logger);
 
     // @ts-expect-error
@@ -57,7 +57,9 @@ export async function upload(
     if (isNil(config.bucket) || !isString(config.bucket)) throw new Error('config must include parameter bucket');
     if (isNil(config.path) || !isString(config.path)) throw new Error('config must include parameter path');
 
-    const senderConfig = Object.assign({}, defaultSenderConfigs, config) as ChunkedFileSenderConfig;
+    const senderConfig = Object.assign(
+        {}, defaultSenderConfigs, config
+    ) as ChunkedFileSenderAPIConfig;
     const api = new S3Sender(client, senderConfig, logger);
 
     await api.ensureBucket();

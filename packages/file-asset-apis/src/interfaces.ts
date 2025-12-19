@@ -33,7 +33,7 @@ export enum Format {
     csv = 'csv',
 }
 
-export interface ChunkedFileReaderConfig extends ChunkedAPIMethods {
+export interface ChunkedFileReaderAPIConfig extends ChunkedAPIMethods {
     format: Format;
     compression?: Compression;
     /**
@@ -50,7 +50,7 @@ export interface ChunkedFileReaderConfig extends ChunkedAPIMethods {
     on_reject_action?: string;
 }
 
-export interface ChunkedFileSenderConfig extends ChunkedAPIMethods {
+export interface ChunkedFileSenderAPIConfig extends ChunkedAPIMethods {
     /** A unique value that is used to help create the filename
      * to prevent clobbering from other senders
     */
@@ -82,7 +82,7 @@ export interface ChunkedFileSenderConfig extends ChunkedAPIMethods {
     jitter?: number;
 }
 
-export interface CSVReaderConfig extends ChunkedFileReaderConfig {
+export interface CSVReaderConfig extends ChunkedFileReaderAPIConfig {
     format: Format.csv | Format.tsv;
     extra_args?: CSVOptions;
     /** Ignore the empty value in tsv/csv columns.
@@ -106,7 +106,7 @@ export interface CSVReaderConfig extends ChunkedFileReaderConfig {
     fields?: string[];
 }
 
-export function isCSVReaderConfig(config: ChunkedFileReaderConfig): config is CSVReaderConfig {
+export function isCSVReaderConfig(config: ChunkedFileReaderAPIConfig): config is CSVReaderConfig {
     return config.format === Format.csv || config.format === Format.tsv;
 }
 
@@ -116,19 +116,19 @@ export function getFieldDelimiter(config: CSVReaderConfig): string {
 }
 
 export function getLineDelimiter(
-    config: ChunkedFileSenderConfig | ChunkedFileReaderConfig
+    config: ChunkedFileSenderAPIConfig | ChunkedFileReaderAPIConfig
 ): string {
     return config.line_delimiter ?? '\n';
 }
 
 export function getFieldsFromConfig(
-    config: ChunkedFileSenderConfig | ChunkedFileReaderConfig
+    config: ChunkedFileSenderAPIConfig | ChunkedFileReaderAPIConfig
 ): string[] | undefined {
     const fields = (config as any).fields as string[] | undefined;
     return fields?.length ? fields : undefined;
 }
 
-export interface CSVSenderConfig extends ChunkedFileSenderConfig {
+export interface CSVSenderAPIConfig extends ChunkedFileSenderAPIConfig {
     format: Format.csv | Format.tsv;
 
     /**
@@ -149,13 +149,13 @@ export interface CSVSenderConfig extends ChunkedFileSenderConfig {
     field_delimiter?: string;
 }
 
-export function isCSVSenderConfig(
-    config: Partial<ChunkedFileSenderConfig>
-): config is CSVSenderConfig {
+export function isCSVSenderAPIConfig(
+    config: Partial<ChunkedFileSenderAPIConfig>
+): config is CSVSenderAPIConfig {
     return config.format === Format.csv || config.format === Format.tsv;
 }
 
-export interface JSONReaderConfig extends ChunkedFileReaderConfig {
+export interface JSONReaderAPIConfig extends ChunkedFileReaderAPIConfig {
     format: Format.json;
 
     /**
@@ -165,11 +165,13 @@ export interface JSONReaderConfig extends ChunkedFileReaderConfig {
     fields?: string[];
 }
 
-export function isJSONReaderConfig(config: ChunkedFileReaderConfig): config is JSONReaderConfig {
+export function isJSONReaderAPIConfig(
+    config: ChunkedFileReaderAPIConfig
+): config is JSONReaderAPIConfig {
     return config.format === Format.json;
 }
 
-export interface JSONSenderConfig extends ChunkedFileSenderConfig {
+export interface JSONSenderAPIConfig extends ChunkedFileSenderAPIConfig {
     format: Format.json;
 
     /**
@@ -179,11 +181,13 @@ export interface JSONSenderConfig extends ChunkedFileSenderConfig {
     fields?: string[];
 }
 
-export function isJSONSenderConfig(config: ChunkedFileSenderConfig): config is JSONSenderConfig {
+export function isJSONSenderAPIConfig(
+    config: ChunkedFileSenderAPIConfig
+): config is JSONSenderAPIConfig {
     return config.format === Format.json;
 }
 
-export interface LDJSONReaderConfig extends ChunkedFileReaderConfig {
+export interface LDJSONReaderAPIConfig extends ChunkedFileReaderAPIConfig {
     format: Format.ldjson;
     /**
      * List of fields to process, will default to all of them
@@ -192,13 +196,13 @@ export interface LDJSONReaderConfig extends ChunkedFileReaderConfig {
     fields?: string[];
 }
 
-export function isLDJSONReaderConfig(
-    config: ChunkedFileReaderConfig
-): config is LDJSONReaderConfig {
+export function isLDJSONReaderAPIConfig(
+    config: ChunkedFileReaderAPIConfig
+): config is LDJSONReaderAPIConfig {
     return config.format === Format.ldjson;
 }
 
-export interface LDJSONSenderConfig extends ChunkedFileSenderConfig {
+export interface LDJSONSenderAPIConfig extends ChunkedFileSenderAPIConfig {
     format: Format.ldjson;
 
     /**
@@ -208,13 +212,13 @@ export interface LDJSONSenderConfig extends ChunkedFileSenderConfig {
     fields?: string[];
 }
 
-export function isLDJSONSenderConfig(
-    config: ChunkedFileSenderConfig
-): config is LDJSONSenderConfig {
+export function isLDJSONSenderAPIConfig(
+    config: ChunkedFileSenderAPIConfig
+): config is LDJSONSenderAPIConfig {
     return config.format === Format.ldjson;
 }
 
-export interface ReaderConfig extends ChunkedFileReaderConfig {
+export interface ReaderAPIConfig extends ChunkedFileReaderAPIConfig {
     size: number;
     path: string;
 }

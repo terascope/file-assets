@@ -10,6 +10,7 @@ import {
     makeClient, cleanupBucket, upload,
     testWorkerId
 } from '../helpers/index.js';
+import { S3ReaderAPIConfig } from '../../asset/src/s3_reader_api/interfaces.js';
 
 describe('S3Reader fetcher', () => {
     const logger = debugLogger('test');
@@ -51,14 +52,23 @@ describe('S3Reader fetcher', () => {
         }
     ].map((obj) => DataEntity.make(obj));
 
-    async function makeTest(config: Partial<OpConfig>) {
-        if (isNil(config.path)) throw new Error('test config must have path');
-        if (isNil(config.format)) throw new Error('test config must have format');
+    async function makeTest(config: { _op: Partial<OpConfig>; api: Partial<S3ReaderAPIConfig> }) {
+        if (isNil(config.api.path)) throw new Error('test config must have path');
+        if (isNil(config.api.format)) throw new Error('test config must have format');
 
         const opConfig = Object.assign(
             {},
             {
                 _op: 's3_reader',
+                _api_name: 's3_reader_api'
+            },
+            config._op
+        );
+
+        const apiConfig = Object.assign(
+            {},
+            {
+                _name: 's3_reader_api',
                 _connection: 'my-s3-connector',
                 size: 100000,
                 field_delimiter: ',',
@@ -66,11 +76,12 @@ describe('S3Reader fetcher', () => {
                 compression: 'none',
                 format: Format.ldjson
             },
-            config
+            config.api
         );
 
         const job = newTestJobConfig({
             analytics: true,
+            apis: [apiConfig],
             operations: [
                 opConfig,
                 {
@@ -92,7 +103,7 @@ describe('S3Reader fetcher', () => {
         if (harness) await harness.shutdown();
     });
 
-    describe('can reade data', () => {
+    describe('can read data', () => {
         const bucket = 'fetcher-test-ldjson';
         const dirPath = '/my/test/';
         const path = `${bucket}${dirPath}`;
@@ -116,9 +127,10 @@ describe('S3Reader fetcher', () => {
         };
 
         it('can be fetched', async () => {
-            const opConfig = { path, format };
+            const apiConfig = { path, format };
 
-            const test = await makeTest(opConfig);
+            const test = await makeTest({ _op: {}, api: apiConfig });
+
             const result = await test.runSlice(slice);
 
             expect(result).toBeArrayOfSize(3);

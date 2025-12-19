@@ -9,8 +9,8 @@ import json2csv, { parse } from 'json2csv';
 import {
     Format,
     CSVOptions,
-    ChunkedFileSenderConfig,
-    isCSVSenderConfig,
+    ChunkedFileSenderAPIConfig,
+    isCSVSenderAPIConfig,
     getLineDelimiter,
     getFieldDelimiter,
     getFieldsFromConfig,
@@ -18,7 +18,7 @@ import {
     SendRecord,
 } from '../interfaces.js';
 
-export type FormatterOptions = Omit<ChunkedFileSenderConfig, 'id' | 'path' | 'compression' | 'file_per_slice'>;
+export type FormatterOptions = Omit<ChunkedFileSenderAPIConfig, 'id' | 'path' | 'compression' | 'file_per_slice'>;
 
 type MakeFormatFn = (
     config: FormatterOptions, csvOptions: json2csv.Options<any>
@@ -110,7 +110,7 @@ export class Formatter {
         if (line_delimiter != null && !isString(line_delimiter)) {
             throw new TSError(`Invalid parameter line_delimiter, it must be provided and be of type string, was given ${getTypeOf(config.line_delimiter)}`);
         }
-        if (isCSVSenderConfig(config)) {
+        if (isCSVSenderAPIConfig(config)) {
             if (!isNil(config.fields) && (
                 !Array.isArray(config.fields) || !config.fields.every(isString)
             )) {
@@ -191,7 +191,7 @@ function isIterable(input: unknown): input is Iterable<any> {
 }
 
 function makeCSVOptions(config: FormatterOptions): CSVOptions {
-    if (!isCSVSenderConfig(config)) return {};
+    if (!isCSVSenderAPIConfig(config)) return {};
 
     return {
         fields: getFieldsFromConfig(config),

@@ -109,7 +109,7 @@ describe('S3Reader job', () => {
             });
         });
 
-        it('can run reader and slicer in short form job specification', async () => {
+        it('will fail if api not created on job specification', async () => {
             const opConfig = {
                 _op: 's3_reader',
                 _connection: 'my-s3-connector',
@@ -135,20 +135,7 @@ describe('S3Reader job', () => {
                 clients,
             });
 
-            await harness.initialize();
-
-            const results = await harness.runToCompletion();
-
-            expect(results).toBeArrayOfSize(1);
-
-            const { data } = results[0];
-
-            topicData.forEach((record) => {
-                const carData = data.find((obj) => obj.car === record.car) as Record<string, any>;
-                expect(carData).toBeDefined();
-                expect(carData.color).toEqual(record.color);
-                expect(toNumber(carData.price)).toEqual(record.price);
-            });
+            await expect(harness.initialize()).rejects.toThrow(/_api_name.*This field is required and must be of type string/s);
         });
     });
 });

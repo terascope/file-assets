@@ -11,7 +11,7 @@ import {
     FileSenderType,
     Format,
     Compression,
-    ChunkedFileSenderConfig,
+    ChunkedFileSenderAPIConfig,
     getLineDelimiter,
     SendRecords,
     SendRecord,
@@ -53,10 +53,10 @@ export abstract class ChunkedFileSender {
     protected formatter: Formatter;
     readonly pathList = new Map<string, boolean>();
     readonly type: FileSenderType;
-    readonly config: ChunkedFileSenderConfig;
+    readonly config: ChunkedFileSenderAPIConfig;
     readonly logger: Logger;
 
-    constructor(type: FileSenderType, config: ChunkedFileSenderConfig, logger: Logger) {
+    constructor(type: FileSenderType, config: ChunkedFileSenderAPIConfig, logger: Logger) {
         if (!formatValues.includes(config.format)) {
             throw new Error(`Invalid parameter format, it must be provided and be set to any of these: ${formatValues.join(', ')}`);
         }

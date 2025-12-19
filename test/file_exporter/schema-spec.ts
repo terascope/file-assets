@@ -33,33 +33,20 @@ describe('File exporter Schema', () => {
         await harness.initialize();
     }
 
+    afterEach(async () => {
+        if (harness) await harness.shutdown();
+    });
+
     describe('when validating the schema', () => {
-        it('should throw an error if no path is specified', async () => {
+        it('should throw an error if no api is specified', async () => {
             const opConfig = { _op: 'file_exporter' };
-            await expect(makeTest(opConfig)).toReject();
+            await expect(makeTest(opConfig)).rejects.toThrow(/_api_name.*This field is required and must be of type string/s);
         });
 
-        it('should not throw an error if path is specified in apiConfig', async () => {
-            const opConfig = { _op: 'file_exporter', _api_name: 'file_sender_api' };
-            const apiConfig = { _name: 'file_sender_api', path: '/chillywilly' };
-
-            await expect(makeTest(opConfig, apiConfig)).toResolve();
-        });
-
-        it('should not throw an error if valid config is given', async () => {
+        it('should not throw an error if valid configs are given', async () => {
             const opConfig = {
                 _op: 'file_exporter',
-                path: '/chillywilly'
-            };
-
-            await expect(makeTest(opConfig)).toResolve();
-        });
-
-        it('should not throw if _dead_letter_action are the same', async () => {
-            const opConfig = {
-                _op: 'file_exporter',
-                _dead_letter_action: 'throw',
-                _api_name: 'file_sender_api'
+                _api_name: 'file_sender_api',
             };
 
             const apiConfig = {
@@ -71,7 +58,7 @@ describe('File exporter Schema', () => {
             await expect(makeTest(opConfig, apiConfig)).toResolve();
         });
 
-        it('should throw if opConfig _dead_letter_action is not a default value while apiConfig _dead_letter_action is set', async () => {
+        it('should ignore _dead_letter_action set in opConfig and use apiConfig _dead_letter_action', async () => {
             const opConfig = {
                 _op: 'file_exporter',
                 _dead_letter_action: 'none',
@@ -84,26 +71,16 @@ describe('File exporter Schema', () => {
                 _dead_letter_action: 'throw'
             };
 
-            await expect(makeTest(opConfig, apiConfig)).toReject();
+            await makeTest(opConfig, apiConfig);
+
+            const validatedApiConfig = harness.executionContext.config.apis.find(
+                (api: APIConfig) => api._name === 'file_sender_api'
+            );
+
+            expect(validatedApiConfig).toMatchObject(apiConfig);
         });
 
-        it('should not throw if _encoding are the same', async () => {
-            const opConfig = {
-                _op: 'file_exporter',
-                _encoding: DataEncoding.JSON,
-                _api_name: 'file_sender_api'
-            };
-
-            const apiConfig = {
-                _name: 'file_sender_api',
-                path: '/chillywilly',
-                _encoding: DataEncoding.JSON
-            };
-
-            await expect(makeTest(opConfig, apiConfig)).toResolve();
-        });
-
-        it('should throw if opConfig _encoding is not a default value while apiConfig _encoding is set', async () => {
+        it('should ignore _encoding set in opConfig and use apiConfig _encoding', async () => {
             const opConfig = {
                 _op: 'file_exporter',
                 _encoding: DataEncoding.RAW,
@@ -116,7 +93,13 @@ describe('File exporter Schema', () => {
                 _encoding: DataEncoding.JSON
             };
 
-            await expect(makeTest(opConfig, apiConfig)).toReject();
+            await makeTest(opConfig, apiConfig);
+
+            const validatedApiConfig = harness.executionContext.config.apis.find(
+                (api: APIConfig) => api._name === 'file_sender_api'
+            );
+
+            expect(validatedApiConfig).toMatchObject(apiConfig);
         });
 
         it('will not throw if connection configs are specified in apis and not opConfig', async () => {

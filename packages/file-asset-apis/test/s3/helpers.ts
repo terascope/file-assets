@@ -2,7 +2,7 @@ import { isError } from '@terascope/core-utils';
 import {
     S3Client, S3ClientResponse, deleteAllS3Objects,
     deleteS3Bucket,
-    ChunkedFileSenderConfig, Compression, Formatter,
+    ChunkedFileSenderAPIConfig, Compression, Formatter,
     Compressor, createFileName, putS3Object, createS3Client
 } from '../../src/index.js';
 
@@ -53,7 +53,7 @@ export async function getBodyFromResults(
     return Buffer.from(data);
 }
 
-export interface UploadConfig extends Partial<ChunkedFileSenderConfig> {
+export interface UploadConfig extends Partial<ChunkedFileSenderAPIConfig> {
     sliceCount: number;
     bucket: string;
 }
@@ -70,7 +70,7 @@ export async function upload(
     if (path == null) throw new Error('path must be provided');
     if (id == null) throw new Error('id must be provided');
 
-    const formatter = new Formatter(config as ChunkedFileSenderConfig);
+    const formatter = new Formatter(config as ChunkedFileSenderAPIConfig);
     const compressionFormatter = new Compressor(compression);
 
     const formattedData = formatter.format(data);

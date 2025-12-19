@@ -2,7 +2,7 @@ import { Logger } from '@terascope/core-utils';
 import type { S3Client } from './client-helpers/index.js';
 import {
     FileSlice,
-    ReaderConfig,
+    ReaderAPIConfig,
     SliceConfig,
     FileSliceConfig,
 } from '../interfaces.js';
@@ -14,7 +14,7 @@ export class S3TerasliceAPI extends S3Fetcher {
     readonly segmentFileConfig: SliceConfig;
     readonly slicerConfig: FileSliceConfig;
 
-    constructor(client: S3Client, config: ReaderConfig, logger: Logger) {
+    constructor(client: S3Client, config: ReaderAPIConfig, logger: Logger) {
         super(client, config, logger);
         const { path, size } = config;
         const { lineDelimiter, format, filePerSlice } = this;

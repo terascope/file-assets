@@ -5,7 +5,7 @@ import {
     UploadConfig
 } from './helpers.js';
 import {
-    Compression, Format, ReaderConfig,
+    Compression, Format, ReaderAPIConfig,
     S3Fetcher, createS3Bucket, FileSlice,
 } from '../../src/index.js';
 
@@ -47,7 +47,7 @@ describe('S3 Fetcher API', () => {
         };
         const fileName = await upload(client, uploadConfig, testData.slice());
 
-        const config: ReaderConfig = {
+        const config: ReaderAPIConfig = {
             path: testPath,
             format,
             compression,
@@ -76,7 +76,7 @@ describe('S3 Fetcher API', () => {
         const testDirPath = 'json_test';
         const testPath = `${path}/${testDirPath}`;
 
-        const config: ReaderConfig = {
+        const config: ReaderAPIConfig = {
             path: testPath,
             format,
             compression,
@@ -114,7 +114,7 @@ describe('S3 Fetcher API', () => {
         const testDirPath = 'raw_test';
         const testPath = `${path}/${testDirPath}`;
 
-        const config: ReaderConfig = {
+        const config: ReaderAPIConfig = {
             path: testPath,
             format,
             compression,
@@ -168,7 +168,7 @@ describe('S3 Fetcher API', () => {
         const testDirPath = 'csv_test';
         const testPath = `${path}/${testDirPath}`;
 
-        const config: ReaderConfig = {
+        const config: ReaderAPIConfig = {
             path: testPath,
             format,
             compression,
@@ -238,7 +238,7 @@ describe('S3 Fetcher API', () => {
             file_per_slice: true,
             size: 1000,
             field_delimiter: '\t'
-        } as ReaderConfig;
+        } as ReaderAPIConfig;
 
         const uploadConfig = {
             format,
@@ -290,7 +290,7 @@ describe('S3 Fetcher API', () => {
         };
         const fileName = await upload(client, uploadConfig, testData.slice());
 
-        const config: ReaderConfig = {
+        const config: ReaderAPIConfig = {
             path: testPath,
             format,
             compression,
@@ -329,7 +329,7 @@ describe('S3 Fetcher API', () => {
         };
         const fileName = await upload(client, uploadConfig, testData.slice());
 
-        const config: ReaderConfig = {
+        const config: ReaderAPIConfig = {
             path: testPath,
             format,
             compression,

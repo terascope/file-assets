@@ -41,48 +41,51 @@ describe('File Reader Schema', () => {
 
     describe('when validating the schema', () => {
         it('should throw an error if no path is specified', async () => {
-            const opConfig = { _op: 'file_reader' };
-            await expect(makeTest(opConfig)).toReject();
-        });
-
-        it('should not throw an error if no path is specified if apiConfig is set', async () => {
-            const opConfig = { _op: 'file_reader', _api_name: 'file_reader_api' };
-            const apiConfig = { _name: 'file_reader_api', path: 'some/path' };
-
-            await expect(makeTest(opConfig, apiConfig)).toResolve();
-        });
-
-        it('should throw is path is specified and different than', async () => {
-            const opConfig = { _op: 'file_reader', path: 'some/other', _api_name: 'file_reader_api' };
-            const apiConfig = { _name: 'file_reader_api', path: 'some/path' };
-
-            await expect(makeTest(opConfig, apiConfig)).toReject();
-        });
-
-        it('should throw is extra_args is specified and different from', async () => {
-            const opConfig = { _op: 'file_reader', extra_args: { some: 'stuff' }, _api_name: 'file_reader_api' };
-            const apiConfig = { _name: 'file_reader_api', path: 'some/path', extra_args: { some: 'other' } };
-
-            await expect(makeTest(opConfig, apiConfig)).toReject();
-        });
-
-        it('should not throw if _dead_letter_action are the same', async () => {
             const opConfig = {
                 _op: 'file_reader',
-                _dead_letter_action: 'throw',
                 _api_name: 'file_reader_api'
             };
 
             const apiConfig = {
                 _name: 'file_reader_api',
-                path: '/chillywilly',
-                _dead_letter_action: 'throw'
             };
-
-            await expect(makeTest(opConfig, apiConfig)).toResolve();
+            await expect(makeTest(opConfig, apiConfig)).rejects.toThrow(/path.*This field is required and must be of type string/s);
         });
 
-        it('should throw if opConfig _dead_letter_action is not a default value while apiConfig _dead_letter_action is set', async () => {
+        it('should throw an error if no api is specified', async () => {
+            const opConfig = {
+                _op: 'file_reader',
+            };
+            await expect(makeTest(opConfig)).toReject();
+        });
+
+        it('should ignore path set in opConfig and use apiConfig path', async () => {
+            const opConfig = { _op: 'file_reader', path: 'some/other', _api_name: 'file_reader_api' };
+            const apiConfig = { _name: 'file_reader_api', path: 'some/path' };
+
+            await makeTest(opConfig, apiConfig);
+
+            const validatedApiConfig = harness.executionContext.config.apis.find(
+                (api: APIConfig) => api._name === 'file_reader_api'
+            );
+
+            expect(validatedApiConfig).toMatchObject(apiConfig);
+        });
+
+        it('should ignore extra_args set in opConfig and use apiConfig extra_args', async () => {
+            const opConfig = { _op: 'file_reader', extra_args: { some: 'stuff' }, _api_name: 'file_reader_api' };
+            const apiConfig = { _name: 'file_reader_api', path: 'some/path', extra_args: { some: 'other' } };
+
+            await makeTest(opConfig, apiConfig);
+
+            const validatedApiConfig = harness.executionContext.config.apis.find(
+                (api: APIConfig) => api._name === 'file_reader_api'
+            );
+
+            expect(validatedApiConfig).toMatchObject(apiConfig);
+        });
+
+        it('should ignore _dead_letter_action set in opConfig and use apiConfig _dead_letter_action', async () => {
             const opConfig = {
                 _op: 'file_reader',
                 _dead_letter_action: 'none',
@@ -95,26 +98,16 @@ describe('File Reader Schema', () => {
                 _dead_letter_action: 'throw'
             };
 
-            await expect(makeTest(opConfig, apiConfig)).toReject();
+            await makeTest(opConfig, apiConfig);
+
+            const validatedApiConfig = harness.executionContext.config.apis.find(
+                (api: APIConfig) => api._name === 'file_reader_api'
+            );
+
+            expect(validatedApiConfig).toMatchObject(apiConfig);
         });
 
-        it('should not throw if _encoding are the same', async () => {
-            const opConfig = {
-                _op: 'file_reader',
-                _encoding: DataEncoding.JSON,
-                _api_name: 'file_reader_api'
-            };
-
-            const apiConfig = {
-                _name: 'file_reader_api',
-                path: '/chillywilly',
-                _encoding: DataEncoding.JSON
-            };
-
-            await expect(makeTest(opConfig, apiConfig)).toResolve();
-        });
-
-        it('should throw if opConfig _encoding is not a default value while apiConfig _encoding is set', async () => {
+        it('should ignore _encoding set in opConfig and use apiConfig _encoding', async () => {
             const opConfig = {
                 _op: 'file_reader',
                 _encoding: DataEncoding.RAW,
@@ -127,33 +120,7 @@ describe('File Reader Schema', () => {
                 _encoding: DataEncoding.JSON
             };
 
-            await expect(makeTest(opConfig, apiConfig)).toReject();
-        });
-
-        it('will not throw if connection configs are specified in apis and not opConfig', async () => {
-            const opConfig = { _op: 'file_reader', _api_name: 'file_reader_api' };
-            const apiConfig = {
-                _name: 'file_reader_api',
-                path: 'some/path',
-                compression: 'none',
-                size: 200,
-                format: 'raw',
-                line_delimiter: '\n'
-            };
-
-            const job = newTestJobConfig({
-                apis: [apiConfig],
-                operations: [
-                    opConfig,
-                    {
-                        _op: 'noop'
-                    }
-                ]
-            });
-
-            harness = new WorkerTestHarness(job);
-
-            await harness.initialize();
+            await makeTest(opConfig, apiConfig);
 
             const validatedApiConfig = harness.executionContext.config.apis.find(
                 (api: APIConfig) => api._name === 'file_reader_api'

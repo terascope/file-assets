@@ -3,7 +3,7 @@ import {
     DataEntity, toString, isNil, toNumber,
     debugLogger
 } from '@terascope/core-utils';
-import { OpConfig, TestClientConfig } from '@terascope/job-components';
+import { TestClientConfig } from '@terascope/job-components';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
 import { Format, FileSlice, S3Client } from '@terascope/file-asset-apis';
 import { S3ReaderFactoryAPI } from '../../asset/src/s3_reader_api/interfaces.js';
@@ -52,14 +52,14 @@ describe('S3 API Reader', () => {
         }
     ].map((obj) => DataEntity.make(obj));
 
-    async function makeApiTest(config: Partial<OpConfig>) {
+    async function makeApiTest(config: Record<string, any>) {
         if (isNil(config.path)) throw new Error('test config must have path');
         if (isNil(config.format)) throw new Error('test config must have format');
 
-        const opConfig = Object.assign(
+        const apiConfig = Object.assign(
             {},
             {
-                _op: 's3_reader',
+                _name: 's3_reader_api',
                 _connection: 'my-s3-connector',
                 size: 100000,
                 field_delimiter: ',',
@@ -71,8 +71,12 @@ describe('S3 API Reader', () => {
 
         const job = newTestJobConfig({
             analytics: true,
+            apis: [apiConfig],
             operations: [
-                opConfig,
+                {
+                    _op: 's3_reader',
+                    _api_name: 's3_reader_api'
+                },
                 {
                     _op: 'noop'
                 }
@@ -85,7 +89,7 @@ describe('S3 API Reader', () => {
 
         await harness.initialize();
 
-        return harness.getAPI<S3ReaderFactoryAPI>('s3_reader_api:s3_reader-0');
+        return harness.getAPI<S3ReaderFactoryAPI>('s3_reader_api');
     }
 
     afterEach(async () => {

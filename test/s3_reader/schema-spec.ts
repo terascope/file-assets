@@ -62,42 +62,40 @@ describe('S3 Reader Schema', () => {
 
     describe('when validating the schema', () => {
         it('should throw an error if no path is specified', async () => {
-            await expect(makeTest({})).toReject();
+            const opConfig = {
+                _op: 's3_reader',
+                _api_name: 's3_reader_api'
+            };
+
+            const apiConfig = {
+                _name: 's3_reader_api',
+            };
+            await expect(makeTest(opConfig, apiConfig)).rejects.toThrow(/path.*This field is required and must be of type string/s);
+        });
+
+        it('should throw an error if no api is specified', async () => {
+            const opConfig = {
+                _op: 's3_reader',
+                _api_name: 's3_reader_api'
+            };
+            await expect(makeTest(opConfig)).toReject();
         });
 
         it('should not throw an error if valid config is given', async () => {
             const opConfig = {
                 _op: 's3_reader',
-                path: 'chillywilly',
-            };
-
-            await expect(makeTest(opConfig)).toResolve();
-        });
-
-        it('should not throw path is given in api', async () => {
-            const opConfig = { _api_name: 's3_reader_api' };
-            const apiConfig = { _name: 's3_reader_api', path: 'chillywilly' };
-
-            await expect(makeTest(opConfig, apiConfig)).toResolve();
-        });
-
-        it('should not throw if _dead_letter_action are the same', async () => {
-            const opConfig = {
-                _op: 's3_reader',
-                _dead_letter_action: 'throw',
                 _api_name: 's3_reader_api'
             };
 
             const apiConfig = {
                 _name: 's3_reader_api',
                 path: '/chillywilly',
-                _dead_letter_action: 'throw'
             };
 
             await expect(makeTest(opConfig, apiConfig)).toResolve();
         });
 
-        it('should throw if opConfig _dead_letter_action is not a default value while apiConfig _dead_letter_action is set', async () => {
+        it('should ignore _dead_letter_action set in opConfig and use apiConfig _dead_letter_action', async () => {
             const opConfig = {
                 _op: 's3_reader',
                 _dead_letter_action: 'none',
@@ -110,26 +108,16 @@ describe('S3 Reader Schema', () => {
                 _dead_letter_action: 'throw'
             };
 
-            await expect(makeTest(opConfig, apiConfig)).toReject();
+            await makeTest(opConfig, apiConfig);
+
+            const validatedApiConfig = harness.executionContext.config.apis.find(
+                (api: APIConfig) => api._name === 's3_reader_api'
+            );
+
+            expect(validatedApiConfig).toMatchObject(apiConfig);
         });
 
-        it('should not throw if _encoding are the same', async () => {
-            const opConfig = {
-                _op: 's3_reader',
-                _encoding: DataEncoding.JSON,
-                _api_name: 's3_reader_api'
-            };
-
-            const apiConfig = {
-                _name: 's3_reader_api',
-                path: '/chillywilly',
-                _encoding: DataEncoding.JSON
-            };
-
-            await expect(makeTest(opConfig, apiConfig)).toResolve();
-        });
-
-        it('should throw if opConfig _encoding is not a default value while apiConfig _encoding is set', async () => {
+        it('should ignore _encoding set in opConfig and use apiConfig _encoding', async () => {
             const opConfig = {
                 _op: 's3_reader',
                 _encoding: DataEncoding.RAW,
@@ -142,30 +130,7 @@ describe('S3 Reader Schema', () => {
                 _encoding: DataEncoding.JSON
             };
 
-            await expect(makeTest(opConfig, apiConfig)).toReject();
-        });
-
-        it('will not throw if connection configs are specified in apis and not opConfig', async () => {
-            const opConfig = { _op: 's3_reader', _api_name: 's3_reader_api' };
-            const apiConfig = {
-                _name: 's3_reader_api',
-                path: '/chillywilly',
-                format: Format.ldjson
-            };
-
-            const job = newTestJobConfig({
-                apis: [apiConfig],
-                operations: [
-                    opConfig,
-                    {
-                        _op: 'noop'
-                    }
-                ]
-            });
-
-            harness = new WorkerTestHarness(job, { clients });
-
-            await harness.initialize();
+            await makeTest(opConfig, apiConfig);
 
             const validatedApiConfig = harness.executionContext.config.apis.find(
                 (api: APIConfig) => api._name === 's3_reader_api'

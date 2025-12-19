@@ -55,8 +55,8 @@ describe('S3 sender api', () => {
 
     // FIXME the config type should not be so loose
     async function makeAPITest(config?: Record<string, any>) {
-        const _op = {
-            _op: 's3_exporter',
+        const api = {
+            _name: 's3_sender_api',
             path,
             _connection: 'my-s3-connector',
             file_per_slice: true,
@@ -64,15 +64,15 @@ describe('S3 sender api', () => {
             format: Format.csv,
             include_header: false
         };
-        const opConfig = config ? Object.assign({}, _op, config) : _op;
-        harness = WorkerTestHarness.testProcessor(opConfig, { clients });
+        const apiConfig = config ? Object.assign({}, api, config) : api;
+        harness = WorkerTestHarness.testSender({ _op: 's3_exporter', _api_name: 's3_sender_api' }, apiConfig, { clients });
 
-        compressor = new Compressor(opConfig.compression);
+        compressor = new Compressor(apiConfig.compression);
 
         await harness.initialize();
         workerId = toString(get(harness, 'context.cluster.worker.id'));
 
-        return harness.getAPI<S3SenderFactoryAPI>('s3_sender_api:s3_exporter-1');
+        return harness.getAPI<S3SenderFactoryAPI>('s3_sender_api');
     }
 
     beforeAll(async () => {

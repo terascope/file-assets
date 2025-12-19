@@ -18,14 +18,19 @@ describe('File Reader API', () => {
     });
 
     async function makeTest() {
-        const opConfig = {
-            _op: 'file_reader',
-            path: testDataDir,
-            format: Format.ldjson
-        };
         const job = newTestJobConfig({
+            apis: [
+                {
+                    _name: 'file_reader_api',
+                    path: testDataDir,
+                    format: Format.ldjson
+                }
+            ],
             operations: [
-                opConfig,
+                {
+                    _op: 'file_reader',
+                    _api_name: 'file_reader_api'
+                },
                 {
                     _op: 'noop'
                 }
@@ -36,7 +41,7 @@ describe('File Reader API', () => {
 
         await harness.initialize();
 
-        return harness.getAPI<FileReaderFactoryAPI>('file_reader_api:file_reader-0');
+        return harness.getAPI<FileReaderFactoryAPI>('file_reader_api');
     }
 
     afterEach(async () => {

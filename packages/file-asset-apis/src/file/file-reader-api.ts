@@ -3,7 +3,7 @@ import { Logger } from '@terascope/core-utils';
 import { FileSlicer } from './file-slicer.js';
 import {
     FileSlice,
-    ReaderConfig,
+    ReaderAPIConfig,
     FileSliceConfig,
     SliceConfig,
 } from '../interfaces';
@@ -14,7 +14,7 @@ export class FileTerasliceAPI extends FileFetcher {
     readonly segmentFileConfig: SliceConfig;
     readonly slicerConfig: FileSliceConfig;
 
-    constructor(config: ReaderConfig, logger: Logger) {
+    constructor(config: ReaderAPIConfig, logger: Logger) {
         super(config, logger);
         const { path, size } = config;
         const { lineDelimiter, format, filePerSlice } = this;
