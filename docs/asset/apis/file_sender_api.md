@@ -39,7 +39,7 @@ Example Job
         },
         {
             "_op" : "some_sender",
-            "api_name" : "file_sender_api"
+            "_api_name" : "file_sender_api"
         }
     ]
 }
@@ -51,7 +51,7 @@ Here is a custom processor for the job described above
 export default class SomeSender extends BatchProcessor {
     async initialize() {
         await super.initialize();
-        const apiName = this.opConfig.api_name;
+        const apiName = this.opConfig._api_name;
         const apiManager = this.getAPI(apiName);
         this.api = await apiManager.create(apiName);
         await this.api.verify();

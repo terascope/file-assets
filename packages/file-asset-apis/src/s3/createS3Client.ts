@@ -6,7 +6,7 @@ import { NodeHttpHandler, NodeHttpHandlerOptions } from '@smithy/node-http-handl
 import type { S3ClientConfig as BaseConfig } from '@aws-sdk/client-s3';
 import {
     debugLogger
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import type { S3Client } from './client-helpers/index.js';
 
 export interface S3ClientConfig extends BaseConfig {

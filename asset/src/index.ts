@@ -14,19 +14,6 @@ import FileReaderAPISchema from '../src/file_reader_api/schema';
 import FileSenderAPI from '../src/file_sender_api/api';
 import FileSenderAPISchema from '../src/file_sender_api/schema';
 
-import HdfsAppend from '../src/hdfs_append/processor';
-import HdfsAppendSchema from '../src/hdfs_append/schema';
-
-import HdfsReaderFetcher from '../src/hdfs_reader/fetcher';
-import HdfsReaderSchema from '../src/hdfs_reader/schema';
-import HdfsReaderSlicer from '../src/hdfs_reader/slicer';
-
-import HdfsReaderAPI from '../src/hdfs_reader_api/api';
-import HdfsReaderAPISchema from '../src/hdfs_reader_api/schema';
-
-import HdfsSenderAPI from '../src/hdfs_sender_api/api';
-import HdfsSenderAPISchema from '../src/hdfs_sender_api/schema';
-
 import S3Exporter from '../src/s3_exporter/processor';
 import S3ExporterSchema from '../src/s3_exporter/schema';
 
@@ -57,23 +44,6 @@ export const ASSETS = {
     file_sender_api: {
         API: FileSenderAPI,
         Schema: FileSenderAPISchema,
-    },
-    hdfs_append: {
-        Processor: HdfsAppend,
-        Schema: HdfsAppendSchema,
-    },
-    hdfs_reader: {
-        Fetcher: HdfsReaderFetcher,
-        Schema: HdfsReaderSchema,
-        Slicer: HdfsReaderSlicer,
-    },
-    hdfs_reader_api: {
-        API: HdfsReaderAPI,
-        Schema: HdfsReaderAPISchema,
-    },
-    hdfs_sender_api: {
-        API: HdfsSenderAPI,
-        Schema: HdfsSenderAPISchema,
     },
     s3_exporter: {
         Processor: S3Exporter,

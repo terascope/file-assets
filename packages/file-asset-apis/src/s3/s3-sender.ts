@@ -1,12 +1,13 @@
 import {
-    Logger, TSError, RouteSenderAPI,
+    Logger, TSError,
     pWhile, pDelay,
-} from '@terascope/utils';
+} from '@terascope/core-utils';
+import { RouteSenderAPI } from '@terascope/job-components';
 import type { S3Client } from './client-helpers/index.js';
 import {
     parsePath, ChunkedFileSender, SendBatchConfig
 } from '../base/index.js';
-import { FileSenderType, ChunkedFileSenderConfig } from '../interfaces.js';
+import { FileSenderType, ChunkedFileSenderAPIConfig } from '../interfaces.js';
 import { createS3Bucket, headS3Bucket, putS3Object } from './s3-helpers.js';
 import { isObject } from '../helpers.js';
 import { MultiPartUploader } from './MultiPartUploader.js';
@@ -24,7 +25,7 @@ function validateConfig(input: unknown) {
 export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
     client: S3Client;
 
-    constructor(client: S3Client, config: ChunkedFileSenderConfig, logger: Logger) {
+    constructor(client: S3Client, config: ChunkedFileSenderAPIConfig, logger: Logger) {
         validateConfig(config);
         super(FileSenderType.s3, config, logger);
         this.client = client;

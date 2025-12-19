@@ -1,6 +1,7 @@
 import 'jest-extended';
+import { debugLogger } from '@terascope/core-utils';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
-import { ValidatedJobConfig, TestClientConfig, debugLogger } from '@terascope/job-components';
+import { ValidatedJobConfig, TestClientConfig } from '@terascope/job-components';
 import { S3ExporterAPIConfig } from '../../asset/src/s3_sender_api/interfaces.js';
 
 describe('S3 Sender API Schema', () => {
@@ -33,7 +34,7 @@ describe('S3 Sender API Schema', () => {
             analytics: true,
             apis: [config],
             operations: [
-                { _op: 's3_sender', api_name: apiName },
+                { _op: 's3_sender', _api_name: apiName },
                 { _op: 'noop' },
             ],
         };

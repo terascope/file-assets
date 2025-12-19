@@ -37,7 +37,7 @@ Example Job
         },
         {
             "_op" : "some_reader",
-            "api_name" : "s3_reader_api"
+            "_api_name" : "s3_reader_api"
         }
     ]
 }
@@ -49,7 +49,7 @@ Here is a custom processor for the job described above
 export default class SomeReader extends Fetcher {
     async initialize() {
         await super.initialize();
-        const apiName = this.opConfig.api_name;
+        const apiName = this.opConfig._api_name;
         const apiManager = this.getAPI(apiName);
         this.api = await apiManager.create(apiName);
     }
@@ -306,7 +306,7 @@ slice ===  [{
 | remove_header   | Checks for the header row in csv or tsv files and removes it | Boolean  | optional, defaults to `true` |
 | ignore_empty    | Ignores empty fields when parsing CSV/TSV files | Boolean  | optional, defaults to `true` |
 | extra_args      | A [configuration object](https://www.npmjs.com/package/json2csv#available-options) used to pass in any extra csv parsing arguments | Object | optional, defaults to `{}` |
-| connection      | Name of the s3 connection to use when sending data | String   | optional, defaults to the `default` connection |
+| _connection      | Name of the s3 connection to use when sending data | String   | optional, defaults to the `default` connection |
 
 ## Advanced Configuration
 
@@ -330,7 +330,7 @@ slice ===  [{
 
 #### raw
 
-`raw` format will generate files where each line is the value of the `data` attribute of a data entity in the slice. This is mainly used to process binary data or other data that are not strings, the records must be sent to the `hdfs_exporter` in the form of:
+`raw` format will generate files where each line is the value of the `data` attribute of a data entity in the slice. This is mainly used to process binary data or other data that are not strings, the records must be sent to the `s3_exporter` in the form of:
 
 ```json
 { "data": "some processed data string or buffer" }

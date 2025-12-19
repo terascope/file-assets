@@ -1,4 +1,4 @@
-import { flatten, Logger } from '@terascope/utils';
+import { flatten, Logger } from '@terascope/core-utils';
 import type { S3Client } from './client-helpers/index.js';
 import { segmentFile, parsePath, canReadFile } from '../base/index.js';
 import { SliceConfig, FileSlice, FileSliceConfig } from '../interfaces.js';

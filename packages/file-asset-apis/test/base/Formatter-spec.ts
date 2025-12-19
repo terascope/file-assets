@@ -1,14 +1,14 @@
 /* eslint-disable jest/expect-expect */
 import {
-    Format, CSVSenderConfig, Formatter,
-    JSONSenderConfig, ChunkedFileSenderConfig,
-    LDJSONSenderConfig,
+    Format, CSVSenderAPIConfig, Formatter,
+    JSONSenderAPIConfig, ChunkedFileSenderAPIConfig,
+    LDJSONSenderAPIConfig,
     SendRecords
 } from '../../src/index.js';
 
 describe('Formatter', () => {
     it('incorrect format will throw', () => {
-        const config: ChunkedFileSenderConfig = {
+        const config: ChunkedFileSenderAPIConfig = {
             id: 'foo',
             path: 'foo',
             format: 'something' as any,
@@ -20,7 +20,7 @@ describe('Formatter', () => {
     });
 
     it('incorrect line_delimiter will throw', () => {
-        const config: ChunkedFileSenderConfig = {
+        const config: ChunkedFileSenderAPIConfig = {
             id: 'foo',
             path: 'foo',
             format: Format.json,
@@ -33,7 +33,7 @@ describe('Formatter', () => {
     });
 
     it('can format json data', () => {
-        const config: JSONSenderConfig = {
+        const config: JSONSenderAPIConfig = {
             id: 'foo',
             path: 'foo',
             format: Format.json,
@@ -48,7 +48,7 @@ describe('Formatter', () => {
     });
 
     it('can format raw data', () => {
-        const config: ChunkedFileSenderConfig = {
+        const config: ChunkedFileSenderAPIConfig = {
             id: 'foo',
             path: 'foo',
             format: Format.raw,
@@ -62,7 +62,7 @@ describe('Formatter', () => {
     });
 
     it('can format tsv data', () => {
-        const config: CSVSenderConfig = {
+        const config: CSVSenderAPIConfig = {
             id: 'foo',
             path: 'foo',
             format: Format.tsv,
@@ -77,7 +77,7 @@ describe('Formatter', () => {
     });
 
     it('can format csv data', () => {
-        const config: CSVSenderConfig = {
+        const config: CSVSenderAPIConfig = {
             id: 'foo',
             path: 'foo',
             format: Format.csv,
@@ -94,7 +94,7 @@ describe('Formatter', () => {
     });
 
     it('can format ldjson data', () => {
-        const config: LDJSONSenderConfig = {
+        const config: LDJSONSenderAPIConfig = {
             id: 'foo',
             path: 'foo',
             format: Format.ldjson,
@@ -110,7 +110,7 @@ describe('Formatter', () => {
     });
 
     it('can format ldjson data with an empty slice', () => {
-        const config: LDJSONSenderConfig = {
+        const config: LDJSONSenderAPIConfig = {
             id: 'foo',
             path: 'foo',
             format: Format.ldjson,
@@ -122,7 +122,7 @@ describe('Formatter', () => {
 
     describe('fields parameter', () => {
         it('can restrict csv output', async () => {
-            const config: CSVSenderConfig = {
+            const config: CSVSenderAPIConfig = {
                 id: 'foo',
                 path: 'foo',
                 format: Format.csv,
@@ -143,7 +143,7 @@ describe('Formatter', () => {
         });
 
         it('should return an empty string if given an empty row', async () => {
-            const config: CSVSenderConfig = {
+            const config: CSVSenderAPIConfig = {
                 id: 'foo',
                 path: 'foo',
                 format: Format.csv,
@@ -163,7 +163,7 @@ describe('Formatter', () => {
         });
 
         it('can restrict csv output with header', async () => {
-            const config: CSVSenderConfig = {
+            const config: CSVSenderAPIConfig = {
                 id: 'foo',
                 path: 'foo',
                 format: Format.csv,
@@ -184,7 +184,7 @@ describe('Formatter', () => {
         });
 
         it('can restrict tsv output', async () => {
-            const config: CSVSenderConfig = {
+            const config: CSVSenderAPIConfig = {
                 id: 'foo',
                 path: 'foo',
                 format: Format.tsv,
@@ -205,7 +205,7 @@ describe('Formatter', () => {
         });
 
         it('can restrict json output', async () => {
-            const config: JSONSenderConfig = {
+            const config: JSONSenderAPIConfig = {
                 id: 'foo',
                 path: 'foo',
                 format: Format.json,
@@ -223,7 +223,7 @@ describe('Formatter', () => {
         });
 
         it('can restrict ldjson output', async () => {
-            const config: LDJSONSenderConfig = {
+            const config: LDJSONSenderAPIConfig = {
                 id: 'foo',
                 path: 'foo',
                 format: Format.ldjson,

@@ -1,4 +1,5 @@
-import { Fetcher, DataEntity, isPromAvailable } from '@terascope/job-components';
+import { DataEntity } from '@terascope/core-utils';
+import { Fetcher, isPromAvailable } from '@terascope/job-components';
 import { FileSlice, S3TerasliceAPI } from '@terascope/file-asset-apis';
 import { S3ReaderConfig } from './interfaces.js';
 import { S3ReaderFactoryAPI } from '../s3_reader_api/interfaces.js';
@@ -9,7 +10,7 @@ export default class S3Fetcher extends Fetcher<S3ReaderConfig> {
 
     async initialize(): Promise<void> {
         await super.initialize();
-        const apiName = this.opConfig.api_name as string;
+        const apiName = this.opConfig._api_name;
         const apiManager = this.getAPI<S3ReaderFactoryAPI>(apiName);
         this.api = await apiManager.create(apiName, {} as any);
         // eslint-disable-next-line @typescript-eslint/no-this-alias

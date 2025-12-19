@@ -1,8 +1,9 @@
 import 'jest-extended';
 import path from 'node:path';
-import { newTestJobConfig, SlicerTestHarness } from 'teraslice-test-harness';
-import { flatten, SliceRequest } from '@terascope/job-components';
+import { flatten } from '@terascope/core-utils';
 import { Format } from '@terascope/file-asset-apis';
+import { SliceRequest } from '@terascope/job-components';
+import { newTestJobConfig, SlicerTestHarness } from 'teraslice-test-harness';
 import { fileURLToPath } from 'node:url';
 // @ts-expect-error
 import fixtures from 'jest-fixtures';
@@ -18,12 +19,18 @@ describe('File slicer json files', () => {
         testDataDir = await fixtures.copyFixtureIntoTempDir(dirname, 'file_reader/json');
         const job = newTestJobConfig({
             analytics: true,
+            apis: [
+                {
+                    _name: 'file_reader_api',
+                    size: 750,
+                    path: testDataDir,
+                    format: Format.json
+                }
+            ],
             operations: [
                 {
                     _op: 'file_reader',
-                    path: testDataDir,
-                    size: 750,
-                    format: Format.json
+                    _api_name: 'file_reader_api',
                 },
                 {
                     _op: 'noop'
@@ -53,7 +60,7 @@ describe('File slicer json files', () => {
             return slice.path === path.join(testDataDir, 'single/single.json');
         });
         expect(result).toMatchObject({
-            length: 364
+            length: 365
         });
     });
 
@@ -63,7 +70,7 @@ describe('File slicer json files', () => {
             return slice.path === path.join(testDataDir, 'array/array.json');
         });
         expect(result).toMatchObject({
-            length: 1822
+            length: 1827
         });
     });
 });
@@ -77,14 +84,20 @@ describe('File slicer non json files', () => {
         testDataDir = await fixtures.copyFixtureIntoTempDir(dirname, 'file_reader/ldjson');
         const job = newTestJobConfig({
             analytics: true,
-            operations: [
+            apis: [
                 {
-                    _op: 'file_reader',
+                    _name: 'file_reader_api',
                     path: testDataDir,
                     format: Format.ldjson,
                     size: 750,
                     line_delimiter: '\n',
                     file_per_slice: false
+                }
+            ],
+            operations: [
+                {
+                    _op: 'file_reader',
+                    _api_name: 'file_reader_api',
                 },
                 {
                     _op: 'noop'

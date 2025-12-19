@@ -1,4 +1,5 @@
-import { BatchProcessor, DataEntity, isPromAvailable } from '@terascope/job-components';
+import { DataEntity } from '@terascope/core-utils';
+import { BatchProcessor, isPromAvailable } from '@terascope/job-components';
 import { S3Sender } from '@terascope/file-asset-apis';
 import { S3ExportConfig } from './interfaces.js';
 import { S3SenderFactoryAPI } from '../s3_sender_api/interfaces.js';
@@ -9,7 +10,7 @@ export default class S3Batcher extends BatchProcessor<S3ExportConfig> {
 
     async initialize(): Promise<void> {
         await super.initialize();
-        const apiName = this.opConfig.api_name as string;
+        const apiName = this.opConfig._api_name;
         const apiManager = this.getAPI<S3SenderFactoryAPI>(apiName);
         // this processor does not allow dynamic routing, use routed-sender operation instead
         this.api = await apiManager.create(apiName, { dynamic_routing: false });

@@ -1,4 +1,5 @@
-import { Overwrite, times } from '@terascope/utils';
+import { times } from '@terascope/core-utils';
+import { Overwrite } from '@terascope/types';
 import 'jest-extended';
 import {
     ChunkGenerator, Formatter, Compressor,

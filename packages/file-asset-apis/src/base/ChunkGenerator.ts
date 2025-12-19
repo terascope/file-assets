@@ -1,4 +1,4 @@
-import { isTest } from '@terascope/utils';
+import { isTest } from '@terascope/core-utils';
 import { Compressor } from './Compressor.js';
 import { Formatter } from './Formatter.js';
 import { Format, Compression, SendRecords } from '../interfaces.js';

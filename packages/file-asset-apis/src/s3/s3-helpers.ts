@@ -10,7 +10,7 @@ import {
 } from '@aws-sdk/client-s3';
 import crypto from 'node:crypto';
 
-import { TSError, pDelay, AnyObject } from '@terascope/utils';
+import { TSError, pDelay } from '@terascope/core-utils';
 import { S3ClientParams, S3ClientResponse, S3RetryRequest } from './client-helpers/index.js';
 
 export async function s3RequestWithRetry(
@@ -46,8 +46,8 @@ export async function s3RequestWithRetry(
     } catch (e: unknown) {
         let retry = false;
         // check if it's an aws issue
-        if ((e as AnyObject).$metadata?.httpStatusCode === 503
-            || (e as AnyObject).$metadata?.httpStatusCode === 500
+        if ((e as Record<string, any>).$metadata?.httpStatusCode === 503
+            || (e as Record<string, any>).$metadata?.httpStatusCode === 500
             // check if it's a server error
             || (e as Error).message.includes('ENOTFOUND')
             || (e as Error).message.includes('EAI_AGAIN')) {

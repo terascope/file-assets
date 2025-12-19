@@ -1,6 +1,6 @@
 import {
     DataEntity, pMap, isString, Logger
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import * as nodePathModule from 'node:path';
 import { Compressor } from './Compressor.js';
 import { Formatter } from './Formatter.js';
@@ -11,7 +11,7 @@ import {
     FileSenderType,
     Format,
     Compression,
-    ChunkedFileSenderConfig,
+    ChunkedFileSenderAPIConfig,
     getLineDelimiter,
     SendRecords,
     SendRecord,
@@ -53,10 +53,10 @@ export abstract class ChunkedFileSender {
     protected formatter: Formatter;
     readonly pathList = new Map<string, boolean>();
     readonly type: FileSenderType;
-    readonly config: ChunkedFileSenderConfig;
+    readonly config: ChunkedFileSenderAPIConfig;
     readonly logger: Logger;
 
-    constructor(type: FileSenderType, config: ChunkedFileSenderConfig, logger: Logger) {
+    constructor(type: FileSenderType, config: ChunkedFileSenderAPIConfig, logger: Logger) {
         if (!formatValues.includes(config.format)) {
             throw new Error(`Invalid parameter format, it must be provided and be set to any of these: ${formatValues.join(', ')}`);
         }
@@ -155,7 +155,7 @@ export abstract class ChunkedFileSender {
         // Can't use path.join() here since the path might include a filename prefix
         const { nameOptions, path } = this;
 
-        if (this.type === FileSenderType.file || this.type === FileSenderType.hdfs) {
+        if (this.type === FileSenderType.file) {
             if (filePath === path) {
                 await this.ensurePathing(filePath);
             } else {

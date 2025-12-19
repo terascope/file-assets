@@ -1,6 +1,6 @@
 import 'jest-extended';
 import type { S3Client } from '@aws-sdk/client-s3';
-import { pMap } from '@terascope/utils';
+import { pMap } from '@terascope/core-utils';
 import { makeClient, cleanupBucket } from './helpers.js';
 import * as s3Helpers from '../../src/s3/s3-helpers.js';
 

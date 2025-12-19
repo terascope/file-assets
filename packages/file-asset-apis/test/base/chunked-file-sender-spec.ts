@@ -1,8 +1,8 @@
 import 'jest-extended';
-import { DataEntity, debugLogger } from '@terascope/utils';
+import { DataEntity, debugLogger } from '@terascope/core-utils';
 import {
     FileSenderType,
-    ChunkedFileSenderConfig,
+    ChunkedFileSenderAPIConfig,
     Compression,
     Format,
     ChunkedFileSender,
@@ -46,16 +46,16 @@ describe('ChunkedSlicer', () => {
         }
     }
 
-    const defaults: Partial<ChunkedFileSenderConfig> = {
+    const defaults: Partial<ChunkedFileSenderAPIConfig> = {
         id: workerId,
         path
     };
 
     function makeConfig(
         format: Format,
-        config: Partial<Omit<ChunkedFileSenderConfig, 'format'>> = {}
-    ): ChunkedFileSenderConfig {
-        return Object.assign({}, defaults, config, { format }) as ChunkedFileSenderConfig;
+        config: Partial<Omit<ChunkedFileSenderAPIConfig, 'format'>> = {}
+    ): ChunkedFileSenderAPIConfig {
+        return Object.assign({}, defaults, config, { format }) as ChunkedFileSenderAPIConfig;
     }
 
     it('will throw if file_per_slice is false if its a file type and format is JSON', () => {
@@ -229,46 +229,6 @@ describe('ChunkedSlicer', () => {
             // @ts-expect-error
             test3.incrementCount();
             expect(await test3.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0.json`);
-        });
-    });
-
-    describe('hdfs destination names', () => {
-        it('can make correct base paths', async () => {
-            const test = new Test(FileSenderType.hdfs, makeConfig(Format.ldjson), logger);
-
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.ldjson`);
-            expect(test.verifyCalled).toEqual(true);
-        });
-
-        it('can make correct path', async () => {
-            const newPath = `${path}/final/dir`;
-            const test = new Test(FileSenderType.hdfs, makeConfig(Format.ldjson), logger);
-
-            expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}.ldjson`);
-            expect(test.verifyCalled).toEqual(true);
-        });
-
-        it('can add extensions', async () => {
-            const test = new Test(FileSenderType.hdfs, makeConfig(
-                Format.ldjson, { extension: 'stuff' }
-            ), logger);
-
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.stuff`);
-        });
-
-        it('can add slice count', async () => {
-            const test = new Test(FileSenderType.hdfs, makeConfig(
-                Format.ldjson, { file_per_slice: true }
-            ), logger);
-
-            // @ts-expect-error
-            test.incrementCount();
-
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0.ldjson`);
-            // @ts-expect-error
-            test.incrementCount();
-
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.1.ldjson`);
         });
     });
 
