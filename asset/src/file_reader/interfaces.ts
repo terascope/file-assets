@@ -1,6 +1,5 @@
 import { OpConfig } from '@terascope/job-components';
-import { ReaderAPIConfig } from '@terascope/file-asset-apis';
 
-export interface FileReaderConfig extends ReaderAPIConfig, OpConfig {
+export interface FileReaderConfig extends OpConfig {
     _api_name: string;
 }
