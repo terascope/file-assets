@@ -87,8 +87,8 @@ describe('file-fetcher', () => {
         const slice: FileSlice = {
             path: slicePath,
             offset: 0,
-            length: 1822,
-            total: 1822
+            length: 1827,
+            total: 1827
         };
 
         const results = await fetcher.read(slice);
