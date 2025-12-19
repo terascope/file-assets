@@ -149,7 +149,7 @@ export interface CSVSenderConfig extends ChunkedFileSenderConfig {
     field_delimiter?: string;
 }
 
-export function isCSVSenderConfig(config: ChunkedFileReaderConfig): config is CSVSenderConfig {
+export function isCSVSenderConfig(config: ChunkedFileSenderConfig): config is CSVSenderConfig {
     return config.format === Format.csv || config.format === Format.tsv;
 }
 
@@ -177,7 +177,7 @@ export interface JSONSenderConfig extends ChunkedFileSenderConfig {
     fields?: string[];
 }
 
-export function isJSONSenderConfig(config: ChunkedFileReaderConfig): config is JSONSenderConfig {
+export function isJSONSenderConfig(config: ChunkedFileSenderConfig): config is JSONSenderConfig {
     return config.format === Format.json;
 }
 
@@ -207,7 +207,7 @@ export interface LDJSONSenderConfig extends ChunkedFileSenderConfig {
 }
 
 export function isLDJSONSenderConfig(
-    config: ChunkedFileReaderConfig
+    config: ChunkedFileSenderConfig
 ): config is LDJSONSenderConfig {
     return config.format === Format.ldjson;
 }
@@ -217,15 +217,9 @@ export interface ReaderConfig extends ChunkedFileReaderConfig {
     path: string;
 }
 
-export interface HDFSReaderConfig extends ChunkedFileReaderConfig {
-    user: string;
-    size: number;
-}
-
 export enum FileSenderType {
     file = 'file',
     s3 = 's3',
-    hdfs = 'hdfs'
 }
 
 export enum Compression {

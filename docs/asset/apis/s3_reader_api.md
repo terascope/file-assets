@@ -330,7 +330,7 @@ slice ===  [{
 
 #### raw
 
-`raw` format will generate files where each line is the value of the `data` attribute of a data entity in the slice. This is mainly used to process binary data or other data that are not strings, the records must be sent to the `hdfs_exporter` in the form of:
+`raw` format will generate files where each line is the value of the `data` attribute of a data entity in the slice. This is mainly used to process binary data or other data that are not strings, the records must be sent to the `s3_exporter` in the form of:
 
 ```json
 { "data": "some processed data string or buffer" }

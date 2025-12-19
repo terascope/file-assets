@@ -232,46 +232,6 @@ describe('ChunkedSlicer', () => {
         });
     });
 
-    describe('hdfs destination names', () => {
-        it('can make correct base paths', async () => {
-            const test = new Test(FileSenderType.hdfs, makeConfig(Format.ldjson), logger);
-
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.ldjson`);
-            expect(test.verifyCalled).toEqual(true);
-        });
-
-        it('can make correct path', async () => {
-            const newPath = `${path}/final/dir`;
-            const test = new Test(FileSenderType.hdfs, makeConfig(Format.ldjson), logger);
-
-            expect(await test.createFileDestinationName(newPath)).toEqual(`${newPath}/${workerId}.ldjson`);
-            expect(test.verifyCalled).toEqual(true);
-        });
-
-        it('can add extensions', async () => {
-            const test = new Test(FileSenderType.hdfs, makeConfig(
-                Format.ldjson, { extension: 'stuff' }
-            ), logger);
-
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.stuff`);
-        });
-
-        it('can add slice count', async () => {
-            const test = new Test(FileSenderType.hdfs, makeConfig(
-                Format.ldjson, { file_per_slice: true }
-            ), logger);
-
-            // @ts-expect-error
-            test.incrementCount();
-
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.0.ldjson`);
-            // @ts-expect-error
-            test.incrementCount();
-
-            expect(await test.createFileDestinationName(path)).toEqual(`${path}/${workerId}.1.ldjson`);
-        });
-    });
-
     describe('s3 destination names', () => {
         it('can make correct base paths', async () => {
             const test = new Test(FileSenderType.s3, makeConfig(

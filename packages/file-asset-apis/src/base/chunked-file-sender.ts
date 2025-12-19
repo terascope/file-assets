@@ -155,7 +155,7 @@ export abstract class ChunkedFileSender {
         // Can't use path.join() here since the path might include a filename prefix
         const { nameOptions, path } = this;
 
-        if (this.type === FileSenderType.file || this.type === FileSenderType.hdfs) {
+        if (this.type === FileSenderType.file) {
             if (filePath === path) {
                 await this.ensurePathing(filePath);
             } else {

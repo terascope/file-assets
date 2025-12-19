@@ -12,8 +12,6 @@
         "Operations": [
             "asset/operations/file_exporter",
             "asset/operations/file_reader",
-            "asset/operations/hdfs_exporter",
-            "asset/operations/hdfs_reader",
             "asset/operations/s3_exporter",
             "asset/operations/s3_reader"
         ]
