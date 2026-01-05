@@ -61,7 +61,7 @@ results === [{ some: 'records'}, { more: 'data' }]
 | extension       | Optional file extension to add to file names | String   | optional, A `.` is not automatically prepended to this value when being added to the filename, if it is desired it must be specified on the extension |
 | compression     | you may specify a compression algorithm to apply to the data before being written to file, it may be set to `none`, `lz4` or `gzip` | String   | optional, defaults `none` |
 | fields          | a list of all field names present in the file **in the order that they are found**, this essentially acts as the headers. This option is only used for `tsv` and `csv` formats | String[] | optional |
-| api_name        | Name of api used for file_reader | String   | optional, defaults to `file_reader_api` |
+| _api_name        | Name of api used for file_reader | String   | optional, defaults to `file_reader_api` |
 | field_delimiter | A delimiter between field names. This is only used when `format` is set to `csv` | String   | optional, defaults to `,` |
 | line_delimiter  | If a line delimiter other than `\n` is used in the files, this option will tell the reader how to read records in the file. This option is ignored for `json` format. See the [format](#format) section for more information how this deliminator is applied for each format. | String   | optional, defaults to `\n` |
 | file_per_slice  | This setting determines if the output for a worker will be in a single file (`false`), or if the worker will create a new file for every slice it processes  (`true`). If set to `true`, an integer, starting at 0, will be appended to the filename and incremented by 1 for each slice a worker processes | Boolean  | optional, defaults to `true`. If using `json` format, this option will be overridden to `true` |
@@ -160,7 +160,7 @@ this configuration will be expanded out to the long form underneath the hood
   "operations": [
     {
       "_op": "file_reader",
-      "api_name": "file_sender_api"
+      "_api_name": "file_sender_api"
     },
     {
         "_op": "noop"

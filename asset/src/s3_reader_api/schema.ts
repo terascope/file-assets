@@ -1,4 +1,5 @@
-import { ConvictSchema, cloneDeep } from '@terascope/job-components';
+import { cloneDeep } from '@terascope/core-utils';
+import { ConvictSchema } from '@terascope/job-components';
 import { fileReaderSchema } from '../__lib/common-schema.js';
 import { S3ReaderAPIConfig } from './interfaces.js';
 

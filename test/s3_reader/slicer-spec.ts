@@ -1,11 +1,12 @@
 import 'jest-extended';
 import {
-    AnyObject, isNil, DataEntity,
-    TestClientConfig, debugLogger
-} from '@terascope/job-components';
+    isNil, DataEntity, debugLogger
+} from '@terascope/core-utils';
+import { TestClientConfig } from '@terascope/job-components';
 import { newTestJobConfig, SlicerTestHarness } from 'teraslice-test-harness';
 import { Format, S3Client } from '@terascope/file-asset-apis';
 import { makeClient, cleanupBucket, upload } from '../helpers/index.js';
+import { DEFAULT_API_NAME } from '../../asset/src/s3_reader_api/interfaces.js';
 
 describe('S3 slicer', () => {
     const logger = debugLogger('test');
@@ -48,14 +49,14 @@ describe('S3 slicer', () => {
         }
     ].map((obj) => DataEntity.make(obj));
 
-    async function makeTest(config: AnyObject = {}) {
+    async function makeTest(config: Record<string, any> = {}) {
         if (isNil(config.path)) throw new Error('test config must have path');
         if (isNil(config.format)) throw new Error('test config must have format');
 
-        const opConfig = Object.assign(
+        const apiConfig = Object.assign(
             {},
             {
-                _op: 's3_reader',
+                _name: DEFAULT_API_NAME,
                 size: 70,
                 path: config.path,
                 format: config.format
@@ -65,8 +66,12 @@ describe('S3 slicer', () => {
 
         const job = newTestJobConfig({
             analytics: true,
+            apis: [apiConfig],
             operations: [
-                opConfig,
+                {
+                    _op: 's3_reader',
+                    _api_name: DEFAULT_API_NAME
+                },
                 {
                     _op: 'noop'
                 }
@@ -102,7 +107,7 @@ describe('S3 slicer', () => {
         });
 
         it('should generate whole-object slices.', async () => {
-            const opConfig = { format, path };
+            const apiConfig = { format, path };
             const expectedSlice = {
                 path: 'my/test/test-id.0.json',
                 offset: 0,
@@ -110,7 +115,7 @@ describe('S3 slicer', () => {
                 length: 138
             };
 
-            const test = await makeTest(opConfig);
+            const test = await makeTest(apiConfig);
             const firstBatch = await test.createSlices();
             const secondBatch = await test.createSlices();
             const slices = firstBatch.concat(secondBatch);
@@ -137,7 +142,7 @@ describe('S3 slicer', () => {
         });
 
         it('should chop up the data', async () => {
-            const opConfig = { format, path };
+            const apiConfig = { format, path };
 
             const expectedSlice1 = {
                 offset: 0, length: 70, path: 'my/test/test-id.0.ldjson', total: 136
@@ -146,7 +151,7 @@ describe('S3 slicer', () => {
                 offset: 69, length: 67, path: 'my/test/test-id.0.ldjson', total: 136
             };
 
-            const test = await makeTest(opConfig);
+            const test = await makeTest(apiConfig);
             const firstBatch = await test.createSlices();
             const secondBatch = await test.createSlices();
             const slices = firstBatch.concat(secondBatch);

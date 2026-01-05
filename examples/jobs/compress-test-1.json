@@ -19,7 +19,7 @@
         },
         {
             "_op": "elasticsearch_bulk",
-            "connection": "default"
+            "_connection": "default"
         }
     ]
 }

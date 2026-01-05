@@ -1,4 +1,5 @@
-import { Fetcher, DataEntity } from '@terascope/job-components';
+import { DataEntity } from '@terascope/core-utils';
+import { Fetcher } from '@terascope/job-components';
 import { FileTerasliceAPI, FileSlice } from '@terascope/file-asset-apis';
 import { FileReaderConfig } from './interfaces.js';
 import { FileReaderFactoryAPI } from '../file_reader_api/interfaces.js';
@@ -8,7 +9,7 @@ export default class FileFetcher extends Fetcher<FileReaderConfig> {
 
     async initialize(): Promise<void> {
         await super.initialize();
-        const apiName = this.opConfig.api_name;
+        const apiName = this.opConfig._api_name;
         const apiManager = this.getAPI<FileReaderFactoryAPI>(apiName);
         this.api = await apiManager.create(apiName, {});
     }

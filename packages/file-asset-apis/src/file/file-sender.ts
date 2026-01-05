@@ -1,10 +1,11 @@
-import type { Logger, RouteSenderAPI } from '@terascope/utils';
+import type { Logger } from '@terascope/core-utils';
 import fse from 'fs-extra';
+import { RouteSenderAPI } from '@terascope/job-components';
 import { ChunkedFileSender, SendBatchConfig } from '../base/index.js';
-import { ChunkedFileSenderConfig, FileSenderType, isCSVSenderConfig } from '../interfaces.js';
+import { ChunkedFileSenderAPIConfig, FileSenderType, isCSVSenderAPIConfig } from '../interfaces.js';
 
 export class FileSender extends ChunkedFileSender implements RouteSenderAPI {
-    constructor(config: ChunkedFileSenderConfig, logger: Logger) {
+    constructor(config: ChunkedFileSenderAPIConfig, logger: Logger) {
         super(FileSenderType.file, config, logger);
     }
 
@@ -24,7 +25,7 @@ export class FileSender extends ChunkedFileSender implements RouteSenderAPI {
             if (await fse.pathExists(dest)) {
                 await fse.unlink(dest);
             }
-        } else if (isCSVSenderConfig(this.config) && this.config.include_header) {
+        } else if (isCSVSenderAPIConfig(this.config) && this.config.include_header) {
             // if the file already exists we should NOT include the header
             // since it would include more than header every time you append
             if (await fse.pathExists(dest)) {

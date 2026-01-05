@@ -3,17 +3,16 @@ import {
     cloneDeep,
     DataEntity,
     isNotNil,
-    AnyObject,
     DataEncoding,
     isSimpleObject,
     isString,
     isBoolean,
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import csvToJson from 'csvtojson';
 import { CSVParseParam } from 'csvtojson/v2/Parameters';
 import {
     FileSlice,
-    ChunkedFileReaderConfig,
+    ChunkedFileReaderAPIConfig,
     Compression,
     Format,
     isCSVReaderConfig,
@@ -75,14 +74,14 @@ export abstract class ChunkedFileReader {
     private onRejectAction: string;
     private tryFn: (fn: (msg: any) => DataEntity) => (input: any) => DataEntity | null;
     private rejectRecord: (input: unknown, err: unknown) => never | null;
-    private config: ChunkedFileReaderConfig;
+    private config: ChunkedFileReaderAPIConfig;
     private encodingConfig: {
         _encoding: DataEncoding;
     };
 
     protected filePerSlice: boolean;
 
-    constructor(inputConfig: ChunkedFileReaderConfig, logger: Logger) {
+    constructor(inputConfig: ChunkedFileReaderAPIConfig, logger: Logger) {
         const {
             on_reject_action = 'throw',
             rejectFn = this.reject,
@@ -154,7 +153,7 @@ export abstract class ChunkedFileReader {
         return null;
     }
 
-    protected abstract fetch(msg: AnyObject): Promise<string>;
+    protected abstract fetch(msg: Record<string, any>): Promise<string>;
 
     // This method will grab the chunk of data specified by the slice plus an
     // extra margin if the slice does not end with the delimiter.

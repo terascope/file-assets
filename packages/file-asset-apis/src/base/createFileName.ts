@@ -1,6 +1,6 @@
 import {
     isNumber, isString, isNil, isNotNil, isBoolean
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import * as nodePathModule from 'node:path';
 import { NameOptions, Format, Compression } from '../interfaces.js';
 

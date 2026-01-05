@@ -1,11 +1,13 @@
 import 'jest-extended';
 import {
-    DataEntity, AnyObject, toNumber,
-    debugLogger, TestClientConfig
-} from '@terascope/job-components';
+    DataEntity, toNumber,
+    debugLogger
+} from '@terascope/core-utils';
+import { TestClientConfig } from '@terascope/job-components';
 import { JobTestHarness, newTestJobConfig } from 'teraslice-test-harness';
 import { Format, S3Client } from '@terascope/file-asset-apis';
 import { makeClient, cleanupBucket, upload } from '../helpers/index.js';
+import { DEFAULT_API_NAME } from '../../asset/src/s3_reader_api/interfaces.js';
 
 describe('S3Reader job', () => {
     const logger = debugLogger('test');
@@ -68,8 +70,8 @@ describe('S3Reader job', () => {
 
         it('can run reader and slicer in long form job specification', async () => {
             const apiConfig = {
-                _name: 's3_reader_api',
-                connection: 'my-s3-connector',
+                _name: DEFAULT_API_NAME,
+                _connection: 'my-s3-connector',
                 size: 100000,
                 field_delimiter: ',',
                 line_delimiter: '\n',
@@ -83,7 +85,7 @@ describe('S3Reader job', () => {
                 analytics: true,
                 apis: [apiConfig],
                 operations: [
-                    { _op: 's3_reader', api_name: 's3_reader_api' } as any,
+                    { _op: 's3_reader', _api_name: DEFAULT_API_NAME } as any,
                     { _op: 'noop' }
                 ]
             });
@@ -101,17 +103,17 @@ describe('S3Reader job', () => {
             const { data } = results[0];
 
             topicData.forEach((record) => {
-                const carData = data.find((obj) => obj.car === record.car) as AnyObject;
+                const carData = data.find((obj) => obj.car === record.car) as Record<string, any>;
                 expect(carData).toBeDefined();
                 expect(carData.color).toEqual(record.color);
                 expect(toNumber(carData.price)).toEqual(record.price);
             });
         });
 
-        it('can run reader and slicer in short form job specification', async () => {
+        it('will fail if api not created on job specification', async () => {
             const opConfig = {
                 _op: 's3_reader',
-                connection: 'my-s3-connector',
+                _connection: 'my-s3-connector',
                 size: 100000,
                 field_delimiter: ',',
                 line_delimiter: '\n',
@@ -134,20 +136,7 @@ describe('S3Reader job', () => {
                 clients,
             });
 
-            await harness.initialize();
-
-            const results = await harness.runToCompletion();
-
-            expect(results).toBeArrayOfSize(1);
-
-            const { data } = results[0];
-
-            topicData.forEach((record) => {
-                const carData = data.find((obj) => obj.car === record.car) as AnyObject;
-                expect(carData).toBeDefined();
-                expect(carData.color).toEqual(record.color);
-                expect(toNumber(carData.price)).toEqual(record.price);
-            });
+            await expect(harness.initialize()).rejects.toThrow(/_api_name.*This field is required and must be of type string/s);
         });
     });
 });

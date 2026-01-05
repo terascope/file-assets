@@ -1,12 +1,12 @@
 import 'jest-extended';
 import {
-    DataEntity, toString, AnyObject,
-    isNil, toNumber, TestClientConfig,
+    DataEntity, toString, isNil, toNumber,
     debugLogger
-} from '@terascope/job-components';
+} from '@terascope/core-utils';
+import { TestClientConfig } from '@terascope/job-components';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
 import { Format, FileSlice, S3Client } from '@terascope/file-asset-apis';
-import { S3ReaderFactoryAPI } from '../../asset/src/s3_reader_api/interfaces.js';
+import { DEFAULT_API_NAME, S3ReaderFactoryAPI } from '../../asset/src/s3_reader_api/interfaces.js';
 import {
     makeClient, cleanupBucket, upload,
     testWorkerId
@@ -52,15 +52,15 @@ describe('S3 API Reader', () => {
         }
     ].map((obj) => DataEntity.make(obj));
 
-    async function makeApiTest(config: AnyObject) {
+    async function makeApiTest(config: Record<string, any>) {
         if (isNil(config.path)) throw new Error('test config must have path');
         if (isNil(config.format)) throw new Error('test config must have format');
 
-        const opConfig = Object.assign(
+        const apiConfig = Object.assign(
             {},
             {
-                _op: 's3_reader',
-                connection: 'my-s3-connector',
+                _name: DEFAULT_API_NAME,
+                _connection: 'my-s3-connector',
                 size: 100000,
                 field_delimiter: ',',
                 line_delimiter: '\n',
@@ -71,8 +71,12 @@ describe('S3 API Reader', () => {
 
         const job = newTestJobConfig({
             analytics: true,
+            apis: [apiConfig],
             operations: [
-                opConfig,
+                {
+                    _op: 's3_reader',
+                    _api_name: DEFAULT_API_NAME
+                },
                 {
                     _op: 'noop'
                 }
@@ -85,7 +89,7 @@ describe('S3 API Reader', () => {
 
         await harness.initialize();
 
-        return harness.getAPI<S3ReaderFactoryAPI>('s3_reader_api:s3_reader-0');
+        return harness.getAPI<S3ReaderFactoryAPI>(DEFAULT_API_NAME);
     }
 
     afterEach(async () => {
@@ -208,12 +212,12 @@ describe('S3 API Reader', () => {
 
             const apiManager = await makeApiTest(opConfig);
             const api = await apiManager.create('json', {});
-            const results = await api.read(slice);
+            const result = await api.read(slice);
 
-            expect(results).toBeArrayOfSize(3);
+            expect(result).toBeArrayOfSize(3);
 
             data.forEach((record) => {
-                const carData = results.find((obj) => obj.car === record.car) as AnyObject;
+                const carData = result.find((obj) => obj.car === record.car) as Record<string, any>;
                 expect(carData).toBeDefined();
                 expect(carData.color).toEqual(record.color);
                 expect(toNumber(carData.price)).toEqual(record.price);
@@ -249,12 +253,12 @@ describe('S3 API Reader', () => {
 
             const apiManager = await makeApiTest(opConfig);
             const api = await apiManager.create('ldjson', {});
-            const results = await api.read(slice);
+            const result = await api.read(slice);
 
-            expect(results).toBeArrayOfSize(3);
+            expect(result).toBeArrayOfSize(3);
 
             data.forEach((record) => {
-                const carData = results.find((obj) => obj.car === record.car) as AnyObject;
+                const carData = result.find((obj) => obj.car === record.car) as Record<string, any>;
                 expect(carData).toBeDefined();
                 expect(carData.color).toEqual(record.color);
                 expect(toNumber(carData.price)).toEqual(record.price);

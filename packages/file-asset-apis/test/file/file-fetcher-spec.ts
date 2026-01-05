@@ -1,12 +1,12 @@
 import 'jest-extended';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger } from '@terascope/core-utils';
 // @ts-expect-error
 import fixtures from 'jest-fixtures';
 import pathModule from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
     Compression, FileFetcher, Format,
-    ReaderConfig, FileSlice
+    ReaderAPIConfig, FileSlice
 } from '../../src/index.js';
 
 const dirname = pathModule.dirname(fileURLToPath(import.meta.url));
@@ -14,10 +14,10 @@ const dirname = pathModule.dirname(fileURLToPath(import.meta.url));
 describe('file-fetcher', () => {
     const logger = debugLogger('file-fetcher');
 
-    function makeFetcher(testConfig: Partial<ReaderConfig> = {}) {
+    function makeFetcher(testConfig: Partial<ReaderAPIConfig> = {}) {
         const config = Object.assign({}, { path: undefined, size: 1000 }, testConfig);
         if (config.format == null) throw new Error('Must provide a format');
-        return new FileFetcher(config as ReaderConfig, logger);
+        return new FileFetcher(config as ReaderAPIConfig, logger);
     }
 
     function makePath(pathDir: string, testFile: string) {
@@ -87,8 +87,8 @@ describe('file-fetcher', () => {
         const slice: FileSlice = {
             path: slicePath,
             offset: 0,
-            length: 1822,
-            total: 1822
+            length: 1827,
+            total: 1827
         };
 
         const results = await fetcher.read(slice);
