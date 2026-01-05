@@ -24,7 +24,7 @@ Example Job
     "file",
     "standard"
   ],
-    "apis": [
+  "apis": [
     {
       "_name": "s3_sender_api",
       "path": "/app/data/test_files",
