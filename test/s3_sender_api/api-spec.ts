@@ -12,7 +12,7 @@ import {
     listS3Buckets, getS3Object, S3Client
 } from '@terascope/file-asset-apis';
 import { makeClient, cleanupBucket, getBodyFromResults } from '../helpers/index.js';
-import { S3SenderFactoryAPI } from '../../asset/src/s3_sender_api/interfaces.js';
+import { DEFAULT_API_NAME, S3SenderFactoryAPI } from '../../asset/src/s3_sender_api/interfaces.js';
 
 const { ungzip } = pkg;
 const lz4Module = {};
@@ -56,7 +56,7 @@ describe('S3 sender api', () => {
     // FIXME the config type should not be so loose
     async function makeAPITest(config?: Record<string, any>) {
         const api = {
-            _name: 's3_sender_api',
+            _name: DEFAULT_API_NAME,
             path,
             _connection: 'my-s3-connector',
             file_per_slice: true,
@@ -65,14 +65,14 @@ describe('S3 sender api', () => {
             include_header: false
         };
         const apiConfig = config ? Object.assign({}, api, config) : api;
-        harness = WorkerTestHarness.testSender({ _op: 's3_exporter', _api_name: 's3_sender_api' }, apiConfig, { clients });
+        harness = WorkerTestHarness.testSender({ _op: 's3_exporter', _api_name: DEFAULT_API_NAME }, apiConfig, { clients });
 
         compressor = new Compressor(apiConfig.compression);
 
         await harness.initialize();
         workerId = toString(get(harness, 'context.cluster.worker.id'));
 
-        return harness.getAPI<S3SenderFactoryAPI>('s3_sender_api');
+        return harness.getAPI<S3SenderFactoryAPI>(DEFAULT_API_NAME);
     }
 
     beforeAll(async () => {

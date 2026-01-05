@@ -9,6 +9,7 @@ import {
     OpConfig
 } from '@terascope/job-components';
 import { Format } from '@terascope/file-asset-apis';
+import { DEFAULT_API_NAME } from '../../asset/src/s3_sender_api/interfaces.js';
 
 describe('S3 exporter Schema', () => {
     const logger = debugLogger('s3 test');
@@ -66,11 +67,11 @@ describe('S3 exporter Schema', () => {
         it('should throw an error if no path is specified', async () => {
             const opConfig = {
                 _op: 's3_exporter',
-                _api_name: 's3_sender_api'
+                _api_name: DEFAULT_API_NAME
             };
 
             const apiConfig = {
-                _name: 's3_sender_api',
+                _name: DEFAULT_API_NAME,
             };
             await expect(makeTest(opConfig, apiConfig)).rejects.toThrow(/path.*This field is required and must be of type string/s);
         });
@@ -78,7 +79,7 @@ describe('S3 exporter Schema', () => {
         it('should throw an error if no api is specified', async () => {
             const opConfig = {
                 _op: 's3_exporter',
-                _api_name: 's3_sender_api'
+                _api_name: DEFAULT_API_NAME
             };
             await expect(makeTest(opConfig)).toReject();
         });
@@ -86,11 +87,11 @@ describe('S3 exporter Schema', () => {
         it('should not throw an error if valid config is given', async () => {
             const opConfig = {
                 _op: 's3_exporter',
-                _api_name: 's3_sender_api'
+                _api_name: DEFAULT_API_NAME
             };
 
             const apiConfig = {
-                _name: 's3_sender_api',
+                _name: DEFAULT_API_NAME,
                 path: '/chillywilly',
             };
 
@@ -101,11 +102,11 @@ describe('S3 exporter Schema', () => {
             const opConfig = {
                 _op: 's3_exporter',
                 _dead_letter_action: 'none',
-                _api_name: 's3_sender_api'
+                _api_name: DEFAULT_API_NAME
             };
 
             const apiConfig = {
-                _name: 's3_sender_api',
+                _name: DEFAULT_API_NAME,
                 path: '/chillywilly',
                 _dead_letter_action: 'throw'
             };
@@ -113,7 +114,7 @@ describe('S3 exporter Schema', () => {
             await makeTest(opConfig, apiConfig);
 
             const validatedApiConfig = harness.executionContext.config.apis.find(
-                (api: APIConfig) => api._name === 's3_sender_api'
+                (api: APIConfig) => api._name === DEFAULT_API_NAME
             );
 
             expect(validatedApiConfig).toMatchObject(apiConfig);
@@ -123,11 +124,11 @@ describe('S3 exporter Schema', () => {
             const opConfig = {
                 _op: 's3_exporter',
                 _encoding: DataEncoding.RAW,
-                _api_name: 's3_sender_api'
+                _api_name: DEFAULT_API_NAME
             };
 
             const apiConfig = {
-                _name: 's3_sender_api',
+                _name: DEFAULT_API_NAME,
                 path: '/chillywilly',
                 _encoding: DataEncoding.JSON
             };
@@ -135,7 +136,7 @@ describe('S3 exporter Schema', () => {
             await makeTest(opConfig, apiConfig);
 
             const validatedApiConfig = harness.executionContext.config.apis.find(
-                (api: APIConfig) => api._name === 's3_sender_api'
+                (api: APIConfig) => api._name === DEFAULT_API_NAME
             );
 
             expect(validatedApiConfig).toMatchObject(apiConfig);

@@ -10,7 +10,7 @@ import {
     makeClient, cleanupBucket, upload,
     testWorkerId
 } from '../helpers/index.js';
-import { S3ReaderAPIConfig } from '../../asset/src/s3_reader_api/interfaces.js';
+import { DEFAULT_API_NAME, S3ReaderAPIConfig } from '../../asset/src/s3_reader_api/interfaces.js';
 
 describe('S3Reader fetcher', () => {
     const logger = debugLogger('test');
@@ -60,7 +60,7 @@ describe('S3Reader fetcher', () => {
             {},
             {
                 _op: 's3_reader',
-                _api_name: 's3_reader_api'
+                _api_name: DEFAULT_API_NAME
             },
             config._op
         );
@@ -68,7 +68,7 @@ describe('S3Reader fetcher', () => {
         const apiConfig = Object.assign(
             {},
             {
-                _name: 's3_reader_api',
+                _name: DEFAULT_API_NAME,
                 _connection: 'my-s3-connector',
                 size: 100000,
                 field_delimiter: ',',

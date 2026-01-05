@@ -5,6 +5,7 @@ import {
 } from '@terascope/job-components';
 import { Format } from '@terascope/file-asset-apis';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
+import { DEFAULT_API_NAME } from '../../asset/src/file_reader_api/interfaces.js';
 
 describe('File Reader Schema', () => {
     let harness: WorkerTestHarness;
@@ -43,11 +44,11 @@ describe('File Reader Schema', () => {
         it('should throw an error if no path is specified', async () => {
             const opConfig = {
                 _op: 'file_reader',
-                _api_name: 'file_reader_api'
+                _api_name: DEFAULT_API_NAME
             };
 
             const apiConfig = {
-                _name: 'file_reader_api',
+                _name: DEFAULT_API_NAME,
             };
             await expect(makeTest(opConfig, apiConfig)).rejects.toThrow(/path.*This field is required and must be of type string/s);
         });
@@ -60,26 +61,26 @@ describe('File Reader Schema', () => {
         });
 
         it('should ignore path set in opConfig and use apiConfig path', async () => {
-            const opConfig = { _op: 'file_reader', path: 'some/other', _api_name: 'file_reader_api' };
-            const apiConfig = { _name: 'file_reader_api', path: 'some/path' };
+            const opConfig = { _op: 'file_reader', path: 'some/other', _api_name: DEFAULT_API_NAME };
+            const apiConfig = { _name: DEFAULT_API_NAME, path: 'some/path' };
 
             await makeTest(opConfig, apiConfig);
 
             const validatedApiConfig = harness.executionContext.config.apis.find(
-                (api: APIConfig) => api._name === 'file_reader_api'
+                (api: APIConfig) => api._name === DEFAULT_API_NAME
             );
 
             expect(validatedApiConfig).toMatchObject(apiConfig);
         });
 
         it('should ignore extra_args set in opConfig and use apiConfig extra_args', async () => {
-            const opConfig = { _op: 'file_reader', extra_args: { some: 'stuff' }, _api_name: 'file_reader_api' };
-            const apiConfig = { _name: 'file_reader_api', path: 'some/path', extra_args: { some: 'other' } };
+            const opConfig = { _op: 'file_reader', extra_args: { some: 'stuff' }, _api_name: DEFAULT_API_NAME };
+            const apiConfig = { _name: DEFAULT_API_NAME, path: 'some/path', extra_args: { some: 'other' } };
 
             await makeTest(opConfig, apiConfig);
 
             const validatedApiConfig = harness.executionContext.config.apis.find(
-                (api: APIConfig) => api._name === 'file_reader_api'
+                (api: APIConfig) => api._name === DEFAULT_API_NAME
             );
 
             expect(validatedApiConfig).toMatchObject(apiConfig);
@@ -89,11 +90,11 @@ describe('File Reader Schema', () => {
             const opConfig = {
                 _op: 'file_reader',
                 _dead_letter_action: 'none',
-                _api_name: 'file_reader_api'
+                _api_name: DEFAULT_API_NAME
             };
 
             const apiConfig = {
-                _name: 'file_reader_api',
+                _name: DEFAULT_API_NAME,
                 path: '/chillywilly',
                 _dead_letter_action: 'throw'
             };
@@ -101,7 +102,7 @@ describe('File Reader Schema', () => {
             await makeTest(opConfig, apiConfig);
 
             const validatedApiConfig = harness.executionContext.config.apis.find(
-                (api: APIConfig) => api._name === 'file_reader_api'
+                (api: APIConfig) => api._name === DEFAULT_API_NAME
             );
 
             expect(validatedApiConfig).toMatchObject(apiConfig);
@@ -111,11 +112,11 @@ describe('File Reader Schema', () => {
             const opConfig = {
                 _op: 'file_reader',
                 _encoding: DataEncoding.RAW,
-                _api_name: 'file_reader_api'
+                _api_name: DEFAULT_API_NAME
             };
 
             const apiConfig = {
-                _name: 'file_reader_api',
+                _name: DEFAULT_API_NAME,
                 path: '/chillywilly',
                 _encoding: DataEncoding.JSON
             };
@@ -123,7 +124,7 @@ describe('File Reader Schema', () => {
             await makeTest(opConfig, apiConfig);
 
             const validatedApiConfig = harness.executionContext.config.apis.find(
-                (api: APIConfig) => api._name === 'file_reader_api'
+                (api: APIConfig) => api._name === DEFAULT_API_NAME
             );
 
             expect(validatedApiConfig).toMatchObject(apiConfig);

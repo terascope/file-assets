@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 // @ts-expect-error
 import fixtures from 'jest-fixtures';
+import { DEFAULT_API_NAME } from '../../asset/src/file_reader_api/interfaces.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -11,14 +12,14 @@ describe('File reader\'s fetcher', () => {
     let harness: WorkerTestHarness;
 
     async function makeTest(config: Record<string, any>) {
-        const apiConfig = Object.assign({}, { _name: 'file_reader_api' }, config);
+        const apiConfig = Object.assign({}, { _name: DEFAULT_API_NAME }, config);
 
         const job = newTestJobConfig({
             apis: [apiConfig],
             operations: [
                 {
                     _op: 'file_reader',
-                    _api_name: 'file_reader_api'
+                    _api_name: DEFAULT_API_NAME
                 },
                 {
                     _op: 'noop'

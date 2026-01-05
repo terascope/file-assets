@@ -5,6 +5,7 @@ import {
 } from '@terascope/job-components';
 import { Format } from '@terascope/file-asset-apis';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
+import { DEFAULT_API_NAME } from '../../asset/src/file_sender_api/interfaces.js';
 
 describe('File exporter Schema', () => {
     let harness: WorkerTestHarness;
@@ -46,11 +47,11 @@ describe('File exporter Schema', () => {
         it('should not throw an error if valid configs are given', async () => {
             const opConfig = {
                 _op: 'file_exporter',
-                _api_name: 'file_sender_api',
+                _api_name: DEFAULT_API_NAME,
             };
 
             const apiConfig = {
-                _name: 'file_sender_api',
+                _name: DEFAULT_API_NAME,
                 path: '/chillywilly',
                 _dead_letter_action: 'throw'
             };
@@ -62,11 +63,11 @@ describe('File exporter Schema', () => {
             const opConfig = {
                 _op: 'file_exporter',
                 _dead_letter_action: 'none',
-                _api_name: 'file_sender_api'
+                _api_name: DEFAULT_API_NAME
             };
 
             const apiConfig = {
-                _name: 'file_sender_api',
+                _name: DEFAULT_API_NAME,
                 path: '/chillywilly',
                 _dead_letter_action: 'throw'
             };
@@ -74,7 +75,7 @@ describe('File exporter Schema', () => {
             await makeTest(opConfig, apiConfig);
 
             const validatedApiConfig = harness.executionContext.config.apis.find(
-                (api: APIConfig) => api._name === 'file_sender_api'
+                (api: APIConfig) => api._name === DEFAULT_API_NAME
             );
 
             expect(validatedApiConfig).toMatchObject(apiConfig);
@@ -84,11 +85,11 @@ describe('File exporter Schema', () => {
             const opConfig = {
                 _op: 'file_exporter',
                 _encoding: DataEncoding.RAW,
-                _api_name: 'file_sender_api'
+                _api_name: DEFAULT_API_NAME
             };
 
             const apiConfig = {
-                _name: 'file_sender_api',
+                _name: DEFAULT_API_NAME,
                 path: '/chillywilly',
                 _encoding: DataEncoding.JSON
             };
@@ -96,16 +97,16 @@ describe('File exporter Schema', () => {
             await makeTest(opConfig, apiConfig);
 
             const validatedApiConfig = harness.executionContext.config.apis.find(
-                (api: APIConfig) => api._name === 'file_sender_api'
+                (api: APIConfig) => api._name === DEFAULT_API_NAME
             );
 
             expect(validatedApiConfig).toMatchObject(apiConfig);
         });
 
         it('will not throw if connection configs are specified in apis and not opConfig', async () => {
-            const opConfig = { _op: 'file_exporter', _api_name: 'file_sender_api' };
+            const opConfig = { _op: 'file_exporter', _api_name: DEFAULT_API_NAME };
             const apiConfig = {
-                _name: 'file_sender_api',
+                _name: DEFAULT_API_NAME,
                 path: 'some/path',
                 compression: 'none',
                 size: 200,
@@ -126,7 +127,7 @@ describe('File exporter Schema', () => {
             await harness.initialize();
 
             const validatedApiConfig = harness.executionContext.config.apis.find(
-                (api: APIConfig) => api._name === 'file_sender_api'
+                (api: APIConfig) => api._name === DEFAULT_API_NAME
             );
 
             expect(validatedApiConfig).toMatchObject(apiConfig);

@@ -10,7 +10,7 @@ import {
     LDJSONSenderAPIConfig, JSONSenderAPIConfig
 } from '@terascope/file-asset-apis';
 import { FileExporterConfig } from '../../asset/src/file_exporter/interfaces.js';
-import { FileSenderAPIConfig } from '../../asset/src/file_sender_api/interfaces.js';
+import { DEFAULT_API_NAME, FileSenderAPIConfig } from '../../asset/src/file_sender_api/interfaces.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -45,11 +45,11 @@ describe('File exporter processor', () => {
     }) {
         const _op = {
             _op: 'file_exporter',
-            _api_name: 'file_sender_api'
+            _api_name: DEFAULT_API_NAME
         };
 
         const api = {
-            _name: 'file_sender_api',
+            _name: DEFAULT_API_NAME,
             path: `${getTestFilePath()}`,
             compression: 'none',
             format: 'csv',

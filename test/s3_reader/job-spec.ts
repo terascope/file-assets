@@ -7,6 +7,7 @@ import { TestClientConfig } from '@terascope/job-components';
 import { JobTestHarness, newTestJobConfig } from 'teraslice-test-harness';
 import { Format, S3Client } from '@terascope/file-asset-apis';
 import { makeClient, cleanupBucket, upload } from '../helpers/index.js';
+import { DEFAULT_API_NAME } from '../../asset/src/s3_reader_api/interfaces.js';
 
 describe('S3Reader job', () => {
     const logger = debugLogger('test');
@@ -69,7 +70,7 @@ describe('S3Reader job', () => {
 
         it('can run reader and slicer in long form job specification', async () => {
             const apiConfig = {
-                _name: 's3_reader_api',
+                _name: DEFAULT_API_NAME,
                 _connection: 'my-s3-connector',
                 size: 100000,
                 field_delimiter: ',',
@@ -84,7 +85,7 @@ describe('S3Reader job', () => {
                 analytics: true,
                 apis: [apiConfig],
                 operations: [
-                    { _op: 's3_reader', _api_name: 's3_reader_api' } as any,
+                    { _op: 's3_reader', _api_name: DEFAULT_API_NAME } as any,
                     { _op: 'noop' }
                 ]
             });

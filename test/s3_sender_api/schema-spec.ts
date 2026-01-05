@@ -2,7 +2,7 @@ import 'jest-extended';
 import { debugLogger } from '@terascope/core-utils';
 import { newTestJobConfig, WorkerTestHarness } from 'teraslice-test-harness';
 import { ValidatedJobConfig, TestClientConfig } from '@terascope/job-components';
-import { S3ExporterAPIConfig } from '../../asset/src/s3_sender_api/interfaces.js';
+import { DEFAULT_API_NAME, S3ExporterAPIConfig } from '../../asset/src/s3_sender_api/interfaces.js';
 
 describe('S3 Sender API Schema', () => {
     const logger = debugLogger('test');
@@ -23,7 +23,7 @@ describe('S3 Sender API Schema', () => {
     const clients = [clientConfig];
 
     async function makeTest(apiConfig: Partial<S3ExporterAPIConfig> = {}) {
-        const apiName = 's3_sender_api';
+        const apiName = DEFAULT_API_NAME;
 
         const config = Object.assign(
             { _name: apiName },

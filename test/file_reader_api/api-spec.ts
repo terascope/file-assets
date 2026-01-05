@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 // @ts-expect-error
 import fixtures from 'jest-fixtures';
 import { FileReaderFactoryAPI } from '../../asset/src/file_reader_api/interfaces.js';
+import { DEFAULT_API_NAME } from '../../asset/src/file_reader_api/interfaces.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -21,7 +22,7 @@ describe('File Reader API', () => {
         const job = newTestJobConfig({
             apis: [
                 {
-                    _name: 'file_reader_api',
+                    _name: DEFAULT_API_NAME,
                     path: testDataDir,
                     format: Format.ldjson
                 }
@@ -29,7 +30,7 @@ describe('File Reader API', () => {
             operations: [
                 {
                     _op: 'file_reader',
-                    _api_name: 'file_reader_api'
+                    _api_name: DEFAULT_API_NAME
                 },
                 {
                     _op: 'noop'
@@ -41,7 +42,7 @@ describe('File Reader API', () => {
 
         await harness.initialize();
 
-        return harness.getAPI<FileReaderFactoryAPI>('file_reader_api');
+        return harness.getAPI<FileReaderFactoryAPI>(DEFAULT_API_NAME);
     }
 
     afterEach(async () => {

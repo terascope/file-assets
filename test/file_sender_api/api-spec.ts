@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 // @ts-expect-error
 import fixtures from 'jest-fixtures';
-import { FileSenderFactoryAPI } from '../../asset/src/file_sender_api/interfaces.js';
+import { DEFAULT_API_NAME, FileSenderFactoryAPI } from '../../asset/src/file_sender_api/interfaces.js';
 
 describe('File Sender API', () => {
     let harness: WorkerTestHarness;
@@ -15,17 +15,17 @@ describe('File Sender API', () => {
 
     async function makeTest(config: Record<string, any> = {}) {
         const apiConfig = {
-            _name: 'file_sender_api',
+            _name: DEFAULT_API_NAME,
             format: Format.ldjson,
             ...config
         };
 
-        harness = WorkerTestHarness.testSender({ _op: 'file_exporter', _api_name: 'file_sender_api' }, apiConfig);
+        harness = WorkerTestHarness.testSender({ _op: 'file_exporter', _api_name: DEFAULT_API_NAME }, apiConfig);
 
         await harness.initialize();
         workerId = toString(get(harness, 'context.cluster.worker.id'));
 
-        return harness.getAPI<FileSenderFactoryAPI>('file_sender_api');
+        return harness.getAPI<FileSenderFactoryAPI>(DEFAULT_API_NAME);
     }
 
     beforeEach(() => {

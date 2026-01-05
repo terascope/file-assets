@@ -6,7 +6,7 @@ import {
 import { TestClientConfig } from '@terascope/job-components';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
 import { Format, FileSlice, S3Client } from '@terascope/file-asset-apis';
-import { S3ReaderFactoryAPI } from '../../asset/src/s3_reader_api/interfaces.js';
+import { DEFAULT_API_NAME, S3ReaderFactoryAPI } from '../../asset/src/s3_reader_api/interfaces.js';
 import {
     makeClient, cleanupBucket, upload,
     testWorkerId
@@ -59,7 +59,7 @@ describe('S3 API Reader', () => {
         const apiConfig = Object.assign(
             {},
             {
-                _name: 's3_reader_api',
+                _name: DEFAULT_API_NAME,
                 _connection: 'my-s3-connector',
                 size: 100000,
                 field_delimiter: ',',
@@ -75,7 +75,7 @@ describe('S3 API Reader', () => {
             operations: [
                 {
                     _op: 's3_reader',
-                    _api_name: 's3_reader_api'
+                    _api_name: DEFAULT_API_NAME
                 },
                 {
                     _op: 'noop'
@@ -89,7 +89,7 @@ describe('S3 API Reader', () => {
 
         await harness.initialize();
 
-        return harness.getAPI<S3ReaderFactoryAPI>('s3_reader_api');
+        return harness.getAPI<S3ReaderFactoryAPI>(DEFAULT_API_NAME);
     }
 
     afterEach(async () => {

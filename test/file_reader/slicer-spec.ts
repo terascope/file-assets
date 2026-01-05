@@ -7,6 +7,7 @@ import { newTestJobConfig, SlicerTestHarness } from 'teraslice-test-harness';
 import { fileURLToPath } from 'node:url';
 // @ts-expect-error
 import fixtures from 'jest-fixtures';
+import { DEFAULT_API_NAME } from '../../asset/src/file_reader_api/interfaces.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -21,7 +22,7 @@ describe('File slicer json files', () => {
             analytics: true,
             apis: [
                 {
-                    _name: 'file_reader_api',
+                    _name: DEFAULT_API_NAME,
                     size: 750,
                     path: testDataDir,
                     format: Format.json
@@ -30,7 +31,7 @@ describe('File slicer json files', () => {
             operations: [
                 {
                     _op: 'file_reader',
-                    _api_name: 'file_reader_api',
+                    _api_name: DEFAULT_API_NAME,
                 },
                 {
                     _op: 'noop'
@@ -86,7 +87,7 @@ describe('File slicer non json files', () => {
             analytics: true,
             apis: [
                 {
-                    _name: 'file_reader_api',
+                    _name: DEFAULT_API_NAME,
                     path: testDataDir,
                     format: Format.ldjson,
                     size: 750,
@@ -97,7 +98,7 @@ describe('File slicer non json files', () => {
             operations: [
                 {
                     _op: 'file_reader',
-                    _api_name: 'file_reader_api',
+                    _api_name: DEFAULT_API_NAME,
                 },
                 {
                     _op: 'noop'

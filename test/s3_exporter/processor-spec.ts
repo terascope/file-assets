@@ -10,7 +10,7 @@ import {
 } from '@terascope/file-asset-apis';
 import { OpConfig, TestClientConfig } from '@terascope/job-components';
 import { makeClient, cleanupBucket, getBodyFromResults } from '../helpers/index.js';
-import { S3ExporterAPIConfig } from '../../asset/src/s3_sender_api/interfaces.js';
+import { DEFAULT_API_NAME, S3ExporterAPIConfig } from '../../asset/src/s3_sender_api/interfaces.js';
 
 describe('S3 sender api', () => {
     const bucket = 's3-exporter';
@@ -31,12 +31,12 @@ describe('S3 sender api', () => {
     }) {
         const _op = {
             _op: 's3_exporter',
-            _api_name: 's3_sender_api'
+            _api_name: DEFAULT_API_NAME
         };
 
         const api: S3ExporterAPIConfig = {
             id: 'test',
-            _name: 's3_sender_api',
+            _name: DEFAULT_API_NAME,
             path,
             _connection: 'my-s3-connector',
             file_per_slice: true,

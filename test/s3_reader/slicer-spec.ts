@@ -6,6 +6,7 @@ import { TestClientConfig } from '@terascope/job-components';
 import { newTestJobConfig, SlicerTestHarness } from 'teraslice-test-harness';
 import { Format, S3Client } from '@terascope/file-asset-apis';
 import { makeClient, cleanupBucket, upload } from '../helpers/index.js';
+import { DEFAULT_API_NAME } from '../../asset/src/s3_reader_api/interfaces.js';
 
 describe('S3 slicer', () => {
     const logger = debugLogger('test');
@@ -55,7 +56,7 @@ describe('S3 slicer', () => {
         const apiConfig = Object.assign(
             {},
             {
-                _name: 's3_reader_api',
+                _name: DEFAULT_API_NAME,
                 size: 70,
                 path: config.path,
                 format: config.format
@@ -69,7 +70,7 @@ describe('S3 slicer', () => {
             operations: [
                 {
                     _op: 's3_reader',
-                    _api_name: 's3_reader_api'
+                    _api_name: DEFAULT_API_NAME
                 },
                 {
                     _op: 'noop'
