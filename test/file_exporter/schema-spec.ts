@@ -39,6 +39,15 @@ describe('File exporter Schema', () => {
     });
 
     describe('when validating the schema', () => {
+        it('should throw an error if no path is specified', async () => {
+            const opConfig = { _op: 'file_exporter', _api_name: DEFAULT_API_NAME };
+            const apiConfig = {
+                _name: DEFAULT_API_NAME,
+                _dead_letter_action: 'throw'
+            };
+            await expect(makeTest(opConfig, apiConfig)).rejects.toThrow(/path.*This field is required and must be of type string/s);
+        });
+
         it('should throw an error if no api is specified', async () => {
             const opConfig = { _op: 'file_exporter' };
             await expect(makeTest(opConfig)).rejects.toThrow(/_api_name.*This field is required and must be of type string/s);
