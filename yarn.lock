@@ -2849,7 +2849,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@terascope/file-asset-apis@npm:~2.0.0-dev.0, @terascope/file-asset-apis@workspace:packages/file-asset-apis":
+"@terascope/file-asset-apis@npm:~2.0.0-rc.0, @terascope/file-asset-apis@workspace:packages/file-asset-apis":
   version: 0.0.0-use.local
   resolution: "@terascope/file-asset-apis@workspace:packages/file-asset-apis"
   dependencies:
@@ -2872,7 +2872,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@terascope/job-components@npm:~2.0.0-rc.0, @terascope/job-components@npm:~2.0.0-rc.1":
+"@terascope/job-components@npm:~2.0.0-rc.1":
   version: 2.0.0-rc.1
   resolution: "@terascope/job-components@npm:2.0.0-rc.1"
   dependencies:
@@ -5773,7 +5773,7 @@ __metadata:
   dependencies:
     "@terascope/core-utils": "npm:~2.0.0-rc.0"
     "@terascope/eslint-config": "npm:~1.1.26"
-    "@terascope/file-asset-apis": "npm:~2.0.0-dev.0"
+    "@terascope/file-asset-apis": "npm:~2.0.0-rc.0"
     "@terascope/job-components": "npm:~2.0.0-rc.1"
     "@terascope/scripts": "npm:~2.0.0-rc.0"
     "@types/fs-extra": "npm:~11.0.4"
@@ -5832,8 +5832,8 @@ __metadata:
   resolution: "file@workspace:asset"
   dependencies:
     "@terascope/core-utils": "npm:~2.0.0-rc.0"
-    "@terascope/file-asset-apis": "npm:~2.0.0-dev.0"
-    "@terascope/job-components": "npm:~2.0.0-rc.0"
+    "@terascope/file-asset-apis": "npm:~2.0.0-rc.0"
+    "@terascope/job-components": "npm:~2.0.0-rc.1"
     csvtojson: "npm:~2.0.14"
     fs-extra: "npm:~11.3.2"
     json2csv: "npm:5.0.7"
