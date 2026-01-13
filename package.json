@@ -1,7 +1,7 @@
 {
     "name": "file-assets-bundle",
     "displayName": "File Assets Bundle",
-    "version": "4.0.0-rc.1",
+    "version": "4.0.0",
     "private": true,
     "description": "A set of teraslice processors for working with files",
     "homepage": "https://github.com/terascope/file-assets",
@@ -37,11 +37,11 @@
         "test:watch": "ts-scripts test --watch asset --"
     },
     "devDependencies": {
-        "@terascope/core-utils": "~2.0.0-rc.0",
+        "@terascope/core-utils": "~2.0.0",
         "@terascope/eslint-config": "~1.1.26",
-        "@terascope/file-asset-apis": "~2.0.0-rc.1",
-        "@terascope/job-components": "~2.0.0-rc.1",
-        "@terascope/scripts": "~2.0.0-rc.0",
+        "@terascope/file-asset-apis": "~2.0.0",
+        "@terascope/job-components": "~2.0.0",
+        "@terascope/scripts": "~2.0.0",
         "@types/fs-extra": "~11.0.4",
         "@types/jest": "~30.0.0",
         "@types/json2csv": "~5.0.7",
@@ -57,7 +57,7 @@
         "node-gzip": "~1.1.2",
         "node-notifier": "~10.0.1",
         "semver": "~7.7.3",
-        "teraslice-test-harness": "~2.0.0-rc.1",
+        "teraslice-test-harness": "~2.0.0",
         "ts-jest": "~29.4.6",
         "typescript": "~5.9.3"
     },

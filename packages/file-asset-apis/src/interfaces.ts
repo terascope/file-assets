@@ -82,7 +82,7 @@ export interface ChunkedFileSenderAPIConfig extends ChunkedAPIMethods {
     jitter?: number;
 }
 
-export interface CSVReaderConfig extends ChunkedFileReaderAPIConfig {
+export interface CSVReaderAPIConfig extends ChunkedFileReaderAPIConfig {
     format: Format.csv | Format.tsv;
     extra_args?: CSVOptions;
     /** Ignore the empty value in tsv/csv columns.
@@ -106,11 +106,13 @@ export interface CSVReaderConfig extends ChunkedFileReaderAPIConfig {
     fields?: string[];
 }
 
-export function isCSVReaderConfig(config: ChunkedFileReaderAPIConfig): config is CSVReaderConfig {
+export function isCSVReaderAPIConfig(
+    config: ChunkedFileReaderAPIConfig
+): config is CSVReaderAPIConfig {
     return config.format === Format.csv || config.format === Format.tsv;
 }
 
-export function getFieldDelimiter(config: CSVReaderConfig): string {
+export function getFieldDelimiter(config: CSVReaderAPIConfig): string {
     if (config.format === Format.tsv) return config.field_delimiter ?? '\t';
     return config.field_delimiter ?? ',';
 }

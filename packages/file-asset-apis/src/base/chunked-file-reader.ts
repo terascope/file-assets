@@ -15,8 +15,8 @@ import {
     ChunkedFileReaderAPIConfig,
     Compression,
     Format,
-    isCSVReaderConfig,
-    CSVReaderConfig,
+    isCSVReaderAPIConfig,
+    CSVReaderAPIConfig,
     getFieldDelimiter,
     getLineDelimiter,
     getFieldsFromConfig,
@@ -25,7 +25,7 @@ import { Compressor } from './Compressor.js';
 
 type FN = (input: any) => any;
 
-function validateCSVConfig(inputConfig: CSVReaderConfig) {
+function validateCSVApiConfig(inputConfig: CSVReaderAPIConfig) {
     const {
         extra_args,
         fields,
@@ -97,8 +97,8 @@ export abstract class ChunkedFileReader {
             throw new Error(`Invalid parameter "format", it must be provided and set to one of these: ${formatValues.join(', ')}`);
         }
 
-        if (isCSVReaderConfig(inputConfig)) {
-            validateCSVConfig(inputConfig);
+        if (isCSVReaderAPIConfig(inputConfig)) {
+            validateCSVApiConfig(inputConfig);
         }
 
         this.config = { ...inputConfig };
@@ -232,7 +232,7 @@ export abstract class ChunkedFileReader {
     protected async csv(
         incomingData: string, slice: FileSlice
     ): Promise<(DataEntity | null)[]> {
-        const config = this.config as CSVReaderConfig;
+        const config = this.config as CSVReaderAPIConfig;
         const removeHeader = config.remove_header ?? true;
         const ignoreEmpty = config.ignore_empty ?? true;
 
