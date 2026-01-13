@@ -2,7 +2,7 @@
 
 This is a [teraslice api](https://terascope.github.io/teraslice/docs/jobs/configuration#apis), which encapsulates a specific functionality that can be utilized by any processor, reader or slicer.
 
-The `s3_reader_api` will provide an [api factory](https://terascope.github.io/teraslice/docs/packages/job-components/api/operations/api-factory/overview), which is a singleton that can create, cache and manage multiple file sender apis that can be accessed in any operation through the `getAPI` method on the operation.
+The `s3_reader_api` will provide an [api factory](https://terascope.github.io/teraslice/docs/packages/job-components/api/operations/api-factory/overview), which is a singleton that can create, cache and manage multiple file reader apis that can be accessed in any operation through the `getAPI` method on the operation.
 
 If you are using the asset version >= 2.4.0, it should be used on teraslice >= v84.0
 
@@ -33,11 +33,11 @@ Example Job
     ],
     "operations" : [
         {
-            "_op" : "test-reader"
-        },
-        {
             "_op" : "some_reader",
             "_api_name" : "s3_reader_api"
+        },
+        {
+            "_op" : "stdout"
         }
     ]
 }
@@ -221,7 +221,7 @@ parameters:
     size: the size in bytes the file contains
 }`
 - config: `{
-    file_per_slice: please check [Parameters](#parameters) for more information,
+    file_per_slice: please check` [Parameters](#parameters) `for more information,
     format: used to determine how the data should be written to file,
     size: how big each slice chunk should be,
     line_delimiter: a delimiter applied between each record or slice
@@ -248,14 +248,14 @@ results === [
       total: 1000
   },
   {
-     length: 301,
-     offset: 299,
-     path: 'some/path',
-     total: 1000
+      offset: 299,
+      length: 301,
+      path: 'some/path',
+      total: 1000
   },
   {
-      length: 301,
       offset: 599,
+      length: 301,
       path: 'some/path',
       total: 1000
   },
@@ -292,21 +292,22 @@ slice ===  [{
 
 | Configuration   | Description    | Type     | Notes   |
 | --------------- | ------------------------ | -------- | -------------- |
-| \_op            | Name of operation, it must reflect the exact name of the file  | String   | required   |
+| \_name            | The name of the api, this must be unique among any loaded APIs but can be namespaced by using the format "example:0"  | String   | required   |
 | path            | The bucket and optional prefix for data. If there is no `/` in this parameter, it will just be treated as a bucket name, and anything separated from the bucket name with a `/` will be treated as a subdirectory whether or not there is a trailing `/` | String   | optional, if path is not provided in the opConfig, it must be provided in the api configuration |
 | extension       | Optional file extension to add to file names | String   | optional, A `.` is not automatically prepended to this value when being added to the filename, if it is desired it must be specified on the extension |
-| compression     | you may specify a compression algorithm to apply to the data before being written to file, it may be set to `none`, `lz4` or `gzip` | String   | optional, defaults `none` |
+| compression     | Compression algorithm to use to decompress the file, it may be set to `none`, `lz4` or `gzip`  | String   | optional, defaults `none` |
 | fields          | a list of all field names present in the file **in the order that they are found**, this essentially acts as the headers. This option is only used for `tsv` and `csv` formats | String[] | optional |
 | field_delimiter | A delimiter between field names. This is only used when `format` is set to `csv` | String   | optional, defaults to `,` |
 | line_delimiter  | If a line delimiter other than `\n` is used in the files, this option will tell the reader how to read records in the file. This option is ignored for `json` format. See the [format](#format) section for more information how this deliminator is applied for each format. | String   | optional, defaults to `\n`|
-| file_per_slice  | This setting determines if the output for a worker will be in a single file (`false`), or if the worker will create a new file for every slice it processes  (`true`). If set to `true`, an integer, starting at 0, will be appended to the filename and incremented by 1 for each slice a worker processes | Boolean  | optional, defaults to `true`. If using `json` format, this option will be overridden to `true`|
+| file_per_slice  | This setting determines if slices will contain a complete file (`true`), or split the file into several slices (`false`). | Boolean  | optional, defaults to `true`. If files are in a compressed format, this option must be `true` |
 | include_header  | Determines whether or not to include column headers for the fields in output files. If set to `true`, a header will be added as the first entry to every file created. This option is only used for `tsv` and `csv` formats | Boolean  | optional, defaults to `false`  |
-| format          | Used to determine how the data should be written to file, options are: `json`, `ldjson`, `raw`, `csv`, `tsv` | String   | required, please reference the [format](#format) section for more information |
+| format          | Used to determine how the data should be read from the file, options are: `json`, `ldjson`, `raw`, `csv`, `tsv` | String   | required, please reference the [format](#format) section for more information  |
 | size            | Determines the target slice size in bytes. The actual slice size will vary slightly since the reader will read additional bytes from the file in order to complete a record if the read ends with a partial record. This option is ignored for `json` format. See `json` format option below for more info. | Number   | optional, defaults to `10000000`  |
 | remove_header   | Checks for the header row in csv or tsv files and removes it | Boolean  | optional, defaults to `true` |
 | ignore_empty    | Ignores empty fields when parsing CSV/TSV files | Boolean  | optional, defaults to `true` |
 | extra_args      | A [configuration object](https://www.npmjs.com/package/json2csv#available-options) used to pass in any extra csv parsing arguments | Object | optional, defaults to `{}` |
 | _connection      | Name of the s3 connection to use when sending data | String   | optional, defaults to the `default` connection |
+| on_reject_action | Action to take when reading from file fails | String | optional, can be one of `throw`, `log`, or `none` |
 
 ## Advanced Configuration
 
