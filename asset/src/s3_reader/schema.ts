@@ -1,34 +1,8 @@
-import { ConvictSchema, ValidatedJobConfig } from '@terascope/job-components';
+import { BaseSchema } from '@terascope/job-components';
 import { S3ReaderConfig } from './interfaces.js';
 import { opSchema } from '../__lib/common-schema.js';
-import { DEFAULT_API_NAME } from '../s3_reader_api/interfaces.js';
 
-export default class Schema extends ConvictSchema<S3ReaderConfig> {
-    validateJob(job: ValidatedJobConfig): void {
-        let opIndex = 0;
-
-        const opConfig = job.operations.find((op, ind) => {
-            if (op._op === 's3_reader') {
-                opIndex = ind;
-                return op;
-            }
-            return false;
-        });
-
-        if (opConfig == null) throw new Error('Could not find s3_reader operation in jobConfig');
-
-        const {
-            api_name, ...newConfig
-        } = opConfig;
-
-        const apiName = api_name || `${DEFAULT_API_NAME}:${opConfig._op}-${opIndex}`;
-
-        // we set the new apiName back on the opConfig so it can reference the unique name
-        opConfig.api_name = apiName;
-
-        this.ensureAPIFromConfig(apiName, job, newConfig);
-    }
-
+export default class Schema extends BaseSchema<S3ReaderConfig> {
     build(): Record<string, any> {
         return opSchema;
     }

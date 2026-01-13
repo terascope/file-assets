@@ -1,12 +1,12 @@
 import 'jest-extended';
 import { WorkerTestHarness, newTestJobConfig } from 'teraslice-test-harness';
-import { AnyObject } from '@terascope/job-components';
 import { Format } from '@terascope/file-asset-apis';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 // @ts-expect-error
 import fixtures from 'jest-fixtures';
 import { FileReaderFactoryAPI } from '../../asset/src/file_reader_api/interfaces.js';
+import { DEFAULT_API_NAME } from '../../asset/src/file_reader_api/interfaces.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -18,16 +18,20 @@ describe('File Reader API', () => {
         testDataDir = await fixtures.copyFixtureIntoTempDir(dirname, 'file_reader/ldjson/subdir');
     });
 
-    async function makeTest(config: AnyObject = {}) {
-        const opConfig = {
-            _op: 'file_reader',
-            path: testDataDir,
-            format: Format.ldjson,
-            ...config
-        };
+    async function makeTest() {
         const job = newTestJobConfig({
+            apis: [
+                {
+                    _name: DEFAULT_API_NAME,
+                    path: testDataDir,
+                    format: Format.ldjson
+                }
+            ],
             operations: [
-                opConfig,
+                {
+                    _op: 'file_reader',
+                    _api_name: DEFAULT_API_NAME
+                },
                 {
                     _op: 'noop'
                 }
@@ -38,7 +42,7 @@ describe('File Reader API', () => {
 
         await harness.initialize();
 
-        return harness.getAPI<FileReaderFactoryAPI>('file_reader_api:file_reader-0');
+        return harness.getAPI<FileReaderFactoryAPI>(DEFAULT_API_NAME);
     }
 
     afterEach(async () => {

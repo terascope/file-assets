@@ -1,4 +1,5 @@
 import { OpConfig } from '@terascope/job-components';
-import { ReaderConfig } from '@terascope/file-asset-apis';
 
-export interface S3ReaderConfig extends ReaderConfig, OpConfig {}
+export interface S3ReaderConfig extends OpConfig {
+    _api_name: string;
+}

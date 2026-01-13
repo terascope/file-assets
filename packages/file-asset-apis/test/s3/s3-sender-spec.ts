@@ -1,10 +1,10 @@
 import 'jest-extended';
 import {
     DataEntity, debugLogger, isString, times
-} from '@terascope/utils';
+} from '@terascope/core-utils';
 import { makeClient, cleanupBucket, getBodyFromResults } from './helpers.js';
 import {
-    Compression, Format, ChunkedFileSenderConfig,
+    Compression, Format, ChunkedFileSenderAPIConfig,
     S3Sender, getS3Object, Compressor,
     listS3Buckets, MIN_CHUNK_SIZE_BYTES
 } from '../../src/index.js';
@@ -51,7 +51,7 @@ describe('S3 Sender API', () => {
         const testDirPath = 'bucket_test';
         const testPath = `${ensureBucket}/${testDirPath}`;
 
-        const config: ChunkedFileSenderConfig = {
+        const config: ChunkedFileSenderAPIConfig = {
             path: testPath,
             id,
             format,
@@ -84,7 +84,7 @@ describe('S3 Sender API', () => {
         const compression = Compression.none;
         const compressor = new Compressor(compression);
 
-        const config: ChunkedFileSenderConfig = {
+        const config: ChunkedFileSenderAPIConfig = {
             path,
             id,
             format,
@@ -120,7 +120,7 @@ describe('S3 Sender API', () => {
         const compression = Compression.gzip;
         const compressor = new Compressor(compression);
 
-        const config: ChunkedFileSenderConfig = {
+        const config: ChunkedFileSenderAPIConfig = {
             path,
             id,
             format,
@@ -176,7 +176,7 @@ describe('S3 Sender API', () => {
         const compression = Compression.none;
         const compressor = new Compressor(compression);
 
-        const config: ChunkedFileSenderConfig = {
+        const config: ChunkedFileSenderAPIConfig = {
             path,
             id,
             format,

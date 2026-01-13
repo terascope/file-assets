@@ -41,7 +41,7 @@ Example Job
         },
         {
             "_op" : "some_sender",
-            "api_name" : "s3_sender_api"
+            "_api_name" : "s3_sender_api"
         }
     ]
 }
@@ -54,7 +54,7 @@ export default class SomeSender extends BatchProcessor {
 
     async initialize() {
         await super.initialize();
-        const apiName = this.opConfig.api_name;
+        const apiName = this.opConfig._api_name;
         const apiManager = this.getAPI(apiName);
         this.api = await apiManager.create(apiName);
     }
@@ -203,7 +203,7 @@ await api.send([
 
 | Configuration   | Description | Type     | Notes |
 | --------------- | ---------| -------- | --------- |
-| \_op            | Name of operation, it must reflect the exact name of the file | String   | required |
+| \_name            | The name of the api, this must be unique among any loaded APIs but can be namespaced by using the format "example:0" | String   | required |
 | path            | The bucket and optional prefix for data. If there is no `/` in this parameter, it will just be treated as a bucket name, and if there is no trailing `/`, one will be added to separate anything after the bucket from the worker names. | String   | required, files will be named after the TS workers, so multiple workers can write data to the same directory concurrently. If there is no trailing `/`, one will be added. |
 | extension       | Optional file extension to add to file names | String   | optional, A `.` is not automatically prepended to this value when being added to the filename, if it is desired it must be specified on the extension |
 | compression     | you may specify a compression algorithm to apply to the data before being written to file, it may be set to `none`, `lz4` or `gzip` | String   | optional, defaults `none` |
@@ -214,7 +214,7 @@ await api.send([
 | include_header  | Determines whether or not to include column headers for the fields in output files. If set to `true`, a header will be added as the first entry to every file created. This option is only used for `tsv` and `csv` formats | Boolean  | optional, defaults to `false` |
 | concurrency     | The represents the limit on how many parallel writes will occur at a given time | Number   | optional, defaults to `10` |
 | format          | Used to determine how the data should be written to file, options are: `json`, `ldjson`, `raw`, `csv`, `tsv` | String   | required, please reference the [format](#format) section for more information |
-| connection      | Name of the s3 connection to use when sending data | String   | optional, defaults to the `default` connection |
+| _connection      | Name of the s3 connection to use when sending data | String   | optional, defaults to the `default` connection |
 
 ## Advanced Configuration
 
@@ -240,7 +240,7 @@ Format determines how the data is saved to file, please check the references bel
 
 #### raw
 
-`raw` format will generate files where each line is the value of the `data` attribute of a data entity in the slice. This is mainly used to process binary data or other data that are not strings, the records must be sent to the `hdfs_exporter` in the form of:
+`raw` format will generate files where each line is the value of the `data` attribute of a data entity in the slice. This is mainly used to process binary data or other data that are not strings, the records must be sent to the `s3_exporter` in the form of:
 
 ```json
 { "data": "some processed data string or buffer" }

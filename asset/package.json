@@ -1,7 +1,7 @@
 {
     "name": "file",
     "displayName": "Asset",
-    "version": "3.3.0",
+    "version": "4.0.0",
     "private": true,
     "description": "A set of processors for working with files",
     "repository": {
@@ -21,8 +21,9 @@
         "test": "yarn --cwd ../ test"
     },
     "dependencies": {
-        "@terascope/file-asset-apis": "~1.1.2",
-        "@terascope/job-components": "~1.12.4",
+        "@terascope/core-utils": "~2.0.0",
+        "@terascope/file-asset-apis": "~2.0.0",
+        "@terascope/job-components": "~2.0.0",
         "csvtojson": "~2.0.14",
         "fs-extra": "~11.3.2",
         "json2csv": "5.0.7",
@@ -30,7 +31,7 @@
         "node-gzip": "~1.1.2"
     },
     "engines": {
-        "node": ">=22.0.0",
+        "node": ">=22.21.1",
         "yarn": ">=1.22.19"
     },
     "terascope": {}

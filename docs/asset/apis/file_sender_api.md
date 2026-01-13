@@ -39,7 +39,7 @@ Example Job
         },
         {
             "_op" : "some_sender",
-            "api_name" : "file_sender_api"
+            "_api_name" : "file_sender_api"
         }
     ]
 }
@@ -51,7 +51,7 @@ Here is a custom processor for the job described above
 export default class SomeSender extends BatchProcessor {
     async initialize() {
         await super.initialize();
-        const apiName = this.opConfig.api_name;
+        const apiName = this.opConfig._api_name;
         const apiManager = this.getAPI(apiName);
         this.api = await apiManager.create(apiName);
         await this.api.verify();
@@ -206,7 +206,7 @@ await api.send([
 
 | Configuration   | Description | Type     | Notes  |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| \_op            | Name of operation, it must reflect the exact name of the file | String   | required |
+| \_name            | The name of the api, this must be unique among any loaded APIs but can be namespaced by using the format "example:0" | String   | required |
 | path | This is the directory where data will be saved. All intermediate directories must pre-exist, and the directory must be accessible by the TS workers. | String | required, Files will be named after the TS workers, so multiple workers can write data to the same directory concurrently. If there is no trailing `/`, one will be added. |
 | extension       | Optional file extension to add to file names | String   | optional, A `.` is not automatically prepended to this value when being added to the filename, if it is desired it must be specified on the extension |
 | compression     | you may specify a compression algorithm to apply to the data before being written to file, it may be set to `none`, `lz4` or `gzip` | String   | optional, defaults `none` |

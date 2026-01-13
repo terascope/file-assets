@@ -1,12 +1,13 @@
 import {
-    APIFactory, AnyObject, isNil,
-    isString, getTypeOf, toString, get
-} from '@terascope/job-components';
+    isNil, isString, getTypeOf, toString,
+    get
+} from '@terascope/core-utils';
+import { APIFactory } from '@terascope/job-components';
 import { S3Sender } from '@terascope/file-asset-apis';
 import { S3ExporterAPIConfig } from './interfaces.js';
 
 export default class S3SenderAPI extends APIFactory<S3Sender, S3ExporterAPIConfig> {
-    validateConfig(input: AnyObject): S3ExporterAPIConfig {
+    validateConfig(input: Record<string, any>): S3ExporterAPIConfig {
         if (isNil(input.path) || !isString(input.path)) throw new Error(`Invalid parameter path: it must be of type string, was given ${getTypeOf(input.path)}`);
         const workerId = toString(get(this.context, 'cluster.worker.id'));
         input.id = workerId;
@@ -30,7 +31,7 @@ export default class S3SenderAPI extends APIFactory<S3Sender, S3ExporterAPIConfi
         }
 
         const { client: s3Client } = await this.context.apis.foundation.createClient({
-            endpoint: config.connection,
+            endpoint: config._connection,
             type: 's3',
             cached: true
         });

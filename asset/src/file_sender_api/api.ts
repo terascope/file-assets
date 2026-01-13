@@ -1,13 +1,13 @@
 import {
-    APIFactory, AnyObject, isNil,
-    isString, getTypeOf, toString,
+    isNil, isString, getTypeOf, toString,
     get
-} from '@terascope/job-components';
+} from '@terascope/core-utils';
+import { APIFactory } from '@terascope/job-components';
 import { FileSender } from '@terascope/file-asset-apis';
 import { FileSenderAPIConfig } from './interfaces.js';
 
 export default class FileSenderAPI extends APIFactory<FileSender, FileSenderAPIConfig> {
-    validateConfig(input: AnyObject): FileSenderAPIConfig {
+    validateConfig(input: Record<string, any>): FileSenderAPIConfig {
         if (isNil(input.path) || !isString(input.path)) throw new Error(`Invalid parameter path: it must be of type string, was given ${getTypeOf(input.path)}`);
         const workerId = toString(get(this.context, 'cluster.worker.id'));
         input.id = workerId;

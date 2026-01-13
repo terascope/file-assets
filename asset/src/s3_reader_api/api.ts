@@ -1,11 +1,12 @@
 import {
-    APIFactory, AnyObject, isNil, isString, getTypeOf
-} from '@terascope/job-components';
+    isNil, isString, getTypeOf
+} from '@terascope/core-utils';
+import { APIFactory } from '@terascope/job-components';
 import { S3TerasliceAPI } from '@terascope/file-asset-apis';
 import { S3ReaderAPIConfig } from './interfaces.js';
 
 export default class S3ReaderAPI extends APIFactory<S3TerasliceAPI, S3ReaderAPIConfig> {
-    validateConfig(input: AnyObject): S3ReaderAPIConfig {
+    validateConfig(input: Record<string, any>): S3ReaderAPIConfig {
         if (isNil(input.path) || !isString(input.path)) throw new Error(`Invalid parameter path: it must be of type string, was given ${getTypeOf(input.path)}`);
         // file_per_slice must be set to true if compression is set to anything besides "none"
         if (input.compression !== 'none' && input.file_per_slice !== true) {
@@ -20,7 +21,7 @@ export default class S3ReaderAPI extends APIFactory<S3TerasliceAPI, S3ReaderAPIC
         const config = this.validateConfig(Object.assign({}, this.apiConfig, overrideConfigs));
 
         const { client: s3Client } = await this.context.apis.foundation.createClient({
-            endpoint: config.connection,
+            endpoint: config._connection,
             type: 's3',
             cached: true
         });

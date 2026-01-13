@@ -24,8 +24,6 @@ Any manual changes will be lost next time this gets auto-generated. -->
 
 - [file_reader_api](./docs/asset/apis/file_reader_api)
 - [file_sender_api](./docs/asset/apis/file_sender_api)
-- hdfs_reader_api
-- hdfs_sender_api
 - [s3_reader_api](./docs/asset/apis/s3_reader_api)
 - [s3_sender_api](./docs/asset/apis/s3_sender_api)
 
@@ -36,8 +34,6 @@ Any manual changes will be lost next time this gets auto-generated. -->
 
 - [file_exporter](./docs/asset/operations/file_exporter)
 - [file_reader](./docs/asset/operations/file_reader)
-- hdfs_append
-- [hdfs_reader](./docs/asset/operations/hdfs_reader)
 - [s3_exporter](./docs/asset/operations/s3_exporter)
 - [s3_reader](./docs/asset/operations/s3_reader)
 

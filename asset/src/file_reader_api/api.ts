@@ -1,11 +1,10 @@
-import {
-    APIFactory, AnyObject, isNil, isString, getTypeOf
-} from '@terascope/job-components';
+import { isNil, isString, getTypeOf } from '@terascope/core-utils';
+import { APIFactory } from '@terascope/job-components';
 import { FileTerasliceAPI } from '@terascope/file-asset-apis';
 import { FileReaderAPIConfig } from './interfaces.js';
 
 export default class FileReaderAPI extends APIFactory<FileTerasliceAPI, FileReaderAPIConfig> {
-    validateConfig(input: AnyObject): FileReaderAPIConfig {
+    validateConfig(input: Record<string, any>): FileReaderAPIConfig {
         if (isNil(input.path) || !isString(input.path)) throw new Error(`Invalid parameter path: it must be of type string, was given ${getTypeOf(input.path)}`);
         // file_per_slice must be set to true if compression is set to anything besides "none"
         if (input.compression !== 'none' && input.file_per_slice !== true) {
