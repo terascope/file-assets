@@ -21,9 +21,9 @@
         "test": "yarn --cwd ../ test"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.0.3",
+        "@terascope/core-utils": "~2.0.6",
         "@terascope/file-asset-apis": "~2.0.1",
-        "@terascope/job-components": "~2.0.3",
+        "@terascope/job-components": "~2.0.6",
         "csvtojson": "~2.0.14",
         "fs-extra": "~11.3.3",
         "json2csv": "5.0.7",
