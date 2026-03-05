@@ -15,7 +15,7 @@
     ],
     "scripts": {
         "build": "tsc --project tsconfig.json",
-        "build:watch": "yarn build --watch",
+        "build:watch": "pnpm build --watch",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
