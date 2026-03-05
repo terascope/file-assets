@@ -25,12 +25,12 @@ main() {
         ;;
     esac
 
-    yarn setup &&
-        yarn docs &&
+    pnpm run setup &&
+        pnpm docs &&
         git add -f docs/packages/*/api &&
         cd website &&
-        yarn install  &&
-        yarn run build &&
+        pnpm install  &&
+        pnpm run build &&
         git restore --staged ../docs/packages/*/api
 }
 
