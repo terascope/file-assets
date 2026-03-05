@@ -26,7 +26,7 @@ main() {
     esac
 
     pnpm run setup &&
-        pnpm docs &&
+        pnpm run docs &&
         git add -f docs/packages/*/api &&
         cd website &&
         pnpm install  &&
