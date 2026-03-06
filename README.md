@@ -47,7 +47,7 @@ This asset bundle requires a running Teraslice cluster [Documentation](https://t
 
 ```bash
 # Step 1: make sure you have teraslice-cli installed
-yarn global add teraslice-cli
+npm install -g teraslice-cli
 
 # Step 2:
 # teraslice-cli assets deploy <cluster_alias> <asset-name[@version]>
@@ -106,6 +106,20 @@ terafoundation:
 
 ## Development
 
+### Setup
+
+This project uses [pnpm](https://pnpm.io/). The recommended way to install it is via [corepack](https://nodejs.org/api/corepack.html), which is bundled with Node.js:
+
+```bash
+corepack enable pnpm
+```
+
+Then install dependencies and build:
+
+```bash
+pnpm run setup
+```
+
 ### Tests
 
 Run the file-assets tests
@@ -115,7 +129,7 @@ Run the file-assets tests
 - `docker` - A [MinIO](https://hub.docker.com/r/minio/minio) container will be created using [Docker](https://docs.docker.com/get-started/)
 
 ```bash
-yarn test
+pnpm test
 ```
 
 ### Build
@@ -125,7 +139,7 @@ Build a compiled asset bundle to deploy to a teraslice cluster.
 **Install Teraslice CLI:**
 
 ```bash
-yarn global add teraslice-cli
+npm install -g teraslice-cli
 ```
 
 ```bash
