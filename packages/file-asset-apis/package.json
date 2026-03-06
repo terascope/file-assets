@@ -15,7 +15,7 @@
     ],
     "scripts": {
         "build": "tsc --project tsconfig.json",
-        "build:watch": "yarn build --watch",
+        "build:watch": "pnpm build --watch",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
@@ -31,7 +31,7 @@
         "node-gzip": "~1.1.2"
     },
     "devDependencies": {
-        "@terascope/scripts": "~2.2.2",
+        "@terascope/scripts": "~2.3.1",
         "@terascope/types": "~2.2.1",
         "@types/jest": "~30.0.0",
         "aws-sdk-client-mock": "~4.1.0",
