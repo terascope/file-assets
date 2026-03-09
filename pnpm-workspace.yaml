@@ -1,0 +1,7 @@
+packages:
+  - 'packages/*'
+  - 'asset'
+
+# onlyBuiltDependencies:
+#   - 'dtrace-provider'
+#   - 'unrs-resolver'

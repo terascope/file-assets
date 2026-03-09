@@ -1,7 +1,7 @@
 {
     "name": "file-assets-bundle",
     "displayName": "File Assets Bundle",
-    "version": "4.0.2",
+    "version": "4.0.3",
     "private": true,
     "description": "A set of teraslice processors for working with files",
     "homepage": "https://github.com/terascope/file-assets",
@@ -12,12 +12,8 @@
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
     "type": "module",
-    "workspaces": [
-        "packages/*",
-        "asset"
-    ],
     "scripts": {
-        "asset:build": "yarn && yarn run build",
+        "asset:build": "pnpm install && pnpm run build",
         "asset:post-build": "./scripts/copy-links.sh",
         "build": "tsc --build",
         "build:watch": "tsc --build --watch",
@@ -28,9 +24,9 @@
         "docker:saveImages": "ts-scripts images save",
         "docs": "ts-scripts docs",
         "lint": "eslint",
-        "lint:fix": "yarn lint --fix",
+        "lint:fix": "pnpm lint --fix",
         "publish:changed": "./scripts/publish.sh",
-        "setup": "yarn && yarn build --force",
+        "setup": "pnpm install && pnpm build --force",
         "test": "ts-scripts test asset --",
         "test:all": "ts-scripts test",
         "test:debug": "ts-scripts test --debug asset --",
@@ -39,9 +35,9 @@
     "devDependencies": {
         "@terascope/core-utils": "~2.2.2",
         "@terascope/eslint-config": "~1.1.29",
-        "@terascope/file-asset-apis": "~2.0.2",
+        "@terascope/file-asset-apis": "workspace:~",
         "@terascope/job-components": "~2.2.2",
-        "@terascope/scripts": "~2.2.2",
+        "@terascope/scripts": "~2.3.1",
         "@types/fs-extra": "~11.0.4",
         "@types/jest": "~30.0.0",
         "@types/json2csv": "~5.0.7",
@@ -61,10 +57,10 @@
         "ts-jest": "~29.4.6",
         "typescript": "~5.9.3"
     },
-    "packageManager": "yarn@4.6.0",
+    "packageManager": "pnpm@10.25.0",
     "engines": {
         "node": ">=22.21.1",
-        "yarn": ">=1.22.19"
+        "pnpm": ">=10.25.0"
     },
     "documentation": "https://terascope.github.io/file-assets",
     "terascope": {
