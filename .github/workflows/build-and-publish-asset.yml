@@ -22,4 +22,3 @@ jobs:
     if: github.event.pull_request.merged == true && startsWith(github.base_ref, 'release/file-assets-v')
     uses: terascope/workflows/.github/workflows/prerelease-asset-build-and-publish.yml@main
     secrets: inherit
-    
