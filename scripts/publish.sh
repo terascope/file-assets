@@ -29,9 +29,9 @@ publish() {
         echo "  $name@$currentVersion -> $targetVersion"
         if [ "$dryRun" == "false" ]; then
             if [ -n "$publishTag" ]; then
-                pnpm publish --tag "$publishTag"
+                pnpm publish --tag "$publishTag" --no-git-checks
             else
-                pnpm publish
+                pnpm publish --no-git-checks
             fi
         fi
     else
