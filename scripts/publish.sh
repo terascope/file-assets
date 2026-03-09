@@ -68,7 +68,7 @@ main() {
 
     for package in "${projectDir}/packages/"*; do
         cd "$package" || continue;
-        publish "$dryRun" "$publishTag";
+        publish "$dryRun" "$publishTag" --no-git-checks;
     done;
 
     cd "${projectDir}" || return;
