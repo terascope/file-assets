@@ -1,15 +1,25 @@
 name: Build, Publish and Release Teraslice Asset
 run-name: ${{ github.actor }} is building, publishing and releasing the Teraslice Asset
 on:
-  workflow_dispatch:
   pull_request:
     branches:
       - master
+      - release/file-assets-v*
     types:
       - closed
 
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
+
 jobs:
-  call-asset-build:
-    if: github.event.pull_request.merged == true
-    uses: terascope/workflows/.github/workflows/asset-build-and-publish.yml@pnpm
+  call-master-asset-build:
+    if: github.event.pull_request.merged == true && github.base_ref == 'master'
+    uses: terascope/workflows/.github/workflows/asset-build-and-publish.yml@main
     secrets: inherit
+
+  call-prerelease-asset-build:
+    if: github.event.pull_request.merged == true && startsWith(github.base_ref, 'release/file-assets-v')
+    uses: terascope/workflows/.github/workflows/prerelease-asset-build-and-publish.yml@main
+    secrets: inherit
+    
