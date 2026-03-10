@@ -143,7 +143,7 @@ npm install -g teraslice-cli
 ```
 
 ```bash
-teraslice-cli assets build
+teraslice-cli assets build 
 ```
 
 ## Contributing
