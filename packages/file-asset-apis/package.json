@@ -23,7 +23,7 @@
     "dependencies": {
         "@aws-sdk/client-s3": "~3.1014.0",
         "@smithy/node-http-handler": "~4.5.0",
-        "@terascope/core-utils": "~2.3.1",
+        "@terascope/core-utils": "~2.3.2",
         "csvtojson": "~2.0.14",
         "fs-extra": "~11.3.3",
         "json2csv": "5.0.7",
@@ -32,7 +32,7 @@
     },
     "devDependencies": {
         "@terascope/scripts": "~2.3.4",
-        "@terascope/types": "~2.3.0",
+        "@terascope/types": "~2.3.1",
         "@types/jest": "~30.0.0",
         "aws-sdk-client-mock": "~4.1.0",
         "jest": "~30.2.0",
