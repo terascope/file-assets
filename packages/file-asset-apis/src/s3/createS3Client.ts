@@ -74,7 +74,7 @@ export async function genFinalS3ClientConfig(config: S3ClientConfig): Promise<Ba
 }
 
 /**
- * Given the S3 client configuration, return httpOptions containig CA certs.
+ * Given the S3 client configuration, return httpOptions containing CA certs.
  * @param {S3ClientConfig} config S3 client configuration object
  * @returns {Promise<HttpsAgentOptions>} Options used to make HttpsAgent
  */
@@ -90,9 +90,9 @@ export async function createHttpOptions(
 
     // Deprecated
     if (config.certLocation) {
-        const certPathFound = await fs.existsSync(config.certLocation);
+        const certPathFound = fs.existsSync(config.certLocation);
         if (certPathFound) {
-            terafoundationCerts.push(await fs.readFileSync(config.certLocation, 'ascii'));
+            terafoundationCerts.push(fs.readFileSync(config.certLocation, 'ascii'));
         } else {
             throw new Error(`No cert path was found in config.certLocation: "${config.certLocation}"`);
         }
@@ -110,7 +110,11 @@ export async function createHttpOptions(
 
     return {
         rejectUnauthorized: true,
-        ca: allCerts
+        ca: allCerts,
+        // reuse socket connections to avoid long TLS handshakes. match @aws-sdk/client-s3 default
+        keepAlive: true,
+        // match @aws-sdk/client-s3 default
+        maxSockets: 50
     };
 }
 
