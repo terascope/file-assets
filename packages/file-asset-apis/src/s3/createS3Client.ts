@@ -111,9 +111,9 @@ export async function createHttpOptions(
     return {
         rejectUnauthorized: true,
         ca: allCerts,
-        // reuse socket connections to avoid long TLS handshakes. match @aws-sdk/client-s3 default
+        // reuse socket connections to avoid long TLS handshakes. matches @aws-sdk/client-s3 default
         keepAlive: true,
-        // match @aws-sdk/client-s3 default
+        // matches @aws-sdk/client-s3 default
         maxSockets: 50
     };
 }

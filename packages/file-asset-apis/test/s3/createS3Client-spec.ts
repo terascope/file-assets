@@ -8,7 +8,6 @@ import {
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// fixme: look at this more
 describe('createS3Client', () => {
     describe('genS3ClientConfig', () => {
         it('should generate config with requestHandler if sslEnabled is true', async () => {
