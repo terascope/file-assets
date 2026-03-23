@@ -30,6 +30,7 @@
         "test": "ts-scripts test asset --",
         "test:all": "ts-scripts test",
         "test:debug": "ts-scripts test --debug asset --",
+        "test:encrypted": "ENCRYPT_MINIO=true ts-scripts test -- --testPathPatterns='createS3Client-spec.ts|s3-fetcher-spec.ts|s3-helpers-spec.ts|s3-large-spec.ts|s3-sender-spec.ts|s3_exporter/processor-spec.ts|s3_reader/fetcher-spec.ts|s3_reader/job-spec.ts|s3_reader/slicer-spec.ts|s3_reader_api/api-spec.ts|s3_sender_api/api-spec.ts'",
         "test:watch": "ts-scripts test --watch asset --"
     },
     "devDependencies": {

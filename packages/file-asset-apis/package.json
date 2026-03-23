@@ -18,6 +18,7 @@
         "build:watch": "pnpm build --watch",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
+        "test:encrypted": "ENCRYPT_MINIO=true ts-scripts test -- --testPathPatterns='createS3Client-spec.ts|s3-fetcher-spec.ts|s3-helpers-spec.ts|s3-large-spec.ts|s3-sender-spec.ts'",
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
