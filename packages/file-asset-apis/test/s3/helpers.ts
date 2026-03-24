@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import { join } from 'node:path';
 import { isError } from '@terascope/core-utils';
 import {
     S3Client, S3ClientResponse, deleteAllS3Objects,
@@ -7,14 +9,18 @@ import {
 } from '../../src/index.js';
 
 const {
+    ENCRYPT_MINIO = 'false',
     MINIO_HOST = 'http://127.0.0.1:9000',
     MINIO_ACCESS_KEY = 'minioadmin',
     MINIO_SECRET_KEY = 'minioadmin',
+    CERT_PATH = '',
 } = process.env;
 
 export { MINIO_HOST, MINIO_ACCESS_KEY, MINIO_SECRET_KEY };
 
 export async function makeClient() {
+    const encryptMinio = ENCRYPT_MINIO === 'true';
+
     return createS3Client({
         endpoint: MINIO_HOST,
         credentials: {
@@ -23,8 +29,12 @@ export async function makeClient() {
         },
         maxAttempts: 4,
         forcePathStyle: true,
-        sslEnabled: false,
-        region: 'us-east-1'
+        sslEnabled: encryptMinio,
+        region: 'us-east-1',
+        ...(encryptMinio
+            ? { caCertificate: fs.readFileSync(join(CERT_PATH, 'CAs/rootCA.pem'), { encoding: 'utf-8' }) }
+            : {}
+        )
     });
 }
 

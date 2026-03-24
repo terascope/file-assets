@@ -172,7 +172,9 @@ describe('createS3Client', () => {
             const result = await createHttpOptions(startConfig);
             expect(result).toEqual({
                 rejectUnauthorized: true,
-                ca: expect.toBeArray()
+                ca: expect.toBeArray(),
+                keepAlive: true,
+                maxSockets: 50
             });
             if (result.ca) {
                 expect(result.ca[0]).toContain(
@@ -199,7 +201,9 @@ describe('createS3Client', () => {
             const result = await createHttpOptions(startConfig);
             expect(result).toEqual({
                 rejectUnauthorized: true,
-                ca: expect.toBeArray()
+                ca: expect.toBeArray(),
+                keepAlive: true,
+                maxSockets: 50
             });
             if (result.ca) {
                 expect(result.ca[0]).toEqual(
@@ -226,7 +230,9 @@ describe('createS3Client', () => {
             const result = await createHttpOptions(startConfig);
             expect(result).toEqual({
                 rejectUnauthorized: true,
-                ca: expect.toBeArray()
+                ca: expect.toBeArray(),
+                keepAlive: true,
+                maxSockets: 50
             });
             if (result.ca) {
                 expect(result.ca[0]).toEqual(
@@ -258,7 +264,9 @@ describe('createS3Client', () => {
             const result = await createHttpOptions(startConfig);
             expect(result).toEqual({
                 rejectUnauthorized: true,
-                ca: expect.toBeArray()
+                ca: expect.toBeArray(),
+                keepAlive: true,
+                maxSockets: 50
             });
             if (result.ca) {
                 expect(result.ca[0]).toEqual(

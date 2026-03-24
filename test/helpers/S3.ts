@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import {
     debugLogger, isNil, isString,
     DataEntity, isError
@@ -13,6 +15,7 @@ import * as s3Config from './config.js';
 const logger = debugLogger('s3_tests');
 
 export async function makeClient() {
+    const encryptMinio = s3Config.ENCRYPT_MINIO === 'true';
     return createS3Client({
         endpoint: s3Config.MINIO_HOST,
         credentials: {
@@ -21,8 +24,12 @@ export async function makeClient() {
         },
         maxAttempts: 4,
         forcePathStyle: true,
-        sslEnabled: false,
-        region: 'us-east-1'
+        sslEnabled: encryptMinio,
+        region: 'us-east-1',
+        ...(encryptMinio
+            ? { caCertificate: fs.readFileSync(path.join(s3Config.CERT_PATH, 'CAs/rootCA.pem'), { encoding: 'utf-8' }) }
+            : {}
+        )
     });
 }
 

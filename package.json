@@ -1,7 +1,7 @@
 {
     "name": "file-assets-bundle",
     "displayName": "File Assets Bundle",
-    "version": "4.0.4",
+    "version": "4.1.0",
     "private": true,
     "description": "A set of teraslice processors for working with files",
     "homepage": "https://github.com/terascope/file-assets",
@@ -30,13 +30,14 @@
         "test": "ts-scripts test asset --",
         "test:all": "ts-scripts test",
         "test:debug": "ts-scripts test --debug asset --",
+        "test:encrypted": "ENCRYPT_MINIO=true ts-scripts test -- --testPathPatterns='createS3Client-spec.ts|s3-fetcher-spec.ts|s3-helpers-spec.ts|s3-large-spec.ts|s3-sender-spec.ts|s3_exporter/processor-spec.ts|s3_reader/fetcher-spec.ts|s3_reader/job-spec.ts|s3_reader/slicer-spec.ts|s3_reader_api/api-spec.ts|s3_sender_api/api-spec.ts'",
         "test:watch": "ts-scripts test --watch asset --"
     },
     "devDependencies": {
-        "@terascope/core-utils": "~2.3.1",
+        "@terascope/core-utils": "~2.3.2",
         "@terascope/eslint-config": "~1.1.29",
         "@terascope/file-asset-apis": "workspace:~",
-        "@terascope/job-components": "~2.3.1",
+        "@terascope/job-components": "~2.3.2",
         "@terascope/scripts": "~2.3.4",
         "@types/fs-extra": "~11.0.4",
         "@types/jest": "~30.0.0",
@@ -53,7 +54,7 @@
         "node-gzip": "~1.1.2",
         "node-notifier": "~10.0.1",
         "semver": "~7.7.4",
-        "teraslice-test-harness": "~2.3.1",
+        "teraslice-test-harness": "~2.4.0",
         "ts-jest": "~29.4.6",
         "typescript": "~5.9.3"
     },
