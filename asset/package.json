@@ -16,9 +16,9 @@
         "test": "pnpm --filter file-assets-bundle test"
     },
     "dependencies": {
-        "@terascope/core-utils": "~2.4.0",
+        "@terascope/core-utils": "~2.4.1",
         "@terascope/file-asset-apis": "workspace:~",
-        "@terascope/job-components": "~2.4.0",
+        "@terascope/job-components": "~2.4.1",
         "csvtojson": "~2.0.14",
         "fs-extra": "~11.3.3",
         "json2csv": "5.0.7",
