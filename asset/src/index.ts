@@ -14,6 +14,9 @@ import FileReaderAPISchema from '../src/file_reader_api/schema';
 import FileSenderAPI from '../src/file_sender_api/api';
 import FileSenderAPISchema from '../src/file_sender_api/schema';
 
+import S3DedupTracker from '../src/s3_dedup_tracker/processor';
+import S3DedupTrackerSchema from '../src/s3_dedup_tracker/schema';
+
 import S3Exporter from '../src/s3_exporter/processor';
 import S3ExporterSchema from '../src/s3_exporter/schema';
 
@@ -26,9 +29,6 @@ import S3ReaderAPISchema from '../src/s3_reader_api/schema';
 
 import S3SenderAPI from '../src/s3_sender_api/api';
 import S3SenderAPISchema from '../src/s3_sender_api/schema';
-
-import S3DedupTracker from '../src/s3_dedup_tracker/processor';
-import S3DedupTrackerSchema from '../src/s3_dedup_tracker/schema';
 
 export const ASSETS = {
     file_exporter: {
@@ -48,6 +48,10 @@ export const ASSETS = {
         API: FileSenderAPI,
         Schema: FileSenderAPISchema,
     },
+    s3_dedup_tracker: {
+        Processor: S3DedupTracker,
+        Schema: S3DedupTrackerSchema,
+    },
     s3_exporter: {
         Processor: S3Exporter,
         Schema: S3ExporterSchema,
@@ -64,9 +68,5 @@ export const ASSETS = {
     s3_sender_api: {
         API: S3SenderAPI,
         Schema: S3SenderAPISchema,
-    },
-    s3_dedup_tracker: {
-        Processor: S3DedupTracker,
-        Schema: S3DedupTrackerSchema,
     },
 };
