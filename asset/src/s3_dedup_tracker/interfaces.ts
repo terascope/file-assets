@@ -6,5 +6,6 @@ export interface S3DedupTrackerConfig extends OpConfig {
     report_path: string;
     report_interval: number;
     report_interval_ms: number;
+    record_fields: string;
     _connection: string;
 }

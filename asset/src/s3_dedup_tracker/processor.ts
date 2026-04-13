@@ -18,8 +18,10 @@ import { S3DedupTrackerConfig } from './interfaces.js';
  * A final flush always occurs on job shutdown to capture any remaining data.
  */
 export default class S3DedupTracker extends BatchProcessor<S3DedupTrackerConfig> {
-    // Cumulative frequency map: field value → number of times seen across all slices
-    private counts = new Map<string, number>();
+    // Cumulative frequency map: field value → count and optional first-seen sample fields
+    private counts = new Map<string, { count: number; sample?: Record<string, unknown> }>();
+    // Parsed list of extra field names to capture per tracked value (empty = disabled)
+    private recordFields: string[] = [];
     // Total number of slices received since the job started
     private slicesProcessed = 0;
     private s3Client!: S3Client;
@@ -35,6 +37,10 @@ export default class S3DedupTracker extends BatchProcessor<S3DedupTrackerConfig>
             cached: true
         });
         this.s3Client = s3Client;
+        // Parse the comma-separated record_fields config once at init time
+        if (this.opConfig.record_fields) {
+            this.recordFields = this.opConfig.record_fields.split(',').map((f) => f.trim()).filter(Boolean);
+        }
         // Seed the flush timer so the first interval is measured from job start
         this.lastFlushTime = Date.now();
     }
@@ -47,7 +53,20 @@ export default class S3DedupTracker extends BatchProcessor<S3DedupTrackerConfig>
             const val = record[field];
             if (val != null) {
                 const key = String(val);
-                this.counts.set(key, (this.counts.get(key) ?? 0) + 1);
+                const entry = this.counts.get(key);
+                if (entry == null) {
+                    // First occurrence — capture sample fields if configured
+                    const sample = this.recordFields.length > 0
+                        ? Object.fromEntries(
+                            this.recordFields
+                                .filter((f) => record[f] != null)
+                                .map((f) => [f, record[f]] as [string, unknown])
+                        )
+                        : undefined;
+                    this.counts.set(key, { count: 1, sample: Object.keys(sample ?? {}).length > 0 ? sample : undefined });
+                } else {
+                    entry.count++;
+                }
             }
         }
 
@@ -89,12 +108,15 @@ export default class S3DedupTracker extends BatchProcessor<S3DedupTrackerConfig>
      * holds the most recent cumulative snapshot.
      */
     private async writeReport(): Promise<void> {
-        const duplicates: { value: string; count: number }[] = [];
+        type DuplicateEntry = { value: string; record_sample?: Record<string, unknown>; count: number };
+        const duplicates: DuplicateEntry[] = [];
 
         // Collect only values that appeared more than once
-        for (const [value, count] of this.counts) {
+        for (const [value, { count, sample }] of this.counts) {
             if (count > 1) {
-                duplicates.push({ value, count });
+                const entry: DuplicateEntry = { value, count };
+                if (sample != null) entry.record_sample = sample;
+                duplicates.push(entry);
             }
         }
 

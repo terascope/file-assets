@@ -37,6 +37,11 @@ export default class Schema extends BaseSchema<S3DedupTrackerConfig> {
                     }
                 }
             },
+            record_fields: {
+                doc: 'Comma-separated list of record fields to capture as a sample alongside each duplicate entry (e.g. "foo,unique_field"). The values are taken from the first occurrence of each tracked value. Omitted from report when empty.',
+                default: '',
+                format: 'optional_string'
+            },
             _connection: {
                 doc: 'The Terafoundation S3 connection to use',
                 default: 'default',
