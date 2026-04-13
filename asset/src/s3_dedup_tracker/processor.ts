@@ -39,7 +39,8 @@ export default class S3DedupTracker extends BatchProcessor<S3DedupTrackerConfig>
         this.s3Client = s3Client;
         // Parse the comma-separated record_fields config once at init time
         if (this.opConfig.record_fields) {
-            this.recordFields = this.opConfig.record_fields.split(',').map((f) => f.trim()).filter(Boolean);
+            this.recordFields = this.opConfig.record_fields.split(',').map((f) => f.trim())
+                .filter(Boolean);
         }
         // Seed the flush timer so the first interval is measured from job start
         this.lastFlushTime = Date.now();
@@ -63,7 +64,12 @@ export default class S3DedupTracker extends BatchProcessor<S3DedupTrackerConfig>
                                 .map((f) => [f, record[f]] as [string, unknown])
                         )
                         : undefined;
-                    this.counts.set(key, { count: 1, sample: Object.keys(sample ?? {}).length > 0 ? sample : undefined });
+                    this.counts.set(
+                        key, {
+                            count: 1,
+                            sample: Object.keys(sample ?? {}).length > 0 ? sample : undefined
+                        }
+                    );
                 } else {
                     entry.count++;
                 }
@@ -108,7 +114,9 @@ export default class S3DedupTracker extends BatchProcessor<S3DedupTrackerConfig>
      * holds the most recent cumulative snapshot.
      */
     private async writeReport(): Promise<void> {
-        type DuplicateEntry = { value: string; record_sample?: Record<string, unknown>; count: number };
+        type DuplicateEntry = {
+            value: string; record_sample?: Record<string, unknown>; count: number;
+        };
         const duplicates: DuplicateEntry[] = [];
 
         // Collect only values that appeared more than once
@@ -134,7 +142,7 @@ export default class S3DedupTracker extends BatchProcessor<S3DedupTrackerConfig>
         await putS3Object(this.s3Client, {
             Bucket: this.opConfig.s3_bucket,
             Key: this.opConfig.report_path,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
             Body: Buffer.from(JSON.stringify(report, null, 2)) as any,
             ContentType: 'application/json'
         });
