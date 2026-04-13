@@ -34,6 +34,7 @@ Any manual changes will be lost next time this gets auto-generated. -->
 
 - [file_exporter](./docs/asset/operations/file_exporter)
 - [file_reader](./docs/asset/operations/file_reader)
+- s3_dedup_tracker
 - [s3_exporter](./docs/asset/operations/s3_exporter)
 - [s3_reader](./docs/asset/operations/s3_reader)
 

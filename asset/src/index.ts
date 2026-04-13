@@ -14,6 +14,9 @@ import FileReaderAPISchema from '../src/file_reader_api/schema';
 import FileSenderAPI from '../src/file_sender_api/api';
 import FileSenderAPISchema from '../src/file_sender_api/schema';
 
+import S3DedupTracker from '../src/s3_dedup_tracker/processor';
+import S3DedupTrackerSchema from '../src/s3_dedup_tracker/schema';
+
 import S3Exporter from '../src/s3_exporter/processor';
 import S3ExporterSchema from '../src/s3_exporter/schema';
 
@@ -44,6 +47,10 @@ export const ASSETS = {
     file_sender_api: {
         API: FileSenderAPI,
         Schema: FileSenderAPISchema,
+    },
+    s3_dedup_tracker: {
+        Processor: S3DedupTracker,
+        Schema: S3DedupTrackerSchema,
     },
     s3_exporter: {
         Processor: S3Exporter,
