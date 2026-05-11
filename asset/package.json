@@ -20,7 +20,7 @@
         "@terascope/file-asset-apis": "workspace:~",
         "@terascope/job-components": "~2.8.0",
         "csvtojson": "~2.0.14",
-        "fs-extra": "~11.3.3",
+        "fs-extra": "~11.3.5",
         "json2csv": "5.0.7",
         "lz4-asm": "~0.4.2",
         "node-gzip": "~1.1.2"
