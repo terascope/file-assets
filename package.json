@@ -62,10 +62,10 @@
         "ts-jest": "~29.4.11",
         "typescript": "~5.9.3"
     },
-    "packageManager": "pnpm@10.25.0",
+    "packageManager": "pnpm@11.3.0",
     "engines": {
         "node": ">=22.21.1",
-        "pnpm": ">=10.25.0"
+        "pnpm": ">=11.3.0"
     },
     "documentation": "https://terascope.github.io/file-assets",
     "terascope": {
