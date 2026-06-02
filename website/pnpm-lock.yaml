@@ -22,10 +22,13 @@ importers:
         version: 3.10.1(@docusaurus/plugin-content-docs@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.15)(react@19.2.6))(postcss@8.5.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(postcss@8.5.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@docusaurus/theme-mermaid':
         specifier: ^3.10.1
-        version: 3.10.1(@docusaurus/plugin-content-docs@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.15)(react@19.2.6))(postcss@8.5.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(@mdx-js/react@3.1.1(@types/react@19.2.15)(react@19.2.6))(postcss@8.5.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        version: 3.10.1(@docusaurus/plugin-content-docs@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.15)(react@19.2.6))(postcss@8.5.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(@mdx-js/react@3.1.1(@types/react@19.2.15)(react@19.2.6))(@mermaid-js/layout-elk@0.2.1(mermaid@11.15.0))(postcss@8.5.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@mdx-js/react':
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.15)(react@19.2.6)
+      '@mermaid-js/layout-elk':
+        specifier: ^0.2.1
+        version: 0.2.1(mermaid@11.15.0)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -1410,6 +1413,11 @@ packages:
     peerDependencies:
       '@types/react': '>=16'
       react: '>=16'
+
+  '@mermaid-js/layout-elk@0.2.1':
+    resolution: {integrity: sha512-MX9jwhMyd5zDcFsYcl3duDUkKhjVRUCGEQrdCeNV5hCIR6+3FuDDbRbFmvVbAu15K1+juzsYGG+K8MDvCY1Amg==}
+    peerDependencies:
+      mermaid: ^11.0.2
 
   '@mermaid-js/parser@1.1.1':
     resolution: {integrity: sha512-VuHdsYMK1bT6X2JbcAaWAhugTRvRBRyuZgd+c22swUeI9g/ntaxF7CY7dYarhZovofCbUNO0G7JesfmNtjYOCw==}
@@ -2802,6 +2810,9 @@ packages:
 
   electron-to-chromium@1.5.364:
     resolution: {integrity: sha512-G/dYE3+AYhyHwzTwg8UbnXf7zqMERYh7l2jJ3QujhFsH8agSYwtnGAR2aZ7f0AakIKJXd5En/Hre4igIUrdlYw==}
+
+  elkjs@0.9.3:
+    resolution: {integrity: sha512-f/ZeWvW/BCXbhGEf1Ujp29EASo/lk1FDnETgNKwJrsVvGZhUWCZyg3xLJjAsxfOmt8KjswHmI5EwCQcPMpOYhQ==}
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -7493,7 +7504,7 @@ snapshots:
       - uglify-js
       - webpack-cli
 
-  '@docusaurus/theme-mermaid@3.10.1(@docusaurus/plugin-content-docs@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.15)(react@19.2.6))(postcss@8.5.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(@mdx-js/react@3.1.1(@types/react@19.2.15)(react@19.2.6))(postcss@8.5.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+  '@docusaurus/theme-mermaid@3.10.1(@docusaurus/plugin-content-docs@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.15)(react@19.2.6))(postcss@8.5.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(@mdx-js/react@3.1.1(@types/react@19.2.15)(react@19.2.6))(@mermaid-js/layout-elk@0.2.1(mermaid@11.15.0))(postcss@8.5.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
     dependencies:
       '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.15)(react@19.2.6))(postcss@8.5.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@docusaurus/module-type-aliases': 3.10.1(postcss@8.5.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -7504,6 +7515,8 @@ snapshots:
       react: 19.2.6
       react-dom: 19.2.6(react@19.2.6)
       tslib: 2.8.1
+    optionalDependencies:
+      '@mermaid-js/layout-elk': 0.2.1(mermaid@11.15.0)
     transitivePeerDependencies:
       - '@docusaurus/faster'
       - '@docusaurus/plugin-content-docs'
@@ -7918,6 +7931,12 @@ snapshots:
       '@types/mdx': 2.0.13
       '@types/react': 19.2.15
       react: 19.2.6
+
+  '@mermaid-js/layout-elk@0.2.1(mermaid@11.15.0)':
+    dependencies:
+      d3: 7.9.0
+      elkjs: 0.9.3
+      mermaid: 11.15.0
 
   '@mermaid-js/parser@1.1.1':
     dependencies:
@@ -9523,6 +9542,8 @@ snapshots:
   ee-first@1.1.1: {}
 
   electron-to-chromium@1.5.364: {}
+
+  elkjs@0.9.3: {}
 
   emoji-regex@8.0.0: {}
 

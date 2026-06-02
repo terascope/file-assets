@@ -2,6 +2,10 @@ packages:
   - 'packages/*'
   - 'asset'
 
+allowBuilds:
+  dtrace-provider: true
+  unrs-resolver: true
+
 blockExoticSubdeps: true
 
 minimumReleaseAge: 1440 # 1 day
