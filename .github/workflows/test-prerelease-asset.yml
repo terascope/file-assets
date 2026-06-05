@@ -10,5 +10,5 @@ on:
       - release/file-assets-v*
 jobs:
   call-asset-test-workflow:
-    uses: terascope/workflows/.github/workflows/prerelease-asset-test.yml@main
+    uses: terascope/workflows/.github/workflows/prerelease-asset-test.yml@92c8f6b6312803300b0f36ba6b38d8007d7f471f
     secrets: inherit
