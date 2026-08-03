@@ -22,8 +22,8 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@aws-sdk/client-s3": "~3.1095.0",
-        "@smithy/node-http-handler": "~4.9.11",
+        "@aws-sdk/client-s3": "~3.1101.0",
+        "@smithy/node-http-handler": "~4.9.13",
         "@terascope/core-utils": "~2.15.0",
         "csvtojson": "~2.0.14",
         "fs-extra": "~11.4.0",
