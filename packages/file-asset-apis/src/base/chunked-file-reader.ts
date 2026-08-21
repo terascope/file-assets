@@ -9,7 +9,7 @@ import {
     isBoolean,
 } from '@terascope/core-utils';
 import csvToJson from 'csvtojson';
-import { CSVParseParam } from 'csvtojson/v2/Parameters';
+import { CSVParseParam } from 'csvtojson/v2/Parameters.js';
 import {
     FileSlice,
     ChunkedFileReaderAPIConfig,
