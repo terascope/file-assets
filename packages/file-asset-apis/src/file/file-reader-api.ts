@@ -6,7 +6,7 @@ import {
     ReaderAPIConfig,
     FileSliceConfig,
     SliceConfig,
-} from '../interfaces';
+} from '../interfaces.js';
 import { segmentFile, canReadFile } from '../base/index.js';
 import { FileFetcher } from './file-fetcher.js';
 

@@ -60,7 +60,7 @@
         "teraslice-client-js": "~2.16.3",
         "teraslice-test-harness": "~2.19.3",
         "ts-jest": "~29.4.12",
-        "typescript": "~5.9.3"
+        "typescript": "~6.0.3"
     },
     "packageManager": "pnpm@11.3.0",
     "engines": {

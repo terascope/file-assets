@@ -1,10 +1,10 @@
 {
     "compilerOptions": {
-        "baseUrl": ".",
+        "rootDir": ".",
         "outDir": "dist",
-        "moduleResolution": "node",
+        "moduleResolution": "nodenext",
         "target": "ESNext",
-        "module": "ESNext",
+        "module": "nodenext",
         "skipLibCheck": true,
         "experimentalDecorators": true,
         "isolatedModules": true,
@@ -19,6 +19,7 @@
         "declarationMap": true,
         "sourceMap": true,
         "disableReferencedProjectLoad": true,
+        "types": ["jest", "node"],
         "typeRoots": [
             "./node_modules/@types"
         ]
