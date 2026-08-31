@@ -3,6 +3,7 @@ packages:
   - 'asset'
 
 allowBuilds:
+  '@parcel/watcher': true
   dtrace-provider: true
   unrs-resolver: true
 
