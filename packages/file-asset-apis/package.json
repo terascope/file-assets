@@ -18,7 +18,7 @@
         "build:watch": "pnpm build --watch",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
-        "test:encrypted": "Encrypted tests temporarily disabled",
+        "test:encrypted": "echo 'Encrypted tests temporarily disabled'",
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
