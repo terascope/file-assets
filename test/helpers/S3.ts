@@ -15,18 +15,18 @@ import * as s3Config from './config.js';
 const logger = debugLogger('s3_tests');
 
 export async function makeClient() {
-    const encryptMinio = s3Config.ENCRYPT_MINIO === 'true';
+    const encryptCeph = s3Config.ENCRYPT_CEPH === 'true';
     return createS3Client({
-        endpoint: s3Config.MINIO_HOST,
+        endpoint: s3Config.CEPH_HOST,
         credentials: {
-            accessKeyId: s3Config.MINIO_ACCESS_KEY,
-            secretAccessKey: s3Config.MINIO_SECRET_KEY,
+            accessKeyId: s3Config.CEPH_ACCESS_KEY,
+            secretAccessKey: s3Config.CEPH_SECRET_KEY,
         },
         maxAttempts: 4,
         forcePathStyle: true,
-        sslEnabled: encryptMinio,
+        sslEnabled: encryptCeph,
         region: 'us-east-1',
-        ...(encryptMinio
+        ...(encryptCeph
             ? { caCertificate: fs.readFileSync(path.join(s3Config.CERT_PATH, 'CAs/rootCA.pem'), { encoding: 'utf-8' }) }
             : {}
         )

@@ -9,29 +9,29 @@ import {
 } from '../../src/index.js';
 
 const {
-    ENCRYPT_MINIO = 'false',
-    MINIO_HOST = 'http://127.0.0.1:9000',
-    MINIO_ACCESS_KEY = 'minioadmin',
-    MINIO_SECRET_KEY = 'minioadmin',
+    ENCRYPT_CEPH = 'false',
+    CEPH_HOST = 'http://127.0.0.1:9500',
+    CEPH_ACCESS_KEY = 'cephtestaccesskey',
+    CEPH_SECRET_KEY = 'cephtestsecretkey',
     CERT_PATH = '',
 } = process.env;
 
-export { MINIO_HOST, MINIO_ACCESS_KEY, MINIO_SECRET_KEY };
+export { CEPH_HOST, CEPH_ACCESS_KEY, CEPH_SECRET_KEY };
 
 export async function makeClient() {
-    const encryptMinio = ENCRYPT_MINIO === 'true';
+    const encryptCeph = ENCRYPT_CEPH === 'true';
 
     return createS3Client({
-        endpoint: MINIO_HOST,
+        endpoint: CEPH_HOST,
         credentials: {
-            accessKeyId: MINIO_ACCESS_KEY,
-            secretAccessKey: MINIO_SECRET_KEY,
+            accessKeyId: CEPH_ACCESS_KEY,
+            secretAccessKey: CEPH_SECRET_KEY,
         },
         maxAttempts: 4,
         forcePathStyle: true,
-        sslEnabled: encryptMinio,
+        sslEnabled: encryptCeph,
         region: 'us-east-1',
-        ...(encryptMinio
+        ...(encryptCeph
             ? { caCertificate: fs.readFileSync(join(CERT_PATH, 'CAs/rootCA.pem'), { encoding: 'utf-8' }) }
             : {}
         )

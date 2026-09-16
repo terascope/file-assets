@@ -25,7 +25,7 @@ export const MiB = 1024 * 1024;
 /** 100 MiB - Used for determine how big each chunk of a single file should be */
 export const MAX_CHUNK_SIZE_BYTES = (isTest ? 6 : 100) * MiB;
 
-/** 5MiB - Minimum part size for multipart uploads with Minio */
+/** 5MiB - Minimum part size for multipart uploads with S3 */
 export const MIN_CHUNK_SIZE_BYTES = 5 * MiB;
 
 /**
