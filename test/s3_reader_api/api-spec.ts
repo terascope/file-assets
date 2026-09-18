@@ -98,8 +98,8 @@ describe('S3 API Reader', () => {
 
     describe('tsv data', () => {
         const bucket = 'api-reader-test-tsv';
-        const dirPath = '/my/test/';
-        const path = `${bucket}${dirPath}`;
+        const dirPath = 'my/test/';
+        const path = `${bucket}/${dirPath}`;
         const format = Format.tsv;
         const slicePath = `${dirPath}${testWorkerId}.0.${format}`;
 
@@ -142,8 +142,8 @@ describe('S3 API Reader', () => {
 
     describe('csv data', () => {
         const bucket = 'api-reader-test-csv';
-        const dirPath = '/my/test/';
-        const path = `${bucket}${dirPath}`;
+        const dirPath = 'my/test/';
+        const path = `${bucket}/${dirPath}`;
         const format = Format.csv;
         const slicePath = `${dirPath}${testWorkerId}.0.${format}`;
 
@@ -186,8 +186,8 @@ describe('S3 API Reader', () => {
 
     describe('json data', () => {
         const bucket = 'api-reader-test-json';
-        const dirPath = '/my/test/';
-        const path = `${bucket}${dirPath}`;
+        const dirPath = 'my/test/';
+        const path = `${bucket}/${dirPath}`;
         const format = Format.json;
         const slicePath = `${dirPath}${testWorkerId}.0.${format}`;
 
@@ -227,8 +227,8 @@ describe('S3 API Reader', () => {
 
     describe('ldjson data', () => {
         const bucket = 'api-reader-test-ldjson';
-        const dirPath = '/my/test/';
-        const path = `${bucket}${dirPath}`;
+        const dirPath = 'my/test/';
+        const path = `${bucket}/${dirPath}`;
         const format = Format.ldjson;
         const slicePath = `${dirPath}${testWorkerId}.0.${format}`;
 
@@ -268,8 +268,8 @@ describe('S3 API Reader', () => {
 
     describe('raw data', () => {
         const bucket = 'api-reader-test-raw';
-        const dirPath = '/my/test/';
-        const path = `${bucket}${dirPath}`;
+        const dirPath = 'my/test/';
+        const path = `${bucket}/${dirPath}`;
         const slicePath = `${dirPath}${testWorkerId}.0`;
         const format = Format.raw;
         const rawData = ['chillywilly', 'johndoe'];

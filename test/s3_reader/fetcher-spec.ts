@@ -105,8 +105,8 @@ describe('S3Reader fetcher', () => {
 
     describe('can read data', () => {
         const bucket = 'fetcher-test-ldjson';
-        const dirPath = '/my/test/';
-        const path = `${bucket}${dirPath}`;
+        const dirPath = 'my/test/';
+        const path = `${bucket}/${dirPath}`;
         const slicePath = `${dirPath}${testWorkerId}.0.ldjson`;
         const format = Format.ldjson;
 

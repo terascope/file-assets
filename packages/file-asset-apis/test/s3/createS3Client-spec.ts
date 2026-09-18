@@ -12,9 +12,9 @@ describe('createS3Client', () => {
     describe('genS3ClientConfig', () => {
         it('should generate config with requestHandler if sslEnabled is true', async () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
-                accessKeyId: 'minioadmin',
-                secretAccessKey: 'minioadmin',
+                endpoint: 'https://127.0.0.1:49500',
+                accessKeyId: 'cephtestaccesskey',
+                secretAccessKey: 'cephtestsecretkey',
                 region: 'us-east-1',
                 maxRetries: 3,
                 sslEnabled: true,
@@ -30,9 +30,9 @@ describe('createS3Client', () => {
             const result = await genFinalS3ClientConfig(startConfig);
             expect(result).toMatchObject(
                 {
-                    endpoint: 'https://127.0.0.1:49000',
-                    accessKeyId: 'minioadmin',
-                    secretAccessKey: 'minioadmin',
+                    endpoint: 'https://127.0.0.1:49500',
+                    accessKeyId: 'cephtestaccesskey',
+                    secretAccessKey: 'cephtestsecretkey',
                     region: 'us-east-1',
                     maxRetries: 3,
                     sslEnabled: true,
@@ -50,15 +50,15 @@ describe('createS3Client', () => {
                         socketWarningTimestamp: 0,
                         externalAgent: true
                     }),
-                    credentials: { accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin' }
+                    credentials: { accessKeyId: 'cephtestaccesskey', secretAccessKey: 'cephtestsecretkey' }
                 });
         });
 
         it('should generate config without requestHandler if sslEnabled is false', async () => {
             const startConfig = {
-                endpoint: 'http://127.0.0.1:49000',
-                accessKeyId: 'minioadmin',
-                secretAccessKey: 'minioadmin',
+                endpoint: 'http://127.0.0.1:49500',
+                accessKeyId: 'cephtestaccesskey',
+                secretAccessKey: 'cephtestsecretkey',
                 region: 'us-east-1',
                 maxRetries: 3,
                 sslEnabled: false,
@@ -69,24 +69,24 @@ describe('createS3Client', () => {
             const result = await genFinalS3ClientConfig(startConfig);
             expect(result).toEqual(
                 {
-                    endpoint: 'http://127.0.0.1:49000',
-                    accessKeyId: 'minioadmin',
-                    secretAccessKey: 'minioadmin',
+                    endpoint: 'http://127.0.0.1:49500',
+                    accessKeyId: 'cephtestaccesskey',
+                    secretAccessKey: 'cephtestsecretkey',
                     region: 'us-east-1',
                     maxRetries: 3,
                     sslEnabled: false,
                     forcePathStyle: true,
                     bucketEndpoint: false,
                     maxAttempts: 3,
-                    credentials: { accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin' }
+                    credentials: { accessKeyId: 'cephtestaccesskey', secretAccessKey: 'cephtestsecretkey' }
                 });
         });
 
         it('should throw error if sslEnabled is false and endpoint is https', async () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
-                accessKeyId: 'minioadmin',
-                secretAccessKey: 'minioadmin',
+                endpoint: 'https://127.0.0.1:49500',
+                accessKeyId: 'cephtestaccesskey',
+                secretAccessKey: 'cephtestsecretkey',
                 region: 'us-east-1',
                 maxRetries: 3,
                 sslEnabled: false,
@@ -99,9 +99,9 @@ describe('createS3Client', () => {
 
         it('should throw error if sslEnabled is true and endpoint is http', async () => {
             const startConfig = {
-                endpoint: 'http://127.0.0.1:49000',
-                accessKeyId: 'minioadmin',
-                secretAccessKey: 'minioadmin',
+                endpoint: 'http://127.0.0.1:49500',
+                accessKeyId: 'cephtestaccesskey',
+                secretAccessKey: 'cephtestsecretkey',
                 region: 'us-east-1',
                 maxRetries: 3,
                 sslEnabled: true,
@@ -116,10 +116,10 @@ describe('createS3Client', () => {
 
         it('should accept credentials object', async () => {
             const startConfig = {
-                endpoint: 'http://127.0.0.1:49000',
+                endpoint: 'http://127.0.0.1:49500',
                 credentials: {
-                    accessKeyId: 'minioadmin',
-                    secretAccessKey: 'minioadmin'
+                    accessKeyId: 'cephtestaccesskey',
+                    secretAccessKey: 'cephtestsecretkey'
                 },
                 region: 'us-east-1',
                 maxRetries: 3,
@@ -131,14 +131,14 @@ describe('createS3Client', () => {
             const result = await genFinalS3ClientConfig(startConfig);
             expect(result).toEqual(
                 {
-                    endpoint: 'http://127.0.0.1:49000',
+                    endpoint: 'http://127.0.0.1:49500',
                     region: 'us-east-1',
                     maxRetries: 3,
                     sslEnabled: false,
                     forcePathStyle: true,
                     bucketEndpoint: false,
                     maxAttempts: 3,
-                    credentials: { accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin' }
+                    credentials: { accessKeyId: 'cephtestaccesskey', secretAccessKey: 'cephtestsecretkey' }
                 });
         });
     });
@@ -146,7 +146,7 @@ describe('createS3Client', () => {
     describe('createHttpOptions', () => {
         it('should throw an error if certLocation is an invalid path', async () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
+                endpoint: 'https://127.0.0.1:49500',
                 region: 'us-east-1',
                 sslEnabled: true,
                 certLocation: 'invalid/path/fakeCert.pem'
@@ -158,9 +158,9 @@ describe('createS3Client', () => {
 
         it('should return an httpOptions with contents of certLocation copied into array[0]', async () => {
             const startConfig = {
-                endpoint: 'http://127.0.0.1:49000',
-                accessKeyId: 'minioadmin',
-                secretAccessKey: 'minioadmin',
+                endpoint: 'http://127.0.0.1:49500',
+                accessKeyId: 'cephtestaccesskey',
+                secretAccessKey: 'cephtestsecretkey',
                 region: 'us-east-1',
                 maxRetries: 3,
                 sslEnabled: true,
@@ -189,7 +189,7 @@ describe('createS3Client', () => {
 
         it('should return an httpOptions with caCertificate copied into array[0]', async () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
+                endpoint: 'https://127.0.0.1:49500',
                 region: 'us-east-1',
                 caCertificate: '-----BEGIN CERTIFICATE-----\n'
                     + 'MIICGTCCAZ+gAwIBAgIQCeCTZaz32ci5PhwLBCou8zAKBggqhkjOPQQDAzBOMQsw\n'
@@ -218,7 +218,7 @@ describe('createS3Client', () => {
 
         it('should return an httpOptions with globalCaCertificate copied into array[0]', async () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
+                endpoint: 'https://127.0.0.1:49500',
                 region: 'us-east-1',
                 globalCaCertificate: '-----BEGIN CERTIFICATE-----\n'
                     + 'MIICUDCCAdoCBDaM1tYwDQYJKoZIhvcNAQEEBQAwgY8xCzAJBgNVBAYTAlVTMRMw\n'
@@ -247,7 +247,7 @@ describe('createS3Client', () => {
 
         it('should return an httpOptions with multiple certs in right order', async () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
+                endpoint: 'https://127.0.0.1:49500',
                 region: 'us-east-1',
                 caCertificate: '-----BEGIN CERTIFICATE-----\n'
                     + 'MIICGTCCAZ+gAwIBAgIQCeCTZaz32ci5PhwLBCou8zAKBggqhkjOPQQDAzBOMQsw\n'
@@ -319,32 +319,32 @@ describe('createS3Client', () => {
     describe('moveCredentialsIntoObject', () => {
         it('should throw error if secretAccessKey not defined', () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
+                endpoint: 'https://127.0.0.1:49500',
                 region: 'us-east-1',
-                accessKeyId: 'minioadmin',
+                accessKeyId: 'cephtestaccesskey',
             };
             expect(() => createCredentialsObject(startConfig)).toThrow('S3 secretAccessKey must be defined in S3ClientConfig');
         });
 
         it('should throw error if accessKeyId not defined', () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
+                endpoint: 'https://127.0.0.1:49500',
                 region: 'us-east-1',
-                secretAccessKey: 'minioadmin',
+                secretAccessKey: 'cephtestsecretkey',
             };
             expect(() => createCredentialsObject(startConfig)).toThrow('S3 accessKeyId must be defined in S3ClientConfig');
         });
 
         it('should return config with credentials object', () => {
             const startConfig = {
-                endpoint: 'https://127.0.0.1:49000',
+                endpoint: 'https://127.0.0.1:49500',
                 region: 'us-east-1',
-                accessKeyId: 'minioadmin',
-                secretAccessKey: 'minioadmin',
+                accessKeyId: 'cephtestaccesskey',
+                secretAccessKey: 'cephtestsecretkey',
             };
 
             const result = createCredentialsObject(startConfig);
-            expect(result).toEqual({ accessKeyId: 'minioadmin', secretAccessKey: 'minioadmin' });
+            expect(result).toEqual({ accessKeyId: 'cephtestaccesskey', secretAccessKey: 'cephtestsecretkey' });
         });
     });
 });

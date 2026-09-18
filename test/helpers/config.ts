@@ -1,12 +1,12 @@
 const {
-    ENCRYPT_MINIO = 'false',
-    MINIO_HOST = 'http://127.0.0.1:9000',
-    MINIO_ACCESS_KEY = 'minioadmin',
-    MINIO_SECRET_KEY = 'minioadmin',
+    ENCRYPT_CEPH = 'false',
+    CEPH_HOST = 'http://127.0.0.1:9500',
+    CEPH_ACCESS_KEY = 'cephtestaccesskey',
+    CEPH_SECRET_KEY = 'cephtestsecretkey',
     CERT_PATH = '',
 } = process.env;
 
 export {
-    ENCRYPT_MINIO, MINIO_HOST, MINIO_ACCESS_KEY,
-    MINIO_SECRET_KEY, CERT_PATH
+    ENCRYPT_CEPH, CEPH_HOST, CEPH_ACCESS_KEY,
+    CEPH_SECRET_KEY, CERT_PATH
 };

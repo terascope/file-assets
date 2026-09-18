@@ -113,10 +113,8 @@ export async function deleteS3Objects(
     /*
      This was added because the javascript aws-sdk used to added the Content-MD5
      header automatically, but now it doesn’t, so we manually generate and append it
-     for S3 delete object requests. This ensures compatibility with minio and other
-     S3-compatible services that may require the header.
-     Minio code that requires it
-     https://github.com/minio/minio/blob/b8dde47d4e8d0d26c583f8ea106633c6c140f3f9/cmd/bucket-handlers.go#L430-L435
+     for S3 delete object requests. This ensures compatibility with S3-compatible
+     services that may require the header.
     */
     const checksumMiddlewareApplied = client.middlewareStack.identify().includes('addMD5Checksum - build');
     // Middleware to add md5 header
@@ -278,7 +276,7 @@ export async function abortS3Multipart(
 /**
  *
  * @param bucketName A bucket name to test validation against
- * @returns A bolean on whether or not a bucket name is valid
+ * @returns A boolean on whether or not a bucket name is valid
  */
 export function validateBucketName(bucketName: string): boolean {
     /*
@@ -292,7 +290,7 @@ export function validateBucketName(bucketName: string): boolean {
         Google cloud bucket naming rules
         https://cloud.google.com/storage/docs/buckets#:~:text=Bucket%20names%20can%20only%20contain,with%20a%20number%20or%20letter.
         Minio bucket naming rules
-        Not availiable in the docs but has it in the Minio UI
+        Not available in the docs but has it in the Minio UI
         https://min.io/docs/minio/kubernetes/upstream/administration/console/managing-objects.html#minio-console-buckets
     */
 

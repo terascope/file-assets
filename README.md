@@ -126,7 +126,7 @@ Run the file-assets tests
 
 **Requirements:**
 
-- `docker` - A [MinIO](https://hub.docker.com/r/minio/minio) container will be created using [Docker](https://docs.docker.com/get-started/)
+- `docker` - A [Ceph](https://ceph.io/en/) service will be created using [Docker](https://docs.docker.com/get-started/)
 
 ```bash
 pnpm test
