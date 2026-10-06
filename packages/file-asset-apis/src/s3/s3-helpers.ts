@@ -2,7 +2,7 @@ import {
     S3Client,
     CreateBucketCommand,
     DeleteBucketCommand, DeleteObjectCommand, DeleteObjectsCommand,
-    GetObjectCommand, HeadBucketCommand,
+    GetObjectCommand, HeadBucketCommand, HeadObjectCommand,
     ListBucketsCommand, ListObjectsV2Command, ObjectIdentifier,
     PutObjectCommand, PutObjectTaggingCommand,
     CreateMultipartUploadCommand, UploadPartCommand,
@@ -206,6 +206,37 @@ export async function doesBucketExist(
 
         if (httpStatusCode === 403) {
             throw new TSError(`User does not have access to bucket "${params.Bucket}"`, { statusCode: 403 });
+        // In the case of a 4** status code, return false
+        } else if (
+            Number(httpStatusCode) >= 400
+            && Number(httpStatusCode) < 500
+        ) {
+            return false;
+        }
+        throw err;
+    }
+    return true;
+}
+
+export async function headS3Object(
+    client: S3Client,
+    params: S3ClientParams.HeadObjectRequest
+): Promise<S3ClientResponse.HeadObjectCommandOutput> {
+    const command = new HeadObjectCommand(params);
+    return client.send(command);
+}
+
+export async function doesObjectExist(
+    client: S3Client,
+    params: S3ClientParams.HeadObjectRequest
+): Promise<boolean> {
+    try {
+        await headS3Object(client, params);
+    } catch (err) {
+        const { httpStatusCode } = (err as S3ClientResponse.S3ErrorExceptions).$metadata ?? {};
+
+        if (httpStatusCode === 403) {
+            throw new TSError(`User does not have access to object "${params.Key}" in bucket "${params.Bucket}"`, { statusCode: 403 });
         // In the case of a 4** status code, return false
         } else if (
             Number(httpStatusCode) >= 400

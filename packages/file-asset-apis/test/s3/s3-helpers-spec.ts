@@ -102,6 +102,20 @@ describe('S3 Helpers', () => {
             expect(fetched).toBeTruthy();
         });
 
+        it('should head object and get its metadata', async () => {
+            const head = await s3Helpers.headS3Object(client, { Bucket: bucketName, Key: 'foo' });
+            expect(head).toBeTruthy();
+            expect(head.ContentLength).toBeGreaterThan(0);
+        });
+
+        it('should check object exists', async () => {
+            const exists = await s3Helpers.doesObjectExist(client, { Bucket: bucketName, Key: 'foo' });
+            expect(exists).toBeTrue();
+
+            const nonExistent = await s3Helpers.doesObjectExist(client, { Bucket: bucketName, Key: 'non-existent-key' });
+            expect(nonExistent).toBeFalse();
+        });
+
         it('should tag objects', async () => {
             const tagged = await s3Helpers.tagS3Object(client, {
                 Bucket: bucketName,

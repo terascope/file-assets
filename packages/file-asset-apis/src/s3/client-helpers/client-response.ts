@@ -18,5 +18,6 @@ export type {
     ListBucketsCommandOutput,
     CreateBucketCommandOutput,
     GetObjectCommandOutput,
-    PutObjectCommandOutput
+    PutObjectCommandOutput,
+    HeadObjectCommandOutput
 } from '@aws-sdk/client-s3';
