@@ -2,7 +2,7 @@ import {
     S3Client,
     CreateBucketCommand,
     DeleteBucketCommand, DeleteObjectCommand, DeleteObjectsCommand,
-    GetObjectCommand, HeadBucketCommand,
+    GetObjectCommand, HeadBucketCommand, HeadObjectCommand,
     ListBucketsCommand, ListObjectsV2Command, ObjectIdentifier,
     PutObjectCommand, PutObjectTaggingCommand,
     CreateMultipartUploadCommand, UploadPartCommand,
@@ -195,17 +195,35 @@ export async function headS3Bucket(
     await client.send(command);
 }
 
-export async function doesBucketExist(
+/**
+ * Runs a HEAD request and interprets the response as an existence check.
+ * Returns `true` if the resource exists, `false` for any 4** status code
+ * other than 403, throws a `TSError` on 403 (no access), and rethrows anything
+ * else (e.g. 5** errors).
+ *
+ * @param client An S3 client
+ * @param params The HEAD request params for the resource
+ * @param resourceType Which resource to HEAD, `'bucket'` or `'object'`
+ */
+async function doesResourceExist(
     client: S3Client,
-    params: S3ClientParams.HeadBucketRequest
+    params: S3ClientParams.HeadBucketRequest | S3ClientParams.HeadObjectRequest,
+    resourceType: 'bucket' | 'object'
 ): Promise<boolean> {
     try {
-        await headS3Bucket(client, params);
+        if (resourceType === 'bucket') {
+            await headS3Bucket(client, params);
+        } else {
+            await headS3Object(client, params as S3ClientParams.HeadObjectRequest);
+        }
     } catch (err) {
         const { httpStatusCode } = (err as S3ClientResponse.S3ErrorExceptions).$metadata ?? {};
 
         if (httpStatusCode === 403) {
-            throw new TSError(`User does not have access to bucket "${params.Bucket}"`, { statusCode: 403 });
+            const resourceDescription = resourceType === 'bucket'
+                ? `bucket "${params.Bucket}"`
+                : `object "${(params as S3ClientParams.HeadObjectRequest).Key}" in bucket "${params.Bucket}"`;
+            throw new TSError(`User does not have access to ${resourceDescription}`, { statusCode: 403 });
         // In the case of a 4** status code, return false
         } else if (
             Number(httpStatusCode) >= 400
@@ -216,6 +234,28 @@ export async function doesBucketExist(
         throw err;
     }
     return true;
+}
+
+export async function doesBucketExist(
+    client: S3Client,
+    params: S3ClientParams.HeadBucketRequest
+): Promise<boolean> {
+    return doesResourceExist(client, params, 'bucket');
+}
+
+export async function headS3Object(
+    client: S3Client,
+    params: S3ClientParams.HeadObjectRequest
+): Promise<S3ClientResponse.HeadObjectCommandOutput> {
+    const command = new HeadObjectCommand(params);
+    return client.send(command);
+}
+
+export async function doesObjectExist(
+    client: S3Client,
+    params: S3ClientParams.HeadObjectRequest
+): Promise<boolean> {
+    return doesResourceExist(client, params, 'object');
 }
 
 export async function listS3Buckets(

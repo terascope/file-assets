@@ -7,6 +7,7 @@ export type {
     DeleteObjectsRequest,
     DeleteBucketRequest,
     HeadBucketRequest,
+    HeadObjectRequest,
     CreateBucketRequest,
     UploadPartRequest,
     CompleteMultipartUploadRequest,
