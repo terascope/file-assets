@@ -7,14 +7,17 @@ import {
     PutObjectRequest,
     DeleteObjectRequest,
     DeleteObjectCommandOutput,
+    HeadObjectRequest,
+    HeadBucketRequest,
     S3Client
 } from '@aws-sdk/client-s3';
 
 export type S3RetryParams
-    = ListObjectsV2Request | GetObjectRequest | DeleteObjectRequest | PutObjectRequest;
+    = ListObjectsV2Request | GetObjectRequest | DeleteObjectRequest
+        | PutObjectRequest | HeadObjectRequest | HeadBucketRequest;
 export type S3RetryResponse
     = ListObjectsV2CommandOutput | GetObjectCommandOutput
-        | PutObjectCommandOutput | DeleteObjectCommandOutput;
+        | PutObjectCommandOutput | DeleteObjectCommandOutput | boolean;
 
 export type RetryArgs = {
     client: S3Client;
@@ -44,4 +47,16 @@ export type DeleteObjectWithRetry = {
     client: S3Client;
     func: (client: S3Client, params: DeleteObjectRequest) => Promise<DeleteObjectCommandOutput>;
     params: DeleteObjectRequest;
+};
+
+export type DoesObjectExistWithRetry = {
+    client: S3Client;
+    func: (client: S3Client, params: HeadObjectRequest) => Promise<boolean>;
+    params: HeadObjectRequest;
+};
+
+export type DoesBucketExistWithRetry = {
+    client: S3Client;
+    func: (client: S3Client, params: HeadBucketRequest) => Promise<boolean>;
+    params: HeadBucketRequest;
 };

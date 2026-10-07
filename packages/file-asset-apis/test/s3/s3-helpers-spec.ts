@@ -2,7 +2,9 @@ import 'jest-extended';
 import { mockClient } from 'aws-sdk-client-mock';
 import { Readable } from 'node:stream';
 import type { CreateBucketOutput, S3Client } from '@aws-sdk/client-s3';
-import { S3Client as MClient, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import {
+    S3Client as MClient, ListObjectsV2Command, HeadObjectCommand, HeadBucketCommand
+} from '@aws-sdk/client-s3';
 import { makeClient, cleanupBucket } from './helpers.js';
 import * as s3Helpers from '../../src/s3/s3-helpers.js';
 
@@ -304,6 +306,78 @@ describe('S3 Helpers', () => {
                 params: { Bucket: retryBucket, Key: 'testKeyWrapper' }
             });
             expect(deleteOutput).toBeTruthy();
+        });
+
+        it('should check object existence with retry wrapper applied', async () => {
+            const exists = await s3Helpers.s3RequestWithRetry({
+                client,
+                func: s3Helpers.doesObjectExist,
+                params: { Bucket: retryBucket, Key: 'some' }
+            });
+            expect(exists).toBeTrue();
+
+            const nonExistent = await s3Helpers.s3RequestWithRetry({
+                client,
+                func: s3Helpers.doesObjectExist,
+                params: { Bucket: retryBucket, Key: 'non-existent-key' }
+            });
+            expect(nonExistent).toBeFalse();
+        });
+
+        it('should retry doesObjectExist on a retryable error', async () => {
+            const s3Mock = mockClient(MClient);
+
+            s3Mock.on(HeadObjectCommand)
+                .rejectsOnce({
+                    $metadata: { httpStatusCode: 503 },
+                    Code: 'SLOW DOWN'
+                })
+                .resolvesOnce({ $metadata: { httpStatusCode: 200 } });
+
+            const exists = await s3Helpers.s3RequestWithRetry({
+                client,
+                func: s3Helpers.doesObjectExist,
+                params: { Bucket: retryBucket, Key: 'some' }
+            });
+            expect(exists).toBeTrue();
+
+            s3Mock.restore();
+        });
+
+        it('should check bucket existence with retry wrapper applied', async () => {
+            const exists = await s3Helpers.s3RequestWithRetry({
+                client,
+                func: s3Helpers.doesBucketExist,
+                params: { Bucket: retryBucket }
+            });
+            expect(exists).toBeTrue();
+
+            const nonExistent = await s3Helpers.s3RequestWithRetry({
+                client,
+                func: s3Helpers.doesBucketExist,
+                params: { Bucket: 'non-existent-retry-bucket' }
+            });
+            expect(nonExistent).toBeFalse();
+        });
+
+        it('should retry doesBucketExist on a retryable error', async () => {
+            const s3Mock = mockClient(MClient);
+
+            s3Mock.on(HeadBucketCommand)
+                .rejectsOnce({
+                    $metadata: { httpStatusCode: 503 },
+                    Code: 'SLOW DOWN'
+                })
+                .resolvesOnce({ $metadata: { httpStatusCode: 200 } });
+
+            const exists = await s3Helpers.s3RequestWithRetry({
+                client,
+                func: s3Helpers.doesBucketExist,
+                params: { Bucket: retryBucket }
+            });
+            expect(exists).toBeTrue();
+
+            s3Mock.restore();
         });
     });
     describe('validateBucketName', () => {

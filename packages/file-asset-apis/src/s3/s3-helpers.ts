@@ -30,6 +30,14 @@ export async function s3RequestWithRetry(
     attempts?: number
 ): Promise<S3ClientResponse.ListObjectsV2CommandOutput>;
 export async function s3RequestWithRetry(
+    retryArgs: S3RetryRequest.DoesObjectExistWithRetry,
+    attempts?: number
+): Promise<boolean>;
+export async function s3RequestWithRetry(
+    retryArgs: S3RetryRequest.DoesBucketExistWithRetry,
+    attempts?: number
+): Promise<boolean>;
+export async function s3RequestWithRetry(
     retryArgs: S3RetryRequest.RetryArgs,
     attempts = 1
 ): Promise<S3RetryRequest.S3RetryResponse> {
@@ -56,7 +64,7 @@ export async function s3RequestWithRetry(
 
         if (retry && attempts < 4) {
             await pDelay(250 * attempts);
-            return s3RequestWithRetry(retryArgs, attempts + 1);
+            return s3RequestWithRetry(retryArgs as any, attempts + 1);
         }
 
         throw new TSError(e);
