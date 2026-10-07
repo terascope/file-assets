@@ -64,6 +64,9 @@ export async function s3RequestWithRetry(
 
         if (retry && attempts < 4) {
             await pDelay(250 * attempts);
+            // cast to `any` because the generic `RetryArgs` type doesn't match
+            // any single overload (the response union includes `boolean`)
+            // Issue: https://github.com/terascope/file-assets/issues/1442
             return s3RequestWithRetry(retryArgs as any, attempts + 1);
         }
 
