@@ -264,6 +264,32 @@ describe('S3 Helpers', () => {
             s3Mock.restore();
         });
 
+        it('should throw an error with the s3 status code', async () => {
+            await expect(s3Helpers.s3RequestWithRetry({
+                client,
+                func: s3Helpers.getS3Object,
+                params: { Bucket: retryBucket, Key: 'non-existent-key' }
+            })).rejects.toMatchObject({ statusCode: 404 });
+        });
+
+        it('should throw an error with the s3 status code after 3 retry attempts', async () => {
+            const s3Mock = mockClient(MClient);
+
+            s3Mock.on(ListObjectsV2Command)
+                .rejects({
+                    $metadata: { httpStatusCode: 503 },
+                    Code: 'SLOW DOWN'
+                });
+
+            await expect(s3Helpers.s3RequestWithRetry({
+                client,
+                func: s3Helpers.listS3Objects,
+                params: { Bucket: retryBucket }
+            })).rejects.toMatchObject({ statusCode: 503 });
+
+            s3Mock.restore();
+        });
+
         it('should throw an error after 3 retry attempts', async () => {
             const s3Mock = mockClient(MClient);
 
