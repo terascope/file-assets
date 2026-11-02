@@ -51,14 +51,17 @@ export async function s3RequestWithRetry(
         const results = await func(client, params);
 
         return results;
-    } catch (e: unknown) {
+    } catch (err: unknown) {
+        const s3Error = err as S3ClientResponse.S3ErrorExceptions;
+        const httpStatusCode = s3Error.$metadata?.httpStatusCode;
+
         let retry = false;
         // check if it's an aws issue
-        if ((e as Record<string, any>).$metadata?.httpStatusCode === 503
-            || (e as Record<string, any>).$metadata?.httpStatusCode === 500
+        if (httpStatusCode === 503
+            || httpStatusCode === 500
             // check if it's a server error
-            || (e as Error).message.includes('ENOTFOUND')
-            || (e as Error).message.includes('EAI_AGAIN')) {
+            || s3Error.message.includes('ENOTFOUND')
+            || s3Error.message.includes('EAI_AGAIN')) {
             retry = true;
         }
 
@@ -70,7 +73,8 @@ export async function s3RequestWithRetry(
             return s3RequestWithRetry(retryArgs as any, attempts + 1);
         }
 
-        throw new TSError(e);
+        // TSError can't find the status code on s3 errors, so pass it in
+        throw new TSError(err, { statusCode: httpStatusCode });
     }
 }
 
