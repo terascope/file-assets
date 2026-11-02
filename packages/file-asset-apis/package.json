@@ -22,9 +22,9 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@aws-sdk/client-s3": "~3.1152.0",
-        "@smithy/node-http-handler": "~4.12.1",
-        "@terascope/core-utils": "~2.24.0",
+        "@aws-sdk/client-s3": "~3.1161.0",
+        "@smithy/node-http-handler": "~4.14.1",
+        "@terascope/core-utils": "~2.25.0",
         "csvtojson": "~2.0.14",
         "fs-extra": "~11.4.1",
         "json2csv": "5.0.7",
@@ -32,7 +32,7 @@
         "node-gzip": "~1.1.2"
     },
     "devDependencies": {
-        "@terascope/scripts": "~2.32.1",
+        "@terascope/scripts": "~2.33.0",
         "@terascope/types": "~2.23.0",
         "@types/jest": "~30.0.0",
         "aws-sdk-client-mock": "~4.1.0",
