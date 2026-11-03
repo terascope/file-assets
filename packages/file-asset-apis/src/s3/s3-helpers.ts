@@ -13,34 +13,14 @@ import crypto from 'node:crypto';
 import { TSError, pDelay } from '@terascope/core-utils';
 import { S3ClientParams, S3ClientResponse, S3RetryRequest } from './client-helpers/index.js';
 
-export async function s3RequestWithRetry(
-    retryArgs: S3RetryRequest.GetObjectWithRetry,
-    attempts?: number
-): Promise<S3ClientResponse.GetObjectCommandOutput>;
-export async function s3RequestWithRetry(
-    retryArgs: S3RetryRequest.PutObjectWithRetry,
-    attempts?: number
-): Promise<S3ClientResponse.PutObjectCommandOutput>;
-export async function s3RequestWithRetry(
-    retryArgs: S3RetryRequest.DeleteObjectWithRetry,
-    attempts?: number
-): Promise<S3ClientResponse.DeleteObjectCommandOutput>;
-export async function s3RequestWithRetry(
-    retryArgs: S3RetryRequest.ListObjectsWithRetry,
-    attempts?: number
-): Promise<S3ClientResponse.ListObjectsV2CommandOutput>;
-export async function s3RequestWithRetry(
-    retryArgs: S3RetryRequest.DoesObjectExistWithRetry,
-    attempts?: number
-): Promise<boolean>;
-export async function s3RequestWithRetry(
-    retryArgs: S3RetryRequest.DoesBucketExistWithRetry,
-    attempts?: number
-): Promise<boolean>;
-export async function s3RequestWithRetry(
-    retryArgs: S3RetryRequest.RetryArgs,
+/**
+ * Runs `func(client, params)` and retries on 500/503 responses and DNS errors,
+ * up to 4 attempts. The return type comes from `func`.
+ */
+export async function s3RequestWithRetry<Params, Response>(
+    retryArgs: S3RetryRequest.RetryArgs<Params, Response>,
     attempts = 1
-): Promise<S3RetryRequest.S3RetryResponse> {
+): Promise<Response> {
     const {
         client,
         func,
@@ -67,10 +47,7 @@ export async function s3RequestWithRetry(
 
         if (retry && attempts < 4) {
             await pDelay(250 * attempts);
-            // cast to `any` because the generic `RetryArgs` type doesn't match
-            // any single overload (the response union includes `boolean`)
-            // Issue: https://github.com/terascope/file-assets/issues/1442
-            return s3RequestWithRetry(retryArgs as any, attempts + 1);
+            return s3RequestWithRetry(retryArgs, attempts + 1);
         }
 
         // TSError can't find the status code on s3 errors, so pass it in

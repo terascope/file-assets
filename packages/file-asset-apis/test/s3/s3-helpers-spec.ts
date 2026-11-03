@@ -188,7 +188,7 @@ describe('S3 Helpers', () => {
                 client,
                 func: s3Helpers.listS3Objects,
                 params: { Bucket: retryBucket }
-            }) as any;
+            });
 
             expect(list.Contents?.length).toBe(2);
         });
@@ -204,7 +204,7 @@ describe('S3 Helpers', () => {
                 client,
                 func: s3Helpers.listS3Objects,
                 params: { Bucket: retryBucket }
-            }) as any;
+            });
 
             expect(list.Contents?.length).toBe(1);
             s3Mock.restore();
@@ -231,7 +231,7 @@ describe('S3 Helpers', () => {
                 client,
                 func: s3Helpers.listS3Objects,
                 params: { Bucket: retryBucket }
-            }) as any;
+            });
 
             expect(list.Contents?.length).toBe(1);
 
