@@ -5,7 +5,7 @@ import * as nodePathModule from 'node:path';
 import { Compressor } from './Compressor.js';
 import { Formatter } from './Formatter.js';
 import { createFileName } from './createFileName.js';
-import { ChunkGenerator } from './ChunkGenerator.js';
+import { ChunkGenerator, STREAM_CHUNK_SIZE_BYTES } from './ChunkGenerator.js';
 import {
     NameOptions,
     FileSenderType,
@@ -15,6 +15,7 @@ import {
     getLineDelimiter,
     SendRecords,
     SendRecord,
+    SendBytes,
 } from '../interfaces.js';
 
 const formatValues = Object.values(Format);
@@ -300,6 +301,47 @@ export abstract class ChunkedFileSender {
                 records
             ),
             count: Array.isArray(records) ? records.length : -1,
+            concurrency,
+            jitter: this.config.jitter || 10
+        });
+    }
+
+    /**
+     * Write a file's bytes, already in the configured format, to one file
+     * (like simpleSend, at the "path" config). The bytes are sent as they
+     * arrive, in chunks, so the file is never all held: one chunk is a
+     * single write, more are a multipart upload with "concurrency" parts in
+     * flight. This is how a parquet file is sent; it works for any format
+     * whose bytes are made elsewhere. Compression is not
+     * supported, nothing to send writes no file. A chunk is chunkBytes,
+     * STREAM_CHUNK_SIZE_BYTES (8MiB) by default and never less than 5MiB
+     *
+     * @example
+     *   s3Sender.sendStream(parquetBytes) => Promise<void>
+    */
+    async sendStream(
+        bytes: SendBytes,
+        options: { readonly chunkBytes?: number } = {}
+    ): Promise<void> {
+        if ((this.config.compression ?? Compression.none) !== Compression.none) {
+            throw new Error('Invalid parameter "compression", sendStream does not support compression');
+        }
+        const { concurrency } = this;
+        this.incrementCount();
+
+        const filename = this.path;
+        const destName = await this.createFileDestinationName(filename);
+
+        await this.sendToDestination({
+            filename,
+            dest: destName,
+            chunkGenerator: new ChunkGenerator(
+                this.formatter,
+                this.compressor,
+                bytes,
+                { maxBytes: options.chunkBytes ?? STREAM_CHUNK_SIZE_BYTES }
+            ),
+            count: -1,
             concurrency,
             jitter: this.config.jitter || 10
         });

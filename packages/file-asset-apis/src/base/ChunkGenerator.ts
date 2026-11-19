@@ -1,7 +1,9 @@
 import { isTest } from '@terascope/core-utils';
 import { Compressor } from './Compressor.js';
 import { Formatter } from './Formatter.js';
-import { Format, Compression, SendRecords } from '../interfaces.js';
+import {
+    Format, Compression, SendRecords, SendBytes
+} from '../interfaces.js';
 
 export interface Chunk {
     /**
@@ -29,6 +31,14 @@ export const MAX_CHUNK_SIZE_BYTES = (isTest ? 6 : 100) * MiB;
 export const MIN_CHUNK_SIZE_BYTES = 5 * MiB;
 
 /**
+ * 8MiB - How big each chunk of a file's bytes sent as a stream (sendStream)
+ * is by default, the AWS CLI's multipart chunk size. A stream holds about
+ * (concurrency + 1) chunks, bigger chunks only cost memory, and S3's 10,000
+ * parts make a file up to ~78GiB
+*/
+export const STREAM_CHUNK_SIZE_BYTES = 8 * MiB;
+
+/**
  * Efficiently breaks up a slice into multiple chunks.
  * The behavior will change depending if the whole slice has be
  * serialized at once or not.
@@ -44,7 +54,7 @@ export class ChunkGenerator {
     constructor(
         readonly formatter: Formatter,
         readonly compressor: Compressor,
-        readonly slice: SendRecords,
+        readonly slice: SendRecords | SendBytes,
         limits?: { maxBytes?: number; minBytes?: number },
     ) {
         const max = limits?.maxBytes || MAX_CHUNK_SIZE_BYTES;
@@ -64,16 +74,61 @@ export class ChunkGenerator {
     }
 
     [Symbol.asyncIterator](): AsyncIterableIterator<Chunk> {
+        if (isSendBytes(this.slice)) {
+            return this._chunkBytes(this.slice);
+        }
         if (Array.isArray(this.slice) && this.slice.length === 0) {
             return this._emptyIterator();
         }
         if (this.isRowOptimized()) {
-            return this._chunkByRow();
+            return this._chunkByRow(this.slice);
         }
-        return this._chunkAll();
+        return this._chunkAll(this.slice);
     }
 
-    private async* _chunkByRow(): AsyncIterableIterator<Chunk> {
+    /**
+     * Cuts a file's bytes, already formatted, into chunks of chunkSize as
+     * they arrive, the last one smaller. Only one chunk and the bytes of the
+     * next are held, never the file: a full chunk is yielded as soon as more
+     * bytes arrive, which is when has_more is known
+    */
+    private async* _chunkBytes(bytes: SendBytes): AsyncIterableIterator<Chunk> {
+        if (this.compressor.type !== Compression.none) {
+            throw new Error('Sending bytes does not support compression, compress them before sending');
+        }
+
+        let index = 0;
+        let ready: Buffer | undefined;
+        let pending: Buffer[] = [];
+        let pendingSize = 0;
+
+        for await (const buffer of joinStrings(bytes)) {
+            if (ready) {
+                yield { index: index++, data: ready, has_more: true };
+                ready = undefined;
+            }
+
+            pending.push(buffer);
+            pendingSize += buffer.length;
+
+            while (pendingSize >= this.chunkSize) {
+                if (ready) yield { index: index++, data: ready, has_more: true };
+
+                const all = pending.length === 1 ? pending[0] : Buffer.concat(pending, pendingSize);
+                ready = all.subarray(0, this.chunkSize);
+                const rest = all.subarray(this.chunkSize);
+                pending = rest.length ? [rest] : [];
+                pendingSize = rest.length;
+            }
+        }
+
+        if (ready) yield { index: index++, data: ready, has_more: pendingSize > 0 };
+        if (pendingSize) {
+            yield { index, data: Buffer.concat(pending, pendingSize), has_more: false };
+        }
+    }
+
+    private async* _chunkByRow(records: SendRecords): AsyncIterableIterator<Chunk> {
         let index = 0;
 
         /**
@@ -83,7 +138,7 @@ export class ChunkGenerator {
         let chunkStr = '';
 
         let chunk: Chunk | undefined;
-        for (const [str, has_more] of this.formatter.formatIterator(this.slice)) {
+        for (const [str, has_more] of this.formatter.formatIterator(records)) {
             chunk = undefined;
 
             chunkStr += str;
@@ -131,8 +186,8 @@ export class ChunkGenerator {
         }
     }
 
-    private async* _chunkAll(): AsyncIterableIterator<Chunk> {
-        const formattedData = this.formatter.format(this.slice);
+    private async* _chunkAll(records: SendRecords): AsyncIterableIterator<Chunk> {
+        const formattedData = this.formatter.format(records);
         const data = await this.compressor.compress(formattedData);
 
         const numChunks = Math.ceil(data.length / this.chunkSize);
@@ -157,4 +212,42 @@ export class ChunkGenerator {
 */
 function getBytes(max: number, min: number): number {
     return Math.max(max, min);
+}
+
+/**
+ * Strings are joined up to this many characters before they become bytes,
+ * one Buffer per small string (like a line of ldjson) is ~1/3 slower
+*/
+const JOIN_STRINGS_CHARS = 64 * 1024;
+
+/**
+ * The bytes as non-empty Buffers, in order, small strings joined
+*/
+async function* joinStrings(bytes: SendBytes): AsyncIterableIterator<Buffer> {
+    let strings: string[] = [];
+    let chars = 0;
+
+    for await (const piece of bytes) {
+        if (typeof piece === 'string') {
+            if (!piece.length) continue;
+            strings.push(piece);
+            chars += piece.length;
+            if (chars < JOIN_STRINGS_CHARS) continue;
+        } else if (!piece.length) {
+            continue;
+        }
+
+        if (strings.length) {
+            yield Buffer.from(strings.join(''));
+            strings = [];
+            chars = 0;
+        }
+        if (typeof piece !== 'string') yield piece;
+    }
+
+    if (strings.length) yield Buffer.from(strings.join(''));
+}
+
+function isSendBytes(input: SendRecords | SendBytes): input is SendBytes {
+    return input != null && typeof (input as SendBytes)[Symbol.asyncIterator] === 'function';
 }

@@ -6,6 +6,11 @@ import type { DataEntity } from '@terascope/core-utils';
 */
 export type SendRecord = Record<string, unknown> | DataEntity;
 export type SendRecords = Iterable<SendRecord>;
+/**
+ * The bytes of a file, already in its format, sent as they are made (see
+ * sendStream), like a parquet file
+*/
+export type SendBytes = AsyncIterable<Buffer | string>;
 
 export interface S3PutConfig {
     Bucket: string;
@@ -31,6 +36,12 @@ export enum Format {
     raw = 'raw',
     tsv = 'tsv',
     csv = 'csv',
+    /**
+     * A binary, columnar file, made by a parquet library (like the DuckDB
+     * based TealFrame in @terascope/data-mate) and sent as bytes with
+     * sendStream. Records are not formatted as or read from parquet here
+    */
+    parquet = 'parquet',
 }
 
 export interface ChunkedFileReaderAPIConfig extends ChunkedAPIMethods {

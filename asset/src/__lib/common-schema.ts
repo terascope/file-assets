@@ -1,7 +1,8 @@
 import { isNumber, joinList } from '@terascope/core-utils';
 import { Compression, Format } from '@terascope/file-asset-apis';
 
-const formats = Object.values(Format);
+// the readers and exporters do not read or write parquet yet
+const formats = Object.values(Format).filter((format) => format !== Format.parquet);
 const readerSchema = {
     size: {
         doc: 'Determines the size of the slice in bytes',

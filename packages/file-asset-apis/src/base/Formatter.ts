@@ -70,12 +70,19 @@ function makeJSONFunction(config: FormatterOptions): FormatFn {
     };
 }
 
+function makeParquetFunction(): FormatFn {
+    return function parquetFormat() {
+        throw new TSError('Records cannot be formatted as parquet, send a parquet file\'s bytes with sendStream');
+    };
+}
+
 const formatsFns: Record<Format, MakeFormatFn> = {
     csv: makeCSVOrTSVFunction,
     tsv: makeCSVOrTSVFunction,
     raw: makeRawFunction,
     ldjson: makeLDJSONFunction,
-    json: makeJSONFunction
+    json: makeJSONFunction,
+    parquet: makeParquetFunction,
 };
 
 function getFormatFn(format: Format): MakeFormatFn {
