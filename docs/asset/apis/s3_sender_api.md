@@ -178,6 +178,16 @@ parameters:
 
 - records: an array of data-entities
 
+### sendStream (async)
+
+```(bytes: AsyncIterable<Buffer | string>, options?: { chunkBytes?: number }) => Promise<void>```
+This method writes a file's bytes, already in the configured `format`, to one S3 object at the configured `path`. The bytes are written as they arrive, a chunk at a time, so the whole file is never held in memory. This is how a `parquet` file is written, since this library does not format records as parquet, and it works for any format whose bytes are made elsewhere. `compression` must be `none`. No bytes writes no file.
+
+parameters:
+
+- bytes: an async iterable of the file's bytes, such as a readable stream
+- options.chunkBytes: the size of each chunk written (each part of a multipart upload for S3), 8MiB by default, it cannot be less than 5MiB
+
 ### verify (async)
 
 ```(route?: string) => Promise<void>```

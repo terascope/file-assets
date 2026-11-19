@@ -47,6 +47,11 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
         let Body: any;
         let uploader: MultiPartUploader | undefined;
         let pending = 0;
+        /**
+         * The first part that failed, the upload stops at it: no more
+         * chunks are made and the upload is aborted
+        */
+        let partError: unknown;
 
         try {
             for await (const chunk of chunkGenerator) {
@@ -78,6 +83,8 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
 
                 if (!uploader) throw new Error('Expected uploader to exist');
 
+                if (partError) throw partError;
+
                 pending++;
                 uploader
                     .enqueuePart(
@@ -85,6 +92,9 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                         // index is zero based but part numbers start at 1 so increment by 1
                         chunk.index + 1
                     )
+                    .catch((err) => {
+                        partError ??= err;
+                    })
                     .finally(() => {
                         pending--;
                     });
@@ -92,9 +102,10 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                 if (pending >= concurrency) {
                     await pWhile(async () => {
                         await pDelay(jitter);
-                        return pending < concurrency;
+                        return pending < concurrency || partError != null;
                     });
                 }
+                if (partError) throw partError;
             }
 
             // we are done, finalize the upload
@@ -107,6 +118,7 @@ export class S3Sender extends ChunkedFileSender implements RouteSenderAPI {
                         return pending === 0;
                     });
                 }
+                if (partError) throw partError;
                 return await uploader.finish();
             }
         } catch (err) {

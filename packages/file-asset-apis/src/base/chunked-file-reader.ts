@@ -283,6 +283,10 @@ export abstract class ChunkedFileReader {
         return Promise.all(actions);
     }
 
+    protected async parquet(): Promise<never> {
+        throw new Error(`Records cannot be read from ${Format.parquet} files`);
+    }
+
     // tsv is just a specific case of csv
     protected async tsv(
         incomingData: string, slice: FileSlice

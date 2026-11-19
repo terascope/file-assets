@@ -207,4 +207,51 @@ describe('S3 Sender API', () => {
         expect(fetchedData).toEqual(expectedResults);
         expect(expectedResults.length).toBeGreaterThan(MIN_CHUNK_SIZE_BYTES);
     });
+
+    describe('sendStream of a binary file (parquet)', () => {
+        const binaryPath = `${bucket}/binary/`;
+
+        function binary(size: number): Buffer {
+            return Buffer.from(Array.from({ length: size }, (_, i) => (i * 31) % 256));
+        }
+
+        async function* pieces(input: Buffer, size: number) {
+            for (let offset = 0; offset < input.length; offset += size) {
+                yield input.subarray(offset, offset + size);
+            }
+        }
+
+        async function readObject(key: string): Promise<Buffer> {
+            const { Body } = await getS3Object(client, { Bucket: bucket, Key: key });
+            return Buffer.from(await Body!.transformToByteArray());
+        }
+
+        it('should put a file smaller than a chunk as one object, byte for byte', async () => {
+            const input = binary(64 * 1024);
+            const sender = new S3Sender(client, {
+                id: 'small', path: binaryPath, format: Format.parquet, file_per_slice: true,
+            }, logger);
+
+            await sender.sendStream(pieces(input, 1000));
+
+            await expect(readObject('binary/small.0.parquet')).resolves.toEqual(input);
+        });
+
+        it('should upload a file larger than a chunk in parts, byte for byte', async () => {
+            const input = binary(MIN_CHUNK_SIZE_BYTES * 2 + 12345);
+            const sender = new S3Sender(client, {
+                id: 'large',
+                path: binaryPath,
+                format: Format.parquet,
+                file_per_slice: true,
+                concurrency: 2,
+            }, logger);
+
+            await sender.sendStream(
+                pieces(input, 1024 * 1024), { chunkBytes: MIN_CHUNK_SIZE_BYTES }
+            );
+
+            await expect(readObject('binary/large.0.parquet')).resolves.toEqual(input);
+        });
+    });
 });
